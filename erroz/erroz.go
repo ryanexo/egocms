@@ -1,0 +1,102 @@
+package erroz
+
+import (
+    "errors"
+    
+    `dpcms/packages/validate`
+    "github.com/gin-gonic/gin"
+    `github.com/go-playground/validator/v10`
+)
+
+type businessError struct {
+    status int
+    Debug  []any  `json:"debug,omitempty"`
+    Data   any    `json:"data,omitempty"`
+    Code   string `json:"code"`
+    Msg    string `json:"msg"`
+}
+
+type Option func(*businessError)
+
+type BusinessError interface {
+    WithOption(option ...Option) BusinessError
+    Apply(ctx *gin.Context)
+    Abort(ctx *gin.Context)
+    ToError() error
+    prototype() *businessError
+}
+
+var _ BusinessError = (*businessError)(nil)
+
+func (s *businessError) WithOption(option ...Option) BusinessError {
+    for _, fn := range option {
+        fn(s)
+    }
+    return s
+}
+
+func (s *businessError) Apply(ctx *gin.Context) {
+    ctx.JSON(s.status, s)
+}
+
+func (s *businessError) Abort(ctx *gin.Context) {
+    ctx.AbortWithStatusJSON(s.status, s)
+}
+
+func (s *businessError) Error() string {
+    return s.Msg
+}
+
+func (s *businessError) ToError() error {
+    return s
+}
+
+func (s *businessError) prototype() *businessError {
+    return s
+}
+
+func Resolve(ctx *gin.Context, err error) {
+    var (
+        notResolved          bool
+        returnValue          *businessError
+        validationError      validator.ValidationErrors
+        validationErrorSlice validate.ErrorSlice
+    )
+    
+    switch {
+    case errors.As(err, &returnValue):
+        break
+    
+    case errors.As(err, &validationError):
+        returnValue = ErrValidation.prototype()
+        returnValue.Data = validate.ErrorToMap(validationError)
+    
+    case errors.As(err, &validationErrorSlice):
+        returnValue = ErrValidation.prototype()
+        returnValue.Data = validate.ErrorSliceToMap(validationErrorSlice)
+    
+    default:
+        returnValue = ErrUnknown.prototype()
+        notResolved = true
+        _ = ctx.Error(err)
+    }
+    
+    resp := &businessError{
+        Msg:  returnValue.Msg,
+        Code: returnValue.Code,
+        Data: returnValue.Data,
+    }
+    if gin.Mode() == gin.DebugMode && notResolved {
+        resp.Debug = append(resp.Debug, err)
+    }
+    resp.Apply(ctx)
+}
+
+func ResolveWithAbort(ctx *gin.Context, err error) {
+    Resolve(ctx, err)
+    ctx.Abort()
+}
+
+func New(code, msg string) BusinessError {
+    return &businessError{Code: code, Msg: msg}
+}

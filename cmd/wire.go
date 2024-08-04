@@ -3,17 +3,24 @@
 package main
 
 import (
-    `GoBlog/internal/server`
-    `GoBlog/internal/server/biz`
-    `GoBlog/internal/server/config`
-    `github.com/google/wire`
+    `dpcms/api/controller`
+    `dpcms/api/middleware`
+    `dpcms/api/repository`
+    `dpcms/api/service`
+    `dpcms/config`
+    `dpcms/packages`
+    `dpcms/server`
+    "github.com/google/wire"
 )
 
-func initServer(c *config.Config) (server.Launcher, error) {
+func createServerLauncher(cfg *config.Config) (*server.Launcher, error) {
     panic(wire.Build(
-        server.ProviderSet,
-        biz.ControllerSet,
-        biz.ServiceWireSet,
-        biz.RepoWireSet,
+        config.ProviderSet,
+        packages.InfraProviderSet,
+        middleware.MiddlewareProviderSet,
+        repository.RepoProviderSet,
+        service.ServiceProviderSet,
+        controller.ControllerProviderSet,
+        server.ServerProviderSet,
     ))
 }

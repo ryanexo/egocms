@@ -1,0 +1,58 @@
+package main
+
+import (
+    _ "embed"
+    "fmt"
+    "os"
+    
+    `dpcms/config`
+    `dpcms/server`
+    "github.com/bytedance/sonic"
+    "github.com/spf13/pflag"
+)
+
+var (
+    doPrintVersion bool
+    doCreateExFile bool
+    configPath     string
+)
+
+func registerCommand() error {
+    pflag.BoolVarP(&doPrintVersion, "version", "v", false, "版本号")
+    pflag.BoolVarP(&doCreateExFile, "example", "e", false, "创建配置文件")
+    pflag.StringVarP(&configPath, "conf", "c", "./runtime/config.json", "配置文件路径")
+    pflag.Parse()
+    
+    if doPrintVersion {
+        fmt.Println(server.Version)
+        os.Exit(0)
+    }
+    
+    if doCreateExFile {
+        _, oErr := os.Lstat("./runtime/config.json")
+        if oErr == nil {
+            return fmt.Errorf("配置文件 runtime/config.json 已存在")
+        }
+        
+        f, err := os.OpenFile("./runtime/config.json", os.O_WRONLY|os.O_CREATE, 0644)
+        if err != nil {
+            return err
+        }
+        
+        json, err := sonic.MarshalString(config.NewWithDefaultConfig())
+        if err != nil {
+            return err
+        }
+        _, err = f.WriteString(json)
+        if err != nil {
+            return err
+        }
+        
+        _ = f.Close()
+        fmt.Println("示例文件config.json已创建")
+        
+        os.Exit(0)
+    }
+    
+    return nil
+}

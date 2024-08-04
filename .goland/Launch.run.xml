@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Launch" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="golang" />
+    <working_directory value="$PROJECT_DIR$" />
+    <go_parameters value="-tags &quot;sonic&quot;" />
+    <useCustomBuildTags value="true" />
+    <kind value="PACKAGE" />
+    <package value="dpcms/cmd" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/cmd/main.go" />
+    <method v="2" />
+  </configuration>
+</component>

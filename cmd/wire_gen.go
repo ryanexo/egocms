@@ -7,14 +7,19 @@
 package main
 
 import (
-	"GoBlog/internal/server"
-	"GoBlog/internal/server/biz/controller"
-	"GoBlog/internal/server/biz/repository"
-	"GoBlog/internal/server/biz/service"
-	"GoBlog/internal/server/config"
-	"GoBlog/internal/server/dep"
-	"GoBlog/internal/server/middleware"
-	"GoBlog/internal/server/pkg/token"
+	"dpcms/api/controller"
+	"dpcms/api/middleware"
+	"dpcms/api/middleware/cors"
+	"dpcms/api/middleware/log"
+	"dpcms/api/middleware/recovery"
+	"dpcms/api/repository"
+	"dpcms/api/service"
+	"dpcms/config"
+	"dpcms/packages"
+	"dpcms/packages/cache"
+	"dpcms/packages/data"
+	"dpcms/packages/logger"
+	"dpcms/server"
 )
 
 import (
@@ -23,22 +28,50 @@ import (
 
 // Injectors from wire.go:
 
-func initServer(c *config.Config) (server.Launcher, error) {
-	engine, err := server.InitHTTPServer(c)
+func createServerLauncher(cfg *config.Config) (*server.Launcher, error) {
+	serverConfig := config.GetServerConfig(cfg)
+	lumberjackLogger := config.GetLoggerConfig(cfg)
+	zapLogger := logger.New(lumberjackLogger)
+	recoveryRecovery := recovery.New(zapLogger)
+	logLogger := log.New(zapLogger)
+	options := config.GetCORSConfig(cfg)
+	corsCORS := cors.New(options)
+	middlewareMiddleware := &middleware.Middleware{
+		Recovery: recoveryRecovery,
+		Logger:   logLogger,
+		CORS:     corsCORS,
+	}
+	serverMiddleware := middleware.NewMiddlewareRegistrar(middlewareMiddleware)
+	dbConfig := config.GetDBConfig(cfg)
+	db, err := data.NewDB(dbConfig)
 	if err != nil {
 		return nil, err
 	}
-	middlewareMiddleware := middleware.New()
-	db, err := server.InitDB(c)
+	user := repository.NewUserRepo(db)
+	category := repository.NewCategory(db)
+	repositories := repository.Repositories{
+		User:     user,
+		Category: category,
+	}
+	serviceUser := service.NewUserService(repositories)
+	services := &service.Services{
+		User: serviceUser,
+	}
+	cacheConfig := config.GetCacheConfig(cfg)
+	cacheCache := cache.New(cacheConfig)
+	infra := &packages.Infra{
+		Cache:  cacheCache,
+		DB:     db,
+		Logger: zapLogger,
+	}
+	userController := controller.NewUserController(services, infra)
+	controllerController := &controller.Controller{
+		User: userController,
+	}
+	routes := controller.NewRouteRegistrar(controllerController)
+	launcher, err := server.New(serverConfig, serverMiddleware, routes)
 	if err != nil {
 		return nil, err
 	}
-	userRepository := repository.NewUserRepo(db)
-	userService := service.NewUserService(userRepository)
-	cache := server.InitCache(c)
-	tokenToken := token.New(c)
-	depDep := dep.New(cache, tokenToken)
-	userController := controller.NewUserController(userService, depDep)
-	launcher := server.RegisterHandler(c, engine, middlewareMiddleware, userController)
 	return launcher, nil
 }
