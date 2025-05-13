@@ -3,37 +3,38 @@ package controller
 import (
     "context"
     
-    `dpcms/api/dto`
+    `dpcms/api/controller/internal/dto`
+    `dpcms/api/infra`
     `dpcms/api/middleware/auth`
     `dpcms/api/service`
+    `dpcms/config`
     `dpcms/enum`
     `dpcms/erroz`
     `dpcms/model`
-    `dpcms/packages`
     `dpcms/packages/password`
     "github.com/gin-gonic/gin"
 )
 
 type UserController struct {
     service *service.Services
-    infra   *packages.Infra
+    infra   *infra.Infra
 }
 
 func (c UserController) setup(server *gin.Engine) {
-    g := server.Group("/user", auth.New(c.service).Ignore("/register", "/login").CreateMiddleware())
+    authMiddleware := auth.New(c.service).IgnoreWithPrefix("/user", "/register", "/login").CreateMiddleware()
+    g := server.Group("/user", authMiddleware)
     g.POST("/register", c.Register)
     g.POST("/grant", c.Grant)
     g.POST("/revoke", c.Revoke)
     g.POST("/update-password", c.UpdatePassword)
 }
 
-func NewUserController(s *service.Services, i *packages.Infra) *UserController {
+func NewUserController(s *service.Services, i *infra.Infra) *UserController {
     return &UserController{service: s, infra: i}
 }
 
 func (c UserController) Register(ctx *gin.Context) {
     u := &dto.User{}
-    u.WithRegisterScene()
     if err := ctx.ShouldBindJSON(u); err != nil {
         erroz.Resolve(ctx, err)
         return
@@ -48,18 +49,11 @@ func (c UserController) Register(ctx *gin.Context) {
         erroz.Resolve(ctx, err)
         return
     }
-    claims := &dto.UserToken{UserID: finalUser.ID}
-    t, err := claims.Create("test")
-    if err != nil {
-        erroz.Resolve(ctx, err)
-        return
-    }
-    erroz.OK.WithOption(erroz.WithData(map[string]string{"token": t})).Apply(ctx)
+    erroz.OK.WithOption(erroz.WithData(finalUser)).Apply(ctx)
 }
 
 func (c UserController) Grant(ctx *gin.Context) {
     u := &dto.User{}
-    u.WithLoginScene()
     if err := ctx.ShouldBindJSON(u); err != nil {
         erroz.Resolve(ctx, err)
         return
@@ -74,7 +68,7 @@ func (c UserController) Grant(ctx *gin.Context) {
         return
     }
     claims := &dto.UserToken{UserID: result.ID}
-    t, err := claims.Create("test")
+    t, err := claims.Create(config.Get().GlobalKey)
     if err != nil {
         erroz.Resolve(ctx, err)
         return
@@ -91,7 +85,6 @@ func (c UserController) Revoke(ctx *gin.Context) {
 
 func (c UserController) UpdatePassword(ctx *gin.Context) {
     u := &dto.User{}
-    u.WithResetPassword()
     if err := ctx.ShouldBindJSON(u); err != nil {
         erroz.Resolve(ctx, err)
         return

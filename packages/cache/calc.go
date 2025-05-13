@@ -10,7 +10,7 @@ var (
 )
 
 func Inc[T int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | float32 | float64](cache *Cache, key string, delta T) (T, error) {
-    sg := cache.segmentByKey(key)
+    sg := cache.getSegmentByKey(key)
     sg.Lock()
     defer sg.Unlock()
     val, ok := sg.items[key]
@@ -32,7 +32,7 @@ func Inc[T int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 |
 }
 
 func Dec[T int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | float32 | float64](cache *Cache, key string, delta T) (T, error) {
-    sg := cache.segmentByKey(key)
+    sg := cache.getSegmentByKey(key)
     sg.Lock()
     defer sg.Unlock()
     val, ok := sg.items[key]

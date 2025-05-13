@@ -5,17 +5,18 @@
 package query
 
 import (
-    "context"
-    
-    `dpcms/model`
-    "gorm.io/gorm"
-    "gorm.io/gorm/clause"
-    "gorm.io/gorm/schema"
-    
-    "gorm.io/gen"
-    "gorm.io/gen/field"
-    
-    "gorm.io/plugin/dbresolver"
+	"context"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
+
+	"gorm.io/gen"
+	"gorm.io/gen/field"
+
+	"gorm.io/plugin/dbresolver"
+
+	"dpcms/model"
 )
 
 func newUser(db *gorm.DB, opts ...gen.DOOption) user {

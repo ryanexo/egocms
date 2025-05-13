@@ -8,7 +8,7 @@ import (
     `github.com/google/wire`
 )
 
-var ControllerProviderSet = wire.NewSet(
+var ProviderSet = wire.NewSet(
     wire.Struct(new(Controller), "*"),
     NewUserController,
     NewRouteRegistrar,

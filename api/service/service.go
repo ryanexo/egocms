@@ -1,14 +1,16 @@
 package service
 
 import (
-	"github.com/google/wire"
+    "github.com/google/wire"
 )
 
 type Services struct {
-	User *User
+    User  *User
+    Token *Token
 }
 
-var ServiceProviderSet = wire.NewSet(
-	wire.Struct(new(Services), "*"),
-	NewUserService,
+var ProviderSet = wire.NewSet(
+    wire.Struct(new(Services), "*"),
+    NewUserService,
+    NewTokenService,
 )

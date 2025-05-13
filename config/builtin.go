@@ -4,15 +4,19 @@ import (
     "time"
     
     `dpcms/api/middleware/cors`
+    `dpcms/config/internal/token`
     `dpcms/packages/cache`
-    `dpcms/packages/data`
+    `dpcms/packages/database`
     `dpcms/server`
     "gopkg.in/natefinch/lumberjack.v2"
 )
 
 var defaultConfig = &Config{
     GlobalKey: "egocms",
-    CORS: &cors.Options{
+    Token: &token.Config{
+        Expires: int(time.Hour * 24 * 7 / time.Second),
+    },
+    CORS: &cors.Config{
         AllowOrigin:      "*",
         AllowMethods:     "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS",
         AllowHeaders:     "",
@@ -24,7 +28,7 @@ var defaultConfig = &Config{
         ScanInterval: time.Minute * 10,
         Partition:    16,
     },
-    DB: &data.DBConfig{
+    DB: &database.DBConfig{
         Type:    "sqlite",
         Host:    "runtime/data.db",
         Name:    "",

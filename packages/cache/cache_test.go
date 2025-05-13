@@ -56,7 +56,7 @@ func TestContainer_stopMonitor(t *testing.T) {
     instance.SetWithTTL(key, "test", time.Millisecond*100)
     instance.stopMonitor()
     time.Sleep(time.Second)
-    sg := instance.segmentByKey(key)
+    sg := instance.getSegmentByKey(key)
     v := sg.items[key]
     assert.Equal(t, baseGoroutineNum-1, runtime.NumGoroutine())
     assert.Equal(t, "test", v.object)

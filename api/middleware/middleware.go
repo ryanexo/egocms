@@ -11,7 +11,7 @@ import (
     "github.com/google/wire"
 )
 
-var MiddlewareProviderSet = wire.NewSet(
+var ProviderSet = wire.NewSet(
     wire.Struct(new(Middleware), "*"),
     NewMiddlewareRegistrar,
     recovery.New,

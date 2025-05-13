@@ -6,15 +6,15 @@ import (
 
 type CORS gin.HandlerFunc
 
-type Options struct {
-    AllowOrigin      string `json:"allowOrigin"`
-    AllowMethods     string `json:"allowMethods"`
-    AllowHeaders     string `json:"allowHeaders"`
-    AllowCredentials bool   `json:"allowCredentials"`
-    ExposeHeaders    string `json:"exposeHeaders"`
+type Config struct {
+    AllowOrigin      string `json:"allowOrigin" yaml:"allowOrigin"`
+    AllowMethods     string `json:"allowMethods" yaml:"allowMethods"`
+    AllowHeaders     string `json:"allowHeaders" yaml:"allowHeaders"`
+    AllowCredentials bool   `json:"allowCredentials" yaml:"allowCredentials"`
+    ExposeHeaders    string `json:"exposeHeaders" yaml:"exposeHeaders"`
 }
 
-func New(opts *Options) CORS {
+func New(opts *Config) CORS {
     return func(context *gin.Context) {
         if opts.AllowOrigin != "" {
             context.Header("Access-Control-Allow-Origin", opts.AllowOrigin)

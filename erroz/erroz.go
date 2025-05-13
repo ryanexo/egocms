@@ -3,9 +3,8 @@ package erroz
 import (
     "errors"
     
-    `dpcms/packages/validate`
+    `dpcms/api/validate`
     "github.com/gin-gonic/gin"
-    `github.com/go-playground/validator/v10`
 )
 
 type businessError struct {
@@ -57,10 +56,9 @@ func (s *businessError) prototype() *businessError {
 
 func Resolve(ctx *gin.Context, err error) {
     var (
-        notResolved          bool
-        returnValue          *businessError
-        validationError      validator.ValidationErrors
-        validationErrorSlice validate.ErrorSlice
+        notResolved     bool
+        returnValue     *businessError
+        validationError validate.ValidationErrors
     )
     
     switch {
@@ -68,12 +66,8 @@ func Resolve(ctx *gin.Context, err error) {
         break
     
     case errors.As(err, &validationError):
-        returnValue = ErrValidation.prototype()
-        returnValue.Data = validate.ErrorToMap(validationError)
-    
-    case errors.As(err, &validationErrorSlice):
-        returnValue = ErrValidation.prototype()
-        returnValue.Data = validate.ErrorSliceToMap(validationErrorSlice)
+        returnValue = ErrValidation.WithOption(WithData(validationError)).prototype()
+        break
     
     default:
         returnValue = ErrUnknown.prototype()

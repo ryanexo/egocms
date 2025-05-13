@@ -4,11 +4,12 @@ package main
 
 import (
     `dpcms/api/controller`
+    `dpcms/api/infra`
     `dpcms/api/middleware`
     `dpcms/api/repository`
     `dpcms/api/service`
+    `dpcms/api/validate`
     `dpcms/config`
-    `dpcms/packages`
     `dpcms/server`
     "github.com/google/wire"
 )
@@ -16,11 +17,12 @@ import (
 func createServerLauncher(cfg *config.Config) (*server.Launcher, error) {
     panic(wire.Build(
         config.ProviderSet,
-        packages.InfraProviderSet,
-        middleware.MiddlewareProviderSet,
-        repository.RepoProviderSet,
-        service.ServiceProviderSet,
-        controller.ControllerProviderSet,
-        server.ServerProviderSet,
+        infra.ProviderSet,
+        middleware.ProviderSet,
+        repository.ProviderSet,
+        service.ProviderSet,
+        controller.ProviderSet,
+        validate.ProviderSet,
+        server.ProviderSet,
     ))
 }

@@ -3,7 +3,7 @@ package sqlmockutils
 import (
     "testing"
     
-    `dpcms/packages/data`
+    `dpcms/packages/database`
     "github.com/stretchr/testify/assert"
 )
 
@@ -14,7 +14,7 @@ type T struct {
 }
 
 func Test_Row(t *testing.T) {
-    db, sqlmock := data.NewDBMock()
+    db, sqlmock := database.NewDBMock()
     rows := NewRows(T{}).Add(
         []T{
             {"test1", 1, true},

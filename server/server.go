@@ -3,26 +3,21 @@ package server
 import (
     "path/filepath"
     
-    `dpcms/packages/validate`
     "github.com/gin-gonic/gin"
     "github.com/gin-gonic/gin/binding"
     "github.com/google/wire"
 )
 
-var ServerProviderSet = wire.NewSet(
+var ProviderSet = wire.NewSet(
     New,
 )
 
-func New(cfg *Config, middleware Middleware, routes Routes) (*Launcher, error) {
+func New(cfg *Config, middleware Middleware, routes Routes, validator binding.StructValidator) (*Launcher, error) {
     if cfg.Debug {
         gin.SetMode(gin.DebugMode)
     }
     
-    v, err := validate.New()
-    if err != nil {
-        return nil, err
-    }
-    binding.Validator = v
+    binding.Validator = validator
     
     engine := gin.New()
     engine.Static(filepath.Base(cfg.StaticDir), filepath.Dir(cfg.StaticDir))

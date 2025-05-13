@@ -2,7 +2,9 @@ package main
 
 import (
     `dpcms/config`
-    model2 `dpcms/model`
+    `dpcms/model`
+    `dpcms/packages/database`
+    `gorm.io/gorm`
 )
 
 func main() {
@@ -15,17 +17,26 @@ func main() {
         db.Set("gorm:table_options", "ENGINE=InnoDB")
     }
     err = db.AutoMigrate(
-        &model2.Category{},
-        &model2.CategorySeo{},
-        &model2.CategoryContext{},
-        &model2.Menu{},
-        &model2.MenuContext{},
-        &model2.User{},
-        &model2.Role{},
-        &model2.RoleMenuRelation{},
-        &model2.RoleUserRelation{},
+        &model.Category{},
+        &model.CategorySeo{},
+        &model.CategoryContext{},
+        &model.Menu{},
+        &model.MenuContext{},
+        &model.User{},
+        &model.Role{},
+        &model.RoleMenuRelation{},
+        &model.RoleUserRelation{},
+        &model.TokenBlacklist{},
     )
     if err != nil {
         panic(err)
     }
+}
+
+func initDB(c *database.DBConfig) (*gorm.DB, error) {
+    db, err := database.NewDB(c)
+    if err != nil {
+        return nil, err
+    }
+    return db, nil
 }

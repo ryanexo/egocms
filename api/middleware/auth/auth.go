@@ -1,17 +1,13 @@
 package auth
 
 import (
-    `context`
     `strings`
     
-    `dpcms/api/dto`
     `dpcms/api/service`
-    `dpcms/config`
     `dpcms/enum`
     `dpcms/erroz`
     `dpcms/model`
     "github.com/gin-gonic/gin"
-    `github.com/golang-jwt/jwt/v5`
 )
 
 type Auth struct {
@@ -25,6 +21,11 @@ func New(srv *service.Services) *Auth {
 
 func (auth *Auth) CreateMiddleware() gin.HandlerFunc {
     return func(ctx *gin.Context) {
+        if auth.whitelist[ctx.Request.URL.Path] {
+            ctx.Next()
+            return
+        }
+        
         credential := ctx.GetHeader("Authorization")
         if credential == "" {
             erroz.ErrUnauthorized.Abort(ctx)
@@ -47,15 +48,7 @@ func (auth *Auth) CreateMiddleware() gin.HandlerFunc {
 }
 
 func (auth *Auth) shouldSetUserWithToken(ctx *gin.Context, token string) error {
-    userClaims := &dto.UserToken{}
-    cfg := config.Get()
-    tokenResult, _ := jwt.ParseWithClaims(token, userClaims, func(t *jwt.Token) (interface{}, error) {
-        return []byte(cfg.GlobalKey), nil
-    })
-    if !tokenResult.Valid {
-        return erroz.ErrUnauthorized.ToError()
-    }
-    user, err := auth.services.User.FindByID(context.Background(), userClaims.UserID)
+    user, err := auth.services.Token.Parse(token)
     if err != nil {
         return err
     }
@@ -66,6 +59,14 @@ func (auth *Auth) shouldSetUserWithToken(ctx *gin.Context, token string) error {
 func (auth *Auth) Ignore(path ...string) *Auth {
     for _, p := range path {
         auth.whitelist[p] = true
+    }
+    return auth
+}
+
+func (auth *Auth) IgnoreWithPrefix(prefix string, path ...string) *Auth {
+    for _, p := range path {
+        currentPath := prefix + p
+        auth.whitelist[currentPath] = true
     }
     return auth
 }

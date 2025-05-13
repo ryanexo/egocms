@@ -3,16 +3,16 @@ package config
 import (
     `dpcms/api/middleware/cors`
     `dpcms/packages/cache`
-    `dpcms/packages/data`
+    `dpcms/packages/database`
     `dpcms/server`
     `gopkg.in/natefinch/lumberjack.v2`
 )
 
-func GetCORSConfig(cfg *Config) *cors.Options {
+func GetCORSConfig(cfg *Config) *cors.Config {
     return cfg.CORS
 }
 
-func GetDBConfig(cfg *Config) *data.DBConfig {
+func GetDBConfig(cfg *Config) *database.DBConfig {
     return cfg.DB
 }
 

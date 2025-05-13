@@ -4,8 +4,9 @@ import (
     "os"
     
     `dpcms/api/middleware/cors`
+    `dpcms/config/internal/token`
     `dpcms/packages/cache`
-    `dpcms/packages/data`
+    `dpcms/packages/database`
     `dpcms/server`
     "github.com/bytedance/sonic"
     `github.com/google/wire`
@@ -21,12 +22,13 @@ var ProviderSet = wire.NewSet(
 )
 
 type Config struct {
-    GlobalKey string             `json:"global_key"`
-    CORS      *cors.Options      `json:"cors"`
-    Cache     *cache.Config      `json:"cache"`
-    DB        *data.DBConfig     `json:"db"`
-    Log       *lumberjack.Logger `json:"log"`
-    Server    *server.Config     `json:"server"`
+    GlobalKey string             `json:"globalKey" yaml:"globalKey"`
+    Token     *token.Config      `json:"token" yaml:"token"`
+    CORS      *cors.Config       `json:"cors" yaml:"cors"`
+    Cache     *cache.Config      `json:"cache" yaml:"cache"`
+    DB        *database.DBConfig `json:"db" yaml:"db"`
+    Log       *lumberjack.Logger `json:"log" yaml:"log"`
+    Server    *server.Config     `json:"server" yaml:"server"`
 }
 
 var currentConfig *Config

@@ -15,5 +15,7 @@ var (
     
     ErrUnauthorized = New("auth.unauthorized", "未授权")
     
+    ErrAuthorizationExpired = New("auth.expired", "授权已过期，请重新登陆")
+    
     ErrTargetNodeIsSourceChild = New("tree.target_is_source_child", "目标节点为源节点的子节点")
 )

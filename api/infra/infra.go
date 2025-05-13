@@ -1,18 +1,18 @@
-package packages
+package infra
 
 import (
     `dpcms/packages/cache`
-    `dpcms/packages/data`
+    `dpcms/packages/database`
     `dpcms/packages/logger`
     "github.com/google/wire"
     "go.uber.org/zap"
     "gorm.io/gorm"
 )
 
-var InfraProviderSet = wire.NewSet(
+var ProviderSet = wire.NewSet(
     wire.Struct(new(Infra), "*"),
     logger.New,
-    data.NewDB,
+    database.NewDB,
     cache.New,
 )
 

@@ -8,16 +8,17 @@ package main
 
 import (
 	"dpcms/api/controller"
+	"dpcms/api/infra"
 	"dpcms/api/middleware"
 	"dpcms/api/middleware/cors"
 	"dpcms/api/middleware/log"
 	"dpcms/api/middleware/recovery"
 	"dpcms/api/repository"
 	"dpcms/api/service"
+	"dpcms/api/validate"
 	"dpcms/config"
-	"dpcms/packages"
 	"dpcms/packages/cache"
-	"dpcms/packages/data"
+	"dpcms/packages/database"
 	"dpcms/packages/logger"
 	"dpcms/server"
 )
@@ -34,8 +35,8 @@ func createServerLauncher(cfg *config.Config) (*server.Launcher, error) {
 	zapLogger := logger.New(lumberjackLogger)
 	recoveryRecovery := recovery.New(zapLogger)
 	logLogger := log.New(zapLogger)
-	options := config.GetCORSConfig(cfg)
-	corsCORS := cors.New(options)
+	corsConfig := config.GetCORSConfig(cfg)
+	corsCORS := cors.New(corsConfig)
 	middlewareMiddleware := &middleware.Middleware{
 		Recovery: recoveryRecovery,
 		Logger:   logLogger,
@@ -43,33 +44,43 @@ func createServerLauncher(cfg *config.Config) (*server.Launcher, error) {
 	}
 	serverMiddleware := middleware.NewMiddlewareRegistrar(middlewareMiddleware)
 	dbConfig := config.GetDBConfig(cfg)
-	db, err := data.NewDB(dbConfig)
+	db, err := database.NewDB(dbConfig)
 	if err != nil {
 		return nil, err
 	}
 	user := repository.NewUserRepo(db)
-	category := repository.NewCategory(db)
+	category := repository.NewCategoryRepo(db)
+	token := repository.NewTokenRepo(db)
 	repositories := repository.Repositories{
 		User:     user,
 		Category: category,
+		Token:    token,
 	}
 	serviceUser := service.NewUserService(repositories)
-	services := &service.Services{
-		User: serviceUser,
-	}
 	cacheConfig := config.GetCacheConfig(cfg)
 	cacheCache := cache.New(cacheConfig)
-	infra := &packages.Infra{
+	infraInfra := infra.Infra{
 		Cache:  cacheCache,
 		DB:     db,
 		Logger: zapLogger,
 	}
-	userController := controller.NewUserController(services, infra)
+	serviceToken := service.NewTokenService(infraInfra, repositories)
+	services := &service.Services{
+		User:  serviceUser,
+		Token: serviceToken,
+	}
+	infra2 := &infra.Infra{
+		Cache:  cacheCache,
+		DB:     db,
+		Logger: zapLogger,
+	}
+	userController := controller.NewUserController(services, infra2)
 	controllerController := &controller.Controller{
 		User: userController,
 	}
 	routes := controller.NewRouteRegistrar(controllerController)
-	launcher, err := server.New(serverConfig, serverMiddleware, routes)
+	structValidator := validate.New()
+	launcher, err := server.New(serverConfig, serverMiddleware, routes, structValidator)
 	if err != nil {
 		return nil, err
 	}

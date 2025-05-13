@@ -19,9 +19,9 @@ func (s value) expired() bool {
 }
 
 type Config struct {
-    TTL          time.Duration `json:"ttl,omitempty"`
-    ScanInterval time.Duration `json:"scan_interval,omitempty"`
-    Partition    int           `json:"partition,omitempty"`
+    TTL          time.Duration `json:"ttl,omitempty" yaml:"ttl,omitempty"`
+    ScanInterval time.Duration `json:"scanInterval,omitempty" yaml:"scanInterval,omitempty"`
+    Partition    int           `json:"partition,omitempty" yaml:"partition,omitempty"`
 }
 
 type shard struct {
@@ -45,7 +45,7 @@ func (s *Cache) Flush() {
     }
 }
 
-func (s *Cache) segmentByKey(key string) *shard {
+func (s *Cache) getSegmentByKey(key string) *shard {
     var result int32
     for _, v := range key {
         result += v
@@ -54,14 +54,14 @@ func (s *Cache) segmentByKey(key string) *shard {
 }
 
 func (s *Cache) Delete(key string) {
-    sg := s.segmentByKey(key)
+    sg := s.getSegmentByKey(key)
     sg.Lock()
     delete(sg.items, key)
     sg.Unlock()
 }
 
 func (s *Cache) set(key string, data any, expires time.Duration) {
-    sg := s.segmentByKey(key)
+    sg := s.getSegmentByKey(key)
     sg.Lock()
     defer sg.Unlock()
     val := value{object: data}
@@ -86,7 +86,7 @@ func (s *Cache) Forever(key string, data any) {
 }
 
 func (s *Cache) Get(key string) (any, bool) {
-    sg := s.segmentByKey(key)
+    sg := s.getSegmentByKey(key)
     sg.RLock()
     canUnlock := true
     defer func() {

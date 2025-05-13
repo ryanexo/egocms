@@ -20,11 +20,13 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		db:               db,
 		Category:         newCategory(db, opts...),
 		CategoryContext:  newCategoryContext(db, opts...),
+		CategorySeo:      newCategorySeo(db, opts...),
 		Menu:             newMenu(db, opts...),
 		MenuContext:      newMenuContext(db, opts...),
 		Role:             newRole(db, opts...),
 		RoleMenuRelation: newRoleMenuRelation(db, opts...),
 		RoleUserRelation: newRoleUserRelation(db, opts...),
+		TokenBlacklist:   newTokenBlacklist(db, opts...),
 		User:             newUser(db, opts...),
 	}
 }
@@ -34,11 +36,13 @@ type Query struct {
 
 	Category         category
 	CategoryContext  categoryContext
+	CategorySeo      categorySeo
 	Menu             menu
 	MenuContext      menuContext
 	Role             role
 	RoleMenuRelation roleMenuRelation
 	RoleUserRelation roleUserRelation
+	TokenBlacklist   tokenBlacklist
 	User             user
 }
 
@@ -49,11 +53,13 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		db:               db,
 		Category:         q.Category.clone(db),
 		CategoryContext:  q.CategoryContext.clone(db),
+		CategorySeo:      q.CategorySeo.clone(db),
 		Menu:             q.Menu.clone(db),
 		MenuContext:      q.MenuContext.clone(db),
 		Role:             q.Role.clone(db),
 		RoleMenuRelation: q.RoleMenuRelation.clone(db),
 		RoleUserRelation: q.RoleUserRelation.clone(db),
+		TokenBlacklist:   q.TokenBlacklist.clone(db),
 		User:             q.User.clone(db),
 	}
 }
@@ -71,11 +77,13 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		db:               db,
 		Category:         q.Category.replaceDB(db),
 		CategoryContext:  q.CategoryContext.replaceDB(db),
+		CategorySeo:      q.CategorySeo.replaceDB(db),
 		Menu:             q.Menu.replaceDB(db),
 		MenuContext:      q.MenuContext.replaceDB(db),
 		Role:             q.Role.replaceDB(db),
 		RoleMenuRelation: q.RoleMenuRelation.replaceDB(db),
 		RoleUserRelation: q.RoleUserRelation.replaceDB(db),
+		TokenBlacklist:   q.TokenBlacklist.replaceDB(db),
 		User:             q.User.replaceDB(db),
 	}
 }
@@ -83,11 +91,13 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 type queryCtx struct {
 	Category         *categoryDo
 	CategoryContext  *categoryContextDo
+	CategorySeo      *categorySeoDo
 	Menu             *menuDo
 	MenuContext      *menuContextDo
 	Role             *roleDo
 	RoleMenuRelation *roleMenuRelationDo
 	RoleUserRelation *roleUserRelationDo
+	TokenBlacklist   *tokenBlacklistDo
 	User             *userDo
 }
 
@@ -95,11 +105,13 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
 		Category:         q.Category.WithContext(ctx),
 		CategoryContext:  q.CategoryContext.WithContext(ctx),
+		CategorySeo:      q.CategorySeo.WithContext(ctx),
 		Menu:             q.Menu.WithContext(ctx),
 		MenuContext:      q.MenuContext.WithContext(ctx),
 		Role:             q.Role.WithContext(ctx),
 		RoleMenuRelation: q.RoleMenuRelation.WithContext(ctx),
 		RoleUserRelation: q.RoleUserRelation.WithContext(ctx),
+		TokenBlacklist:   q.TokenBlacklist.WithContext(ctx),
 		User:             q.User.WithContext(ctx),
 	}
 }

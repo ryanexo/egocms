@@ -5,17 +5,18 @@
 package query
 
 import (
-    "context"
-    
-    `dpcms/model`
-    "gorm.io/gorm"
-    "gorm.io/gorm/clause"
-    "gorm.io/gorm/schema"
-    
-    "gorm.io/gen"
-    "gorm.io/gen/field"
-    
-    "gorm.io/plugin/dbresolver"
+	"context"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
+
+	"gorm.io/gen"
+	"gorm.io/gen/field"
+
+	"gorm.io/plugin/dbresolver"
+
+	"dpcms/model"
 )
 
 func newMenu(db *gorm.DB, opts ...gen.DOOption) menu {
@@ -47,6 +48,17 @@ func newMenu(db *gorm.DB, opts ...gen.DOOption) menu {
 		}{
 			RelationField: field.NewRelation("Children.Children", "model.Menu"),
 		},
+		Permission: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Children.Permission", "model.Permission"),
+		},
+	}
+
+	_menu.Permission = menuHasManyPermission{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Permission", "model.Permission"),
 	}
 
 	_menu.fillFieldMap()
@@ -67,10 +79,12 @@ type menu struct {
 	Sequence  field.Uint
 	Display   field.Bool
 	URI       field.String
-	Type      field.Uint
+	Type      field.Uint // '菜单类型,0:菜单,1:按钮'
 	Template  field.String
-	Remark   field.String
-	Children menuHasManyChildren
+	Remark    field.String
+	Children  menuHasManyChildren
+
+	Permission menuHasManyPermission
 
 	fieldMap map[string]field.Expr
 }
@@ -123,7 +137,7 @@ func (m *menu) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (m *menu) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 13)
+	m.fieldMap = make(map[string]field.Expr, 14)
 	m.fieldMap["id"] = m.ID
 	m.fieldMap["created_at"] = m.CreatedAt
 	m.fieldMap["updated_at"] = m.UpdatedAt
@@ -141,11 +155,17 @@ func (m *menu) fillFieldMap() {
 
 func (m menu) clone(db *gorm.DB) menu {
 	m.menuDo.ReplaceConnPool(db.Statement.ConnPool)
+	m.Children.db = db.Session(&gorm.Session{Initialized: true})
+	m.Children.db.Statement.ConnPool = db.Statement.ConnPool
+	m.Permission.db = db.Session(&gorm.Session{Initialized: true})
+	m.Permission.db.Statement.ConnPool = db.Statement.ConnPool
 	return m
 }
 
 func (m menu) replaceDB(db *gorm.DB) menu {
 	m.menuDo.ReplaceDB(db)
+	m.Children.db = db.Session(&gorm.Session{})
+	m.Permission.db = db.Session(&gorm.Session{})
 	return m
 }
 
@@ -155,6 +175,9 @@ type menuHasManyChildren struct {
 	field.RelationField
 
 	Children struct {
+		field.RelationField
+	}
+	Permission struct {
 		field.RelationField
 	}
 }
@@ -184,6 +207,11 @@ func (a menuHasManyChildren) Session(session *gorm.Session) *menuHasManyChildren
 
 func (a menuHasManyChildren) Model(m *model.Menu) *menuHasManyChildrenTx {
 	return &menuHasManyChildrenTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a menuHasManyChildren) Unscoped() *menuHasManyChildren {
+	a.db = a.db.Unscoped()
+	return &a
 }
 
 type menuHasManyChildrenTx struct{ tx *gorm.Association }
@@ -222,6 +250,92 @@ func (a menuHasManyChildrenTx) Clear() error {
 
 func (a menuHasManyChildrenTx) Count() int64 {
 	return a.tx.Count()
+}
+
+func (a menuHasManyChildrenTx) Unscoped() *menuHasManyChildrenTx {
+	a.tx = a.tx.Unscoped()
+	return &a
+}
+
+type menuHasManyPermission struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a menuHasManyPermission) Where(conds ...field.Expr) *menuHasManyPermission {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a menuHasManyPermission) WithContext(ctx context.Context) *menuHasManyPermission {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a menuHasManyPermission) Session(session *gorm.Session) *menuHasManyPermission {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a menuHasManyPermission) Model(m *model.Menu) *menuHasManyPermissionTx {
+	return &menuHasManyPermissionTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a menuHasManyPermission) Unscoped() *menuHasManyPermission {
+	a.db = a.db.Unscoped()
+	return &a
+}
+
+type menuHasManyPermissionTx struct{ tx *gorm.Association }
+
+func (a menuHasManyPermissionTx) Find() (result []*model.Permission, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a menuHasManyPermissionTx) Append(values ...*model.Permission) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a menuHasManyPermissionTx) Replace(values ...*model.Permission) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a menuHasManyPermissionTx) Delete(values ...*model.Permission) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a menuHasManyPermissionTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a menuHasManyPermissionTx) Count() int64 {
+	return a.tx.Count()
+}
+
+func (a menuHasManyPermissionTx) Unscoped() *menuHasManyPermissionTx {
+	a.tx = a.tx.Unscoped()
+	return &a
 }
 
 type menuDo struct{ gen.DO }

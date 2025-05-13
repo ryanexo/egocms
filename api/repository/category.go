@@ -174,6 +174,6 @@ func (repo Category) FindAncestor(ctx context.Context, id uint, distance uint) (
     return categoryDAO.WithContext(ctx).Where(gen.Exists(ancestors)).Find()
 }
 
-func NewCategory(db *gorm.DB) *Category {
+func NewCategoryRepo(db *gorm.DB) *Category {
     return &Category{query: query.Use(db)}
 }

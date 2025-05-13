@@ -5,17 +5,18 @@
 package query
 
 import (
-    "context"
-    
-    `dpcms/model`
-    "gorm.io/gorm"
-    "gorm.io/gorm/clause"
-    "gorm.io/gorm/schema"
-    
-    "gorm.io/gen"
-    "gorm.io/gen/field"
-    
-    "gorm.io/plugin/dbresolver"
+	"context"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
+
+	"gorm.io/gen"
+	"gorm.io/gen/field"
+
+	"gorm.io/plugin/dbresolver"
+
+	"dpcms/model"
 )
 
 func newCategory(db *gorm.DB, opts ...gen.DOOption) category {
@@ -34,15 +35,23 @@ func newCategory(db *gorm.DB, opts ...gen.DOOption) category {
 	_category.Sequence = field.NewUint(tableName, "sequence")
 	_category.Name = field.NewString(tableName, "name")
 	_category.Alias_ = field.NewString(tableName, "alias")
-	_category.SeoTitle = field.NewString(tableName, "seo_title")
-	_category.SeoKeywords = field.NewString(tableName, "seo_keywords")
-	_category.SeoDescription = field.NewString(tableName, "seo_description")
 	_category.Type = field.NewUint(tableName, "type")
 	_category.Display = field.NewUint(tableName, "display")
+	_category.SEO = categoryHasOneSEO{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("SEO", "model.CategorySeo"),
+	}
+
 	_category.Children = categoryHasManyChildren{
 		db: db.Session(&gorm.Session{}),
 
 		RelationField: field.NewRelation("Children", "model.Category"),
+		SEO: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Children.SEO", "model.CategorySeo"),
+		},
 		Children: struct {
 			field.RelationField
 		}{
@@ -58,20 +67,19 @@ func newCategory(db *gorm.DB, opts ...gen.DOOption) category {
 type category struct {
 	categoryDo categoryDo
 
-	ALL            field.Asterisk
-	ID             field.Uint
-	CreatedAt      field.Time
-	UpdatedAt      field.Time
-	DeletedAt      field.Field
-	ParentID       field.Uint
-	Sequence       field.Uint
-	Name           field.String
-	Alias_         field.String
-	SeoTitle       field.String
-	SeoKeywords    field.String
-	SeoDescription field.String
-	Type           field.Uint
-	Display  field.Uint
+	ALL       field.Asterisk
+	ID        field.Uint
+	CreatedAt field.Time
+	UpdatedAt field.Time
+	DeletedAt field.Field
+	ParentID  field.Uint
+	Sequence  field.Uint
+	Name      field.String
+	Alias_    field.String
+	Type      field.Uint // '0:普通分类,1:单页型分类,2:链接'
+	Display   field.Uint
+	SEO       categoryHasOneSEO
+
 	Children categoryHasManyChildren
 
 	fieldMap map[string]field.Expr
@@ -97,9 +105,6 @@ func (c *category) updateTableName(table string) *category {
 	c.Sequence = field.NewUint(table, "sequence")
 	c.Name = field.NewString(table, "name")
 	c.Alias_ = field.NewString(table, "alias")
-	c.SeoTitle = field.NewString(table, "seo_title")
-	c.SeoKeywords = field.NewString(table, "seo_keywords")
-	c.SeoDescription = field.NewString(table, "seo_description")
 	c.Type = field.NewUint(table, "type")
 	c.Display = field.NewUint(table, "display")
 
@@ -126,7 +131,7 @@ func (c *category) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *category) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 14)
+	c.fieldMap = make(map[string]field.Expr, 12)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["created_at"] = c.CreatedAt
 	c.fieldMap["updated_at"] = c.UpdatedAt
@@ -135,9 +140,6 @@ func (c *category) fillFieldMap() {
 	c.fieldMap["sequence"] = c.Sequence
 	c.fieldMap["name"] = c.Name
 	c.fieldMap["alias"] = c.Alias_
-	c.fieldMap["seo_title"] = c.SeoTitle
-	c.fieldMap["seo_keywords"] = c.SeoKeywords
-	c.fieldMap["seo_description"] = c.SeoDescription
 	c.fieldMap["type"] = c.Type
 	c.fieldMap["display"] = c.Display
 
@@ -145,12 +147,99 @@ func (c *category) fillFieldMap() {
 
 func (c category) clone(db *gorm.DB) category {
 	c.categoryDo.ReplaceConnPool(db.Statement.ConnPool)
+	c.SEO.db = db.Session(&gorm.Session{Initialized: true})
+	c.SEO.db.Statement.ConnPool = db.Statement.ConnPool
+	c.Children.db = db.Session(&gorm.Session{Initialized: true})
+	c.Children.db.Statement.ConnPool = db.Statement.ConnPool
 	return c
 }
 
 func (c category) replaceDB(db *gorm.DB) category {
 	c.categoryDo.ReplaceDB(db)
+	c.SEO.db = db.Session(&gorm.Session{})
+	c.Children.db = db.Session(&gorm.Session{})
 	return c
+}
+
+type categoryHasOneSEO struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a categoryHasOneSEO) Where(conds ...field.Expr) *categoryHasOneSEO {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a categoryHasOneSEO) WithContext(ctx context.Context) *categoryHasOneSEO {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a categoryHasOneSEO) Session(session *gorm.Session) *categoryHasOneSEO {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a categoryHasOneSEO) Model(m *model.Category) *categoryHasOneSEOTx {
+	return &categoryHasOneSEOTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a categoryHasOneSEO) Unscoped() *categoryHasOneSEO {
+	a.db = a.db.Unscoped()
+	return &a
+}
+
+type categoryHasOneSEOTx struct{ tx *gorm.Association }
+
+func (a categoryHasOneSEOTx) Find() (result *model.CategorySeo, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a categoryHasOneSEOTx) Append(values ...*model.CategorySeo) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a categoryHasOneSEOTx) Replace(values ...*model.CategorySeo) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a categoryHasOneSEOTx) Delete(values ...*model.CategorySeo) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a categoryHasOneSEOTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a categoryHasOneSEOTx) Count() int64 {
+	return a.tx.Count()
+}
+
+func (a categoryHasOneSEOTx) Unscoped() *categoryHasOneSEOTx {
+	a.tx = a.tx.Unscoped()
+	return &a
 }
 
 type categoryHasManyChildren struct {
@@ -158,6 +247,9 @@ type categoryHasManyChildren struct {
 
 	field.RelationField
 
+	SEO struct {
+		field.RelationField
+	}
 	Children struct {
 		field.RelationField
 	}
@@ -188,6 +280,11 @@ func (a categoryHasManyChildren) Session(session *gorm.Session) *categoryHasMany
 
 func (a categoryHasManyChildren) Model(m *model.Category) *categoryHasManyChildrenTx {
 	return &categoryHasManyChildrenTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a categoryHasManyChildren) Unscoped() *categoryHasManyChildren {
+	a.db = a.db.Unscoped()
+	return &a
 }
 
 type categoryHasManyChildrenTx struct{ tx *gorm.Association }
@@ -226,6 +323,11 @@ func (a categoryHasManyChildrenTx) Clear() error {
 
 func (a categoryHasManyChildrenTx) Count() int64 {
 	return a.tx.Count()
+}
+
+func (a categoryHasManyChildrenTx) Unscoped() *categoryHasManyChildrenTx {
+	a.tx = a.tx.Unscoped()
+	return &a
 }
 
 type categoryDo struct{ gen.DO }
