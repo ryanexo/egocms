@@ -5,12 +5,13 @@ import (
 )
 
 type Services struct {
-    User  *User
-    Token *Token
+    User  *UserService
+    Token *TokenService
 }
 
 var ProviderSet = wire.NewSet(
     wire.Struct(new(Services), "*"),
     NewUserService,
+    NewCategory,
     NewTokenService,
 )

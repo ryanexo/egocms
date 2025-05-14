@@ -1,6 +1,7 @@
 package auth
 
 import (
+    `context`
     `strings`
     
     `dpcms/api/service`
@@ -48,11 +49,11 @@ func (auth *Auth) CreateMiddleware() gin.HandlerFunc {
 }
 
 func (auth *Auth) shouldSetUserWithToken(ctx *gin.Context, token string) error {
-    user, err := auth.services.Token.Parse(token)
+    user, err := auth.services.Token.Parse(context.Background(), token)
     if err != nil {
         return err
     }
-    ctx.Set(enum.CurrentUser, user)
+    ctx.Set(enum.ApiAuthCurrentUser, user)
     return nil
 }
 
@@ -72,5 +73,5 @@ func (auth *Auth) IgnoreWithPrefix(prefix string, path ...string) *Auth {
 }
 
 func GetAuthorizedUser(ctx *gin.Context) *model.User {
-    return ctx.MustGet(enum.CurrentUser).(*model.User)
+    return ctx.MustGet(enum.ApiAuthCurrentUser).(*model.User)
 }

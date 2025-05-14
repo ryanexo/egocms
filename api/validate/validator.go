@@ -8,7 +8,7 @@ import (
     `github.com/go-playground/locales/zh_Hans_CN`
     ut "github.com/go-playground/universal-translator"
     "github.com/go-playground/validator/v10"
-    zhTranslation "github.com/go-playground/validator/v10/translations/zh"
+    zh_translations "github.com/go-playground/validator/v10/translations/zh"
     `github.com/google/wire`
 )
 
@@ -43,15 +43,15 @@ func (v *customValidator) lazyInit() error {
         
         locale := zh_Hans_CN.New()
         uni := ut.New(locale)
-        trans, _ := uni.GetTranslator("zh_Hans_CN")
-        err = zhTranslation.RegisterDefaultTranslations(validate, trans)
+        translator, _ := uni.GetTranslator("zh_Hans_CN")
+        err = zh_translations.RegisterDefaultTranslations(validate, translator)
         
         if err != nil {
             return
         }
         
         v.validate = validate
-        v.translator = trans
+        v.translator = translator
     })
     
     return err
@@ -78,32 +78,18 @@ func (v *customValidator) ValidateStruct(s any) error {
     finalErrors := make(ValidationErrors, 0, len(errs))
     
     for _, e := range errs {
-        reason := e.Translate(v.translator)
+        currentError := ValidationError{Field: e.StructField()}
+        if msg, ok := s.(CustomValidationMessage); ok {
+            reason, found := msg.ValidationMessage(e)
+            if found {
+                currentError.Reason = reason
+            }
+        }
         
-        // if e.Tag() == "eqfield" {
-        //     objType := reflect.TypeOf(s)
-        //     if objType.Kind() == reflect.Ptr {
-        //         objType = objType.Elem()
-        //     }
-        //     if objType.Kind() != reflect.Struct {
-        //         goto AppendError
-        //     }
-        //     targetField := e.Param()
-        //     if targetField == "" {
-        //         goto AppendError
-        //     }
-        //     targetFieldType, found := objType.FieldByName(targetField)
-        //     if !found {
-        //         goto AppendError
-        //     }
-        //     targetFieldLabel := targetFieldType.Tag.Get("label")
-        //     if targetFieldLabel != "" {
-        //         reason = strings.Replace(reason, targetField, targetFieldLabel, 1)
-        //     }
-        // }
-        
-        // AppendError:
-        finalErrors = append(finalErrors, ValidationError{Field: e.StructField(), Reason: reason})
+        if currentError.Reason == "" {
+            currentError.Reason = e.Translate(v.translator)
+        }
+        finalErrors = append(finalErrors, currentError)
     }
     
     return finalErrors

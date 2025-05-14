@@ -5,6 +5,7 @@ import (
     
     `dpcms/api/validate`
     "github.com/gin-gonic/gin"
+    `gorm.io/gorm`
 )
 
 type businessError struct {
@@ -22,7 +23,7 @@ type BusinessError interface {
     Apply(ctx *gin.Context)
     Abort(ctx *gin.Context)
     ToError() error
-    prototype() *businessError
+    raw() *businessError
 }
 
 var _ BusinessError = (*businessError)(nil)
@@ -50,7 +51,7 @@ func (s *businessError) ToError() error {
     return s
 }
 
-func (s *businessError) prototype() *businessError {
+func (s *businessError) raw() *businessError {
     return s
 }
 
@@ -66,11 +67,13 @@ func Resolve(ctx *gin.Context, err error) {
         break
     
     case errors.As(err, &validationError):
-        returnValue = ErrValidation.WithOption(WithData(validationError)).prototype()
-        break
+        returnValue = ErrValidation.WithOption(WithData(validationError)).raw()
+    
+    case errors.Is(err, gorm.ErrRecordNotFound):
+        returnValue = ErrDataNotFound.raw()
     
     default:
-        returnValue = ErrUnknown.prototype()
+        returnValue = ErrUnknown.raw()
         notResolved = true
         _ = ctx.Error(err)
     }
@@ -81,7 +84,7 @@ func Resolve(ctx *gin.Context, err error) {
         Data: returnValue.Data,
     }
     if gin.Mode() == gin.DebugMode && notResolved {
-        resp.Debug = append(resp.Debug, err)
+        resp.Debug = append(resp.Debug, err.Error())
     }
     resp.Apply(ctx)
 }

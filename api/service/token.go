@@ -6,25 +6,28 @@ import (
     `time`
     
     `dpcms/api/infra`
-    `dpcms/api/repository`
     tokenClaim `dpcms/api/service/internal/token`
     `dpcms/config`
     `dpcms/erroz`
     `dpcms/model`
+    `dpcms/model/query`
     `github.com/golang-jwt/jwt/v5`
     uuid2 `github.com/google/uuid`
+    `gorm.io/gen/field`
+    `gorm.io/gorm`
+    `gorm.io/gorm/clause`
 )
 
-type Token struct {
-    infra infra.Infra
-    repo  repository.Repositories
+type TokenService struct {
+    infra *infra.Infra
+    query *query.Query
 }
 
-func NewTokenService(infra infra.Infra, repo repository.Repositories) *Token {
-    return &Token{infra, repo}
+func NewTokenService(infra *infra.Infra) *TokenService {
+    return &TokenService{infra: infra, query: query.Use(infra.DB)}
 }
 
-func (t *Token) Create(userId uint) (string, error) {
+func (t *TokenService) Create(userId uint) (string, error) {
     uuid, err := uuid2.NewV7()
     if err != nil {
         return "", err
@@ -40,7 +43,39 @@ func (t *Token) Create(userId uint) (string, error) {
     }).SignedString(tokenKey)
 }
 
-func (t *Token) Parse(tokenString string) (*model.User, error) {
+func (t *TokenService) isRevoked(ctx context.Context, userId uint, uuid string, expires int) (bool, error) {
+    isRevoked := true
+    err := t.query.Transaction(func(tx *query.Query) error {
+        q := t.query.TokenBlacklist
+        _, err := q.WithContext(ctx).Clauses(clause.Locking{Strength: "UPDATE"}).Where(q.UserId.Eq(userId)).Select(field.NewUnsafeFieldRaw("1")).Find()
+        if err != nil {
+            return err
+        }
+        token, err := q.WithContext(ctx).Where(q.UserId.Eq(userId), q.UUID.Eq(uuid)).First()
+        if err != nil {
+            if errors.Is(err, gorm.ErrRecordNotFound) {
+                isRevoked = false
+                return nil
+            }
+            return err
+        }
+        exp := token.CreatedAt.Add(time.Duration(expires) * time.Second)
+        if exp.Before(time.Now()) {
+            return nil
+        }
+        _, err = q.WithContext(ctx).Delete(token)
+        if err == nil {
+            isRevoked = false
+        }
+        return err
+    })
+    if err != nil {
+        return isRevoked, err
+    }
+    return isRevoked, nil
+}
+
+func (t *TokenService) Parse(ctx context.Context, tokenString string) (*model.User, error) {
     claims := &tokenClaim.UserToken{}
     token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
         return config.Get().GlobalKey, nil
@@ -51,12 +86,19 @@ func (t *Token) Parse(tokenString string) (*model.User, error) {
         }
         return nil, erroz.ErrUnauthorized.ToError()
     }
-    isRevoked, err := t.repo.Token.IsRevoked(context.Background(), claims.UserID, claims.ID, config.Get().Token.Expires)
+    isRevoked, err := t.isRevoked(context.Background(), claims.UserID, claims.ID, config.Get().Token.Expires)
     if err != nil {
         return nil, err
     }
     if isRevoked {
         return nil, erroz.ErrUnauthorized.ToError()
     }
-    return t.repo.User.FindByID(context.Background(), claims.UserID)
+    return t.query.User.WithContext(ctx).Where(t.query.User.ID.Eq(claims.UserID)).First()
+}
+
+func (t *TokenService) Revoke(ctx context.Context, userId uint, uuid string) error {
+    return t.query.WithContext(ctx).TokenBlacklist.Create(&model.TokenBlacklist{
+        UserId: userId,
+        UUID:   uuid,
+    })
 }

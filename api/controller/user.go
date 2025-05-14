@@ -7,7 +7,6 @@ import (
     `dpcms/api/infra`
     `dpcms/api/middleware/auth`
     `dpcms/api/service`
-    `dpcms/config`
     `dpcms/enum`
     `dpcms/erroz`
     `dpcms/model`
@@ -67,8 +66,7 @@ func (c UserController) Grant(ctx *gin.Context) {
         erroz.ErrWrongPassword.Apply(ctx)
         return
     }
-    claims := &dto.UserToken{UserID: result.ID}
-    t, err := claims.Create(config.Get().GlobalKey)
+    t, err := c.service.Token.Create(result.ID)
     if err != nil {
         erroz.Resolve(ctx, err)
         return

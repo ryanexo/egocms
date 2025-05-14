@@ -2,26 +2,27 @@ package service
 
 import (
     "context"
-    "errors"
     
-    `dpcms/api/repository`
+    `dpcms/api/infra`
     `dpcms/erroz`
     `dpcms/model`
+    `dpcms/model/query`
     `dpcms/packages/password`
-    "gorm.io/gorm"
 )
 
-type User struct {
-    repo repository.Repositories
+type UserService struct {
+    infra *infra.Infra
+    query *query.Query
 }
 
-func NewUserService(repo repository.Repositories) *User {
-    return &User{repo: repo}
+func NewUserService(infra *infra.Infra) *UserService {
+    return &UserService{infra: infra, query: query.Use(infra.DB)}
 }
 
-func (srv User) Create(ctx context.Context, u *model.User) error {
-    findResult, err := srv.repo.User.FindByUsernameOrEmail(ctx, u.Username, u.Email)
-    if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+func (srv *UserService) Create(ctx context.Context, u *model.User) error {
+    q := srv.query.User
+    findResult, err := q.WithContext(ctx).Where(q.Username.Eq(u.Username)).Or(q.Email.Eq(u.Email)).First()
+    if err != nil {
         return err
     }
     if findResult != nil {
@@ -37,30 +38,33 @@ func (srv User) Create(ctx context.Context, u *model.User) error {
         return err
     }
     u.Password = passwd
-    return srv.repo.User.Create(ctx, u)
+    return q.WithContext(ctx).Create(u)
 }
 
-func (srv User) FindByID(ctx context.Context, id uint) (*model.User, error) {
-    result, err := srv.repo.User.FindByID(ctx, id)
-    if errors.Is(err, gorm.ErrRecordNotFound) {
-        err = erroz.ErrUserIDNotExists.ToError()
+func (srv *UserService) FindByID(ctx context.Context, id uint) (*model.User, error) {
+    q := srv.query.User
+    result, err := q.WithContext(ctx).Where(q.ID.Eq(id)).First()
+    if err != nil {
+        return nil, err
     }
     return result, err
 }
 
-func (srv User) FindByName(ctx context.Context, name string) (*model.User, error) {
-    result, err := srv.repo.User.FindByUsername(ctx, name)
-    if errors.Is(err, gorm.ErrRecordNotFound) {
-        err = erroz.ErrUsernameNotExists.ToError()
+func (srv *UserService) FindByName(ctx context.Context, name string) (*model.User, error) {
+    q := srv.query.User
+    result, err := q.WithContext(ctx).Where(q.Username.Eq(name)).First()
+    if err != nil {
+        return nil, err
     }
     return result, err
 }
 
-func (srv User) UpdatePassword(ctx context.Context, id uint, pwd string) error {
-    encrypted, err := password.Make(pwd)
+func (srv *UserService) UpdatePassword(ctx context.Context, id uint, pwd string) error {
+    q := srv.query.User
+    finalPassword, err := password.Make(pwd)
     if err != nil {
         return err
     }
-    _, err = srv.repo.User.UpdateUserInfo(ctx, id, map[string]any{"password": encrypted})
+    _, err = q.WithContext(ctx).Where(q.ID.Eq(id)).Update(q.Password, finalPassword)
     return err
 }

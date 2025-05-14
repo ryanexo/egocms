@@ -4,13 +4,14 @@ import (
     "context"
     "errors"
     
-    `dpcms/erroz`
     `dpcms/model`
     `dpcms/model/query`
     "gorm.io/gen"
     "gorm.io/gorm"
     `gorm.io/gorm/clause`
 )
+
+var CircularReferenceError = errors.New("不能将节点移动至自身子节点或后代节点下，将引发循环引用")
 
 type Category struct {
     query *query.Query
@@ -56,7 +57,7 @@ func (repo Category) Move(ctx context.Context, id uint, ancestor uint) error {
             Where(categoryCtxDAO.Descendant.Eq(ancestor)).
             First()
         if err == nil {
-            return erroz.ErrTargetNodeIsSourceChild.ToError()
+            return CircularReferenceError
         } else if !errors.Is(err, gorm.ErrRecordNotFound) {
             return err
         }
@@ -139,6 +140,7 @@ func (repo Category) Delete(ctx context.Context, id uint, reserveChildren bool) 
 func (repo Category) findDescendantRelation(ctx context.Context, tx *query.Query, parentID uint) ([]*model.CategoryContext, error) {
     categoryCtxDAO := tx.CategoryContext
     parentJoinQuery := categoryCtxDAO.As("b")
+    // select ancestor, descendant, distance, b.ancestor as parent from ctx as a left join ctx as b on a.descendant = b.descendant and b.distance = 1 where a.ancestor = 1 and a.distance > 0
     return categoryCtxDAO.WithContext(ctx).Select(
         categoryCtxDAO.ALL,
         parentJoinQuery.Ancestor.As("parent"),
