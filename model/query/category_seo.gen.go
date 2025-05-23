@@ -27,11 +27,11 @@ func newCategorySeo(db *gorm.DB, opts ...gen.DOOption) categorySeo {
 
 	tableName := _categorySeo.categorySeoDo.TableName()
 	_categorySeo.ALL = field.NewAsterisk(tableName)
-	_categorySeo.ID = field.NewUint(tableName, "id")
+	_categorySeo.ID = field.NewInt64(tableName, "id")
 	_categorySeo.CreatedAt = field.NewTime(tableName, "created_at")
 	_categorySeo.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_categorySeo.DeletedAt = field.NewField(tableName, "deleted_at")
-	_categorySeo.CategoryID = field.NewUint(tableName, "category_id")
+	_categorySeo.CategoryID = field.NewInt64(tableName, "category_id")
 	_categorySeo.SeoTitle = field.NewString(tableName, "seo_title")
 	_categorySeo.SeoKeywords = field.NewString(tableName, "seo_keywords")
 	_categorySeo.SeoDescription = field.NewString(tableName, "seo_description")
@@ -45,11 +45,11 @@ type categorySeo struct {
 	categorySeoDo categorySeoDo
 
 	ALL            field.Asterisk
-	ID             field.Uint
+	ID             field.Int64
 	CreatedAt      field.Time
 	UpdatedAt      field.Time
 	DeletedAt      field.Field
-	CategoryID     field.Uint
+	CategoryID     field.Int64
 	SeoTitle       field.String
 	SeoKeywords    field.String
 	SeoDescription field.String
@@ -69,11 +69,11 @@ func (c categorySeo) As(alias string) *categorySeo {
 
 func (c *categorySeo) updateTableName(table string) *categorySeo {
 	c.ALL = field.NewAsterisk(table)
-	c.ID = field.NewUint(table, "id")
+	c.ID = field.NewInt64(table, "id")
 	c.CreatedAt = field.NewTime(table, "created_at")
 	c.UpdatedAt = field.NewTime(table, "updated_at")
 	c.DeletedAt = field.NewField(table, "deleted_at")
-	c.CategoryID = field.NewUint(table, "category_id")
+	c.CategoryID = field.NewInt64(table, "category_id")
 	c.SeoTitle = field.NewString(table, "seo_title")
 	c.SeoKeywords = field.NewString(table, "seo_keywords")
 	c.SeoDescription = field.NewString(table, "seo_description")

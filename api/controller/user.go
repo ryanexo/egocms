@@ -4,6 +4,7 @@ import (
     "context"
     
     `dpcms/api/controller/internal/dto`
+    `dpcms/api/errors/user_error`
     `dpcms/api/infra`
     `dpcms/api/middleware/auth`
     `dpcms/api/service`
@@ -63,7 +64,7 @@ func (c UserController) Grant(ctx *gin.Context) {
         return
     }
     if !password.Compare(result.Password, *u.Password) {
-        erroz.ErrWrongPassword.Apply(ctx)
+        user_error.ErrWrongPassword.Apply(ctx)
         return
     }
     t, err := c.service.Token.Create(result.ID)

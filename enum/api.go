@@ -1,6 +1,6 @@
 package enum
 
 const (
-    ApiEnumPrefix      = "api."
+    ApiEnumPrefix      = "Api."
     ApiAuthCurrentUser = ApiEnumPrefix + "Auth.CurrentUser"
 )

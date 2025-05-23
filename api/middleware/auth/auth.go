@@ -4,6 +4,7 @@ import (
     `context`
     `strings`
     
+    `dpcms/api/errors/auth_error`
     `dpcms/api/service`
     `dpcms/enum`
     `dpcms/erroz`
@@ -29,13 +30,13 @@ func (auth *Auth) CreateMiddleware() gin.HandlerFunc {
         
         credential := ctx.GetHeader("Authorization")
         if credential == "" {
-            erroz.ErrUnauthorized.Abort(ctx)
+            auth_error.ErrUnauthorized.Abort(ctx)
             return
         }
         
         token, found := strings.CutPrefix(credential, "Bearer ")
         if !found {
-            erroz.ErrUnauthorized.Abort(ctx)
+            auth_error.ErrUnauthorized.Abort(ctx)
             return
         }
         

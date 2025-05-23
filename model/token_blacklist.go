@@ -1,7 +1,11 @@
 package model
 
+import (
+    `dpcms/packages/database`
+)
+
 type TokenBlacklist struct {
-    Model
-    UserId uint   `gorm:"index;not null"`
+    database.Model
+    UserId int64  `gorm:"index;not null"`
     UUID   string `gorm:"column:'uuid';unique;not null"`
 }

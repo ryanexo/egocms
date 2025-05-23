@@ -9,8 +9,9 @@ import (
 
 func main() {
     g := gen.NewGenerator(gen.Config{
-        OutPath:       "./model/query",
-        FieldNullable: true,
+        OutPath:        "./model/query",
+        FieldNullable:  true,
+        FieldCoverable: true,
     })
     cfg := config.NewWithDefaultConfig()
     db, err := database.NewDB(cfg.DB)
@@ -25,8 +26,6 @@ func main() {
         model.CategorySeo{},
         model.Menu{},
         model.Role{},
-        model.RoleMenuRelation{},
-        model.RoleUserRelation{},
         model.TokenBlacklist{},
     )
     

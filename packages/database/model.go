@@ -1,4 +1,4 @@
-package model
+package database
 
 import (
     `time`
@@ -7,7 +7,7 @@ import (
 )
 
 type Model struct {
-    ID        uint           `gorm:"primaryKey" json:"id"`
+    ID        int64          `gorm:"primaryKey" json:"id"`
     CreatedAt time.Time      `json:"createdAt"`
     UpdatedAt time.Time      `json:"updatedAt"`
     DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`

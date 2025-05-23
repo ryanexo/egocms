@@ -3,10 +3,10 @@ package enum
 import "strconv"
 
 const (
-    CacheUserPrefix    = "user."
-    CacheUserBlackList = CacheUserPrefix + "blacklist."
+    CacheUserPrefix    = "User."
+    CacheUserBlackList = CacheUserPrefix + "Blacklist."
 )
 
-func GetCacheUserBlacklistKey(id uint) string {
-    return CacheUserBlackList + strconv.FormatUint(uint64(id), 10)
+func GetCacheUserBlacklistKey(id int64) string {
+    return CacheUserBlackList + strconv.FormatInt(id, 10)
 }

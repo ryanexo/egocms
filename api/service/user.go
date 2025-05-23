@@ -3,8 +3,8 @@ package service
 import (
     "context"
     
+    `dpcms/api/errors/user_error`
     `dpcms/api/infra`
-    `dpcms/erroz`
     `dpcms/model`
     `dpcms/model/query`
     `dpcms/packages/password`
@@ -27,10 +27,10 @@ func (srv *UserService) Create(ctx context.Context, u *model.User) error {
     }
     if findResult != nil {
         if findResult.Username == u.Username {
-            return erroz.ErrUsernameExists.ToError()
+            return user_error.ErrUsernameExists.ToError()
         }
         if findResult.Email == u.Email {
-            return erroz.ErrEMailExists.ToError()
+            return user_error.ErrEMailExists.ToError()
         }
     }
     passwd, err := password.Make(u.Password)
@@ -41,7 +41,7 @@ func (srv *UserService) Create(ctx context.Context, u *model.User) error {
     return q.WithContext(ctx).Create(u)
 }
 
-func (srv *UserService) FindByID(ctx context.Context, id uint) (*model.User, error) {
+func (srv *UserService) FindByID(ctx context.Context, id int64) (*model.User, error) {
     q := srv.query.User
     result, err := q.WithContext(ctx).Where(q.ID.Eq(id)).First()
     if err != nil {
@@ -59,7 +59,12 @@ func (srv *UserService) FindByName(ctx context.Context, name string) (*model.Use
     return result, err
 }
 
-func (srv *UserService) UpdatePassword(ctx context.Context, id uint, pwd string) error {
+func (srv *UserService) Update(ctx context.Context, u *model.User) error {
+    _, err := srv.query.WithContext(ctx).User.Updates(u)
+    return err
+}
+
+func (srv *UserService) UpdatePassword(ctx context.Context, id int64, pwd string) error {
     q := srv.query.User
     finalPassword, err := password.Make(pwd)
     if err != nil {

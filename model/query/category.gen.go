@@ -27,14 +27,14 @@ func newCategory(db *gorm.DB, opts ...gen.DOOption) category {
 
 	tableName := _category.categoryDo.TableName()
 	_category.ALL = field.NewAsterisk(tableName)
-	_category.ID = field.NewUint(tableName, "id")
+	_category.ID = field.NewInt64(tableName, "id")
 	_category.CreatedAt = field.NewTime(tableName, "created_at")
 	_category.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_category.DeletedAt = field.NewField(tableName, "deleted_at")
-	_category.ParentID = field.NewUint(tableName, "parent_id")
+	_category.ParentID = field.NewInt64(tableName, "parent_id")
 	_category.Sequence = field.NewUint(tableName, "sequence")
 	_category.Name = field.NewString(tableName, "name")
-	_category.Alias_ = field.NewString(tableName, "alias")
+	_category.Path = field.NewString(tableName, "path")
 	_category.Type = field.NewUint(tableName, "type")
 	_category.Display = field.NewUint(tableName, "display")
 	_category.SEO = categoryHasOneSEO{
@@ -68,14 +68,14 @@ type category struct {
 	categoryDo categoryDo
 
 	ALL       field.Asterisk
-	ID        field.Uint
+	ID        field.Int64
 	CreatedAt field.Time
 	UpdatedAt field.Time
 	DeletedAt field.Field
-	ParentID  field.Uint
+	ParentID  field.Int64
 	Sequence  field.Uint
 	Name      field.String
-	Alias_    field.String
+	Path      field.String
 	Type      field.Uint // '0:普通分类,1:单页型分类,2:链接'
 	Display   field.Uint
 	SEO       categoryHasOneSEO
@@ -97,14 +97,14 @@ func (c category) As(alias string) *category {
 
 func (c *category) updateTableName(table string) *category {
 	c.ALL = field.NewAsterisk(table)
-	c.ID = field.NewUint(table, "id")
+	c.ID = field.NewInt64(table, "id")
 	c.CreatedAt = field.NewTime(table, "created_at")
 	c.UpdatedAt = field.NewTime(table, "updated_at")
 	c.DeletedAt = field.NewField(table, "deleted_at")
-	c.ParentID = field.NewUint(table, "parent_id")
+	c.ParentID = field.NewInt64(table, "parent_id")
 	c.Sequence = field.NewUint(table, "sequence")
 	c.Name = field.NewString(table, "name")
-	c.Alias_ = field.NewString(table, "alias")
+	c.Path = field.NewString(table, "path")
 	c.Type = field.NewUint(table, "type")
 	c.Display = field.NewUint(table, "display")
 
@@ -139,7 +139,7 @@ func (c *category) fillFieldMap() {
 	c.fieldMap["parent_id"] = c.ParentID
 	c.fieldMap["sequence"] = c.Sequence
 	c.fieldMap["name"] = c.Name
-	c.fieldMap["alias"] = c.Alias_
+	c.fieldMap["path"] = c.Path
 	c.fieldMap["type"] = c.Type
 	c.fieldMap["display"] = c.Display
 

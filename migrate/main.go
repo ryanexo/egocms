@@ -1,6 +1,8 @@
 package main
 
 import (
+    `fmt`
+    
     `dpcms/config`
     `dpcms/model`
     `dpcms/packages/database`
@@ -24,13 +26,12 @@ func main() {
         &model.MenuContext{},
         &model.User{},
         &model.Role{},
-        &model.RoleMenuRelation{},
-        &model.RoleUserRelation{},
         &model.TokenBlacklist{},
     )
     if err != nil {
         panic(err)
     }
+    fmt.Println("migrate done")
 }
 
 func initDB(c *database.DBConfig) (*gorm.DB, error) {

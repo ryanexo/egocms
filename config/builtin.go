@@ -30,7 +30,7 @@ var defaultConfig = &Config{
     },
     DB: &database.DBConfig{
         Type:    "sqlite",
-        Host:    "runtime/data.db",
+        Host:    "./runtime/data.db",
         Name:    "",
         User:    "",
         Pass:    "",

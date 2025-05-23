@@ -8,7 +8,7 @@ import (
     `github.com/go-playground/locales/zh_Hans_CN`
     ut "github.com/go-playground/universal-translator"
     "github.com/go-playground/validator/v10"
-    zh_translations "github.com/go-playground/validator/v10/translations/zh"
+    "github.com/go-playground/validator/v10/translations/zh"
     `github.com/google/wire`
 )
 
@@ -44,7 +44,7 @@ func (v *customValidator) lazyInit() error {
         locale := zh_Hans_CN.New()
         uni := ut.New(locale)
         translator, _ := uni.GetTranslator("zh_Hans_CN")
-        err = zh_translations.RegisterDefaultTranslations(validate, translator)
+        err = zh.RegisterDefaultTranslations(validate, translator)
         
         if err != nil {
             return

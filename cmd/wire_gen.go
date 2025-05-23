@@ -13,7 +13,6 @@ import (
 	"dpcms/api/middleware/cors"
 	"dpcms/api/middleware/log"
 	"dpcms/api/middleware/recovery"
-	"dpcms/api/repository"
 	"dpcms/api/service"
 	"dpcms/api/validate"
 	"dpcms/config"
@@ -43,36 +42,30 @@ func createServerLauncher(cfg *config.Config) (*server.Launcher, error) {
 		CORS:     corsCORS,
 	}
 	serverMiddleware := middleware.NewMiddlewareRegistrar(middlewareMiddleware)
+	cacheConfig := config.GetCacheConfig(cfg)
+	cacheCache := cache.New(cacheConfig)
 	dbConfig := config.GetDBConfig(cfg)
 	db, err := database.NewDB(dbConfig)
 	if err != nil {
 		return nil, err
 	}
-	user := repository.NewUserRepo(db)
-	category := repository.NewCategoryRepo(db)
-	token := repository.NewTokenRepo(db)
-	repositories := repository.Repositories{
-		User:     user,
-		Category: category,
-		Token:    token,
-	}
-	serviceUser := service.NewUserService(repositories)
-	cacheConfig := config.GetCacheConfig(cfg)
-	cacheCache := cache.New(cacheConfig)
 	infraInfra := infra.Infra{
 		Cache:  cacheCache,
 		DB:     db,
 		Logger: zapLogger,
 	}
-	serviceToken := service.NewTokenService(infraInfra, repositories)
-	services := &service.Services{
-		User:  serviceUser,
-		Token: serviceToken,
-	}
+	categoryService := service.NewCategoryCategory(infraInfra)
 	infra2 := &infra.Infra{
 		Cache:  cacheCache,
 		DB:     db,
 		Logger: zapLogger,
+	}
+	userService := service.NewUserService(infra2)
+	tokenService := service.NewTokenService(infra2)
+	services := &service.Services{
+		Category: categoryService,
+		User:     userService,
+		Token:    tokenService,
 	}
 	userController := controller.NewUserController(services, infra2)
 	controllerController := &controller.Controller{

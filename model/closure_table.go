@@ -6,25 +6,32 @@ import (
 
 type ClosureTable interface {
     // INSERT INTO @@table (ancestor, descendant, distance, parent)
-    // SELECT @id, @id, 0
-    // {{ if ancestor > 0 }}
+    // SELECT @id, @id, 0, @parent
+    // {{ if parent > 0 }}
     // UNION ALL
-    // SELECT a.ancestor, @id, a.distance + 1
+    // SELECT ancestor, @id, distance + 1, @parent
     // FROM @@table
-    // WHERE descendant = @ancestor
+    // WHERE descendant = @parent
     // {{ end }}
-    CreateBranch(ancestor uint, id uint) error
+    CreateBranch(id int64, parent int64) error
     
-    // DELETE FROM @@table
-    // WHERE descendant = @id OR ancestor = @id
-    RemoveBranch(id uint) error
+    // DELETE FROM @@table WHERE ancestor IN (
+    // SELECT descendant FROM @@table WHERE ancestor=@ancestor
+    // ) OR descendant IN (
+    // SELECT descendant FROM @@table WHERE ancestor=@ancestor
+    // )
+    RemoveBranch(ancestor int64) error
     
-    FindDescendantByAncestor(ancestor uint, id uint) ([]*gen.T, error)
+    // SELECT a.*, CASE WHEN b.ancestor IS NULL THEN 0 ELSE b.ancestor END AS parent FROM @@table AS a
+    // LEFT JOIN @@table AS b ON a.descendant = b.descendant AND b.distance = 1
+    // WHERE a.ancestor = @ancestor AND a.distance > 0
+    // ORDER BY a.distance ASC
+    FindDescendantByAncestor(ancestor int64) ([]*gen.T, error)
 }
 
 type ClosureTableModel struct {
-    Parent     uint `gorm:"not null"`
-    Ancestor   uint `gorm:"not null"`
-    Descendant uint `gorm:"not null"`
-    Distance   uint `gorm:"not null"`
+    Parent     int64 `gorm:"not null"`
+    Ancestor   int64 `gorm:"not null"`
+    Descendant int64 `gorm:"not null"`
+    Distance   int64 `gorm:"not null"`
 }

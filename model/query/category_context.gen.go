@@ -28,14 +28,11 @@ func newCategoryContext(db *gorm.DB, opts ...gen.DOOption) categoryContext {
 
 	tableName := _categoryContext.categoryContextDo.TableName()
 	_categoryContext.ALL = field.NewAsterisk(tableName)
-	_categoryContext.ID = field.NewUint(tableName, "id")
-	_categoryContext.CreatedAt = field.NewTime(tableName, "created_at")
-	_categoryContext.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_categoryContext.DeletedAt = field.NewField(tableName, "deleted_at")
-	_categoryContext.Parent = field.NewUint(tableName, "parent")
-	_categoryContext.Ancestor = field.NewUint(tableName, "ancestor")
-	_categoryContext.Descendant = field.NewUint(tableName, "descendant")
-	_categoryContext.Distance = field.NewUint(tableName, "distance")
+	_categoryContext.ID = field.NewInt64(tableName, "id")
+	_categoryContext.Parent = field.NewInt64(tableName, "parent")
+	_categoryContext.Ancestor = field.NewInt64(tableName, "ancestor")
+	_categoryContext.Descendant = field.NewInt64(tableName, "descendant")
+	_categoryContext.Distance = field.NewInt64(tableName, "distance")
 
 	_categoryContext.fillFieldMap()
 
@@ -46,14 +43,11 @@ type categoryContext struct {
 	categoryContextDo categoryContextDo
 
 	ALL        field.Asterisk
-	ID         field.Uint
-	CreatedAt  field.Time
-	UpdatedAt  field.Time
-	DeletedAt  field.Field
-	Parent     field.Uint
-	Ancestor   field.Uint
-	Descendant field.Uint
-	Distance   field.Uint
+	ID         field.Int64
+	Parent     field.Int64
+	Ancestor   field.Int64
+	Descendant field.Int64
+	Distance   field.Int64
 
 	fieldMap map[string]field.Expr
 }
@@ -70,14 +64,11 @@ func (c categoryContext) As(alias string) *categoryContext {
 
 func (c *categoryContext) updateTableName(table string) *categoryContext {
 	c.ALL = field.NewAsterisk(table)
-	c.ID = field.NewUint(table, "id")
-	c.CreatedAt = field.NewTime(table, "created_at")
-	c.UpdatedAt = field.NewTime(table, "updated_at")
-	c.DeletedAt = field.NewField(table, "deleted_at")
-	c.Parent = field.NewUint(table, "parent")
-	c.Ancestor = field.NewUint(table, "ancestor")
-	c.Descendant = field.NewUint(table, "descendant")
-	c.Distance = field.NewUint(table, "distance")
+	c.ID = field.NewInt64(table, "id")
+	c.Parent = field.NewInt64(table, "parent")
+	c.Ancestor = field.NewInt64(table, "ancestor")
+	c.Descendant = field.NewInt64(table, "descendant")
+	c.Distance = field.NewInt64(table, "distance")
 
 	c.fillFieldMap()
 
@@ -106,11 +97,8 @@ func (c *categoryContext) GetFieldByName(fieldName string) (field.OrderExpr, boo
 }
 
 func (c *categoryContext) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 8)
+	c.fieldMap = make(map[string]field.Expr, 5)
 	c.fieldMap["id"] = c.ID
-	c.fieldMap["created_at"] = c.CreatedAt
-	c.fieldMap["updated_at"] = c.UpdatedAt
-	c.fieldMap["deleted_at"] = c.DeletedAt
 	c.fieldMap["parent"] = c.Parent
 	c.fieldMap["ancestor"] = c.Ancestor
 	c.fieldMap["descendant"] = c.Descendant
@@ -129,25 +117,27 @@ func (c categoryContext) replaceDB(db *gorm.DB) categoryContext {
 
 type categoryContextDo struct{ gen.DO }
 
-// INSERT INTO @@table (ancestor, descendant, distance)
-// SELECT @id, @id, 0
-// {{ if ancestor > 0 }}
+// INSERT INTO @@table (ancestor, descendant, distance, parent)
+// SELECT @id, @id, 0, @parent
+// {{ if parent > 0 }}
 // UNION ALL
-// SELECT ancestor, @id, distance + 1
+// SELECT ancestor, @id, distance + 1, @parent
 // FROM @@table
-// WHERE descendant = @ancestor
+// WHERE descendant = @parent
 // {{ end }}
-func (c categoryContextDo) CreateBranch(ancestor uint, id uint) (err error) {
+func (c categoryContextDo) CreateBranch(id int64, parent int64) (err error) {
 	var params []interface{}
 
 	var generateSQL strings.Builder
 	params = append(params, id)
 	params = append(params, id)
-	generateSQL.WriteString("INSERT INTO category_context (ancestor, descendant, distance) SELECT ?, ?, 0 ")
-	if ancestor > 0 {
+	params = append(params, parent)
+	generateSQL.WriteString("INSERT INTO category_context (ancestor, descendant, distance, parent) SELECT ?, ?, 0, ? ")
+	if parent > 0 {
 		params = append(params, id)
-		params = append(params, ancestor)
-		generateSQL.WriteString("UNION ALL SELECT ancestor, ?, distance + 1 FROM category_context WHERE descendant = ? ")
+		params = append(params, parent)
+		params = append(params, parent)
+		generateSQL.WriteString("UNION ALL SELECT ancestor, ?, distance + 1, ? FROM category_context WHERE descendant = ? ")
 	}
 
 	var executeSQL *gorm.DB
@@ -157,18 +147,39 @@ func (c categoryContextDo) CreateBranch(ancestor uint, id uint) (err error) {
 	return
 }
 
-// DELETE FROM @@table
-// WHERE descendant = @id OR ancestor = @id
-func (c categoryContextDo) RemoveBranch(id uint) (err error) {
+// DELETE FROM @@table WHERE ancestor IN (
+// SELECT descendant FROM @@table WHERE ancestor=@ancestor
+// ) OR descendant IN (
+// SELECT descendant FROM @@table WHERE ancestor=@ancestor
+// )
+func (c categoryContextDo) RemoveBranch(ancestor int64) (err error) {
 	var params []interface{}
 
 	var generateSQL strings.Builder
-	params = append(params, id)
-	params = append(params, id)
-	generateSQL.WriteString("DELETE FROM category_context WHERE descendant = ? OR ancestor = ? ")
+	params = append(params, ancestor)
+	params = append(params, ancestor)
+	generateSQL.WriteString("DELETE FROM category_context WHERE ancestor IN ( SELECT descendant FROM category_context WHERE ancestor=? ) OR descendant IN ( SELECT descendant FROM category_context WHERE ancestor=? ) ")
 
 	var executeSQL *gorm.DB
 	executeSQL = c.UnderlyingDB().Exec(generateSQL.String(), params...) // ignore_security_alert
+	err = executeSQL.Error
+
+	return
+}
+
+// SELECT a.*, CASE WHEN b.ancestor IS NULL THEN 0 ELSE b.ancestor END AS parent FROM @@table AS a
+// LEFT JOIN @@table AS b ON a.descendant = b.descendant AND b.distance = 1
+// WHERE a.ancestor = @ancestor AND a.distance > 0
+// ORDER BY a.distance ASC
+func (c categoryContextDo) FindDescendantByAncestor(ancestor int64) (result []*model.CategoryContext, err error) {
+	var params []interface{}
+
+	var generateSQL strings.Builder
+	params = append(params, ancestor)
+	generateSQL.WriteString("SELECT a.*, CASE WHEN b.ancestor IS NULL THEN 0 ELSE b.ancestor END AS parent FROM category_context AS a LEFT JOIN category_context AS b ON a.descendant = b.descendant AND b.distance = 1 WHERE a.ancestor = ? AND a.distance > 0 ORDER BY a.distance ASC ")
+
+	var executeSQL *gorm.DB
+	executeSQL = c.UnderlyingDB().Raw(generateSQL.String(), params...).Find(&result) // ignore_security_alert
 	err = executeSQL.Error
 
 	return

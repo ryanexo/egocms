@@ -5,10 +5,10 @@ import (
     `errors`
     `time`
     
+    `dpcms/api/errors/auth_error`
     `dpcms/api/infra`
     tokenClaim `dpcms/api/service/internal/token`
     `dpcms/config`
-    `dpcms/erroz`
     `dpcms/model`
     `dpcms/model/query`
     `github.com/golang-jwt/jwt/v5`
@@ -27,7 +27,7 @@ func NewTokenService(infra *infra.Infra) *TokenService {
     return &TokenService{infra: infra, query: query.Use(infra.DB)}
 }
 
-func (t *TokenService) Create(userId uint) (string, error) {
+func (srv *TokenService) Create(userId int64) (string, error) {
     uuid, err := uuid2.NewV7()
     if err != nil {
         return "", err
@@ -43,15 +43,16 @@ func (t *TokenService) Create(userId uint) (string, error) {
     }).SignedString(tokenKey)
 }
 
-func (t *TokenService) isRevoked(ctx context.Context, userId uint, uuid string, expires int) (bool, error) {
+func (srv *TokenService) isRevoked(ctx context.Context, userId int64, uuid string, expires int) (bool, error) {
     isRevoked := true
-    err := t.query.Transaction(func(tx *query.Query) error {
-        q := t.query.TokenBlacklist
-        _, err := q.WithContext(ctx).Clauses(clause.Locking{Strength: "UPDATE"}).Where(q.UserId.Eq(userId)).Select(field.NewUnsafeFieldRaw("1")).Find()
+    err := srv.query.Transaction(func(tx *query.Query) error {
+        queryCtx := srv.query.WithContext(ctx)
+        dao := srv.query.TokenBlacklist
+        _, err := queryCtx.TokenBlacklist.Clauses(clause.Locking{Strength: "UPDATE"}).Where(dao.UserId.Eq(userId)).Select(field.NewUnsafeFieldRaw("1")).Find()
         if err != nil {
             return err
         }
-        token, err := q.WithContext(ctx).Where(q.UserId.Eq(userId), q.UUID.Eq(uuid)).First()
+        token, err := queryCtx.TokenBlacklist.Where(dao.UserId.Eq(userId), dao.UUID.Eq(uuid)).First()
         if err != nil {
             if errors.Is(err, gorm.ErrRecordNotFound) {
                 isRevoked = false
@@ -63,7 +64,7 @@ func (t *TokenService) isRevoked(ctx context.Context, userId uint, uuid string, 
         if exp.Before(time.Now()) {
             return nil
         }
-        _, err = q.WithContext(ctx).Delete(token)
+        _, err = queryCtx.TokenBlacklist.Delete(token)
         if err == nil {
             isRevoked = false
         }
@@ -75,29 +76,29 @@ func (t *TokenService) isRevoked(ctx context.Context, userId uint, uuid string, 
     return isRevoked, nil
 }
 
-func (t *TokenService) Parse(ctx context.Context, tokenString string) (*model.User, error) {
+func (srv *TokenService) Parse(ctx context.Context, tokenString string) (*model.User, error) {
     claims := &tokenClaim.UserToken{}
     token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
         return config.Get().GlobalKey, nil
     })
     if err != nil || !token.Valid {
         if errors.Is(err, jwt.ErrTokenExpired) {
-            return nil, erroz.ErrAuthorizationExpired.ToError()
+            return nil, auth_error.ErrAuthorizationExpired.ToError()
         }
-        return nil, erroz.ErrUnauthorized.ToError()
+        return nil, auth_error.ErrUnauthorized.ToError()
     }
-    isRevoked, err := t.isRevoked(context.Background(), claims.UserID, claims.ID, config.Get().Token.Expires)
+    isRevoked, err := srv.isRevoked(ctx, claims.UserID, claims.ID, config.Get().Token.Expires)
     if err != nil {
         return nil, err
     }
     if isRevoked {
-        return nil, erroz.ErrUnauthorized.ToError()
+        return nil, auth_error.ErrUnauthorized.ToError()
     }
-    return t.query.User.WithContext(ctx).Where(t.query.User.ID.Eq(claims.UserID)).First()
+    return srv.query.User.WithContext(ctx).Where(srv.query.User.ID.Eq(claims.UserID)).First()
 }
 
-func (t *TokenService) Revoke(ctx context.Context, userId uint, uuid string) error {
-    return t.query.WithContext(ctx).TokenBlacklist.Create(&model.TokenBlacklist{
+func (srv *TokenService) Revoke(ctx context.Context, userId int64, uuid string) error {
+    return srv.query.WithContext(ctx).TokenBlacklist.Create(&model.TokenBlacklist{
         UserId: userId,
         UUID:   uuid,
     })
