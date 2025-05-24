@@ -17,6 +17,6 @@
 *.conf
 *.db
 *.log
+.goland
 
 runtime/
-web/

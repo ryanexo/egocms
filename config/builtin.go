@@ -3,11 +3,11 @@ package config
 import (
     "time"
     
-    `dpcms/api/middleware/cors`
     `dpcms/config/internal/token`
-    `dpcms/packages/cache`
-    `dpcms/packages/database`
-    `dpcms/server`
+    `dpcms/internal/http/middleware/cors`
+    `dpcms/internal/httpserver`
+    `dpcms/internal/packages/cache`
+    `dpcms/internal/packages/database`
     "gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -44,7 +44,7 @@ var defaultConfig = &Config{
         LocalTime:  false,
         Compress:   false,
     },
-    Server: &server.Config{
+    Server: &httpserver.Config{
         Debug:     true,
         Host:      "127.0.0.1",
         Port:      8234,

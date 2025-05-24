@@ -1,12 +1,11 @@
 package main
 
 import (
-    _ "embed"
     "fmt"
     "os"
     
     `dpcms/config`
-    `dpcms/server`
+    `dpcms/internal/httpserver`
     "github.com/bytedance/sonic"
     "github.com/spf13/pflag"
 )
@@ -24,7 +23,7 @@ func registerCommand() error {
     pflag.Parse()
     
     if doPrintVersion {
-        fmt.Println(server.Version)
+        fmt.Println(httpserver.Version)
         os.Exit(0)
     }
     

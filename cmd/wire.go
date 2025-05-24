@@ -3,17 +3,17 @@
 package main
 
 import (
-    `dpcms/api/controller`
-    `dpcms/api/infra`
-    `dpcms/api/middleware`
-    `dpcms/api/service`
-    `dpcms/api/validate`
     `dpcms/config`
-    `dpcms/server`
+    `dpcms/internal/http/controller`
+    `dpcms/internal/http/middleware`
+    `dpcms/internal/http/service`
+    `dpcms/internal/httpserver`
+    `dpcms/internal/infra`
+    `dpcms/internal/packages/validate`
     "github.com/google/wire"
 )
 
-func createServerLauncher(cfg *config.Config) (*server.Launcher, error) {
+func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
     panic(wire.Build(
         config.ProviderSet,
         infra.ProviderSet,
@@ -21,6 +21,6 @@ func createServerLauncher(cfg *config.Config) (*server.Launcher, error) {
         service.ProviderSet,
         controller.ProviderSet,
         validate.ProviderSet,
-        server.ProviderSet,
+        httpserver.ProviderSet,
     ))
 }

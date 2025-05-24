@@ -7,29 +7,25 @@
 package main
 
 import (
-	"dpcms/api/controller"
-	"dpcms/api/infra"
-	"dpcms/api/middleware"
-	"dpcms/api/middleware/cors"
-	"dpcms/api/middleware/log"
-	"dpcms/api/middleware/recovery"
-	"dpcms/api/service"
-	"dpcms/api/validate"
 	"dpcms/config"
-	"dpcms/packages/cache"
-	"dpcms/packages/database"
-	"dpcms/packages/logger"
-	"dpcms/server"
-)
-
-import (
-	_ "embed"
+	"dpcms/internal/http/controller"
+	"dpcms/internal/http/middleware"
+	"dpcms/internal/http/middleware/cors"
+	"dpcms/internal/http/middleware/log"
+	"dpcms/internal/http/middleware/recovery"
+	"dpcms/internal/http/service"
+	"dpcms/internal/httpserver"
+	"dpcms/internal/infra"
+	"dpcms/internal/packages/cache"
+	"dpcms/internal/packages/database"
+	"dpcms/internal/packages/logger"
+	"dpcms/internal/packages/validate"
 )
 
 // Injectors from wire.go:
 
-func createServerLauncher(cfg *config.Config) (*server.Launcher, error) {
-	serverConfig := config.GetServerConfig(cfg)
+func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
+	httpserverConfig := config.GetServerConfig(cfg)
 	lumberjackLogger := config.GetLoggerConfig(cfg)
 	zapLogger := logger.New(lumberjackLogger)
 	recoveryRecovery := recovery.New(zapLogger)
@@ -41,7 +37,7 @@ func createServerLauncher(cfg *config.Config) (*server.Launcher, error) {
 		Logger:   logLogger,
 		CORS:     corsCORS,
 	}
-	serverMiddleware := middleware.NewMiddlewareRegistrar(middlewareMiddleware)
+	httpserverMiddleware := middleware.NewMiddlewareRegistrar(middlewareMiddleware)
 	cacheConfig := config.GetCacheConfig(cfg)
 	cacheCache := cache.New(cacheConfig)
 	dbConfig := config.GetDBConfig(cfg)
@@ -49,31 +45,36 @@ func createServerLauncher(cfg *config.Config) (*server.Launcher, error) {
 	if err != nil {
 		return nil, err
 	}
-	infraInfra := infra.Infra{
+	infraInfra := &infra.Infra{
 		Cache:  cacheCache,
 		DB:     db,
 		Logger: zapLogger,
 	}
 	categoryService := service.NewCategoryCategory(infraInfra)
-	infra2 := &infra.Infra{
-		Cache:  cacheCache,
-		DB:     db,
-		Logger: zapLogger,
+	userService := service.NewUserService(infraInfra)
+	tokenService := service.NewTokenService(infraInfra)
+	v, err := service.NewRBACService(infraInfra)
+	if err != nil {
+		return nil, err
 	}
-	userService := service.NewUserService(infra2)
-	tokenService := service.NewTokenService(infra2)
+	roleService, err := service.NewRoleService(infraInfra, v)
+	if err != nil {
+		return nil, err
+	}
 	services := &service.Services{
 		Category: categoryService,
 		User:     userService,
 		Token:    tokenService,
+		RBAC:     v,
+		Role:     roleService,
 	}
-	userController := controller.NewUserController(services, infra2)
+	userController := controller.NewUserController(services, infraInfra)
 	controllerController := &controller.Controller{
 		User: userController,
 	}
 	routes := controller.NewRouteRegistrar(controllerController)
 	structValidator := validate.New()
-	launcher, err := server.New(serverConfig, serverMiddleware, routes, structValidator)
+	launcher, err := httpserver.New(httpserverConfig, httpserverMiddleware, routes, structValidator)
 	if err != nil {
 		return nil, err
 	}

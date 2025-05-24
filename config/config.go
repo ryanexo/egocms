@@ -3,11 +3,11 @@ package config
 import (
     "os"
     
-    `dpcms/api/middleware/cors`
     `dpcms/config/internal/token`
-    `dpcms/packages/cache`
-    `dpcms/packages/database`
-    `dpcms/server`
+    `dpcms/internal/http/middleware/cors`
+    `dpcms/internal/httpserver`
+    `dpcms/internal/packages/cache`
+    `dpcms/internal/packages/database`
     "github.com/bytedance/sonic"
     `github.com/google/wire`
     "gopkg.in/natefinch/lumberjack.v2"
@@ -28,7 +28,7 @@ type Config struct {
     Cache     *cache.Config      `json:"cache" yaml:"cache"`
     DB        *database.DBConfig `json:"db" yaml:"db"`
     Log       *lumberjack.Logger `json:"log" yaml:"log"`
-    Server    *server.Config     `json:"server" yaml:"server"`
+    Server    *httpserver.Config `json:"httpserver" yaml:"httpserver"`
 }
 
 var currentConfig *Config

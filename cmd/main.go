@@ -1,8 +1,6 @@
 package main
 
 import (
-    _ "embed"
-    
     `dpcms/config`
 )
 
@@ -12,7 +10,7 @@ func main() {
         panic(err)
     }
     cfg := config.NewWithDefaultConfig()
-    launcher, err := createServerLauncher(cfg)
+    launcher, err := createHttpServer(cfg)
     if err != nil {
         panic(err)
     }
