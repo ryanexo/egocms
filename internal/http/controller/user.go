@@ -25,8 +25,8 @@ func (c UserController) setup(server *gin.Engine) {
     
     g := server.Group("/user", middleware.CreateMiddleware())
     g.POST("/register", c.Register)
-    g.POST("/grant", c.Grant)
-    g.POST("/revoke", c.Revoke)
+    g.POST("/grant", c.Login)
+    g.POST("/revoke", c.Logout)
     g.POST("/update-password", c.UpdatePassword)
 }
 
@@ -36,7 +36,7 @@ func NewUserController(s *service.Services, i *infra.Infra) *UserController {
 
 func (c UserController) Register(ctx *gin.Context) {
     ctx.FullPath()
-    u := &dto.User{}
+    u := &dto.UserAuth{}
     if err := ctx.ShouldBindJSON(u); err != nil {
         erroz.ResolveWithWrite(ctx, err)
         return
@@ -54,8 +54,9 @@ func (c UserController) Register(ctx *gin.Context) {
     erroz.OK.WithOption(erroz.WithData(finalUser)).Write(ctx)
 }
 
-func (c UserController) Grant(ctx *gin.Context) {
-    u := &dto.User{}
+func (c UserController) Login(ctx *gin.Context) {
+    u := &dto.UserAuth{}
+    u.SetValidationFields([]string{"username", "password"})
     if err := ctx.ShouldBindJSON(u); err != nil {
         erroz.ResolveWithWrite(ctx, err)
         return
@@ -77,7 +78,7 @@ func (c UserController) Grant(ctx *gin.Context) {
     erroz.OK.WithOption(erroz.WithData(map[string]string{"token": t})).Write(ctx)
 }
 
-func (c UserController) Revoke(ctx *gin.Context) {
+func (c UserController) Logout(ctx *gin.Context) {
     u := auth.GetAuthorizedUser(ctx)
     key := enum.GetCacheUserBlacklistKey(u.ID)
     c.infra.Cache.Set(key, true)
@@ -85,7 +86,7 @@ func (c UserController) Revoke(ctx *gin.Context) {
 }
 
 func (c UserController) UpdatePassword(ctx *gin.Context) {
-    u := &dto.User{}
+    u := &dto.UserAuth{}
     if err := ctx.ShouldBindJSON(u); err != nil {
         erroz.ResolveWithWrite(ctx, err)
         return

@@ -6,7 +6,12 @@ import (
     `github.com/iancoleman/strcase`
 )
 
-type User struct {
+var _ validate.CustomValidationMessage = new(UserAuth)
+var _ validate.PartialValidation = new(UserAuth)
+
+type UserAuth struct {
+    validate.PartialFields `validate:"-"`
+    
     ID              *int64  `json:"id"`
     Username        *string `validate:"required,alphanum,min=4,max=32" json:"username" label:"用户名"`
     Password        *string `validate:"required,min=6,max=32" json:"password"  label:"密码"`
@@ -16,9 +21,7 @@ type User struct {
     Status          *int8   `json:"status"`
 }
 
-var _ validate.CustomValidationMessage = new(User)
-
-func (u User) ValidationMessage(e validator.FieldError) (string, bool) {
+func (u *UserAuth) ValidationMessage(e validator.FieldError) (string, bool) {
     key := strcase.ToLowerCamel(e.StructField() + "." + e.ActualTag())
     message := map[string]string{
         "PasswordConfirm.eqfield": "两次密码输入不一致",

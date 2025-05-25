@@ -4,13 +4,14 @@ import (
     `dpcms/config`
 )
 
+var appConfig *config.Config = config.NewWithDefaultConfig()
+
 func main() {
     err := registerCommand()
     if err != nil {
         panic(err)
     }
-    cfg := config.NewWithDefaultConfig()
-    launcher, err := createHttpServer(cfg)
+    launcher, err := createHttpServer(appConfig)
     if err != nil {
         panic(err)
     }

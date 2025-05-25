@@ -14,19 +14,19 @@ import (
 
 var ProviderSet = wire.NewSet(New)
 
-type PartialValidate interface {
+type PartialValidation interface {
     ValidationFields() []string
 }
 
-type customValidator struct {
+type validatorEx struct {
     once       sync.Once
     validate   *validator.Validate
     translator ut.Translator
 }
 
-var _ binding.StructValidator = new(customValidator)
+var _ binding.StructValidator = new(validatorEx)
 
-func (v *customValidator) lazyInit() error {
+func (v *validatorEx) lazyInit() error {
     var err error
     
     v.once.Do(func() {
@@ -57,13 +57,13 @@ func (v *customValidator) lazyInit() error {
     return err
 }
 
-func (v *customValidator) ValidateStruct(s any) error {
+func (v *validatorEx) ValidateStruct(s any) error {
     err := v.lazyInit()
     if err != nil {
         return err
     }
     
-    if obj, ok := s.(PartialValidate); ok {
+    if obj, ok := s.(PartialValidation); ok {
         fields := obj.ValidationFields()
         err = v.validate.StructPartial(s, fields...)
     } else {
@@ -95,7 +95,7 @@ func (v *customValidator) ValidateStruct(s any) error {
     return finalErrors
 }
 
-func (v *customValidator) Engine() any {
+func (v *validatorEx) Engine() any {
     err := v.lazyInit()
     if err != nil {
         return err
@@ -105,5 +105,5 @@ func (v *customValidator) Engine() any {
 }
 
 func New() binding.StructValidator {
-    return &customValidator{}
+    return &validatorEx{}
 }

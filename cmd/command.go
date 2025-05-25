@@ -10,13 +10,13 @@ import (
     "github.com/spf13/pflag"
 )
 
-var (
-    doPrintVersion bool
-    doCreateExFile bool
-    configPath     string
-)
-
 func registerCommand() error {
+    var (
+        doPrintVersion bool
+        doCreateExFile bool
+        configPath     string
+    )
+    
     pflag.BoolVarP(&doPrintVersion, "version", "v", false, "版本号")
     pflag.BoolVarP(&doCreateExFile, "example", "e", false, "创建配置文件")
     pflag.StringVarP(&configPath, "conf", "c", "./runtime/config.json", "配置文件路径")
@@ -51,6 +51,14 @@ func registerCommand() error {
         fmt.Println("示例文件config.json已创建")
         
         os.Exit(0)
+    }
+    
+    if configPath != "" {
+        cfg, err := config.New(configPath)
+        if err != nil {
+            panic(err)
+        }
+        appConfig = cfg
     }
     
     return nil
