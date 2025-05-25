@@ -5,17 +5,18 @@
 package query
 
 import (
-    "context"
-    
-    `dpcms/internal/database/model`
-    "gorm.io/gorm"
-    "gorm.io/gorm/clause"
-    "gorm.io/gorm/schema"
-    
-    "gorm.io/gen"
-    "gorm.io/gen/field"
-    
-    "gorm.io/plugin/dbresolver"
+	"context"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
+
+	"gorm.io/gen"
+	"gorm.io/gen/field"
+
+	"gorm.io/plugin/dbresolver"
+
+	"dpcms/internal/database/model"
 )
 
 func newMenu(db *gorm.DB, opts ...gen.DOOption) menu {
@@ -67,8 +68,8 @@ type menu struct {
 	Display   field.Bool
 	URI       field.String
 	Template  field.String
-	Remark   field.String
-	Children menuHasManyChildren
+	Remark    field.String
+	Children  menuHasManyChildren
 
 	fieldMap map[string]field.Expr
 }

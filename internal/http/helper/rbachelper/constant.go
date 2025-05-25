@@ -1,4 +1,4 @@
-package rbac
+package rbachelper
 
 const (
     SubjectPrefix = "ROLE::"

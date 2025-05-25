@@ -6,7 +6,7 @@ import (
     `dpcms/internal/database/model`
     `dpcms/internal/database/query`
     `dpcms/internal/http/errors/role_error`
-    `dpcms/internal/http/service/internal/rbac`
+    `dpcms/internal/http/helper/rbachelper`
     `dpcms/internal/infra`
     `dpcms/internal/utils/dbscopes`
 )
@@ -32,7 +32,7 @@ func (srv *RoleService) Create(ctx context.Context, role *model.Role, inheritLis
         }
         
         for _, inheritID := range inheritList {
-            _, err := srv.rbac.AddRolesForUser(rbac.GetRoleSubject(role.ID), []string{rbac.GetRoleSubject(inheritID)})
+            _, err := srv.rbac.AddRolesForUser(rbachelper.GetRoleSubject(role.ID), []string{rbachelper.GetRoleSubject(inheritID)})
             if err != nil {
                 return err
             }
@@ -55,9 +55,9 @@ func (srv *RoleService) Update(ctx context.Context, role *model.Role, inheritLis
             return nil
         }
         
-        currentRoleName := rbac.GetRoleSubject(role.ID)
+        currentRoleName := rbachelper.GetRoleSubject(role.ID)
         for _, inheritRoleID := range inheritList {
-            inheritRoleName := rbac.GetRoleSubject(inheritRoleID)
+            inheritRoleName := rbachelper.GetRoleSubject(inheritRoleID)
             linked, err := srv.rbac.HasRoleForUser(currentRoleName, inheritRoleName)
             if err != nil {
                 return err
@@ -69,7 +69,7 @@ func (srv *RoleService) Update(ctx context.Context, role *model.Role, inheritLis
                 }
                 return role_error.ErrRoleCircularReference.Format(linkedRole.Name, role.Name).ToError()
             }
-            _, err = srv.rbac.AddRoleForUser(currentRoleName, rbac.GetRoleSubject(inheritRoleID))
+            _, err = srv.rbac.AddRoleForUser(currentRoleName, rbachelper.GetRoleSubject(inheritRoleID))
             if err != nil {
                 return err
             }
@@ -91,7 +91,7 @@ func (srv *RoleService) Delete(ctx context.Context, role *model.Role) error {
         if err != nil {
             return err
         }
-        _, err = srv.rbac.DeleteRole(rbac.GetRoleSubject(role.ID))
+        _, err = srv.rbac.DeleteRole(rbachelper.GetRoleSubject(role.ID))
         if err != nil {
             return err
         }
@@ -117,12 +117,12 @@ func (srv *RoleService) FindByIDWithInherit(ctx context.Context, id int64) (*mod
     if err != nil {
         return nil, err
     }
-    currentRoleName := rbac.GetRoleSubject(role.ID)
+    currentRoleName := rbachelper.GetRoleSubject(role.ID)
     inheritRoleNames, err := srv.rbac.GetImplicitRolesForUser(currentRoleName)
     if err != nil {
         return nil, err
     }
-    idList, err := rbac.ParseRoleSubject(inheritRoleNames...)
+    idList, err := rbachelper.ParseRoleSubject(inheritRoleNames...)
     inheritRoles, err := srv.query.WithContext(ctx).Role.Where(srv.query.Role.ID.In(idList...)).Find()
     if err != nil {
         return nil, err

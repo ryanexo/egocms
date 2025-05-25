@@ -5,17 +5,18 @@
 package query
 
 import (
-    "context"
-    
-    `dpcms/internal/database/model`
-    "gorm.io/gorm"
-    "gorm.io/gorm/clause"
-    "gorm.io/gorm/schema"
-    
-    "gorm.io/gen"
-    "gorm.io/gen/field"
-    
-    "gorm.io/plugin/dbresolver"
+	"context"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
+
+	"gorm.io/gen"
+	"gorm.io/gen/field"
+
+	"gorm.io/plugin/dbresolver"
+
+	"dpcms/internal/database/model"
 )
 
 func newUser(db *gorm.DB, opts ...gen.DOOption) user {
@@ -36,6 +37,7 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.VerifiedAt = field.NewField(tableName, "verified_at")
 	_user.IP = field.NewString(tableName, "ip")
 	_user.Status = field.NewInt8(tableName, "status")
+	_user.RoleID = field.NewInt64(tableName, "role_id")
 
 	_user.fillFieldMap()
 
@@ -56,6 +58,7 @@ type user struct {
 	VerifiedAt field.Field
 	IP         field.String
 	Status     field.Int8
+	RoleID     field.Int64
 
 	fieldMap map[string]field.Expr
 }
@@ -82,6 +85,7 @@ func (u *user) updateTableName(table string) *user {
 	u.VerifiedAt = field.NewField(table, "verified_at")
 	u.IP = field.NewString(table, "ip")
 	u.Status = field.NewInt8(table, "status")
+	u.RoleID = field.NewInt64(table, "role_id")
 
 	u.fillFieldMap()
 
@@ -106,7 +110,7 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 10)
+	u.fieldMap = make(map[string]field.Expr, 11)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["created_at"] = u.CreatedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
@@ -117,6 +121,7 @@ func (u *user) fillFieldMap() {
 	u.fieldMap["verified_at"] = u.VerifiedAt
 	u.fieldMap["ip"] = u.IP
 	u.fieldMap["status"] = u.Status
+	u.fieldMap["role_id"] = u.RoleID
 }
 
 func (u user) clone(db *gorm.DB) user {

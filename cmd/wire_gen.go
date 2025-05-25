@@ -7,19 +7,19 @@
 package main
 
 import (
-	"dpcms/config"
-	"dpcms/internal/http/controller"
-	"dpcms/internal/http/middleware"
-	"dpcms/internal/http/middleware/cors"
-	"dpcms/internal/http/middleware/log"
-	"dpcms/internal/http/middleware/recovery"
-	"dpcms/internal/http/service"
-	"dpcms/internal/httpserver"
-	"dpcms/internal/infra"
-	"dpcms/internal/packages/cache"
-	"dpcms/internal/packages/database"
-	"dpcms/internal/packages/logger"
-	"dpcms/internal/packages/validate"
+    "dpcms/config"
+    "dpcms/internal/http/controller"
+    "dpcms/internal/http/middleware"
+    "dpcms/internal/http/middleware/cors"
+    "dpcms/internal/http/middleware/log"
+    "dpcms/internal/http/middleware/recovery"
+    `dpcms/internal/http/service`
+    "dpcms/internal/httpserver"
+    "dpcms/internal/infra"
+    "dpcms/internal/packages/cache"
+    "dpcms/internal/packages/database"
+    "dpcms/internal/packages/logger"
+    "dpcms/internal/packages/validate"
 )
 
 // Injectors from wire.go:

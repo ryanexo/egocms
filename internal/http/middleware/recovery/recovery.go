@@ -65,7 +65,7 @@ func New(logger *zap.Logger) Recovery {
                 message = "panic"
                 err := erroz2.ErrUnknown
                 err.WithOption(erroz2.WithDebug(panicMsg))
-                erroz2.ErrUnknown.WithOption(erroz2.WithStatus(http.StatusInternalServerError)).Handle(ctx)
+                erroz2.ErrUnknown.WithOption(erroz2.WithStatus(http.StatusInternalServerError)).Write(ctx)
             }
             
             logger.Error(message, fields...)

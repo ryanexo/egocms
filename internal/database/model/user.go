@@ -14,4 +14,5 @@ type User struct {
     VerifiedAt sql.NullTime `gorm:"default:null" json:"verifiedAt"`
     IP         string       `gorm:"type:varchar(255);not null;default:''" json:"ip"`
     Status     int8         `gorm:"not null;default:0" json:"status"`
+    RoleID     int64        `gorm:"index" json:"roleId"`
 }

@@ -9,7 +9,7 @@ import (
 
 func main() {
     g := gen.NewGenerator(gen.Config{
-        OutPath:        "./model/query",
+        OutPath:        "./internal/database/query",
         FieldNullable:  true,
         FieldCoverable: true,
     })
