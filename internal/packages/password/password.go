@@ -4,11 +4,13 @@ import (
     `golang.org/x/crypto/bcrypt`
 )
 
-func Make(raw string) (string, error) {
-    r, err := bcrypt.GenerateFromPassword([]byte(raw), bcrypt.DefaultCost)
+type Password string
+
+func (p Password) Make() (string, error) {
+    r, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.DefaultCost)
     return string(r), err
 }
 
-func Compare(hash string, password string) bool {
-    return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) == nil
+func (p Password) Compare(password string) bool {
+    return bcrypt.CompareHashAndPassword([]byte(p), []byte(password)) == nil
 }

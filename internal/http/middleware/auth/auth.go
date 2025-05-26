@@ -20,11 +20,15 @@ type Auth struct {
     permission map[string]string
 }
 
+type RouteResource interface {
+    Use(...gin.HandlerFunc) gin.IRoutes
+}
+
 func New(srv *service.Services) *Auth {
     return &Auth{services: srv, whitelist: newWhitelist()}
 }
 
-func (auth *Auth) CreateMiddleware() gin.HandlerFunc {
+func (auth *Auth) createMiddleware() gin.HandlerFunc {
     return func(ctx *gin.Context) {
         if auth.whitelist.match(ctx.Request.URL.Path) {
             ctx.Next()
@@ -70,6 +74,11 @@ func (auth *Auth) CreateMiddleware() gin.HandlerFunc {
     }
 }
 
+func (auth *Auth) Append(route RouteResource) {
+    middleware := auth.createMiddleware()
+    route.Use(middleware)
+}
+
 func (auth *Auth) SetSourceName(name string) *Auth {
     auth.name = name
     return auth
@@ -82,9 +91,9 @@ func (auth *Auth) Skip(path []string) *Auth {
     return auth
 }
 
-func (auth *Auth) SkipWithPrefix(prefix string, path []string) *Auth {
+func (auth *Auth) SkipWithGroup(group *gin.RouterGroup, path []string) *Auth {
     for _, p := range path {
-        mergedPath := prefix + p
+        mergedPath := group.BasePath() + p
         auth.whitelist.insert(mergedPath)
     }
     return auth

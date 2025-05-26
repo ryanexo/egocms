@@ -3,15 +3,12 @@ package controller
 import (
     "context"
     
-    `dpcms/internal/database/model`
     `dpcms/internal/enum`
     `dpcms/internal/erroz`
-    `dpcms/internal/http/controller/internal/dto`
-    `dpcms/internal/http/errors/user_error`
+    `dpcms/internal/http/dto`
     `dpcms/internal/http/middleware/auth`
     `dpcms/internal/http/service`
     `dpcms/internal/infra`
-    `dpcms/internal/packages/password`
     "github.com/gin-gonic/gin"
 )
 
@@ -21,13 +18,15 @@ type UserController struct {
 }
 
 func (c UserController) setup(server *gin.Engine) {
-    middleware := auth.New(c.service).SkipWithPrefix("/user", []string{"/register", "/login"})
-    
-    g := server.Group("/user", middleware.CreateMiddleware())
+    g := server.Group("/user")
     g.POST("/register", c.Register)
-    g.POST("/grant", c.Login)
-    g.POST("/revoke", c.Logout)
+    g.POST("/login", c.Login)
+    g.POST("/logout", c.Logout)
     g.POST("/update-password", c.UpdatePassword)
+    
+    auth.New(c.service).
+        SkipWithGroup(g, []string{"/register", "/login"}).
+        Append(g)
 }
 
 func NewUserController(s *service.Services, i *infra.Infra) *UserController {
@@ -36,57 +35,46 @@ func NewUserController(s *service.Services, i *infra.Infra) *UserController {
 
 func (c UserController) Register(ctx *gin.Context) {
     ctx.FullPath()
-    u := &dto.UserAuth{}
+    u := &dto.UserRegisterRequest{IP: ctx.ClientIP()}
     if err := ctx.ShouldBindJSON(u); err != nil {
         erroz.ResolveWithWrite(ctx, err)
         return
     }
-    finalUser := &model.User{
-        Username: *u.Username,
-        Password: *u.Password,
-        Email:    *u.Email,
-        IP:       ctx.ClientIP(),
-    }
-    if err := c.service.User.Create(context.Background(), finalUser); err != nil {
+    userInfo, err := c.service.User.Create(context.Background(), u)
+    if err != nil {
         erroz.ResolveWithWrite(ctx, err)
         return
     }
-    erroz.OK.WithOption(erroz.WithData(finalUser)).Write(ctx)
+    erroz.OK.WithOption(erroz.WithData(userInfo)).Write(ctx)
 }
 
 func (c UserController) Login(ctx *gin.Context) {
-    u := &dto.UserAuth{}
-    u.SetValidationFields([]string{"username", "password"})
+    u := &dto.UserLoginRequest{}
     if err := ctx.ShouldBindJSON(u); err != nil {
         erroz.ResolveWithWrite(ctx, err)
         return
     }
-    result, err := c.service.User.FindByName(context.Background(), *u.Username)
+    userInfo, err := c.service.User.FindUserWithCredential(context.Background(), *u.Username, *u.Password)
     if err != nil {
         erroz.ResolveWithWrite(ctx, err)
         return
     }
-    if !password.Compare(result.Password, *u.Password) {
-        user_error.ErrWrongPassword.Write(ctx)
-        return
-    }
-    t, err := c.service.Token.Create(result.ID)
+    token, err := c.service.Token.Create(userInfo.ID)
     if err != nil {
         erroz.ResolveWithWrite(ctx, err)
         return
     }
-    erroz.OK.WithOption(erroz.WithData(map[string]string{"token": t})).Write(ctx)
+    erroz.OK.WithOption(erroz.WithData(dto.UserLoginResponse{Token: token})).Write(ctx)
 }
 
 func (c UserController) Logout(ctx *gin.Context) {
     u := auth.GetAuthorizedUser(ctx)
-    key := enum.GetCacheUserBlacklistKey(u.ID)
-    c.infra.Cache.Set(key, true)
+    c.service.Token.Revoke()
     erroz.OK.Write(ctx)
 }
 
 func (c UserController) UpdatePassword(ctx *gin.Context) {
-    u := &dto.UserAuth{}
+    u := &dto.UserRegisterRequest{}
     if err := ctx.ShouldBindJSON(u); err != nil {
         erroz.ResolveWithWrite(ctx, err)
         return

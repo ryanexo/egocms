@@ -38,6 +38,11 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.IP = field.NewString(tableName, "ip")
 	_user.Status = field.NewInt8(tableName, "status")
 	_user.RoleID = field.NewInt64(tableName, "role_id")
+	_user.Profile = userHasOneProfile{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Profile", "model.UserProfile"),
+	}
 
 	_user.fillFieldMap()
 
@@ -59,6 +64,7 @@ type user struct {
 	IP         field.String
 	Status     field.Int8
 	RoleID     field.Int64
+	Profile    userHasOneProfile
 
 	fieldMap map[string]field.Expr
 }
@@ -110,7 +116,7 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 11)
+	u.fieldMap = make(map[string]field.Expr, 12)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["created_at"] = u.CreatedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
@@ -122,16 +128,101 @@ func (u *user) fillFieldMap() {
 	u.fieldMap["ip"] = u.IP
 	u.fieldMap["status"] = u.Status
 	u.fieldMap["role_id"] = u.RoleID
+
 }
 
 func (u user) clone(db *gorm.DB) user {
 	u.userDo.ReplaceConnPool(db.Statement.ConnPool)
+	u.Profile.db = db.Session(&gorm.Session{Initialized: true})
+	u.Profile.db.Statement.ConnPool = db.Statement.ConnPool
 	return u
 }
 
 func (u user) replaceDB(db *gorm.DB) user {
 	u.userDo.ReplaceDB(db)
+	u.Profile.db = db.Session(&gorm.Session{})
 	return u
+}
+
+type userHasOneProfile struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a userHasOneProfile) Where(conds ...field.Expr) *userHasOneProfile {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a userHasOneProfile) WithContext(ctx context.Context) *userHasOneProfile {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a userHasOneProfile) Session(session *gorm.Session) *userHasOneProfile {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a userHasOneProfile) Model(m *model.User) *userHasOneProfileTx {
+	return &userHasOneProfileTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a userHasOneProfile) Unscoped() *userHasOneProfile {
+	a.db = a.db.Unscoped()
+	return &a
+}
+
+type userHasOneProfileTx struct{ tx *gorm.Association }
+
+func (a userHasOneProfileTx) Find() (result *model.UserProfile, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a userHasOneProfileTx) Append(values ...*model.UserProfile) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a userHasOneProfileTx) Replace(values ...*model.UserProfile) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a userHasOneProfileTx) Delete(values ...*model.UserProfile) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a userHasOneProfileTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a userHasOneProfileTx) Count() int64 {
+	return a.tx.Count()
+}
+
+func (a userHasOneProfileTx) Unscoped() *userHasOneProfileTx {
+	a.tx = a.tx.Unscoped()
+	return &a
 }
 
 type userDo struct{ gen.DO }

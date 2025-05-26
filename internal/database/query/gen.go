@@ -26,6 +26,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		Role:            newRole(db, opts...),
 		TokenBlacklist:  newTokenBlacklist(db, opts...),
 		User:            newUser(db, opts...),
+		UserProfile:     newUserProfile(db, opts...),
 	}
 }
 
@@ -40,6 +41,7 @@ type Query struct {
 	Role            role
 	TokenBlacklist  tokenBlacklist
 	User            user
+	UserProfile     userProfile
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -55,6 +57,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		Role:            q.Role.clone(db),
 		TokenBlacklist:  q.TokenBlacklist.clone(db),
 		User:            q.User.clone(db),
+		UserProfile:     q.UserProfile.clone(db),
 	}
 }
 
@@ -77,6 +80,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		Role:            q.Role.replaceDB(db),
 		TokenBlacklist:  q.TokenBlacklist.replaceDB(db),
 		User:            q.User.replaceDB(db),
+		UserProfile:     q.UserProfile.replaceDB(db),
 	}
 }
 
@@ -89,6 +93,7 @@ type queryCtx struct {
 	Role            *roleDo
 	TokenBlacklist  *tokenBlacklistDo
 	User            *userDo
+	UserProfile     *userProfileDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
@@ -101,6 +106,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		Role:            q.Role.WithContext(ctx),
 		TokenBlacklist:  q.TokenBlacklist.WithContext(ctx),
 		User:            q.User.WithContext(ctx),
+		UserProfile:     q.UserProfile.WithContext(ctx),
 	}
 }
 

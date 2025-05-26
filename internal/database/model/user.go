@@ -8,11 +8,23 @@ import (
 
 type User struct {
     database.Model
-    Username   string       `gorm:"type:varchar(255);not null;uniqueIndex" json:"username"`
-    Password   string       `gorm:"type:varchar(255);not null" json:"-"`
-    Email      string       `gorm:"type:varchar(64);not null;uniqueIndex" json:"email"`
+    Username   string       `gorm:"not null;uniqueIndex" json:"username"`
+    Password   string       `gorm:"not null" json:"-"`
+    Email      string       `gorm:"not null;uniqueIndex" json:"email"`
     VerifiedAt sql.NullTime `gorm:"default:null" json:"verifiedAt"`
-    IP         string       `gorm:"type:varchar(255);not null;default:''" json:"ip"`
+    IP         string       `gorm:"not null;default:''" json:"ip"`
     Status     int8         `gorm:"not null;default:0" json:"status"`
     RoleID     int64        `gorm:"index" json:"roleId"`
+    Profile    *UserProfile `gorm:"foreignKey:UserID;reference:ID" json:"profile"`
+}
+
+type UserProfile struct {
+    database.Model
+    UserID      int64 `gorm:"not null;uniqueIndex" json:"userId"`
+    Nickname    string
+    Gender      int8 `gorm:"comment:0男性,1女性"`
+    Description string
+    Country     string
+    Province    string
+    City        string
 }

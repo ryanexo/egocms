@@ -22,6 +22,7 @@ func main() {
     
     g.ApplyBasic(
         model.User{},
+        model.UserProfile{},
         model.Category{},
         model.CategorySeo{},
         model.Menu{},
