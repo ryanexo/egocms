@@ -1,7 +1,6 @@
 package auth
 
 import (
-    `context`
     `strings`
     
     `dpcms/internal/database/model`
@@ -9,28 +8,94 @@ import (
     `dpcms/internal/erroz`
     `dpcms/internal/http/errors/auth_error`
     `dpcms/internal/http/helper/rbachelper`
+    `dpcms/internal/http/middleware/auth/internal/trie`
     `dpcms/internal/http/service`
     "github.com/gin-gonic/gin"
 )
 
-type Auth struct {
-    name       string
-    services   *service.Services
-    whitelist  *whitelist
-    permission map[string]string
+type AccessControl interface {
+    SetObjectName(object string) AccessControl
+    AddPermission(obj string, perm string) AccessControl
+    AddPermissions(map[string]string) AccessControl
+    AddWhitelist(string) AccessControl
+    AddWhitelists([]string) AccessControl
 }
 
-type RouteResource interface {
-    Use(...gin.HandlerFunc) gin.IRoutes
+type Auth interface {
+    RouterGroup(group *gin.RouterGroup) AccessControl
+    Routes(gin.IRoutes, ...gin.IRoutes) AccessControl
 }
 
-func New(srv *service.Services) *Auth {
-    return &Auth{services: srv, whitelist: newWhitelist()}
+type accessControl struct {
+    objectName  string
+    services    *service.Services
+    whitelist   *trie.Trie
+    permissions map[string]string
+    group       *gin.RouterGroup
+    routes      []gin.IRoutes
 }
 
-func (auth *Auth) createMiddleware() gin.HandlerFunc {
+func New(srv *service.Services) Auth {
+    return &accessControl{services: srv, whitelist: trie.NewPathTrie(), permissions: make(map[string]string), routes: make([]gin.IRoutes, 0)}
+}
+
+func (ac *accessControl) RouterGroup(group *gin.RouterGroup) AccessControl {
+    ac.group = group
+    middleware := ac.createMiddleware()
+    group.Use(middleware)
+    return ac
+}
+
+func (ac *accessControl) Routes(route gin.IRoutes, routes ...gin.IRoutes) AccessControl {
+    ac.routes = append(ac.routes, route)
+    if len(routes) > 0 {
+        ac.routes = append(ac.routes, routes...)
+    }
+    middleware := ac.createMiddleware()
+    for _, r := range ac.routes {
+        r.Use(middleware)
+    }
+    return ac
+}
+
+func (ac *accessControl) SetObjectName(objectName string) AccessControl {
+    ac.objectName = objectName
+    return ac
+}
+
+func (ac *accessControl) AddPermission(obj string, perm string) AccessControl {
+    if ac.group != nil {
+        perm = ac.group.BasePath() + perm
+    }
+    ac.permissions[obj] = perm
+    return ac
+}
+
+func (ac *accessControl) AddPermissions(permissions map[string]string) AccessControl {
+    for path, perm := range permissions {
+        ac.AddPermission(path, perm)
+    }
+    return ac
+}
+
+func (ac *accessControl) AddWhitelist(path string) AccessControl {
+    if ac.group != nil {
+        path = ac.group.BasePath() + path
+    }
+    ac.whitelist.Insert(path)
+    return ac
+}
+
+func (ac *accessControl) AddWhitelists(pathList []string) AccessControl {
+    for _, path := range pathList {
+        ac.AddWhitelist(path)
+    }
+    return ac
+}
+
+func (ac *accessControl) createMiddleware() gin.HandlerFunc {
     return func(ctx *gin.Context) {
-        if auth.whitelist.match(ctx.Request.URL.Path) {
+        if ac.whitelist.Match(ctx.Request.URL.Path) {
             ctx.Next()
             return
         }
@@ -47,23 +112,20 @@ func (auth *Auth) createMiddleware() gin.HandlerFunc {
             return
         }
         
-        user, err := auth.shouldSetUserWithToken(ctx, token)
+        user, err := shouldSetUserFromToken(ctx, ac.services.Token, token)
         if err != nil {
             erroz.ResolveWithAbort(ctx, err)
             return
         }
         
-        if auth.name != "" {
-            roleName := rbachelper.GetRoleSubject(user.RoleID)
+        if ac.objectName != "" {
+            subject := rbachelper.GetRoleSubject(user.RoleID)
             path := ctx.FullPath()
-            permission, found := auth.permission[path]
-            if found {
-                pass, err := auth.services.RBAC.Enforce(roleName, auth.name, permission)
-                if err != nil {
+            if perm, found := ac.permissions[path]; found {
+                if pass, err := ac.services.RBAC.Enforce(subject, ac.objectName, perm); err != nil {
                     erroz.ResolveWithAbort(ctx, err)
                     return
-                }
-                if !pass {
+                } else if !pass {
                     auth_error.ErrUnauthorized.WriteWithAbort(ctx)
                     return
                 }
@@ -74,38 +136,8 @@ func (auth *Auth) createMiddleware() gin.HandlerFunc {
     }
 }
 
-func (auth *Auth) Append(route RouteResource) {
-    middleware := auth.createMiddleware()
-    route.Use(middleware)
-}
-
-func (auth *Auth) SetSourceName(name string) *Auth {
-    auth.name = name
-    return auth
-}
-
-func (auth *Auth) Skip(path []string) *Auth {
-    for _, p := range path {
-        auth.whitelist.insert(p)
-    }
-    return auth
-}
-
-func (auth *Auth) SkipWithGroup(group *gin.RouterGroup, path []string) *Auth {
-    for _, p := range path {
-        mergedPath := group.BasePath() + p
-        auth.whitelist.insert(mergedPath)
-    }
-    return auth
-}
-
-func (auth *Auth) Permission(permission map[string]string) *Auth {
-    auth.permission = permission
-    return auth
-}
-
-func (auth *Auth) shouldSetUserWithToken(ctx *gin.Context, token string) (*model.User, error) {
-    user, err := auth.services.Token.Parse(context.Background(), token)
+func shouldSetUserFromToken(ctx *gin.Context, tokenSrv *service.TokenService, token string) (*model.User, error) {
+    user, err := tokenSrv.GetUserFromToken(ctx, token)
     if err != nil {
         return nil, err
     }

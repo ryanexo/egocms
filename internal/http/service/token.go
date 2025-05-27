@@ -76,7 +76,7 @@ func (srv *TokenService) isRevoked(ctx context.Context, userId int64, uuid strin
     return isRevoked, nil
 }
 
-func (srv *TokenService) Parse(ctx context.Context, tokenString string) (*model.User, error) {
+func (srv *TokenService) Parse(ctx context.Context, tokenString string) (*tokenClaim.UserToken, error) {
     claims := &tokenClaim.UserToken{}
     token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
         return config.Get().GlobalKey, nil
@@ -94,12 +94,24 @@ func (srv *TokenService) Parse(ctx context.Context, tokenString string) (*model.
     if isRevoked {
         return nil, auth_error.ErrUnauthorized.ToError()
     }
+    return claims, nil
+}
+
+func (srv *TokenService) GetUserFromToken(ctx context.Context, tokenString string) (*model.User, error) {
+    claims, err := srv.Parse(ctx, tokenString)
+    if err != nil {
+        return nil, err
+    }
     return srv.query.User.WithContext(ctx).Where(srv.query.User.ID.Eq(claims.UserID)).First()
 }
 
-func (srv *TokenService) Revoke(ctx context.Context, userId int64, uuid string) error {
+func (srv *TokenService) Revoke(ctx context.Context, tokenString string) error {
+    claims, err := srv.Parse(ctx, tokenString)
+    if err != nil {
+        return err
+    }
     return srv.query.WithContext(ctx).TokenBlacklist.Create(&model.TokenBlacklist{
-        UserId: userId,
-        UUID:   uuid,
+        UserId: claims.UserID,
+        UUID:   claims.ID,
     })
 }

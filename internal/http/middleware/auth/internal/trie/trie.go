@@ -1,32 +1,32 @@
-package auth
+package trie
 
-type whitelist struct {
-    root *charNode
+type Trie struct {
+    root *Node
 }
 
-type charNode struct {
-    child map[rune]*charNode
+type Node struct {
+    child map[rune]*Node
     isEnd bool
 }
 
-func newWhitelist() *whitelist {
-    return &whitelist{root: &charNode{
-        child: make(map[rune]*charNode),
+func NewPathTrie() *Trie {
+    return &Trie{root: &Node{
+        child: make(map[rune]*Node),
     }}
 }
 
-func (t *whitelist) insert(content string) {
+func (t *Trie) Insert(content string) {
     node := t.root
     for _, i := range content {
         if _, ok := node.child[i]; !ok {
-            node.child[i] = &charNode{child: make(map[rune]*charNode)}
+            node.child[i] = &Node{child: make(map[rune]*Node)}
         }
         node = node.child[i]
     }
     node.isEnd = true
 }
 
-func (t *whitelist) match(content string) bool {
+func (t *Trie) Match(content string) bool {
     node := t.root
     for _, i := range content {
         child, ok := node.child[i]

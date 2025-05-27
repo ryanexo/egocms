@@ -3,7 +3,6 @@ package controller
 import (
     "context"
     
-    `dpcms/internal/enum`
     `dpcms/internal/erroz`
     `dpcms/internal/http/dto`
     `dpcms/internal/http/middleware/auth`
@@ -25,8 +24,8 @@ func (c UserController) setup(server *gin.Engine) {
     g.POST("/update-password", c.UpdatePassword)
     
     auth.New(c.service).
-        SkipWithGroup(g, []string{"/register", "/login"}).
-        Append(g)
+        RouterGroup(g).
+        AddWhitelists([]string{"/register", "/login"})
 }
 
 func NewUserController(s *service.Services, i *infra.Infra) *UserController {
@@ -40,7 +39,7 @@ func (c UserController) Register(ctx *gin.Context) {
         erroz.ResolveWithWrite(ctx, err)
         return
     }
-    userInfo, err := c.service.User.Create(context.Background(), u)
+    userInfo, err := c.service.User.Create(ctx, u)
     if err != nil {
         erroz.ResolveWithWrite(ctx, err)
         return
@@ -54,7 +53,7 @@ func (c UserController) Login(ctx *gin.Context) {
         erroz.ResolveWithWrite(ctx, err)
         return
     }
-    userInfo, err := c.service.User.FindUserWithCredential(context.Background(), *u.Username, *u.Password)
+    userInfo, err := c.service.User.FindUserWithCredential(ctx, *u.Username, *u.Password)
     if err != nil {
         erroz.ResolveWithWrite(ctx, err)
         return
@@ -68,8 +67,10 @@ func (c UserController) Login(ctx *gin.Context) {
 }
 
 func (c UserController) Logout(ctx *gin.Context) {
-    u := auth.GetAuthorizedUser(ctx)
-    c.service.Token.Revoke()
+    tokenString := ctx.GetHeader("Authorization")
+    if tokenString != "" {
+        _ = c.service.Token.Revoke(ctx, tokenString)
+    }
     erroz.OK.Write(ctx)
 }
 
