@@ -6,7 +6,7 @@ import (
 
 type Password string
 
-func (p Password) Make() (string, error) {
+func (p Password) Generate() (string, error) {
     r, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.DefaultCost)
     return string(r), err
 }

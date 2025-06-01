@@ -32,7 +32,7 @@ func newTokenBlacklist(db *gorm.DB, opts ...gen.DOOption) tokenBlacklist {
 	_tokenBlacklist.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_tokenBlacklist.DeletedAt = field.NewField(tableName, "deleted_at")
 	_tokenBlacklist.UserId = field.NewInt64(tableName, "user_id")
-	_tokenBlacklist.UUID = field.NewString(tableName, "'uuid'")
+	_tokenBlacklist.UUID = field.NewString(tableName, "uuid")
 
 	_tokenBlacklist.fillFieldMap()
 
@@ -70,7 +70,7 @@ func (t *tokenBlacklist) updateTableName(table string) *tokenBlacklist {
 	t.UpdatedAt = field.NewTime(table, "updated_at")
 	t.DeletedAt = field.NewField(table, "deleted_at")
 	t.UserId = field.NewInt64(table, "user_id")
-	t.UUID = field.NewString(table, "'uuid'")
+	t.UUID = field.NewString(table, "uuid")
 
 	t.fillFieldMap()
 
@@ -105,7 +105,7 @@ func (t *tokenBlacklist) fillFieldMap() {
 	t.fieldMap["updated_at"] = t.UpdatedAt
 	t.fieldMap["deleted_at"] = t.DeletedAt
 	t.fieldMap["user_id"] = t.UserId
-	t.fieldMap["'uuid'"] = t.UUID
+	t.fieldMap["uuid"] = t.UUID
 }
 
 func (t tokenBlacklist) clone(db *gorm.DB) tokenBlacklist {

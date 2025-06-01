@@ -11,6 +11,7 @@ import (
 )
 
 type businessError struct {
+    err    error
     log    bool
     status int
     uuid   string
@@ -26,92 +27,94 @@ type BusinessError interface {
     WithOption(option ...Option) BusinessError
     Log() BusinessError
     Format(...any) BusinessError
+    Wrap(err error) BusinessError
     Write(ctx *gin.Context)
     WriteWithAbort(ctx *gin.Context)
     ToError() error
-    raw() *businessError
+    raw() businessError
 }
 
 var _ BusinessError = (*businessError)(nil)
 
-func (s *businessError) clone() *businessError {
-    return &businessError{
-        log:    s.log,
-        status: s.status,
-        uuid:   s.uuid,
-        Debug:  s.Debug,
-        Data:   s.Data,
-        Code:   s.Code,
-        Msg:    s.Msg,
-    }
-}
-
-func (s *businessError) Is(err error) bool {
-    var bizErr *businessError
+func (s businessError) Is(err error) bool {
+    var bizErr businessError
     if errors.As(err, &bizErr) {
         return bizErr.Code == s.Code
     }
     return false
 }
 
-func (s *businessError) WithOption(option ...Option) BusinessError {
+func (s businessError) Wrap(err error) BusinessError {
+    s.err = err
+    return s
+}
+
+func (s businessError) Unwrap() error {
+    return s.err
+}
+
+func (s businessError) WithOption(option ...Option) BusinessError {
     for _, fn := range option {
-        fn(s)
+        fn(&s)
     }
     return s
 }
 
-func (s *businessError) Log() BusinessError {
-    err := s.clone()
-    err.log = true
-    return err
+func (s businessError) Log() BusinessError {
+    s.log = true
+    return s
 }
 
-func (s *businessError) Format(args ...any) BusinessError {
-    err := s.clone()
-    err.Msg = fmt.Sprintf(s.Msg, args...)
-    return err
+func (s businessError) Format(args ...any) BusinessError {
+    s.Msg = fmt.Sprintf(s.Msg, args...)
+    return s
 }
 
-func (s *businessError) Write(ctx *gin.Context) {
+func (s businessError) Write(ctx *gin.Context) {
     if s.log {
-        bizErr := s
-        errID, err := uuid.NewV7()
+        id, err := uuid.NewV7()
         if err != nil {
             _ = ctx.Error(err)
         } else {
-            bizErr = s.clone()
-            bizErr.uuid = errID.String()
+            idStr := id.String()
+            s.uuid = idStr
+            s.Msg = s.Msg + "[" + idStr + "]"
         }
-        _ = ctx.Error(bizErr)
+        _ = ctx.Error(s)
     }
     ctx.JSON(s.status, s)
 }
 
-func (s *businessError) WriteWithAbort(ctx *gin.Context) {
+func (s businessError) WriteWithAbort(ctx *gin.Context) {
     s.Write(ctx)
     ctx.Abort()
 }
 
-func (s *businessError) Error() string {
-    if s.uuid == "" {
-        return s.Msg
+func (s businessError) Error() string {
+    var errMsg string
+    if s.err != nil {
+        errMsg = s.err.Error()
+    } else {
+        errMsg = s.Msg
     }
-    return s.Msg + "(" + s.uuid + ")"
+    if s.uuid == "" {
+        return errMsg
+    }
+    return "[" + s.uuid + "]" + errMsg
 }
 
-func (s *businessError) ToError() error {
+func (s businessError) ToError() error {
     return s
 }
 
-func (s *businessError) raw() *businessError {
+func (s businessError) raw() businessError {
     return s
 }
 
 func ResolveWithWrite(ctx *gin.Context, err error) {
     var (
         notResolved     bool
-        returnValue     *businessError
+        returnValue     businessError
         validationError validate.ValidationErrors
     )
     
@@ -126,9 +129,8 @@ func ResolveWithWrite(ctx *gin.Context, err error) {
         returnValue = ErrDataNotFound.raw()
     
     default:
-        returnValue = ErrUnknown.raw()
+        returnValue = ErrUnknown.Log().Wrap(err).raw()
         notResolved = true
-        _ = ctx.Error(err)
     }
     
     if gin.Mode() == gin.DebugMode && notResolved {

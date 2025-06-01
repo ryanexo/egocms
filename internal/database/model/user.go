@@ -20,11 +20,11 @@ type User struct {
 
 type UserProfile struct {
     database.Model
-    UserID      int64 `gorm:"not null;uniqueIndex" json:"userId"`
-    Nickname    string
-    Gender      int8 `gorm:"comment:0男性,1女性"`
-    Description string
-    Country     string
-    Province    string
-    City        string
+    UserID      int64  `gorm:"not null;uniqueIndex" json:"userId"`
+    Nickname    string `json:"nickname"`
+    Gender      int8   `gorm:"comment:0男性,1女性"`
+    Description string `json:"description"`
+    Country     string `json:"country"`
+    Province    string `json:"province"`
+    City        string `json:"city"`
 }

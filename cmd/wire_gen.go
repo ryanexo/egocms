@@ -7,19 +7,19 @@
 package main
 
 import (
-    "dpcms/config"
-    "dpcms/internal/http/controller"
-    "dpcms/internal/http/middleware"
-    "dpcms/internal/http/middleware/cors"
-    "dpcms/internal/http/middleware/log"
-    "dpcms/internal/http/middleware/recovery"
-    `dpcms/internal/http/service`
-    "dpcms/internal/httpserver"
-    "dpcms/internal/infra"
-    "dpcms/internal/packages/cache"
-    "dpcms/internal/packages/database"
-    "dpcms/internal/packages/logger"
-    "dpcms/internal/packages/validate"
+	"dpcms/internal/config"
+	"dpcms/internal/app/controllers"
+    "dpcms/internal/app/middleware"
+    "dpcms/internal/app/middleware/cors"
+    "dpcms/internal/app/middleware/log"
+    "dpcms/internal/app/middleware/recovery"
+	"dpcms/internal/app/services"
+	"dpcms/internal/httpserver"
+	"dpcms/internal/infra"
+	"dpcms/internal/packages/cache"
+	"dpcms/internal/packages/database"
+	"dpcms/internal/packages/logger"
+	"dpcms/internal/packages/validate"
 )
 
 // Injectors from wire.go:
@@ -50,29 +50,33 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		DB:     db,
 		Logger: zapLogger,
 	}
-	categoryService := service.NewCategoryCategory(infraInfra)
-	userService := service.NewUserService(infraInfra)
-	tokenService := service.NewTokenService(infraInfra)
-	v, err := service.NewRBACService(infraInfra)
+	categoryService := services.NewCategoryCategory(infraInfra)
+	userService := services.NewUserService(infraInfra)
+	tokenService := services.NewTokenService(infraInfra)
+	v, err := services.NewRBACService(infraInfra)
 	if err != nil {
 		return nil, err
 	}
-	roleService, err := service.NewRoleService(infraInfra, v)
+	roleService, err := services.NewRoleService(infraInfra, v)
 	if err != nil {
 		return nil, err
 	}
-	services := &service.Services{
+	menuService := services.NewMenuService(infraInfra)
+	services := &services.Services{
 		Category: categoryService,
 		User:     userService,
 		Token:    tokenService,
 		RBAC:     v,
 		Role:     roleService,
+		Menu:     menuService,
 	}
-	userController := controller.NewUserController(services, infraInfra)
-	controllerController := &controller.Controller{
+	userController := controllers.NewUserController(services, infraInfra)
+	menuController := controllers.NewMenuController(services)
+	controllerController := &controllers.Controllers{
 		User: userController,
+		Menu: menuController,
 	}
-	routes := controller.NewRouteRegistrar(controllerController)
+	routes := controllers.NewRouteRegistrar(controllerController)
 	structValidator := validate.New()
 	launcher, err := httpserver.New(httpserverConfig, httpserverMiddleware, routes, structValidator)
 	if err != nil {

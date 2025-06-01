@@ -3,7 +3,7 @@ package main
 import (
     `fmt`
     
-    `dpcms/config`
+    `dpcms/internal/config`
     `dpcms/internal/database/model`
     `dpcms/internal/packages/database`
     `gorm.io/gorm`

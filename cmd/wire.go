@@ -3,10 +3,10 @@
 package main
 
 import (
-    `dpcms/config`
-    `dpcms/internal/http/controller`
-    `dpcms/internal/http/middleware`
-    `dpcms/internal/http/service`
+    `dpcms/internal/config`
+    `dpcms/internal/app/controllers`
+    `dpcms/internal/app/middleware`
+    `dpcms/internal/app/services`
     `dpcms/internal/httpserver`
     `dpcms/internal/infra`
     `dpcms/internal/packages/validate`
@@ -18,8 +18,8 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
         config.ProviderSet,
         infra.ProviderSet,
         middleware.ProviderSet,
-        service.ProviderSet,
-        controller.ProviderSet,
+        services.ProviderSet,
+        controllers.ProviderSet,
         validate.ProviderSet,
         httpserver.ProviderSet,
     ))

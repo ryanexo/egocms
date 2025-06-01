@@ -4,7 +4,7 @@ import (
     "fmt"
     "os"
     
-    `dpcms/config`
+    `dpcms/internal/config`
     `dpcms/internal/httpserver`
     "github.com/bytedance/sonic"
     "github.com/spf13/pflag"

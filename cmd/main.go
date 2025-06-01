@@ -1,16 +1,16 @@
 package main
 
 import (
-    `dpcms/config`
+    `dpcms/internal/config`
 )
 
 var appConfig *config.Config = config.NewWithDefaultConfig()
 
 func main() {
-    err := registerCommand()
-    if err != nil {
-        panic(err)
-    }
+    // err := registerCommand()
+    // if err != nil {
+    //     panic(err)
+    // }
     launcher, err := createHttpServer(appConfig)
     if err != nil {
         panic(err)

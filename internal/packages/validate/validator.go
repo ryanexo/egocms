@@ -1,6 +1,7 @@
 package validate
 
 import (
+    `errors`
     "reflect"
     `sync`
     
@@ -74,7 +75,10 @@ func (v *validatorEx) ValidateStruct(s any) error {
         return nil
     }
     
-    errs := err.(validator.ValidationErrors)
+    var errs validator.ValidationErrors
+    if !errors.As(err, &errs) {
+        return err
+    }
     finalErrors := make(ValidationErrors, 0, len(errs))
     
     for _, e := range errs {

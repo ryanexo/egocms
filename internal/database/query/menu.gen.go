@@ -34,7 +34,7 @@ func newMenu(db *gorm.DB, opts ...gen.DOOption) menu {
 	_menu.ParentID = field.NewInt64(tableName, "parent_id")
 	_menu.Name = field.NewString(tableName, "name")
 	_menu.Sequence = field.NewInt32(tableName, "sequence")
-	_menu.Display = field.NewBool(tableName, "display")
+	_menu.Visible = field.NewBool(tableName, "visible")
 	_menu.URI = field.NewString(tableName, "uri")
 	_menu.Template = field.NewString(tableName, "template")
 	_menu.Remark = field.NewString(tableName, "remark")
@@ -65,7 +65,7 @@ type menu struct {
 	ParentID  field.Int64
 	Name      field.String
 	Sequence  field.Int32
-	Display   field.Bool
+	Visible   field.Bool
 	URI       field.String
 	Template  field.String
 	Remark    field.String
@@ -93,7 +93,7 @@ func (m *menu) updateTableName(table string) *menu {
 	m.ParentID = field.NewInt64(table, "parent_id")
 	m.Name = field.NewString(table, "name")
 	m.Sequence = field.NewInt32(table, "sequence")
-	m.Display = field.NewBool(table, "display")
+	m.Visible = field.NewBool(table, "visible")
 	m.URI = field.NewString(table, "uri")
 	m.Template = field.NewString(table, "template")
 	m.Remark = field.NewString(table, "remark")
@@ -129,7 +129,7 @@ func (m *menu) fillFieldMap() {
 	m.fieldMap["parent_id"] = m.ParentID
 	m.fieldMap["name"] = m.Name
 	m.fieldMap["sequence"] = m.Sequence
-	m.fieldMap["display"] = m.Display
+	m.fieldMap["visible"] = m.Visible
 	m.fieldMap["uri"] = m.URI
 	m.fieldMap["template"] = m.Template
 	m.fieldMap["remark"] = m.Remark
