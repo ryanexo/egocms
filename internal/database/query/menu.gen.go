@@ -33,7 +33,7 @@ func newMenu(db *gorm.DB, opts ...gen.DOOption) menu {
 	_menu.DeletedAt = field.NewField(tableName, "deleted_at")
 	_menu.ParentID = field.NewInt64(tableName, "parent_id")
 	_menu.Name = field.NewString(tableName, "name")
-	_menu.Sequence = field.NewInt32(tableName, "sequence")
+	_menu.Sequence = field.NewInt64(tableName, "sequence")
 	_menu.Visible = field.NewBool(tableName, "visible")
 	_menu.URI = field.NewString(tableName, "uri")
 	_menu.Template = field.NewString(tableName, "template")
@@ -64,7 +64,7 @@ type menu struct {
 	DeletedAt field.Field
 	ParentID  field.Int64
 	Name      field.String
-	Sequence  field.Int32
+	Sequence  field.Int64
 	Visible   field.Bool
 	URI       field.String
 	Template  field.String
@@ -92,7 +92,7 @@ func (m *menu) updateTableName(table string) *menu {
 	m.DeletedAt = field.NewField(table, "deleted_at")
 	m.ParentID = field.NewInt64(table, "parent_id")
 	m.Name = field.NewString(table, "name")
-	m.Sequence = field.NewInt32(table, "sequence")
+	m.Sequence = field.NewInt64(table, "sequence")
 	m.Visible = field.NewBool(table, "visible")
 	m.URI = field.NewString(table, "uri")
 	m.Template = field.NewString(table, "template")

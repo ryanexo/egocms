@@ -32,7 +32,8 @@ func (c UserController) setup(server *gin.Engine) {
     ac.SetObjectName("user").
         AddGroupPermission(g, "/list", "read").
         AddGroupPermission(g, "/delete", "delete").
-        AddGroupPermission(g, "/update", "edit").
+        AddGroupPermission(g, "/update", "update").
+        AddGroupPermission(g, "/update-password", "update").
         AddGroupPermission(g, "/reset-password", "reset-password")
 }
 

@@ -68,7 +68,9 @@ func (srv MenuService) Update(ctx context.Context, params menu.UpdateParams) (re
             return dbErr
         }
         if m.ParentID != params.ParentID {
-            return srv.Move(ctx, m.ID, params.ParentID)
+            if dbErr = srv.Move(ctx, m.ID, params.ParentID); dbErr != nil {
+                return dbErr
+            }
         }
         menuModel = *m
         return nil
@@ -213,16 +215,7 @@ func (srv MenuService) FindDescendant(ctx context.Context, id int64, distance in
     return queryCtx.Menu.Where(gen.Exists(descendants)).Find()
 }
 
-func (srv MenuService) ListRootNodes(ctx context.Context, pageNo int, pageSize int) ([]*model.Menu, error) {
-    return srv.query.Menu.WithContext(ctx).Scopes(dbscopes.Paginate(pageNo, pageSize)).Where(srv.query.Menu.ParentID.Eq(0)).Find()
-}
-
-func (srv MenuService) ListNodesByParentID(ctx context.Context, id int64, pageSize int, pageNo int) ([]*model.Menu, error) {
-    q := srv.query.Menu
-    return q.WithContext(ctx).Where(q.ParentID.Eq(id)).Scopes(dbscopes.Paginate(pageNo, pageSize)).Find()
-}
-
-func (srv MenuService) List(ctx context.Context, condition *menu.RetrieveListParams) (*types.Pagination[*model.Menu], error) {
+func (srv MenuService) List(ctx context.Context, condition *menu.RetrieveListParams) (result types.Pagination[menu.Detail], err error) {
     menuDAO := srv.query.Menu
     q := menuDAO.WithContext(ctx).Debug()
     if condition.Ancestor != nil {
@@ -240,17 +233,22 @@ func (srv MenuService) List(ctx context.Context, condition *menu.RetrieveListPar
     }
     count, err := q.Count()
     if err != nil {
-        return nil, err
+        return
     }
     menuList, err := q.Scopes(dbscopes.Paginate(condition.PageNo, condition.PageSize)).Find()
     if err != nil {
-        return nil, err
+        return
     }
-    result := &types.Pagination[*model.Menu]{
+    details := make([]menu.Detail, len(menuList), len(menuList))
+    err = copier.Copy(&details, menuList)
+    if err != nil {
+        return
+    }
+    result = types.Pagination[menu.Detail]{
         Total:    count,
-        List:     menuList,
+        List:     details,
         PageNo:   condition.PageNo,
         PageSize: condition.PageSize,
     }
-    return result, nil
+    return
 }
