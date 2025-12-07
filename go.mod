@@ -32,6 +32,7 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.8.1 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/casbin/govaluate v1.7.0 // indirect

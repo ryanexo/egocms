@@ -3,8 +3,8 @@ package config
 import (
     "os"
     
-    `dpcms/internal/config/internal/token`
     `dpcms/internal/app/middleware/cors`
+    `dpcms/internal/config/internal/token`
     `dpcms/internal/httpserver`
     `dpcms/internal/packages/cache`
     `dpcms/internal/packages/database`

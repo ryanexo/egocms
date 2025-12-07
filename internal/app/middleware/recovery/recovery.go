@@ -8,7 +8,8 @@ import (
     "os"
     "strings"
     
-    erroz2 `dpcms/internal/erroz`
+    erroz2 `dpcms/internal/app/erroz`
+    
     "github.com/gin-gonic/gin"
     "go.uber.org/zap"
 )
@@ -63,9 +64,9 @@ func New(logger *zap.Logger) Recovery {
                 ctx.Abort()
             } else {
                 message = "panic"
-                err := erroz2.ErrUnknown
-                err.WithOption(erroz2.WithDebug(panicMsg))
-                erroz2.ErrUnknown.WithOption(erroz2.WithStatus(http.StatusInternalServerError)).Write(ctx)
+                erroz2.ErrUnknown.WithOption(
+                    erroz2.WithDebug(panicMsg), erroz2.WithStatus(http.StatusInternalServerError),
+                ).Write(ctx)
             }
             
             logger.Error(message, fields...)

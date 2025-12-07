@@ -3,6 +3,8 @@ package log
 import (
     "time"
     
+    `dpcms/internal/app/constant`
+    
     "github.com/gin-gonic/gin"
     "go.uber.org/zap"
 )
@@ -23,6 +25,11 @@ func New(logger *zap.Logger) Logger {
             zap.String("ip", context.RemoteIP()),
             zap.String("ua", context.Request.UserAgent()),
             zap.Duration("cost", cost),
+        }
+        
+        traceId, ok := context.Get(constant.TraceIdKey)
+        if ok {
+            fields = append(fields, zap.Any("trace-id", traceId))
         }
         
         if len(context.Errors) > 0 {

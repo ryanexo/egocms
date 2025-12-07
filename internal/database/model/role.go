@@ -6,7 +6,6 @@ import (
 
 type Role struct {
     database.Model
-    Name        string  `gorm:"type:varchar(64);not null" json:"name"`
-    Description string  `gorm:"type:varchar(255);default:'';not null" json:"description"`
-    InheritList []*Role `gorm:"-" json:"inheritList"`
+    Name        string `gorm:"type:varchar(64);not null" json:"name"`
+    Description string `gorm:"type:varchar(255);default:'';not null" json:"description"`
 }

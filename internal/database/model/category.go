@@ -18,13 +18,13 @@ type Category struct {
     Type     uint         `gorm:"type:tinyint;not null;comment:'0:普通分类,1:单页型分类,2:链接'"`
     Display  uint         `gorm:"type:tinyint;not null"`
     SEO      *CategorySeo `gorm:"foreignKey:CategoryID;references:ID"`
-    Children []*Category  `gorm:"foreignKey:ParentID;references:ID"`
+    Children []Category   `gorm:"foreignKey:ParentID;references:ID"`
 }
 
 type CategorySeo struct {
     database.Model
-    CategoryID     int64  `gorm:"not null;index"`
-    SeoTitle       string `gorm:"type:varchar(255);not null"`
-    SeoKeywords    string `gorm:"type:varchar(255);not null"`
-    SeoDescription string `gorm:"type:varchar(255);not null"`
+    CategoryID  int64  `gorm:"not null;index"`
+    Title       string `gorm:"type:varchar(255);not null"`
+    Keywords    string `gorm:"type:varchar(255);not null"`
+    Description string `gorm:"type:varchar(255);not null"`
 }

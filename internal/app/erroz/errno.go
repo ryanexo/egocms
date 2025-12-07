@@ -1,0 +1,18 @@
+package erroz
+
+var (
+    OK                                   = New("ok", "成功")
+    ErrUnknown                           = New("server.error", "服务器错误")
+    ErrDataNotFound                      = New("server.data.notfound", "数据不存在")
+    ErrValidation                        = New("client.param.error", "参数错误")
+    ErrAuthorizationExpired              = New("authz.expired", "授权已过期，请重新登陆")
+    ErrUnauthorized                      = New("authz.unauthorized", "未授权")
+    ErrUserIDNotExists                   = New("user.not_exists.id", "用户不存在")
+    ErrUsernameNotExists                 = New("user.not_exists.username", "用户名不存在")
+    ErrUsernameExists                    = New("user.exists.username", "用户名已存在")
+    ErrEMailExists                       = New("user.exists.email", "邮箱已存在")
+    ErrWrongPassword                     = New("user.password.wrong", "密码错误")
+    ErrRoleCircularReference             = New("role.circular", "角色 %s 已继承自当前角色，无法建立继承关系")
+    ErrMenuCircularReferenceWhenMove     = New("menu.circular", "目标菜单 %s 为当前菜单 %s 的子级")
+    ErrCategoryCircularReferenceWhenMove = New("category.circular", "目标分类 %s 为当前分类 %s 的子级")
+)

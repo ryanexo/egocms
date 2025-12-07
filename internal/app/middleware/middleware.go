@@ -6,7 +6,9 @@ import (
     `dpcms/internal/app/middleware/cors`
     `dpcms/internal/app/middleware/log`
     `dpcms/internal/app/middleware/recovery`
+    `dpcms/internal/app/middleware/reqtrace`
     `dpcms/internal/httpserver`
+    
     "github.com/gin-gonic/gin"
     "github.com/google/wire"
 )
@@ -17,9 +19,11 @@ var ProviderSet = wire.NewSet(
     recovery.New,
     log.New,
     cors.New,
+    reqtrace.New,
 )
 
 type Middleware struct {
+    ReqTrace reqtrace.ReqTrace
     Recovery recovery.Recovery
     Logger   log.Logger
     CORS     cors.CORS

@@ -8,12 +8,12 @@ package main
 
 import (
 	"dpcms/internal/config"
-	"dpcms/internal/app/controllers"
+    "dpcms/internal/app/controller"
     "dpcms/internal/app/middleware"
     "dpcms/internal/app/middleware/cors"
     "dpcms/internal/app/middleware/log"
     "dpcms/internal/app/middleware/recovery"
-	"dpcms/internal/app/services"
+    "dpcms/internal/app/service"
 	"dpcms/internal/httpserver"
 	"dpcms/internal/infra"
 	"dpcms/internal/packages/cache"
@@ -50,19 +50,19 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		DB:     db,
 		Logger: zapLogger,
 	}
-	categoryService := services.NewCategoryCategory(infraInfra)
-	userService := services.NewUserService(infraInfra)
-	tokenService := services.NewTokenService(infraInfra)
-	v, err := services.NewRBACService(infraInfra)
+	categoryService := service.NewCategoryCategory(infraInfra)
+	userService := service.NewUserService(infraInfra)
+	tokenService := service.NewTokenService(infraInfra)
+	v, err := service.NewRBACService(infraInfra)
 	if err != nil {
 		return nil, err
 	}
-	roleService, err := services.NewRoleService(infraInfra, v)
+	roleService, err := service.NewRoleService(infraInfra, v)
 	if err != nil {
 		return nil, err
 	}
-	menuService := services.NewMenuService(infraInfra)
-	services := &services.Services{
+	menuService := service.NewMenuService(infraInfra)
+	services := &service.Services{
 		Category: categoryService,
 		User:     userService,
 		Token:    tokenService,
@@ -70,13 +70,13 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		Role:     roleService,
 		Menu:     menuService,
 	}
-	userController := controllers.NewUserController(services, infraInfra)
-	menuController := controllers.NewMenuController(services)
-	controllerController := &controllers.Controllers{
+	userController := controller.NewUserController(services, infraInfra)
+	menuController := controller.NewMenuController(services)
+	controllerController := &controller.Controllers{
 		User: userController,
 		Menu: menuController,
 	}
-	routes := controllers.NewRouteRegistrar(controllerController)
+	routes := controller.NewRouteRegistrar(controllerController)
 	structValidator := validate.New()
 	launcher, err := httpserver.New(httpserverConfig, httpserverMiddleware, routes, structValidator)
 	if err != nil {

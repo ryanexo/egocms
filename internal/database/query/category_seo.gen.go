@@ -32,9 +32,9 @@ func newCategorySeo(db *gorm.DB, opts ...gen.DOOption) categorySeo {
 	_categorySeo.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_categorySeo.DeletedAt = field.NewField(tableName, "deleted_at")
 	_categorySeo.CategoryID = field.NewInt64(tableName, "category_id")
-	_categorySeo.SeoTitle = field.NewString(tableName, "seo_title")
-	_categorySeo.SeoKeywords = field.NewString(tableName, "seo_keywords")
-	_categorySeo.SeoDescription = field.NewString(tableName, "seo_description")
+	_categorySeo.Title = field.NewString(tableName, "title")
+	_categorySeo.Keywords = field.NewString(tableName, "keywords")
+	_categorySeo.Description = field.NewString(tableName, "description")
 
 	_categorySeo.fillFieldMap()
 
@@ -44,15 +44,15 @@ func newCategorySeo(db *gorm.DB, opts ...gen.DOOption) categorySeo {
 type categorySeo struct {
 	categorySeoDo categorySeoDo
 
-	ALL            field.Asterisk
-	ID             field.Int64
-	CreatedAt      field.Time
-	UpdatedAt      field.Time
-	DeletedAt      field.Field
-	CategoryID     field.Int64
-	SeoTitle       field.String
-	SeoKeywords    field.String
-	SeoDescription field.String
+	ALL         field.Asterisk
+	ID          field.Int64
+	CreatedAt   field.Time
+	UpdatedAt   field.Time
+	DeletedAt   field.Field
+	CategoryID  field.Int64
+	Title       field.String
+	Keywords    field.String
+	Description field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -74,9 +74,9 @@ func (c *categorySeo) updateTableName(table string) *categorySeo {
 	c.UpdatedAt = field.NewTime(table, "updated_at")
 	c.DeletedAt = field.NewField(table, "deleted_at")
 	c.CategoryID = field.NewInt64(table, "category_id")
-	c.SeoTitle = field.NewString(table, "seo_title")
-	c.SeoKeywords = field.NewString(table, "seo_keywords")
-	c.SeoDescription = field.NewString(table, "seo_description")
+	c.Title = field.NewString(table, "title")
+	c.Keywords = field.NewString(table, "keywords")
+	c.Description = field.NewString(table, "description")
 
 	c.fillFieldMap()
 
@@ -109,9 +109,9 @@ func (c *categorySeo) fillFieldMap() {
 	c.fieldMap["updated_at"] = c.UpdatedAt
 	c.fieldMap["deleted_at"] = c.DeletedAt
 	c.fieldMap["category_id"] = c.CategoryID
-	c.fieldMap["seo_title"] = c.SeoTitle
-	c.fieldMap["seo_keywords"] = c.SeoKeywords
-	c.fieldMap["seo_description"] = c.SeoDescription
+	c.fieldMap["title"] = c.Title
+	c.fieldMap["keywords"] = c.Keywords
+	c.fieldMap["description"] = c.Description
 }
 
 func (c categorySeo) clone(db *gorm.DB) categorySeo {
