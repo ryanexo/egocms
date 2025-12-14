@@ -1,19 +1,18 @@
-package menu
+package srvparams
 
 import (
     `dpcms/internal/app/helper/dbscope`
-    `dpcms/internal/app/service/types`
 )
 
-type ListParams struct {
+type MenuListParams struct {
     dbscope.Pagination
     Name      *string `json:"name"`
-    Ancestor  *int64  `json:"ancestor"`
+    Ancestor  *uint64 `json:"ancestor"`
     Recursive bool    `json:"recursive"`
 }
 
-type CreateParams struct {
-    ParentID int64  `json:"parentId"`
+type MenuCreateParams struct {
+    ParentID uint64 `json:"parentId"`
     Name     string `validate:"required" json:"name" label:"名称"`
     Sequence int64  `json:"sequence"`
     URI      string `validate:"required,alphanum" json:"uri"`
@@ -21,9 +20,9 @@ type CreateParams struct {
     Remark   string `json:"remark"`
 }
 
-type UpdateParams struct {
-    ID       int64  `validate:"required" json:"id"`
-    ParentID int64  `json:"parentId"`
+type MenuUpdateParams struct {
+    ID       uint64 `validate:"required" json:"id"`
+    ParentID uint64 `json:"parentId"`
     Name     string `json:"name"`
     Sequence int64  `json:"sequence"`
     URI      string `json:"uri"`
@@ -32,7 +31,7 @@ type UpdateParams struct {
 }
 
 type DetailResult struct {
-    types.Meta
-    CreateParams
+    Meta
+    MenuCreateParams
     Visible bool `json:"visible"`
 }

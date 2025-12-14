@@ -7,13 +7,14 @@
 package main
 
 import (
+	"dpcms/internal/app/controller"
+	"dpcms/internal/app/middleware"
+	"dpcms/internal/app/middleware/cors"
+	"dpcms/internal/app/middleware/log"
+	"dpcms/internal/app/middleware/recovery"
+	"dpcms/internal/app/middleware/reqtrace"
+	"dpcms/internal/app/service"
 	"dpcms/internal/config"
-    "dpcms/internal/app/controller"
-    "dpcms/internal/app/middleware"
-    "dpcms/internal/app/middleware/cors"
-    "dpcms/internal/app/middleware/log"
-    "dpcms/internal/app/middleware/recovery"
-    "dpcms/internal/app/service"
 	"dpcms/internal/httpserver"
 	"dpcms/internal/infra"
 	"dpcms/internal/packages/cache"
@@ -26,6 +27,7 @@ import (
 
 func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	httpserverConfig := config.GetServerConfig(cfg)
+	reqTrace := reqtrace.New()
 	lumberjackLogger := config.GetLoggerConfig(cfg)
 	zapLogger := logger.New(lumberjackLogger)
 	recoveryRecovery := recovery.New(zapLogger)
@@ -33,6 +35,7 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	corsConfig := config.GetCORSConfig(cfg)
 	corsCORS := cors.New(corsConfig)
 	middlewareMiddleware := &middleware.Middleware{
+		ReqTrace: reqTrace,
 		Recovery: recoveryRecovery,
 		Logger:   logLogger,
 		CORS:     corsCORS,
@@ -52,12 +55,12 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	}
 	categoryService := service.NewCategoryCategory(infraInfra)
 	userService := service.NewUserService(infraInfra)
-	tokenService := service.NewTokenService(infraInfra)
-	v, err := service.NewRBACService(infraInfra)
+	tokenService := service.NewTokenService(cfg, infraInfra)
+	rbacService, err := service.NewRBACService(infraInfra)
 	if err != nil {
 		return nil, err
 	}
-	roleService, err := service.NewRoleService(infraInfra, v)
+	roleService, err := service.NewRoleService(infraInfra, rbacService)
 	if err != nil {
 		return nil, err
 	}
@@ -66,17 +69,17 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		Category: categoryService,
 		User:     userService,
 		Token:    tokenService,
-		RBAC:     v,
+		RBAC:     rbacService,
 		Role:     roleService,
 		Menu:     menuService,
 	}
 	userController := controller.NewUserController(services, infraInfra)
 	menuController := controller.NewMenuController(services)
-	controllerController := &controller.Controllers{
+	controllers := &controller.Controllers{
 		User: userController,
 		Menu: menuController,
 	}
-	routes := controller.NewRouteRegistrar(controllerController)
+	routes := controller.NewRouteRegistrar(controllers)
 	structValidator := validate.New()
 	launcher, err := httpserver.New(httpserverConfig, httpserverMiddleware, routes, structValidator)
 	if err != nil {

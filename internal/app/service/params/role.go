@@ -1,8 +1,7 @@
-package role
+package srvparams
 
 import (
     `dpcms/internal/app/helper/dbscope`
-    `dpcms/internal/app/service/types`
 )
 
 type CreateParams struct {
@@ -13,22 +12,22 @@ type CreateParams struct {
 
 type UpdateParams struct {
     CreateParams
-    ID int64 `validate:"required" json:"id"`
+    ID uint64 `validate:"required" json:"id"`
 }
 
 type DeleteParams struct {
-    ID int64 `validate:"required" json:"id"`
+    ID uint64 `validate:"required" json:"id"`
 }
 
 type Detail struct {
-    types.Meta
+    Meta
     Name        string   `json:"name"`
     Description string   `json:"description"`
     InheritList []Detail `json:"inheritList"`
 }
 
 type ListDetail struct {
-    ID          int64  `json:"id"`
+    ID          uint64 `json:"id"`
     Name        string `json:"name"`
     Description string `json:"description"`
 }

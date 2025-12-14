@@ -6,6 +6,7 @@ import (
     
     `dpcms/internal/config`
     `dpcms/internal/httpserver`
+    
     "github.com/bytedance/sonic"
     "github.com/spf13/pflag"
 )
@@ -38,7 +39,7 @@ func registerCommand() error {
             return err
         }
         
-        json, err := sonic.MarshalString(config.NewWithDefaultConfig())
+        json, err := sonic.MarshalString(config.NewWithBasicConfig())
         if err != nil {
             return err
         }
