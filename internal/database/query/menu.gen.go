@@ -27,27 +27,17 @@ func newMenu(db *gorm.DB, opts ...gen.DOOption) menu {
 
 	tableName := _menu.menuDo.TableName()
 	_menu.ALL = field.NewAsterisk(tableName)
-	_menu.ID = field.NewInt64(tableName, "id")
+	_menu.ID = field.NewUint64(tableName, "id")
 	_menu.CreatedAt = field.NewTime(tableName, "created_at")
 	_menu.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_menu.DeletedAt = field.NewField(tableName, "deleted_at")
-	_menu.ParentID = field.NewInt64(tableName, "parent_id")
+	_menu.ParentID = field.NewUint64(tableName, "parent_id")
 	_menu.Name = field.NewString(tableName, "name")
 	_menu.Sequence = field.NewInt64(tableName, "sequence")
 	_menu.Visible = field.NewBool(tableName, "visible")
 	_menu.URI = field.NewString(tableName, "uri")
 	_menu.Template = field.NewString(tableName, "template")
 	_menu.Remark = field.NewString(tableName, "remark")
-	_menu.Children = menuHasManyChildren{
-		db: db.Session(&gorm.Session{}),
-
-		RelationField: field.NewRelation("Children", "model.Menu"),
-		Children: struct {
-			field.RelationField
-		}{
-			RelationField: field.NewRelation("Children.Children", "model.Menu"),
-		},
-	}
 
 	_menu.fillFieldMap()
 
@@ -58,18 +48,17 @@ type menu struct {
 	menuDo menuDo
 
 	ALL       field.Asterisk
-	ID        field.Int64
+	ID        field.Uint64
 	CreatedAt field.Time
 	UpdatedAt field.Time
 	DeletedAt field.Field
-	ParentID  field.Int64
+	ParentID  field.Uint64
 	Name      field.String
 	Sequence  field.Int64
 	Visible   field.Bool
 	URI       field.String
 	Template  field.String
 	Remark    field.String
-	Children  menuHasManyChildren
 
 	fieldMap map[string]field.Expr
 }
@@ -86,11 +75,11 @@ func (m menu) As(alias string) *menu {
 
 func (m *menu) updateTableName(table string) *menu {
 	m.ALL = field.NewAsterisk(table)
-	m.ID = field.NewInt64(table, "id")
+	m.ID = field.NewUint64(table, "id")
 	m.CreatedAt = field.NewTime(table, "created_at")
 	m.UpdatedAt = field.NewTime(table, "updated_at")
 	m.DeletedAt = field.NewField(table, "deleted_at")
-	m.ParentID = field.NewInt64(table, "parent_id")
+	m.ParentID = field.NewUint64(table, "parent_id")
 	m.Name = field.NewString(table, "name")
 	m.Sequence = field.NewInt64(table, "sequence")
 	m.Visible = field.NewBool(table, "visible")
@@ -121,7 +110,7 @@ func (m *menu) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (m *menu) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 12)
+	m.fieldMap = make(map[string]field.Expr, 11)
 	m.fieldMap["id"] = m.ID
 	m.fieldMap["created_at"] = m.CreatedAt
 	m.fieldMap["updated_at"] = m.UpdatedAt
@@ -133,105 +122,16 @@ func (m *menu) fillFieldMap() {
 	m.fieldMap["uri"] = m.URI
 	m.fieldMap["template"] = m.Template
 	m.fieldMap["remark"] = m.Remark
-
 }
 
 func (m menu) clone(db *gorm.DB) menu {
 	m.menuDo.ReplaceConnPool(db.Statement.ConnPool)
-	m.Children.db = db.Session(&gorm.Session{Initialized: true})
-	m.Children.db.Statement.ConnPool = db.Statement.ConnPool
 	return m
 }
 
 func (m menu) replaceDB(db *gorm.DB) menu {
 	m.menuDo.ReplaceDB(db)
-	m.Children.db = db.Session(&gorm.Session{})
 	return m
-}
-
-type menuHasManyChildren struct {
-	db *gorm.DB
-
-	field.RelationField
-
-	Children struct {
-		field.RelationField
-	}
-}
-
-func (a menuHasManyChildren) Where(conds ...field.Expr) *menuHasManyChildren {
-	if len(conds) == 0 {
-		return &a
-	}
-
-	exprs := make([]clause.Expression, 0, len(conds))
-	for _, cond := range conds {
-		exprs = append(exprs, cond.BeCond().(clause.Expression))
-	}
-	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
-	return &a
-}
-
-func (a menuHasManyChildren) WithContext(ctx context.Context) *menuHasManyChildren {
-	a.db = a.db.WithContext(ctx)
-	return &a
-}
-
-func (a menuHasManyChildren) Session(session *gorm.Session) *menuHasManyChildren {
-	a.db = a.db.Session(session)
-	return &a
-}
-
-func (a menuHasManyChildren) Model(m *model.Menu) *menuHasManyChildrenTx {
-	return &menuHasManyChildrenTx{a.db.Model(m).Association(a.Name())}
-}
-
-func (a menuHasManyChildren) Unscoped() *menuHasManyChildren {
-	a.db = a.db.Unscoped()
-	return &a
-}
-
-type menuHasManyChildrenTx struct{ tx *gorm.Association }
-
-func (a menuHasManyChildrenTx) Find() (result []*model.Menu, err error) {
-	return result, a.tx.Find(&result)
-}
-
-func (a menuHasManyChildrenTx) Append(values ...*model.Menu) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Append(targetValues...)
-}
-
-func (a menuHasManyChildrenTx) Replace(values ...*model.Menu) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Replace(targetValues...)
-}
-
-func (a menuHasManyChildrenTx) Delete(values ...*model.Menu) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Delete(targetValues...)
-}
-
-func (a menuHasManyChildrenTx) Clear() error {
-	return a.tx.Clear()
-}
-
-func (a menuHasManyChildrenTx) Count() int64 {
-	return a.tx.Count()
-}
-
-func (a menuHasManyChildrenTx) Unscoped() *menuHasManyChildrenTx {
-	a.tx = a.tx.Unscoped()
-	return &a
 }
 
 type menuDo struct{ gen.DO }

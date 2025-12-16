@@ -146,7 +146,7 @@ func makeSegments(count int) []*shard {
     return segments
 }
 
-func New(cfg *Config) *Cache {
+func New(cfg Config) *Cache {
     c := &Cache{
         ttl:       cfg.TTL,
         interval:  cfg.ScanInterval,

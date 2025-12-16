@@ -68,11 +68,19 @@ func (v *validatorEx) ValidateStruct(s any) error {
         fields := obj.ValidationFields()
         err = v.validate.StructPartial(s, fields...)
     } else {
-        err = v.validate.Struct(s)
-    }
-    
-    if err == nil {
-        return nil
+        vType := reflect.TypeOf(s)
+        
+        for vType.Kind() == reflect.Ptr {
+            vType = vType.Elem()
+        }
+        
+        if vType.Kind() == reflect.Struct {
+            err = v.validate.Struct(s)
+        } else if vType.Kind() == reflect.Slice {
+            err = v.validate.Var(s, "dive,required")
+        } else {
+            return nil
+        }
     }
     
     var errs validator.ValidationErrors

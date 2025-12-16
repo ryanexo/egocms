@@ -27,11 +27,8 @@ func newCategorySeo(db *gorm.DB, opts ...gen.DOOption) categorySeo {
 
 	tableName := _categorySeo.categorySeoDo.TableName()
 	_categorySeo.ALL = field.NewAsterisk(tableName)
-	_categorySeo.ID = field.NewInt64(tableName, "id")
-	_categorySeo.CreatedAt = field.NewTime(tableName, "created_at")
-	_categorySeo.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_categorySeo.DeletedAt = field.NewField(tableName, "deleted_at")
-	_categorySeo.CategoryID = field.NewInt64(tableName, "category_id")
+	_categorySeo.ID = field.NewUint64(tableName, "id")
+	_categorySeo.CategoryID = field.NewUint64(tableName, "category_id")
 	_categorySeo.Title = field.NewString(tableName, "title")
 	_categorySeo.Keywords = field.NewString(tableName, "keywords")
 	_categorySeo.Description = field.NewString(tableName, "description")
@@ -45,11 +42,8 @@ type categorySeo struct {
 	categorySeoDo categorySeoDo
 
 	ALL         field.Asterisk
-	ID          field.Int64
-	CreatedAt   field.Time
-	UpdatedAt   field.Time
-	DeletedAt   field.Field
-	CategoryID  field.Int64
+	ID          field.Uint64
+	CategoryID  field.Uint64
 	Title       field.String
 	Keywords    field.String
 	Description field.String
@@ -69,11 +63,8 @@ func (c categorySeo) As(alias string) *categorySeo {
 
 func (c *categorySeo) updateTableName(table string) *categorySeo {
 	c.ALL = field.NewAsterisk(table)
-	c.ID = field.NewInt64(table, "id")
-	c.CreatedAt = field.NewTime(table, "created_at")
-	c.UpdatedAt = field.NewTime(table, "updated_at")
-	c.DeletedAt = field.NewField(table, "deleted_at")
-	c.CategoryID = field.NewInt64(table, "category_id")
+	c.ID = field.NewUint64(table, "id")
+	c.CategoryID = field.NewUint64(table, "category_id")
 	c.Title = field.NewString(table, "title")
 	c.Keywords = field.NewString(table, "keywords")
 	c.Description = field.NewString(table, "description")
@@ -103,11 +94,8 @@ func (c *categorySeo) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *categorySeo) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 8)
+	c.fieldMap = make(map[string]field.Expr, 5)
 	c.fieldMap["id"] = c.ID
-	c.fieldMap["created_at"] = c.CreatedAt
-	c.fieldMap["updated_at"] = c.UpdatedAt
-	c.fieldMap["deleted_at"] = c.DeletedAt
 	c.fieldMap["category_id"] = c.CategoryID
 	c.fieldMap["title"] = c.Title
 	c.fieldMap["keywords"] = c.Keywords

@@ -27,11 +27,11 @@ func newCategory(db *gorm.DB, opts ...gen.DOOption) category {
 
 	tableName := _category.categoryDo.TableName()
 	_category.ALL = field.NewAsterisk(tableName)
-	_category.ID = field.NewInt64(tableName, "id")
+	_category.ID = field.NewUint64(tableName, "id")
 	_category.CreatedAt = field.NewTime(tableName, "created_at")
 	_category.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_category.DeletedAt = field.NewField(tableName, "deleted_at")
-	_category.ParentID = field.NewInt64(tableName, "parent_id")
+	_category.ParentID = field.NewUint64(tableName, "parent_id")
 	_category.Sequence = field.NewUint(tableName, "sequence")
 	_category.Name = field.NewString(tableName, "name")
 	_category.Path = field.NewString(tableName, "path")
@@ -43,22 +43,6 @@ func newCategory(db *gorm.DB, opts ...gen.DOOption) category {
 		RelationField: field.NewRelation("SEO", "model.CategorySeo"),
 	}
 
-	_category.Children = categoryHasManyChildren{
-		db: db.Session(&gorm.Session{}),
-
-		RelationField: field.NewRelation("Children", "model.Category"),
-		SEO: struct {
-			field.RelationField
-		}{
-			RelationField: field.NewRelation("Children.SEO", "model.CategorySeo"),
-		},
-		Children: struct {
-			field.RelationField
-		}{
-			RelationField: field.NewRelation("Children.Children", "model.Category"),
-		},
-	}
-
 	_category.fillFieldMap()
 
 	return _category
@@ -68,19 +52,17 @@ type category struct {
 	categoryDo categoryDo
 
 	ALL       field.Asterisk
-	ID        field.Int64
+	ID        field.Uint64
 	CreatedAt field.Time
 	UpdatedAt field.Time
 	DeletedAt field.Field
-	ParentID  field.Int64
+	ParentID  field.Uint64
 	Sequence  field.Uint
 	Name      field.String
 	Path      field.String
 	Type      field.Uint // '0:普通分类,1:单页型分类,2:链接'
 	Display   field.Uint
 	SEO       categoryHasOneSEO
-
-	Children categoryHasManyChildren
 
 	fieldMap map[string]field.Expr
 }
@@ -97,11 +79,11 @@ func (c category) As(alias string) *category {
 
 func (c *category) updateTableName(table string) *category {
 	c.ALL = field.NewAsterisk(table)
-	c.ID = field.NewInt64(table, "id")
+	c.ID = field.NewUint64(table, "id")
 	c.CreatedAt = field.NewTime(table, "created_at")
 	c.UpdatedAt = field.NewTime(table, "updated_at")
 	c.DeletedAt = field.NewField(table, "deleted_at")
-	c.ParentID = field.NewInt64(table, "parent_id")
+	c.ParentID = field.NewUint64(table, "parent_id")
 	c.Sequence = field.NewUint(table, "sequence")
 	c.Name = field.NewString(table, "name")
 	c.Path = field.NewString(table, "path")
@@ -131,7 +113,7 @@ func (c *category) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *category) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 12)
+	c.fieldMap = make(map[string]field.Expr, 11)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["created_at"] = c.CreatedAt
 	c.fieldMap["updated_at"] = c.UpdatedAt
@@ -149,15 +131,12 @@ func (c category) clone(db *gorm.DB) category {
 	c.categoryDo.ReplaceConnPool(db.Statement.ConnPool)
 	c.SEO.db = db.Session(&gorm.Session{Initialized: true})
 	c.SEO.db.Statement.ConnPool = db.Statement.ConnPool
-	c.Children.db = db.Session(&gorm.Session{Initialized: true})
-	c.Children.db.Statement.ConnPool = db.Statement.ConnPool
 	return c
 }
 
 func (c category) replaceDB(db *gorm.DB) category {
 	c.categoryDo.ReplaceDB(db)
 	c.SEO.db = db.Session(&gorm.Session{})
-	c.Children.db = db.Session(&gorm.Session{})
 	return c
 }
 
@@ -238,94 +217,6 @@ func (a categoryHasOneSEOTx) Count() int64 {
 }
 
 func (a categoryHasOneSEOTx) Unscoped() *categoryHasOneSEOTx {
-	a.tx = a.tx.Unscoped()
-	return &a
-}
-
-type categoryHasManyChildren struct {
-	db *gorm.DB
-
-	field.RelationField
-
-	SEO struct {
-		field.RelationField
-	}
-	Children struct {
-		field.RelationField
-	}
-}
-
-func (a categoryHasManyChildren) Where(conds ...field.Expr) *categoryHasManyChildren {
-	if len(conds) == 0 {
-		return &a
-	}
-
-	exprs := make([]clause.Expression, 0, len(conds))
-	for _, cond := range conds {
-		exprs = append(exprs, cond.BeCond().(clause.Expression))
-	}
-	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
-	return &a
-}
-
-func (a categoryHasManyChildren) WithContext(ctx context.Context) *categoryHasManyChildren {
-	a.db = a.db.WithContext(ctx)
-	return &a
-}
-
-func (a categoryHasManyChildren) Session(session *gorm.Session) *categoryHasManyChildren {
-	a.db = a.db.Session(session)
-	return &a
-}
-
-func (a categoryHasManyChildren) Model(m *model.Category) *categoryHasManyChildrenTx {
-	return &categoryHasManyChildrenTx{a.db.Model(m).Association(a.Name())}
-}
-
-func (a categoryHasManyChildren) Unscoped() *categoryHasManyChildren {
-	a.db = a.db.Unscoped()
-	return &a
-}
-
-type categoryHasManyChildrenTx struct{ tx *gorm.Association }
-
-func (a categoryHasManyChildrenTx) Find() (result []*model.Category, err error) {
-	return result, a.tx.Find(&result)
-}
-
-func (a categoryHasManyChildrenTx) Append(values ...*model.Category) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Append(targetValues...)
-}
-
-func (a categoryHasManyChildrenTx) Replace(values ...*model.Category) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Replace(targetValues...)
-}
-
-func (a categoryHasManyChildrenTx) Delete(values ...*model.Category) (err error) {
-	targetValues := make([]interface{}, len(values))
-	for i, v := range values {
-		targetValues[i] = v
-	}
-	return a.tx.Delete(targetValues...)
-}
-
-func (a categoryHasManyChildrenTx) Clear() error {
-	return a.tx.Clear()
-}
-
-func (a categoryHasManyChildrenTx) Count() int64 {
-	return a.tx.Count()
-}
-
-func (a categoryHasManyChildrenTx) Unscoped() *categoryHasManyChildrenTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }

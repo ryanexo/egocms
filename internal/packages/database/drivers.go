@@ -9,12 +9,12 @@ import (
     "gorm.io/gorm"
 )
 
-var drivers = map[string]func(c *DBConfig) (gorm.Dialector, error){
+var drivers = map[string]func(c DBConfig) (gorm.Dialector, error){
     "mysql":  mysqlDriverBuilder,
     "sqlite": sqliteDriverBuilder,
 }
 
-func GetDriver(dbConfig *DBConfig) (gorm.Dialector, error) {
+func GetDriver(dbConfig DBConfig) (gorm.Dialector, error) {
     builder, ok := drivers[dbConfig.Type]
     if !ok {
         return nil, fmt.Errorf("数据库驱动 %s 不存在", dbConfig.Type)
@@ -22,7 +22,7 @@ func GetDriver(dbConfig *DBConfig) (gorm.Dialector, error) {
     return builder(dbConfig)
 }
 
-func mysqlDriverBuilder(dbConfig *DBConfig) (gorm.Dialector, error) {
+func mysqlDriverBuilder(dbConfig DBConfig) (gorm.Dialector, error) {
     return mysql.New(mysql.Config{
         DSNConfig: &mysql2.Config{
             User:      dbConfig.User,
@@ -37,6 +37,6 @@ func mysqlDriverBuilder(dbConfig *DBConfig) (gorm.Dialector, error) {
     }), nil
 }
 
-func sqliteDriverBuilder(dbConfig *DBConfig) (gorm.Dialector, error) {
+func sqliteDriverBuilder(dbConfig DBConfig) (gorm.Dialector, error) {
     return sqlite.Open(fmt.Sprintf("%s?journal_mode=WAL", dbConfig.Host)), nil
 }

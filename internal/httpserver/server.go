@@ -12,7 +12,7 @@ var ProviderSet = wire.NewSet(
     New,
 )
 
-func New(cfg *Config, middleware Middleware, routes Routes, validator binding.StructValidator) (*Launcher, error) {
+func New(cfg Config, middleware Middleware, routes Routes, validator binding.StructValidator) (*Launcher, error) {
     if cfg.Debug {
         gin.SetMode(gin.DebugMode)
     }

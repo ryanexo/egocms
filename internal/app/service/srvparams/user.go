@@ -1,50 +1,52 @@
 package srvparams
 
 import (
+    `database/sql`
     `time`
     
     `dpcms/internal/app/helper/dbscope`
+    `dpcms/internal/packages/database`
     
     `github.com/go-playground/validator/v10`
 )
 
-type PasswordConfirm struct {
+type UserPasswdConfirm struct {
     Password        string `validate:"required,min=6,max=32" json:"password"  label:"密码"`
     PasswordConfirm string `validate:"required,eqfield=Password" json:"passwordConfirm" label:"确认密码"`
 }
 
-func (u *PasswordConfirm) ValidationMessage(e validator.FieldError) (string, bool) {
+func (u *UserPasswdConfirm) ValidationMessage(e validator.FieldError) (string, bool) {
     key := e.StructField() + "." + e.ActualTag()
     message := map[string]string{
-        "PasswordConfirm.eqfield": "两次密码输入不一致",
+        "UserPasswdConfirm.eqfield": "两次密码输入不一致",
     }
     errMsg, ok := message[key]
     return errMsg, ok
 }
 
-type UserCreate struct {
-    PasswordConfirm
+type UserCreateParams struct {
+    UserPasswdConfirm
     Username string `validate:"required,alphanum,min=4,max=32" json:"username" label:"用户名"`
     Email    string `validate:"required,max=64,email" json:"email" label:"邮箱"`
     IP       string `json:"-"`
 }
 
-type UserUpdatePwd struct {
-    PasswordConfirm
+type UserPasswdUpdateParams struct {
+    UserPasswdConfirm
     RawPassword string `validate:"required" json:"rawPassword" label:"原密码"`
 }
 
-type UserCredential struct {
+type UserCredentialParams struct {
     Username string `validate:"required" json:"username" label:"用户名"`
     Password string `validate:"required" json:"password" label:"密码"`
 }
 
-type UserResetPasswd struct {
+type UserPasswdResetParams struct {
     ID       uint64 `validate:"required" json:"ID" label:"用户ID"`
     Password string `validate:"required,min=6,max=32" json:"password" label:"密码"`
 }
 
-type UserList struct {
+type UserListQueryParams struct {
     dbscope.Pagination
     Username        *string    `json:"username" label:"用户名"`
     Status          *int8      `json:"status" label:"状态"`
@@ -60,7 +62,7 @@ type UserList struct {
     City            *string    `json:"city" label:"城市"`
 }
 
-func (u *UserList) ValidationMessage(e validator.FieldError) (string, bool) {
+func (u *UserListQueryParams) ValidationMessage(e validator.FieldError) (string, bool) {
     key := e.StructField() + "." + e.ActualTag()
     messages := map[string]string{
         "Gender.oneof": "性别必须是[男 女]的其中一个",
@@ -78,21 +80,25 @@ type UserProfile struct {
     City        string `json:"city"`
 }
 
-type UserData struct {
-    Meta
-    Username string      `json:"username"`
-    RoleID   uint64      `json:"roleId"`
-    RoleName string      `json:"roleName"`
-    IP       string      `json:"ip"`
-    Profile  UserProfile `json:"profile"`
+type User struct {
+    database.Model
+    Username   string       `json:"username"`
+    Password   string       `json:"-"`
+    Email      string       `json:"email"`
+    VerifiedAt sql.NullTime `json:"verifiedAt"`
+    IP         string       `json:"ip"`
+    Status     int8         `json:"status"`
+    RoleID     uint64       `json:"roleId"`
+    RoleName   string       `json:"roleName"`
+    Profile    *UserProfile `json:"profile"`
 }
 
-type LoginResult struct {
-    Detail UserData `json:"detail"`
-    Token  string   `json:"token"`
+type UserAuthnResult struct {
+    User  User   `json:"detail"`
+    Token string `json:"token"`
 }
 
-type UserUpdateProfile struct {
+type UserProfileUpdateParams struct {
     ID uint64 `validate:"required" json:"id"`
     UserProfile
 }

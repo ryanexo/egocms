@@ -20,21 +20,22 @@ import (
 )
 
 type TokenService struct {
-    infra *infra.Infra
-    query *query.Query
+    config *config.Config
+    infra  *infra.Infra
+    query  *query.Query
 }
 
-func NewTokenService(infra *infra.Infra) TokenService {
-    return TokenService{infra: infra, query: query.Use(infra.DB)}
+func NewTokenService(config *config.Config, infra *infra.Infra) *TokenService {
+    return &TokenService{infra: infra, query: query.Use(infra.DB), config: config}
 }
 
-func (srv TokenService) Create(userId int64) (string, error) {
+func (srv TokenService) Create(userId uint64) (string, error) {
     uuid, err := uuid2.NewV7()
     if err != nil {
         return "", err
     }
-    expires := config.Get().Token.Expires
-    tokenKey := []byte(config.Get().GlobalKey)
+    expires := srv.config.Token.Expires
+    tokenKey := []byte(srv.config.GlobalKey)
     return jwt.NewWithClaims(jwt.SigningMethodHS512, tokenClaim.UserToken{
         RegisteredClaims: jwt.RegisteredClaims{
             ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(expires))),
@@ -44,7 +45,7 @@ func (srv TokenService) Create(userId int64) (string, error) {
     }).SignedString(tokenKey)
 }
 
-func (srv TokenService) isRevoked(ctx context.Context, userId int64, uuid string, expires int) (bool, error) {
+func (srv TokenService) isRevoked(ctx context.Context, userId uint64, uuid string, expires int) (bool, error) {
     isRevoked := true
     err := srv.query.Transaction(func(tx *query.Query) error {
         queryCtx := srv.query.WithContext(ctx)
@@ -80,7 +81,7 @@ func (srv TokenService) isRevoked(ctx context.Context, userId int64, uuid string
 func (srv TokenService) Parse(ctx context.Context, tokenString string) (*tokenClaim.UserToken, error) {
     claims := &tokenClaim.UserToken{}
     token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-        return config.Get().GlobalKey, nil
+        return srv.config.GlobalKey, nil
     })
     if err != nil || !token.Valid {
         if errors.Is(err, jwt.ErrTokenExpired) {
@@ -88,7 +89,7 @@ func (srv TokenService) Parse(ctx context.Context, tokenString string) (*tokenCl
         }
         return nil, erroz.ErrUnauthorized.ToError()
     }
-    isRevoked, err := srv.isRevoked(ctx, claims.UserID, claims.ID, config.Get().Token.Expires)
+    isRevoked, err := srv.isRevoked(ctx, claims.UserID, claims.ID, srv.config.Token.Expires)
     if err != nil {
         return nil, err
     }
@@ -103,7 +104,8 @@ func (srv TokenService) GetUserFromToken(ctx context.Context, tokenString string
     if err != nil {
         return nil, err
     }
-    return srv.query.User.WithContext(ctx).Where(srv.query.User.ID.Eq(claims.UserID)).First()
+    uo := srv.query.User
+    return uo.WithContext(ctx).Preload(uo.Profile).Where(uo.ID.Eq(claims.UserID)).First()
 }
 
 func (srv TokenService) Revoke(ctx context.Context, tokenString string) error {

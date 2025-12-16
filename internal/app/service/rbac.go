@@ -11,9 +11,11 @@ import (
     gormadapter `github.com/casbin/gorm-adapter/v3`
 )
 
-type RBACService = *casbin.Enforcer
+type RBACService struct {
+    enforcer *casbin.Enforcer
+}
 
-func NewRBACService(infra *infra.Infra) (RBACService, error) {
+func NewRBACService(infra *infra.Infra) (*RBACService, error) {
     var modelString = `
     [request_definition]
     r = sub, obj, act
@@ -51,5 +53,9 @@ func NewRBACService(infra *infra.Infra) (RBACService, error) {
         return nil, err
     }
     
-    return enforcer, nil
+    return &RBACService{enforcer: enforcer}, nil
+}
+
+func (s *RBACService) GetEnforcer() *casbin.Enforcer {
+    return s.enforcer
 }

@@ -16,7 +16,7 @@ type Middleware interface {
 
 type Launcher struct {
     engine *gin.Engine
-    config *Config
+    config Config
 }
 
 func (launcher Launcher) addRoutes(routes Routes) {
@@ -29,7 +29,7 @@ func (launcher Launcher) addMiddleware(middleware Middleware) {
 
 func (launcher Launcher) Run() error {
     addr := fmt.Sprintf("%s:%d", launcher.config.Host, launcher.config.Port)
-    if launcher.config.SSL == nil {
+    if launcher.config.SSL == nil || launcher.config.SSL.KeyFile == "" || launcher.config.SSL.CertFile == "" {
         return launcher.engine.Run(addr)
     }
     return launcher.engine.RunTLS(

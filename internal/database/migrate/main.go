@@ -6,11 +6,12 @@ import (
     `dpcms/internal/config`
     `dpcms/internal/database/model`
     `dpcms/internal/packages/database`
+    
     `gorm.io/gorm`
 )
 
 func main() {
-    cfg := config.NewWithDefaultConfig()
+    cfg := config.NewWithBasicConfig()
     db, err := initDB(cfg.DB)
     if err != nil {
         panic(err)
@@ -34,7 +35,7 @@ func main() {
     fmt.Println("migrate done")
 }
 
-func initDB(c *database.DBConfig) (*gorm.DB, error) {
+func initDB(c database.DBConfig) (*gorm.DB, error) {
     db, err := database.NewDB(c)
     if err != nil {
         return nil, err

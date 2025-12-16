@@ -3,90 +3,101 @@ package service
 import (
     "context"
     `errors`
+    `fmt`
     
     `dpcms/internal/app/erroz`
     `dpcms/internal/app/helper/dbscope`
-    `dpcms/internal/app/service/types/category`
+    `dpcms/internal/app/helper/gormhelper`
+    `dpcms/internal/app/service/srvparams`
     `dpcms/internal/database/model`
     `dpcms/internal/database/query`
     `dpcms/internal/infra`
     
+    `github.com/jinzhu/copier`
     `gorm.io/gorm`
-    `gorm.io/gorm/clause`
 )
 
 type CategoryService struct {
     query *query.Query
+    infra *infra.Infra
 }
 
-func NewCategoryCategory(infra *infra.Infra) CategoryService {
-    return CategoryService{query: query.Use(infra.DB)}
+func NewCategoryCategory(infra *infra.Infra) *CategoryService {
+    return &CategoryService{query: query.Use(infra.DB), infra: infra}
 }
 
-// Create
-//
-// ParentID为0时，视为根节点
-func (srv CategoryService) Create(ctx context.Context, category category.Detail) (err error) {
-    return srv.query.Transaction(func(tx *query.Query) error {
+func (srv CategoryService) Create(ctx context.Context, createParams srvparams.CategoryCreateParams) (*model.Category, error) {
+    category := model.Category{}
+    if err := copier.Copy(&category, &createParams); err != nil {
+        return nil, err
+    }
+    err := srv.query.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
-        err := queryCtx.Category.Create(&model.Category{
-            ParentID: category.ParentID,
-            Sequence: category.Sequence,
-            Name:     category.Name,
-            Path:     category.Path,
-            Type:     category.Type,
-            Display:  category.Display,
-            SEO:      category.SEO,
-            Children: nil,
-        })
-        if err != nil {
-            return err
+        txErr := queryCtx.Category.Create(&category)
+        if txErr != nil {
+            return txErr
         }
         
-        err = queryCtx.CategoryContext.CreateBranch(category.ID, category.ParentID)
-        if err != nil {
-            return err
-        }
-        
-        err = srv.query.Category.SEO.Model(category).Append(category.SEO)
-        if err != nil {
-            return err
+        txErr = queryCtx.CategoryContext.CreateSubtree(category.ID, category.ParentID)
+        if txErr != nil {
+            return txErr
         }
         
         return nil
     })
+    if err != nil {
+        return nil, err
+    }
+    return &category, nil
 }
 
-func (srv CategoryService) Update(ctx context.Context, category *model.Category) error {
+func (srv CategoryService) Update(ctx context.Context, category srvparams.CategoryUpdateParams) error {
     return srv.query.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
-        ct, err := queryCtx.Category.Where(srv.query.Category.ID.Eq(category.ID)).First()
+        _, err := queryCtx.Category.Where(srv.query.Category.ID.Eq(category.ID)).First()
         if err != nil {
+            if errors.Is(err, gorm.ErrRecordNotFound) {
+                return erroz.ErrDataNotFound.ToError()
+            }
             return err
         }
         _, err = srv.query.WithContext(ctx).Category.Updates(category)
+        return err
+    })
+}
+
+func (srv CategoryService) Delete(ctx context.Context, id uint64) error {
+    return srv.query.Transaction(func(tx *query.Query) error {
+        ctxDao := srv.query.CategoryContext
+        
+        sqlStr := "DELETE FROM %[1]s WHERE id IN ( SELECT d_id FROM ( SELECT t.%[3]s AS d_id FROM %[1]s AS t WHERE %[2]s = ? ) )"
+        deleteSql := fmt.Sprintf(sqlStr, srv.query.Category.TableName(), ctxDao.Ancestor.ColumnName(), ctxDao.Descendant.ColumnName())
+        
+        err := srv.infra.DB.WithContext(ctx).Exec(deleteSql, id).Error
         if err != nil {
             return err
         }
-        if ct.ParentID != category.ParentID {
-            return srv.Move(ctx, category.ID, category.ParentID)
+        err = tx.WithContext(ctx).CategoryContext.DropSubtree(id)
+        if err != nil {
+            return err
         }
         return nil
     })
 }
 
-func (srv CategoryService) Delete(ctx context.Context, id int64) error {
+func (srv CategoryService) Move(ctx context.Context, id uint64, target uint64) error {
     return srv.query.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
         
-        categoryDAO := tx.Category
-        
-        _, err := queryCtx.Category.Where(categoryDAO.ID.Eq(id)).Delete()
+        err := queryCtx.CategoryContext.UnbindRelationships(id)
         if err != nil {
             return err
         }
-        
-        err = queryCtx.CategoryContext.RemoveBranch(id)
+        err = queryCtx.CategoryContext.ReBindRelationships(id, target)
+        if err != nil {
+            return err
+        }
+        _, err = queryCtx.Category.Where(srv.query.Category.ID.Eq(id)).Update(srv.query.Category.ParentID, target)
         if err != nil {
             return err
         }
@@ -95,100 +106,20 @@ func (srv CategoryService) Delete(ctx context.Context, id int64) error {
     })
 }
 
-func (srv CategoryService) Move(ctx context.Context, id int64, parent int64) error {
-    return srv.query.Transaction(func(tx *query.Query) error {
-        queryCtx := tx.WithContext(ctx)
-        
-        categoryDAO := tx.Category
-        categoryCtxDAO := tx.CategoryContext
-        
-        _, err := queryCtx.CategoryContext.
-            Where(categoryCtxDAO.Ancestor.Eq(id)).
-            Where(categoryCtxDAO.Descendant.Eq(parent)).
-            First()
-        
-        if err == nil {
-            currentCategory, err := queryCtx.Category.Where(categoryCtxDAO.ID.Eq(id)).First()
-            if err != nil {
-                return err
-            }
-            targetCategory, err := queryCtx.Category.Where(categoryDAO.ID.Eq(parent)).First()
-            if err != nil {
-                return err
-            }
-            return erroz.ErrCategoryCircularReferenceWhenMove.Format(targetCategory.Name, currentCategory.Name).ToError()
-        } else if !errors.Is(err, gorm.ErrRecordNotFound) {
-            return err
-        }
-        
-        _, err = queryCtx.Category.Where(categoryDAO.ID.Eq(id)).Clauses(clause.Locking{Strength: clause.LockingStrengthUpdate}).Find()
-        
-        _, err = queryCtx.Category.Where(categoryDAO.ID.Eq(id)).Update(categoryDAO.ParentID, parent)
-        if err != nil {
-            return err
-        }
-        
-        descendants, err := queryCtx.CategoryContext.FindDescendantByAncestor(id)
-        if err != nil {
-            return err
-        }
-        
-        err = queryCtx.CategoryContext.RemoveBranch(id)
-        if err != nil {
-            return err
-        }
-        
-        err = queryCtx.CategoryContext.CreateBranch(id, parent)
-        if err != nil {
-            return err
-        }
-        
-        descendantMap := make(map[int64]*model.CategoryContext)
-        processed := make(map[int64]bool)
-        
-        var createBranch func(id int64) error
-        
-        createBranch = func(id int64) error {
-            if processed[id] {
-                return nil
-            }
-            s, ok := descendantMap[id]
-            if !ok {
-                return nil
-            }
-            if s.Parent != id && !processed[s.Parent] {
-                if err := createBranch(s.Parent); err != nil {
-                    return err
-                }
-            }
-            return queryCtx.CategoryContext.CreateBranch(s.Descendant, s.Parent)
-        }
-        
-        for _, descendant := range descendants {
-            descendantMap[descendant.Descendant] = descendant
-        }
-        
-        for _, s := range descendants {
-            err = createBranch(s.Descendant)
-            if err != nil {
-                return err
-            }
-        }
-        
-        return nil
-    })
-}
-
-func (srv CategoryService) FindByID(ctx context.Context, id int64) (*model.Category, error) {
+func (srv CategoryService) FindByID(ctx context.Context, id uint64) (*model.Category, error) {
     q := srv.query.Category
-    return q.WithContext(ctx).Where(q.ID.Eq(id)).First()
+    result, err := q.WithContext(ctx).Where(q.ID.Eq(id)).First()
+    if err != nil {
+        return nil, gormhelper.ReplaceNotFoundError(err)
+    }
+    return result, nil
 }
 
 func (srv CategoryService) ListRootNodes(ctx context.Context, pageNo int, pageSize int) ([]*model.Category, error) {
     return srv.query.Category.WithContext(ctx).Scopes(dbscope.Paginate(pageNo, pageSize)).Where(srv.query.Category.ParentID.Eq(0)).Find()
 }
 
-func (srv CategoryService) ListNodesByParentID(ctx context.Context, id int64, pageSize int, pageNo int) ([]*model.Category, error) {
+func (srv CategoryService) ListNodesByParentID(ctx context.Context, id uint64, pageSize int, pageNo int) ([]*model.Category, error) {
     q := srv.query.Category
     return q.WithContext(ctx).Where(q.ParentID.Eq(id)).Scopes(dbscope.Paginate(pageNo, pageSize)).Find()
 }

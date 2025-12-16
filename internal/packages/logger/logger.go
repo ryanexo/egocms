@@ -1,10 +1,17 @@
 package logger
 
 import (
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
+    `os`
+    
+    "go.uber.org/zap"
+    "go.uber.org/zap/zapcore"
+    "gopkg.in/natefinch/lumberjack.v2"
 )
+
+type Logger struct {
+    AccessLogger *zap.Logger
+    AppLogger    *zap.Logger
+}
 
 // 每个zap.core为一个包含写入格式、写入条件以及同步器
 //
@@ -18,13 +25,28 @@ import (
 //
 // 如果存在多个不同参数的zap.provider，可以使用zap.NewTee来创建logger
 
+func newEncoder() zapcore.Encoder {
+    encoderConfig := zap.NewProductionEncoderConfig()
+    encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+    encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+    return zapcore.NewJSONEncoder(encoderConfig)
+}
+
+func newSyncer(config *lumberjack.Logger) zapcore.WriteSyncer {
+    var syncer zapcore.WriteSyncer
+    if config == nil {
+        syncer = zapcore.AddSync(os.Stderr)
+    } else {
+        syncer = zapcore.AddSync(config)
+    }
+    return syncer
+}
+
 func New(config *lumberjack.Logger) *zap.Logger {
-	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
-	encoder := zapcore.NewJSONEncoder(encoderConfig)
-	syncer := zapcore.AddSync(config)
-	logger := zap.New(zapcore.NewCore(encoder, syncer, zapcore.InfoLevel), zap.AddStacktrace(zapcore.ErrorLevel))
-	zap.ReplaceGlobals(logger)
-	return logger
+    encoder := newEncoder()
+    syncer := newSyncer(config)
+    
+    logger := zap.New(zapcore.NewCore(encoder, syncer, zapcore.InfoLevel), zap.AddStacktrace(zapcore.ErrorLevel))
+    zap.ReplaceGlobals(logger)
+    return logger
 }

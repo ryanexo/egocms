@@ -9,5 +9,5 @@ func (s requestContextKey) Create(str string) string {
 const uni = requestContextKey("uni")
 
 var (
-    ApiAuthCurrentUser = uni.Create("CurrentUser")
+    RequestUserKey = uni.Create("CurrentUser")
 )

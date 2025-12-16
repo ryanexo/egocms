@@ -5,12 +5,12 @@ import (
 )
 
 type Services struct {
-    Category CategoryService
-    User     UserService
-    Token    TokenService
-    RBAC     RBACService
-    Role     RoleService
-    Menu     MenuService
+    Category *CategoryService
+    User     *UserService
+    Token    *TokenService
+    RBAC     *RBACService
+    Role     *RoleService
+    Menu     *MenuService
 }
 
 var ProviderSet = wire.NewSet(

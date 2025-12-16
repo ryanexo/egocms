@@ -14,7 +14,7 @@ type Config struct {
     ExposeHeaders    string `json:"exposeHeaders" yaml:"exposeHeaders"`
 }
 
-func New(opts *Config) CORS {
+func New(opts Config) CORS {
     return func(context *gin.Context) {
         if opts.AllowOrigin != "" {
             context.Header("Access-Control-Allow-Origin", opts.AllowOrigin)

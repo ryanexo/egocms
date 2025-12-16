@@ -27,7 +27,7 @@ func New(logger *zap.Logger) Logger {
             zap.Duration("cost", cost),
         }
         
-        traceId, ok := context.Get(constant.TraceIdKey)
+        traceId, ok := context.Get(constant.RequestTraceIdKey)
         if ok {
             fields = append(fields, zap.Any("trace-id", traceId))
         }

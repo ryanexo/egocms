@@ -5,7 +5,7 @@ import (
     
     `dpcms/internal/app/constant`
     `dpcms/internal/app/erroz`
-    `dpcms/internal/app/helper/rbac`
+    `dpcms/internal/app/helper/rbachelper`
     `dpcms/internal/app/service`
     `dpcms/internal/database/model`
     
@@ -79,10 +79,10 @@ func (s acl) Middleware() gin.HandlerFunc {
         }
         
         if user.ID != 1 && s.object != "" {
-            subject := rbac.GetRoleSubject(user.RoleID)
+            subject := rbachelper.GetRoleSubject(user.RoleID)
             path := ctx.FullPath()
             if _, perm, found := s.perm.LongestPrefix(path); found {
-                if pass, err := s.service.RBAC.Enforce(subject, s.object, perm); err != nil {
+                if pass, err := s.service.RBAC.GetEnforcer().Enforce(subject, s.object, perm); err != nil {
                     erroz.ResolveWithAbort(ctx, err)
                     return
                 } else if !pass {
@@ -96,15 +96,15 @@ func (s acl) Middleware() gin.HandlerFunc {
     }
 }
 
-func shouldSetUserFromToken(ctx *gin.Context, tokenSrv service.TokenService, token string) (*model.User, error) {
+func shouldSetUserFromToken(ctx *gin.Context, tokenSrv *service.TokenService, token string) (*model.User, error) {
     user, err := tokenSrv.GetUserFromToken(ctx, token)
     if err != nil {
         return nil, err
     }
-    ctx.Set(constant.ApiAuthCurrentUser, user)
+    ctx.Set(constant.RequestUserKey, user)
     return user, nil
 }
 
 func GetAuthorizedUser(ctx *gin.Context) *model.User {
-    return ctx.MustGet(constant.ApiAuthCurrentUser).(*model.User)
+    return ctx.MustGet(constant.RequestUserKey).(*model.User)
 }

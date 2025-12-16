@@ -8,27 +8,28 @@ import (
     `dpcms/internal/httpserver`
     `dpcms/internal/packages/cache`
     `dpcms/internal/packages/database`
+    
     "gopkg.in/natefinch/lumberjack.v2"
 )
 
 var defaultConfig = &Config{
     GlobalKey: "egocms",
-    Token: &token.Config{
+    Token: token.Config{
         Expires: int(time.Hour * 24 * 7 / time.Second),
     },
-    CORS: &cors.Config{
+    CORS: cors.Config{
         AllowOrigin:      "*",
         AllowMethods:     "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS",
         AllowHeaders:     "",
         AllowCredentials: false,
         ExposeHeaders:    "",
     },
-    Cache: &cache.Config{
+    Cache: cache.Config{
         TTL:          time.Hour,
         ScanInterval: time.Minute * 10,
         Partition:    16,
     },
-    DB: &database.DBConfig{
+    DB: database.DBConfig{
         Type:    "sqlite",
         Host:    "./runtime/data.db",
         Name:    "",
@@ -44,7 +45,7 @@ var defaultConfig = &Config{
         LocalTime:  false,
         Compress:   false,
     },
-    Server: &httpserver.Config{
+    Server: httpserver.Config{
         Debug:     true,
         Host:      "127.0.0.1",
         Port:      8234,

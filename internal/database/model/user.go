@@ -14,15 +14,15 @@ type User struct {
     VerifiedAt sql.NullTime `gorm:"default:null" json:"verifiedAt"`
     IP         string       `gorm:"not null;default:''" json:"ip"`
     Status     int8         `gorm:"not null;default:0" json:"status"`
-    RoleID     int64        `gorm:"index" json:"roleId"`
+    RoleID     uint64       `gorm:"index" json:"roleId"`
     Profile    *UserProfile `gorm:"foreignKey:UserID;reference:ID" json:"profile"`
 }
 
 type UserProfile struct {
     database.Model
-    UserID      int64  `gorm:"not null;uniqueIndex" json:"userId"`
+    UserID      uint64 `gorm:"not null;uniqueIndex" json:"userId"`
     Nickname    string `json:"nickname"`
-    Gender      int8   `gorm:"comment:0男性,1女性"`
+    Gender      int8   `gorm:"comment:0男性,1女性" json:"gender"`
     Description string `json:"description"`
     Country     string `json:"country"`
     Province    string `json:"province"`

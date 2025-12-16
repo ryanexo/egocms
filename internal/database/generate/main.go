@@ -4,6 +4,7 @@ import (
     `dpcms/internal/config`
     `dpcms/internal/database/model`
     `dpcms/internal/packages/database`
+    
     "gorm.io/gen"
 )
 
@@ -13,7 +14,7 @@ func main() {
         FieldNullable:  true,
         FieldCoverable: true,
     })
-    cfg := config.NewWithDefaultConfig()
+    cfg := config.NewWithBasicConfig()
     db, err := database.NewDB(cfg.DB)
     if err != nil {
         panic(err)

@@ -1,11 +1,10 @@
 package controller
 
 import (
-    `dpcms/internal/app/erroz`
+    `dpcms/internal/app/controller/internal/common`
     `dpcms/internal/app/middleware/authz`
     `dpcms/internal/app/service`
-    `dpcms/internal/app/service/types`
-    `dpcms/internal/app/service/types/menu`
+    `dpcms/internal/app/service/srvparams`
     
     `github.com/gin-gonic/gin`
 )
@@ -27,6 +26,7 @@ func (c MenuController) setup(engine *gin.Engine) {
     g.POST("/update", c.Update)
     g.POST("/delete", c.Delete)
     g.POST("/detail", c.Detail)
+    g.POST("/move", c.Move)
     
     acl.WithRouterOption(
         g,
@@ -39,71 +39,39 @@ func (c MenuController) setup(engine *gin.Engine) {
 }
 
 func (c MenuController) List(ctx *gin.Context) {
-    p := &menu.ListParams{}
-    if err := ctx.ShouldBind(p); err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-        return
-    }
-    result, err := c.srv.Menu.List(ctx, p)
-    if err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-    } else {
-        erroz.OK.WithOption(erroz.WithData(result)).Write(ctx)
-    }
+    common.BasicBind[srvparams.MenuListQueryParams](ctx, func(params srvparams.MenuListQueryParams) (any, error) {
+        return c.srv.Menu.List(ctx, params)
+    })
 }
 
 func (c MenuController) Detail(ctx *gin.Context) {
-    p := types.QueryByIdParam{}
-    if err := ctx.ShouldBind(&p); err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-        return
-    }
-    result, err := c.srv.Menu.FindByID(ctx, p.ID)
-    if err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-    } else {
-        erroz.OK.WithOption(erroz.WithData(result)).Write(ctx)
-    }
+    common.BasicBind[srvparams.QueryByResourceID](ctx, func(params srvparams.QueryByResourceID) (any, error) {
+        return c.srv.Menu.FindByID(ctx, params.ID)
+    })
 }
 
 func (c MenuController) Create(ctx *gin.Context) {
-    params := menu.CreateParams{}
-    if err := ctx.ShouldBindJSON(&params); err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-        return
-    }
-    result, err := c.srv.Menu.Create(ctx, params)
-    if err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-    } else {
-        erroz.OK.WithOption(erroz.WithData(result)).Write(ctx)
-    }
+    common.BasicBind[srvparams.MenuCreateParams](ctx, func(params srvparams.MenuCreateParams) (any, error) {
+        return c.srv.Menu.Create(ctx, params)
+    })
+}
+
+func (c MenuController) Move(ctx *gin.Context) {
+    common.BasicBind[srvparams.MenuMoveParams](ctx, func(params srvparams.MenuMoveParams) (any, error) {
+        return nil, c.srv.Menu.Move(ctx, params.ID, params.TargetID)
+    })
 }
 
 func (c MenuController) Update(ctx *gin.Context) {
-    params := menu.UpdateParams{}
-    if err := ctx.ShouldBindJSON(&params); err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-        return
-    }
-    result, err := c.srv.Menu.Update(ctx, params)
-    if err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-    } else {
-        erroz.OK.WithOption(erroz.WithData(result)).Write(ctx)
-    }
+    common.BasicBind[srvparams.MenuUpdateParams](ctx, func(params srvparams.MenuUpdateParams) (any, error) {
+        err := c.srv.Menu.Update(ctx, params)
+        return nil, err
+    })
 }
 
 func (c MenuController) Delete(ctx *gin.Context) {
-    params := types.QueryByIdParam{}
-    if err := ctx.ShouldBindJSON(&params); err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-        return
-    }
-    err := c.srv.Menu.Delete(ctx, params.ID)
-    if err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-    } else {
-        erroz.OK.Write(ctx)
-    }
+    common.BasicBind[srvparams.QueryByResourceID](ctx, func(params srvparams.QueryByResourceID) (any, error) {
+        err := c.srv.Menu.Delete(ctx, params.ID)
+        return nil, err
+    })
 }

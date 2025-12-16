@@ -53,7 +53,7 @@ func buildDB(dialector gorm.Dialector, config *gorm.Config) (*gorm.DB, error) {
     return db, nil
 }
 
-func NewDB(config *DBConfig) (*gorm.DB, error) {
+func NewDB(config DBConfig) (*gorm.DB, error) {
     driver, err := GetDriver(config)
     if err != nil {
         return nil, err

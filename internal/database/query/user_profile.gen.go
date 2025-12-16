@@ -27,11 +27,11 @@ func newUserProfile(db *gorm.DB, opts ...gen.DOOption) userProfile {
 
 	tableName := _userProfile.userProfileDo.TableName()
 	_userProfile.ALL = field.NewAsterisk(tableName)
-	_userProfile.ID = field.NewInt64(tableName, "id")
+	_userProfile.ID = field.NewUint64(tableName, "id")
 	_userProfile.CreatedAt = field.NewTime(tableName, "created_at")
 	_userProfile.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_userProfile.DeletedAt = field.NewField(tableName, "deleted_at")
-	_userProfile.UserID = field.NewInt64(tableName, "user_id")
+	_userProfile.UserID = field.NewUint64(tableName, "user_id")
 	_userProfile.Nickname = field.NewString(tableName, "nickname")
 	_userProfile.Gender = field.NewInt8(tableName, "gender")
 	_userProfile.Description = field.NewString(tableName, "description")
@@ -48,11 +48,11 @@ type userProfile struct {
 	userProfileDo userProfileDo
 
 	ALL         field.Asterisk
-	ID          field.Int64
+	ID          field.Uint64
 	CreatedAt   field.Time
 	UpdatedAt   field.Time
 	DeletedAt   field.Field
-	UserID      field.Int64
+	UserID      field.Uint64
 	Nickname    field.String
 	Gender      field.Int8 // 0男性,1女性
 	Description field.String
@@ -75,11 +75,11 @@ func (u userProfile) As(alias string) *userProfile {
 
 func (u *userProfile) updateTableName(table string) *userProfile {
 	u.ALL = field.NewAsterisk(table)
-	u.ID = field.NewInt64(table, "id")
+	u.ID = field.NewUint64(table, "id")
 	u.CreatedAt = field.NewTime(table, "created_at")
 	u.UpdatedAt = field.NewTime(table, "updated_at")
 	u.DeletedAt = field.NewField(table, "deleted_at")
-	u.UserID = field.NewInt64(table, "user_id")
+	u.UserID = field.NewUint64(table, "user_id")
 	u.Nickname = field.NewString(table, "nickname")
 	u.Gender = field.NewInt8(table, "gender")
 	u.Description = field.NewString(table, "description")

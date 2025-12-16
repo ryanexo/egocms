@@ -27,11 +27,11 @@ func newTokenBlacklist(db *gorm.DB, opts ...gen.DOOption) tokenBlacklist {
 
 	tableName := _tokenBlacklist.tokenBlacklistDo.TableName()
 	_tokenBlacklist.ALL = field.NewAsterisk(tableName)
-	_tokenBlacklist.ID = field.NewInt64(tableName, "id")
+	_tokenBlacklist.ID = field.NewUint64(tableName, "id")
 	_tokenBlacklist.CreatedAt = field.NewTime(tableName, "created_at")
 	_tokenBlacklist.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_tokenBlacklist.DeletedAt = field.NewField(tableName, "deleted_at")
-	_tokenBlacklist.UserId = field.NewInt64(tableName, "user_id")
+	_tokenBlacklist.UserId = field.NewUint64(tableName, "user_id")
 	_tokenBlacklist.UUID = field.NewString(tableName, "uuid")
 
 	_tokenBlacklist.fillFieldMap()
@@ -43,11 +43,11 @@ type tokenBlacklist struct {
 	tokenBlacklistDo tokenBlacklistDo
 
 	ALL       field.Asterisk
-	ID        field.Int64
+	ID        field.Uint64
 	CreatedAt field.Time
 	UpdatedAt field.Time
 	DeletedAt field.Field
-	UserId    field.Int64
+	UserId    field.Uint64
 	UUID      field.String
 
 	fieldMap map[string]field.Expr
@@ -65,11 +65,11 @@ func (t tokenBlacklist) As(alias string) *tokenBlacklist {
 
 func (t *tokenBlacklist) updateTableName(table string) *tokenBlacklist {
 	t.ALL = field.NewAsterisk(table)
-	t.ID = field.NewInt64(table, "id")
+	t.ID = field.NewUint64(table, "id")
 	t.CreatedAt = field.NewTime(table, "created_at")
 	t.UpdatedAt = field.NewTime(table, "updated_at")
 	t.DeletedAt = field.NewField(table, "deleted_at")
-	t.UserId = field.NewInt64(table, "user_id")
+	t.UserId = field.NewUint64(table, "user_id")
 	t.UUID = field.NewString(table, "uuid")
 
 	t.fillFieldMap()
