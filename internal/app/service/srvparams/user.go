@@ -11,17 +11,8 @@ import (
 )
 
 type UserPasswdConfirm struct {
-    Password        string `validate:"required,min=6,max=32" json:"password"  label:"密码"`
-    PasswordConfirm string `validate:"required,eqfield=Password" json:"passwordConfirm" label:"确认密码"`
-}
-
-func (u *UserPasswdConfirm) ValidationMessage(e validator.FieldError) (string, bool) {
-    key := e.StructField() + "." + e.ActualTag()
-    message := map[string]string{
-        "UserPasswdConfirm.eqfield": "两次密码输入不一致",
-    }
-    errMsg, ok := message[key]
-    return errMsg, ok
+    Password        string `validate:"required,min=6,max=32" json:"password" label:"密码"`
+    PasswordConfirm string `validate:"required,min=6,max=32" json:"passwordConfirm" label:"确认密码"`
 }
 
 type UserCreateParams struct {
@@ -33,7 +24,7 @@ type UserCreateParams struct {
 
 type UserPasswdUpdateParams struct {
     UserPasswdConfirm
-    RawPassword string `validate:"required" json:"rawPassword" label:"原密码"`
+    OldPassword string `validate:"required" json:"oldPassword" label:"原密码"`
 }
 
 type UserCredentialParams struct {
@@ -94,7 +85,7 @@ type User struct {
 }
 
 type UserAuthnResult struct {
-    User  User   `json:"detail"`
+    User  *User  `json:"detail"`
     Token string `json:"token"`
 }
 

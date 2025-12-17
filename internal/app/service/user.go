@@ -77,9 +77,10 @@ func (srv UserService) Create(ctx context.Context, params srvparams.UserCreatePa
 func (srv UserService) FindByCredential(ctx context.Context, params srvparams.UserCredentialParams) (*srvparams.User, error) {
     uo := srv.query.User
     po := srv.query.UserProfile
+    ro := srv.query.Role
     
     result := srvparams.User{}
-    err := uo.WithContext(ctx).LeftJoin(po, uo.ID.EqCol(po.ID)).Where(uo.Username.Eq(params.Username)).Scan(&result)
+    err := uo.WithContext(ctx).LeftJoin(po, uo.ID.EqCol(po.ID)).LeftJoin(ro, uo.RoleID.EqCol(ro.ID)).Select(uo.ALL, po.ALL, ro.Name.As("RoleName")).Where(uo.Username.Eq(params.Username)).Scan(&result)
     if err != nil {
         return nil, err
     }

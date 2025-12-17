@@ -12,6 +12,8 @@ var (
     ErrUsernameExists                    = New("user.exists.username", "用户名已存在")
     ErrEMailExists                       = New("user.exists.email", "邮箱已存在")
     ErrWrongPassword                     = New("user.password.wrong", "密码错误")
+    ErrWrongConfirmPassword              = New("user.confirm-password.wrong", "两次密码输入不一致")
+    ErrNewPwdEqualsOldPwd                = New("user.password.equals-old", "新密码不能和旧密码相同")
     ErrRoleCircularReference             = New("role.circular", "角色 %s 已继承自当前角色，无法建立继承关系")
     ErrMenuCircularReferenceWhenMove     = New("menu.circular", "目标菜单 %s 为当前菜单 %s 的子级")
     ErrCategoryCircularReferenceWhenMove = New("category.circular", "目标分类 %s 为当前分类 %s 的子级")

@@ -53,28 +53,16 @@ func (c UserController) Register(ctx *gin.Context) {
 
 func (c UserController) Login(ctx *gin.Context) {
     common.BasicBind[srvparams.UserCredentialParams](ctx, func(params srvparams.UserCredentialParams) (any, error) {
-        u, valid, err := c.services.User.FindByCredential(ctx, params)
+        u, err := c.services.User.FindByCredential(ctx, params)
+        if err != nil {
+            return nil, err
+        }
+        token, err := c.services.Token.Create(u.ID)
+        if err != nil {
+            return nil, err
+        }
+        return srvparams.UserAuthnResult{User: u, Token: token}, nil
     })
-    P := srvparams.UserCredentialParams{}
-    if err := ctx.ShouldBindJSON(&P); err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-        return
-    }
-    
-    if err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-        return
-    }
-    if !valid {
-        erroz.ErrWrongPassword.Write(ctx)
-        return
-    }
-    token, err := c.services.Token.Create(u.ID)
-    if err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-    } else {
-        erroz.OK.WithOption(erroz.WithData(srvparams.UserAuthnResult{User: u, Token: token})).Write(ctx)
-    }
 }
 
 func (c UserController) Logout(ctx *gin.Context) {
@@ -86,27 +74,23 @@ func (c UserController) Logout(ctx *gin.Context) {
 }
 
 func (c UserController) UpdatePassword(ctx *gin.Context) {
-    p := srvparams.UserPasswdUpdateParams{}
-    if err := ctx.ShouldBindJSON(&p); err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-        return
-    }
-    u := authz.GetAuthorizedUser(ctx)
-    valid, err := c.services.User.FindByCredential(ctx, u.Username, p.RawPassword)
-    if err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-        return
-    }
-    if !valid {
-        erroz.ErrWrongPassword.Write(ctx)
-        return
-    }
-    err = c.services.User.ResetPassword(ctx, u.ID, u.Password)
-    if err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-    } else {
-        erroz.OK.Write(ctx)
-    }
+    common.BasicBind[srvparams.UserPasswdUpdateParams](ctx, func(params srvparams.UserPasswdUpdateParams) (any, error) {
+        if params.Password != params.PasswordConfirm {
+            return nil, erroz.ErrWrongConfirmPassword.ToError()
+        }
+        if params.Password == params.OldPassword {
+            return nil, erroz.ErrNewPwdEqualsOldPwd.ToError()
+        }
+        u := authz.GetAuthorizedUser(ctx)
+        _, err := c.services.User.FindByCredential(ctx, srvparams.UserCredentialParams{
+            Username: u.Username,
+            Password: params.OldPassword,
+        })
+        if err != nil {
+            return nil, err
+        }
+        return nil, c.services.User.ResetPassword(ctx, u.ID, u.Password)
+    })
 }
 
 func (c UserController) ResetPassword(ctx *gin.Context) {
