@@ -17,7 +17,6 @@ import (
 	"dpcms/internal/config"
 	"dpcms/internal/httpserver"
 	"dpcms/internal/infra"
-	"dpcms/internal/packages/cache"
 	"dpcms/internal/packages/database"
 	"dpcms/internal/packages/logger"
 	"dpcms/internal/packages/validate"
@@ -28,30 +27,27 @@ import (
 func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	httpserverConfig := config.GetServerConfig(cfg)
 	reqTrace := reqtrace.New()
-	lumberjackLogger := config.GetLoggerConfig(cfg)
-	zapLogger := logger.New(lumberjackLogger)
-	recoveryRecovery := recovery.New(zapLogger)
-	logLogger := log.New(zapLogger)
+	loggerConfig := config.GetLoggerConfig(cfg)
+	loggerLogger := logger.New(loggerConfig)
+	recoveryRecovery := recovery.New(loggerLogger)
+	loggerMiddleware := log.New(loggerLogger)
 	corsConfig := config.GetCORSConfig(cfg)
 	corsCORS := cors.New(corsConfig)
 	middlewareMiddleware := &middleware.Middleware{
 		ReqTrace: reqTrace,
 		Recovery: recoveryRecovery,
-		Logger:   logLogger,
+		Logger:   loggerMiddleware,
 		CORS:     corsCORS,
 	}
 	httpserverMiddleware := middleware.NewMiddlewareRegistrar(middlewareMiddleware)
-	cacheConfig := config.GetCacheConfig(cfg)
-	cacheCache := cache.New(cacheConfig)
 	dbConfig := config.GetDBConfig(cfg)
 	db, err := database.NewDB(dbConfig)
 	if err != nil {
 		return nil, err
 	}
 	infraInfra := &infra.Infra{
-		Cache:  cacheCache,
-		DB:     db,
-		Logger: zapLogger,
+		DB:  db,
+		Log: loggerLogger,
 	}
 	categoryService := service.NewCategoryCategory(infraInfra)
 	userService := service.NewUserService(infraInfra)

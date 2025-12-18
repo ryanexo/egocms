@@ -9,6 +9,7 @@ import (
     "strings"
     
     erroz2 `dpcms/internal/app/erroz`
+    `dpcms/internal/packages/logger`
     
     "github.com/gin-gonic/gin"
     "go.uber.org/zap"
@@ -20,7 +21,7 @@ func (fn Recovery) setup(engine *gin.Engine) {
     engine.Use(gin.HandlerFunc(fn))
 }
 
-func New(logger *zap.Logger) Recovery {
+func New(log *logger.Logger) Recovery {
     return func(ctx *gin.Context) {
         if !gin.IsDebugging() {
             _ = os.Stdout.Close()
@@ -69,7 +70,8 @@ func New(logger *zap.Logger) Recovery {
                 ).Write(ctx)
             }
             
-            logger.Error(message, fields...)
+            log.Access.Error(message, fields...)
+            log.App.Error(message, fields...)
         }()
         
         ctx.Next()

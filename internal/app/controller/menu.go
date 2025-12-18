@@ -39,38 +39,38 @@ func (c MenuController) setup(engine *gin.Engine) {
 }
 
 func (c MenuController) List(ctx *gin.Context) {
-    common.BasicBind[srvparams.MenuListQueryParams](ctx, func(params srvparams.MenuListQueryParams) (any, error) {
+    common.BindJSON[srvparams.MenuListQueryParams](ctx, func(params srvparams.MenuListQueryParams) (any, error) {
         return c.srv.Menu.List(ctx, params)
     })
 }
 
 func (c MenuController) Detail(ctx *gin.Context) {
-    common.BasicBind[srvparams.QueryByResourceID](ctx, func(params srvparams.QueryByResourceID) (any, error) {
+    common.BindJSON[srvparams.QueryByResourceID](ctx, func(params srvparams.QueryByResourceID) (any, error) {
         return c.srv.Menu.FindByID(ctx, params.ID)
     })
 }
 
 func (c MenuController) Create(ctx *gin.Context) {
-    common.BasicBind[srvparams.MenuCreateParams](ctx, func(params srvparams.MenuCreateParams) (any, error) {
+    common.BindJSON[srvparams.MenuCreateParams](ctx, func(params srvparams.MenuCreateParams) (any, error) {
         return c.srv.Menu.Create(ctx, params)
     })
 }
 
 func (c MenuController) Move(ctx *gin.Context) {
-    common.BasicBind[srvparams.MenuMoveParams](ctx, func(params srvparams.MenuMoveParams) (any, error) {
+    common.BindJSON[srvparams.MenuMoveParams](ctx, func(params srvparams.MenuMoveParams) (any, error) {
         return nil, c.srv.Menu.Move(ctx, params.ID, params.TargetID)
     })
 }
 
 func (c MenuController) Update(ctx *gin.Context) {
-    common.BasicBind[srvparams.MenuUpdateParams](ctx, func(params srvparams.MenuUpdateParams) (any, error) {
+    common.BindJSON[srvparams.MenuUpdateParams](ctx, func(params srvparams.MenuUpdateParams) (any, error) {
         err := c.srv.Menu.Update(ctx, params)
         return nil, err
     })
 }
 
 func (c MenuController) Delete(ctx *gin.Context) {
-    common.BasicBind[srvparams.QueryByResourceID](ctx, func(params srvparams.QueryByResourceID) (any, error) {
+    common.BindJSON[srvparams.QueryByResourceID](ctx, func(params srvparams.QueryByResourceID) (any, error) {
         err := c.srv.Menu.Delete(ctx, params.ID)
         return nil, err
     })

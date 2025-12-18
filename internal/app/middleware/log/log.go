@@ -4,14 +4,15 @@ import (
     "time"
     
     `dpcms/internal/app/constant`
+    `dpcms/internal/packages/logger`
     
     "github.com/gin-gonic/gin"
     "go.uber.org/zap"
 )
 
-type Logger gin.HandlerFunc
+type LoggerMiddleware gin.HandlerFunc
 
-func New(logger *zap.Logger) Logger {
+func New(log *logger.Logger) LoggerMiddleware {
     return func(context *gin.Context) {
         startTime := time.Now()
         context.Next()
@@ -37,6 +38,6 @@ func New(logger *zap.Logger) Logger {
             fields = append(fields, zap.String("error", context.Errors.String()))
         }
         
-        logger.Log(lvl, context.Request.URL.Path, fields...)
+        log.Access.Log(lvl, context.Request.URL.Path, fields...)
     }
 }

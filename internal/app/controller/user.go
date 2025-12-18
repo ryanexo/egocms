@@ -9,6 +9,7 @@ import (
     `dpcms/internal/infra`
     
     "github.com/gin-gonic/gin"
+    `go.uber.org/zap`
 )
 
 type UserController struct {
@@ -26,7 +27,7 @@ func (c UserController) setup(server *gin.Engine) {
     g.POST("/update-password", c.UpdatePassword)
     g.POST("/reset-password", c.ResetPassword)
     g.POST("/list", c.List)
-    g.POST("/detail", c.Detail)
+    g.POST("/profile", c.Profile)
     g.POST("/delete", c.Delete)
     g.POST("/update-profile", c.UpdateProfile)
     
@@ -45,14 +46,14 @@ func NewUserController(s *service.Services, i *infra.Infra) UserController {
 }
 
 func (c UserController) Register(ctx *gin.Context) {
-    common.BasicBind[srvparams.UserCreateParams](ctx, func(params srvparams.UserCreateParams) (any, error) {
+    common.BindJSON[srvparams.UserCreateParams](ctx, func(params srvparams.UserCreateParams) (any, error) {
         params.IP = ctx.ClientIP()
         return c.services.User.Create(ctx, params)
     })
 }
 
 func (c UserController) Login(ctx *gin.Context) {
-    common.BasicBind[srvparams.UserCredentialParams](ctx, func(params srvparams.UserCredentialParams) (any, error) {
+    common.BindJSON[srvparams.UserCredentialParams](ctx, func(params srvparams.UserCredentialParams) (any, error) {
         u, err := c.services.User.FindByCredential(ctx, params)
         if err != nil {
             return nil, err
@@ -68,13 +69,16 @@ func (c UserController) Login(ctx *gin.Context) {
 func (c UserController) Logout(ctx *gin.Context) {
     tokenString := ctx.GetHeader("Authorization")
     if tokenString != "" {
-        _ = c.services.Token.Revoke(ctx, tokenString)
+        err := c.services.Token.Revoke(ctx, tokenString)
+        if err != nil {
+            c.infra.Log.App.Warn("TOKEN注销失败", zap.Error(err))
+        }
     }
     erroz.OK.Write(ctx)
 }
 
 func (c UserController) UpdatePassword(ctx *gin.Context) {
-    common.BasicBind[srvparams.UserPasswdUpdateParams](ctx, func(params srvparams.UserPasswdUpdateParams) (any, error) {
+    common.BindJSON[srvparams.UserPasswdUpdateParams](ctx, func(params srvparams.UserPasswdUpdateParams) (any, error) {
         if params.Password != params.PasswordConfirm {
             return nil, erroz.ErrWrongConfirmPassword.ToError()
         }
@@ -94,67 +98,40 @@ func (c UserController) UpdatePassword(ctx *gin.Context) {
 }
 
 func (c UserController) ResetPassword(ctx *gin.Context) {
-    p := srvparams.UserPasswdResetParams{}
-    if err := ctx.ShouldBindJSON(&p); err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-        return
-    }
-    userInfo, err := c.services.User.FindByID(ctx, p.ID)
-    if err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-        return
-    }
-    err = c.services.User.ResetPassword(ctx, userInfo.ID, p.Password)
-    if err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-    } else {
-        erroz.OK.Write(ctx)
-    }
+    common.BindJSON[srvparams.UserPasswdResetParams](ctx, func(params srvparams.UserPasswdResetParams) (any, error) {
+        userInfo, err := c.services.User.FindByID(ctx, params.ID)
+        if err != nil {
+            return nil, err
+        }
+        return nil, c.services.User.ResetPassword(ctx, userInfo.ID, params.Password)
+    })
 }
 
 func (c UserController) List(ctx *gin.Context) {
-    p := srvparams.UserListQueryParams{}
-    if err := ctx.ShouldBindQuery(&p); err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-        return
-    }
-    result, err := c.services.User.List(ctx, p)
-    if err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-    } else {
-        erroz.OK.WithOption(erroz.WithData(result)).Write(ctx)
-    }
+    common.BindJSON[srvparams.UserListQueryParams](ctx, func(params srvparams.UserListQueryParams) (any, error) {
+        return c.services.User.List(ctx, params)
+    })
 }
 
-func (c UserController) Detail(ctx *gin.Context) {
+func (c UserController) Profile(ctx *gin.Context) {
     u := authz.GetAuthorizedUser(ctx)
     erroz.OK.WithOption(erroz.WithData(u)).Write(ctx)
 }
 
+func (c UserController) Detail(ctx *gin.Context) {
+    common.BindJSON[srvparams.QueryByResourceID](ctx, func(params srvparams.QueryByResourceID) (any, error) {
+        return c.services.User.FindByID(ctx, params.ID)
+    })
+}
+
 func (c UserController) Delete(ctx *gin.Context) {
-    p := srvparams.QueryByResourceID{}
-    if err := ctx.ShouldBindJSON(&p); err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-        return
-    }
-    err := c.services.User.Delete(ctx, p.ID)
-    if err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-    } else {
-        erroz.OK.Write(ctx)
-    }
+    common.BindJSON[srvparams.QueryByResourceID](ctx, func(params srvparams.QueryByResourceID) (any, error) {
+        return nil, c.services.User.Delete(ctx, params.ID)
+    })
 }
 
 func (c UserController) UpdateProfile(ctx *gin.Context) {
-    p := srvparams.UserProfileUpdateParams{}
-    if err := ctx.ShouldBindJSON(&p); err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-        return
-    }
-    err := c.services.User.UpdateProfile(ctx, p)
-    if err != nil {
-        erroz.ResolveWithWrite(ctx, err)
-    } else {
-        erroz.OK.Write(ctx)
-    }
+    common.BindJSON[srvparams.UserProfileUpdateParams](ctx, func(params srvparams.UserProfileUpdateParams) (any, error) {
+        return nil, c.services.User.UpdateProfile(ctx, params)
+    })
 }

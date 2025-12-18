@@ -2,15 +2,24 @@ package logger
 
 import (
     `os`
+    `path`
     
     "go.uber.org/zap"
     "go.uber.org/zap/zapcore"
     "gopkg.in/natefinch/lumberjack.v2"
 )
 
+type Config struct {
+    Path       string `json:"path" yaml:"path"`
+    MaxSize    int    `json:"maxSize" yaml:"maxSize"`
+    MaxAge     int    `json:"maxAge" yaml:"maxAge"`
+    MaxBackups int    `json:"maxBackups" yaml:"maxBackups"`
+    Compress   bool   `json:"compress" yaml:"compress"`
+}
+
 type Logger struct {
-    AccessLogger *zap.Logger
-    AppLogger    *zap.Logger
+    Access *zap.Logger
+    App    *zap.Logger
 }
 
 // 每个zap.core为一个包含写入格式、写入条件以及同步器
@@ -42,11 +51,35 @@ func newSyncer(config *lumberjack.Logger) zapcore.WriteSyncer {
     return syncer
 }
 
-func New(config *lumberjack.Logger) *zap.Logger {
+func newLogger(config *lumberjack.Logger, lvl zapcore.Level) *zap.Logger {
     encoder := newEncoder()
     syncer := newSyncer(config)
     
-    logger := zap.New(zapcore.NewCore(encoder, syncer, zapcore.InfoLevel), zap.AddStacktrace(zapcore.ErrorLevel))
-    zap.ReplaceGlobals(logger)
+    logger := zap.New(zapcore.NewCore(encoder, syncer, lvl), zap.AddStacktrace(zapcore.ErrorLevel))
     return logger
+}
+
+func New(config Config) *Logger {
+    access := newLogger(&lumberjack.Logger{
+        Filename:   path.Join(config.Path, "./access.log"),
+        MaxSize:    config.MaxSize,
+        MaxAge:     config.MaxAge,
+        MaxBackups: config.MaxBackups,
+        LocalTime:  false,
+        Compress:   config.Compress,
+    }, zapcore.InfoLevel)
+    app := newLogger(&lumberjack.Logger{
+        Filename:   path.Join(config.Path, "./app.log"),
+        MaxSize:    config.MaxSize,
+        MaxAge:     config.MaxAge,
+        MaxBackups: config.MaxBackups,
+        LocalTime:  false,
+        Compress:   config.Compress,
+    }, zapcore.DebugLevel)
+    zap.ReplaceGlobals(app)
+    
+    return &Logger{
+        Access: access,
+        App:    app,
+    }
 }

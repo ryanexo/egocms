@@ -25,7 +25,7 @@ var ProviderSet = wire.NewSet(
 type Middleware struct {
     ReqTrace reqtrace.ReqTrace
     Recovery recovery.Recovery
-    Logger   log.Logger
+    Logger   log.LoggerMiddleware
     CORS     cors.CORS
 }
 

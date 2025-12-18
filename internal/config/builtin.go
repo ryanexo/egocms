@@ -6,10 +6,8 @@ import (
     `dpcms/internal/app/middleware/cors`
     `dpcms/internal/config/internal/token`
     `dpcms/internal/httpserver`
-    `dpcms/internal/packages/cache`
     `dpcms/internal/packages/database`
-    
-    "gopkg.in/natefinch/lumberjack.v2"
+    `dpcms/internal/packages/logger`
 )
 
 var defaultConfig = &Config{
@@ -24,11 +22,6 @@ var defaultConfig = &Config{
         AllowCredentials: false,
         ExposeHeaders:    "",
     },
-    Cache: cache.Config{
-        TTL:          time.Hour,
-        ScanInterval: time.Minute * 10,
-        Partition:    16,
-    },
     DB: database.DBConfig{
         Type:    "sqlite",
         Host:    "./runtime/data.db",
@@ -37,13 +30,12 @@ var defaultConfig = &Config{
         Pass:    "",
         Charset: "utf8mb4",
     },
-    Log: &lumberjack.Logger{
-        Filename:   "runtime/logs/access.log",
+    Log: logger.Config{
+        Path:       "./runtime/logs/",
         MaxSize:    100,
-        MaxAge:     0,
+        MaxAge:     30,
         MaxBackups: 0,
-        LocalTime:  false,
-        Compress:   false,
+        Compress:   true,
     },
     Server: httpserver.Config{
         Debug:     true,

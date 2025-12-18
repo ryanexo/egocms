@@ -6,31 +6,28 @@ import (
     `dpcms/internal/app/middleware/cors`
     `dpcms/internal/config/internal/token`
     `dpcms/internal/httpserver`
-    `dpcms/internal/packages/cache`
     `dpcms/internal/packages/database`
+    `dpcms/internal/packages/logger`
     
     "github.com/bytedance/sonic"
     `github.com/google/wire`
-    "gopkg.in/natefinch/lumberjack.v2"
 )
 
 var ProviderSet = wire.NewSet(
     GetTokenConfig,
     GetCORSConfig,
     GetDBConfig,
-    GetCacheConfig,
     GetLoggerConfig,
     GetServerConfig,
 )
 
 type Config struct {
-    GlobalKey string             `json:"globalKey" yaml:"globalKey"`
-    Token     token.Config       `json:"token" yaml:"token"`
-    CORS      cors.Config        `json:"cors" yaml:"cors"`
-    Cache     cache.Config       `json:"cache" yaml:"cache"`
-    DB        database.DBConfig  `json:"db" yaml:"db"`
-    Log       *lumberjack.Logger `json:"log" yaml:"log"`
-    Server    httpserver.Config  `json:"httpserver" yaml:"httpserver"`
+    GlobalKey string            `json:"globalKey" yaml:"globalKey"`
+    Token     token.Config      `json:"token" yaml:"token"`
+    CORS      cors.Config       `json:"cors" yaml:"cors"`
+    DB        database.DBConfig `json:"db" yaml:"db"`
+    Log       logger.Config     `json:"log" yaml:"log"`
+    Server    httpserver.Config `json:"httpserver" yaml:"httpserver"`
 }
 
 var currentConfig *Config

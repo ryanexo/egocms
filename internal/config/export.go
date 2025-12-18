@@ -4,10 +4,8 @@ import (
     `dpcms/internal/app/middleware/cors`
     `dpcms/internal/config/internal/token`
     `dpcms/internal/httpserver`
-    `dpcms/internal/packages/cache`
     `dpcms/internal/packages/database`
-    
-    `gopkg.in/natefinch/lumberjack.v2`
+    `dpcms/internal/packages/logger`
 )
 
 func Get() *Config {
@@ -26,11 +24,7 @@ func GetDBConfig(cfg *Config) database.DBConfig {
     return cfg.DB
 }
 
-func GetCacheConfig(cfg *Config) cache.Config {
-    return cfg.Cache
-}
-
-func GetLoggerConfig(cfg *Config) *lumberjack.Logger {
+func GetLoggerConfig(cfg *Config) logger.Config {
     return cfg.Log
 }
 
