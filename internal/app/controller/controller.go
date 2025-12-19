@@ -14,11 +14,15 @@ var ProviderSet = wire.NewSet(
     NewRouteRegistrar,
     NewUserController,
     NewMenuController,
+    NewCategoryController,
+    NewRoleController,
 )
 
 type Controllers struct {
-    User UserController
-    Menu MenuController
+    User     UserController
+    Menu     MenuController
+    Category CategoryController
+    Role     CategoryController
 }
 
 type IController interface {

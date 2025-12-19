@@ -17,6 +17,10 @@ type UserController struct {
     infra    *infra.Infra
 }
 
+func NewUserController(s *service.Services, i *infra.Infra) UserController {
+    return UserController{services: s, infra: i}
+}
+
 func (c UserController) setup(server *gin.Engine) {
     acl := authz.New(c.services)
     
@@ -39,10 +43,6 @@ func (c UserController) setup(server *gin.Engine) {
         authz.WithRouterPermission("/update-password", "update"),
         authz.WithRouterPermission("/reset-password", "reset-password"),
     )
-}
-
-func NewUserController(s *service.Services, i *infra.Infra) UserController {
-    return UserController{services: s, infra: i}
 }
 
 func (c UserController) Register(ctx *gin.Context) {

@@ -1,5 +1,7 @@
 package srvparams
 
+import `dpcms/internal/app/helper/dbscope`
+
 type CategorySEO struct {
     Title       string `json:"title"`
     Keywords    string `json:"keywords"`
@@ -29,4 +31,14 @@ type CategoryUpdateParams struct {
 type CategoryMoveParams struct {
     ID       uint64 `json:"id"`
     TargetID uint64 `json:"targetId"`
+}
+
+type CategoryListParams struct {
+    dbscope.Pagination
+    ID       *uint64 `json:"id"`
+    ParentID *uint64 `json:"parentId"`
+    Type     *uint   `json:"type"`
+    Name     *string `json:"name"`
+    Path     *string `json:"path"`
+    Display  *uint   `json:"display"`
 }

@@ -8,6 +8,7 @@ import (
     `dpcms/internal/app/erroz`
     `dpcms/internal/app/helper/dbscope`
     `dpcms/internal/app/helper/gormhelper`
+    `dpcms/internal/app/service/internal/common`
     `dpcms/internal/app/service/srvparams`
     `dpcms/internal/database/model`
     `dpcms/internal/database/query`
@@ -122,4 +123,43 @@ func (srv CategoryService) ListRootNodes(ctx context.Context, pageNo int, pageSi
 func (srv CategoryService) ListNodesByParentID(ctx context.Context, id uint64, pageSize int, pageNo int) ([]*model.Category, error) {
     q := srv.query.Category
     return q.WithContext(ctx).Where(q.ParentID.Eq(id)).Scopes(dbscope.Paginate(pageNo, pageSize)).Find()
+}
+
+func (srv CategoryService) List(ctx context.Context, params srvparams.CategoryListParams) (*common.PaginatedResult[*model.Category], error) {
+    dao := srv.query.Category
+    q := dao.WithContext(ctx).Scopes(dbscope.Paginate(params.PageNo, params.PageSize))
+    if params.ID != nil {
+        q = q.Where(dao.ID.Eq(*params.ID))
+    }
+    if params.ParentID != nil {
+        q = q.Where(dao.ParentID.Eq(*params.ParentID))
+    }
+    if params.Type != nil {
+        q = q.Where(dao.Type.Eq(*params.Type))
+    }
+    if params.Name != nil {
+        q = q.Where(dao.Name.Eq(*params.Name))
+    }
+    if params.Path != nil {
+        q = q.Where(dao.Path.Eq(*params.Path))
+    }
+    if params.Display != nil {
+        q = q.Where(dao.Display.Eq(*params.Display))
+    }
+    
+    total, err := q.Count()
+    if err != nil {
+        return nil, err
+    }
+    result, err := q.Find()
+    if err != nil {
+        return nil, err
+    }
+    
+    return &common.PaginatedResult[*model.Category]{
+        Total:    total,
+        PageSize: params.PageSize,
+        PageNo:   params.PageNo,
+        List:     result,
+    }, nil
 }

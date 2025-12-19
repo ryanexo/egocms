@@ -2,7 +2,7 @@ package srvparams
 
 import (
     `dpcms/internal/app/helper/dbscope`
-    `dpcms/internal/packages/database`
+    `dpcms/internal/database/model`
 )
 
 type RoleCreateParams struct {
@@ -16,25 +16,14 @@ type RoleUpdateParams struct {
     ID uint64 `validate:"required" json:"id"`
 }
 
-type DeleteParams struct {
-    ID uint64 `validate:"required" json:"id"`
+type Role struct {
+    *model.Role
+    InheritList []Role `json:"inheritList"`
 }
 
-type Detail struct {
-    database.Model
-    Name        string   `json:"name"`
-    Description string   `json:"description"`
-    InheritList []Detail `json:"inheritList"`
-}
-
-type ListDetail struct {
-    ID          uint64 `json:"id"`
-    Name        string `json:"name"`
-    Description string `json:"description"`
-}
-
-type ListRetrieveParams struct {
+type RoleListParams struct {
     dbscope.Pagination
+    InheritId   *uint64 `json:"inheritId"`
     Name        *string `json:"name"`
     Description *string `json:"description"`
 }
