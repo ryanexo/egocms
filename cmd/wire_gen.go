@@ -17,9 +17,8 @@ import (
 	"dpcms/internal/config"
 	"dpcms/internal/httpserver"
 	"dpcms/internal/infra"
-	"dpcms/internal/packages/database"
-	"dpcms/internal/packages/logger"
-	"dpcms/internal/packages/validate"
+	"dpcms/internal/infra/db"
+	"dpcms/internal/infra/logger"
 )
 
 // Injectors from wire.go:
@@ -41,7 +40,7 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	}
 	httpserverMiddleware := middleware.NewMiddlewareRegistrar(middlewareMiddleware)
 	dbConfig := config.GetDBConfig(cfg)
-	db, err := database.NewDB(dbConfig)
+	db, err := db.NewDB(dbConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -71,13 +70,16 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	}
 	userController := controller.NewUserController(services, infraInfra)
 	menuController := controller.NewMenuController(services)
+	categoryController := controller.NewCategoryController(services)
+	roleController := controller.NewRoleController(services, infraInfra)
 	controllers := &controller.Controllers{
-		User: userController,
-		Menu: menuController,
+		User:     userController,
+		Menu:     menuController,
+		Category: categoryController,
+		Role:     roleController,
 	}
 	routes := controller.NewRouteRegistrar(controllers)
-	structValidator := validate.New()
-	launcher, err := httpserver.New(httpserverConfig, httpserverMiddleware, routes, structValidator)
+	launcher, err := httpserver.New(httpserverConfig, httpserverMiddleware, routes)
 	if err != nil {
 		return nil, err
 	}

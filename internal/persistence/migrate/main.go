@@ -5,7 +5,7 @@ import (
     
     `dpcms/internal/config`
     `dpcms/internal/database/model`
-    `dpcms/internal/packages/database`
+    `dpcms/internal/infra/database`
     
     `gorm.io/gorm`
 )

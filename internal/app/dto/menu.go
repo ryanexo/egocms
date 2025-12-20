@@ -12,15 +12,15 @@ type MenuListQueryParams struct {
 
 type MenuCreateParams struct {
     ParentID uint64 `json:"parentId"`
-    Name     string `validate:"required" json:"name" label:"名称"`
+    Name     string `validator:"required" json:"name" label:"名称"`
     Sequence int64  `json:"sequence"`
-    URI      string `validate:"required,alphanum" json:"uri"`
+    URI      string `validator:"required,alphanum" json:"uri"`
     Template string `json:"template"`
     Remark   string `json:"remark"`
 }
 
 type MenuUpdateParams struct {
-    ID       uint64 `validate:"required" json:"id"`
+    ID       uint64 `validator:"required" json:"id"`
     Name     string `json:"name"`
     Sequence int64  `json:"sequence"`
     URI      string `json:"uri"`
@@ -29,6 +29,6 @@ type MenuUpdateParams struct {
 }
 
 type MenuMoveParams struct {
-    ID       uint64 `validate:"required" json:"id"`
-    TargetID uint64 `validate:"required" json:"targetId"`
+    ID       uint64 `validator:"required" json:"id"`
+    TargetID uint64 `validator:"required" json:"targetId"`
 }

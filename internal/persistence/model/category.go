@@ -1,7 +1,7 @@
 package model
 
 import (
-    `dpcms/internal/packages/database`
+    `dpcms/internal/infra/database`
 )
 
 type CategoryContext struct {

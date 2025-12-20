@@ -3,7 +3,7 @@ package model
 import (
     `database/sql`
     
-    `dpcms/internal/packages/database`
+    `dpcms/internal/infra/database`
 )
 
 type User struct {
