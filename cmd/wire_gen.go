@@ -18,6 +18,7 @@ import (
 	"dpcms/internal/httpserver"
 	"dpcms/internal/infra"
 	"dpcms/internal/infra/db"
+	"dpcms/internal/infra/hashids"
 	"dpcms/internal/infra/logger"
 )
 
@@ -40,13 +41,19 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	}
 	httpserverMiddleware := middleware.NewMiddlewareRegistrar(middlewareMiddleware)
 	dbConfig := config.GetDBConfig(cfg)
-	db, err := db.NewDB(dbConfig)
+	gormDB, err := db.NewDB(dbConfig)
+	if err != nil {
+		return nil, err
+	}
+	hashidsConfig := config.GetHashIdsConfig(cfg)
+	hashIds, err := hashids.New(hashidsConfig)
 	if err != nil {
 		return nil, err
 	}
 	infraInfra := &infra.Infra{
-		DB:  db,
-		Log: loggerLogger,
+		DB:      gormDB,
+		Log:     loggerLogger,
+		HashIds: hashIds,
 	}
 	categoryService := service.NewCategoryCategory(infraInfra)
 	userService := service.NewUserService(infraInfra)
