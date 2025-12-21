@@ -5,6 +5,7 @@ package main
 import (
     `dpcms/internal/app/controller`
     `dpcms/internal/app/middleware`
+    `dpcms/internal/app/repo`
     `dpcms/internal/app/service`
     `dpcms/internal/config`
     `dpcms/internal/httpserver`
@@ -21,5 +22,6 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
         service.ProviderSet,
         controller.ProviderSet,
         httpserver.ProviderSet,
+        repo.ProviderSet,
     ))
 }

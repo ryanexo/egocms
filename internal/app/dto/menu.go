@@ -1,7 +1,7 @@
-package srvparams
+package dto
 
 import (
-    `dpcms/internal/app/helper/dbscope`
+    `dpcms/internal/persistence/dbscope`
 )
 
 type MenuListQueryParams struct {

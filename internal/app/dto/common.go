@@ -1,4 +1,4 @@
-package srvparams
+package dto
 
 type QueryByResourceID struct {
     ID uint64 `validator:"required" json:"id"`

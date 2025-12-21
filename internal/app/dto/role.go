@@ -1,8 +1,8 @@
-package srvparams
+package dto
 
 import (
-    `dpcms/internal/app/helper/dbscope`
-    `dpcms/internal/database/model`
+    `dpcms/internal/persistence/dbscope`
+    `dpcms/internal/persistence/model`
 )
 
 type RoleCreateParams struct {

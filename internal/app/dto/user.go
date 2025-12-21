@@ -1,11 +1,11 @@
-package srvparams
+package dto
 
 import (
     `database/sql`
     `time`
     
-    `dpcms/internal/app/helper/dbscope`
-    `dpcms/internal/infra/database`
+    `dpcms/internal/persistence`
+    `dpcms/internal/persistence/dbscope`
     
     `github.com/go-playground/validator/v10`
 )
@@ -72,7 +72,7 @@ type UserProfile struct {
 }
 
 type User struct {
-    database.Model
+    persistence.Model
     Username   string       `json:"username"`
     Password   string       `json:"-"`
     Email      string       `json:"email"`

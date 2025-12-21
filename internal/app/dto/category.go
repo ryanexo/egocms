@@ -1,6 +1,8 @@
-package srvparams
+package dto
 
-import `dpcms/internal/app/helper/dbscope`
+import (
+    `dpcms/internal/persistence/dbscope`
+)
 
 type CategorySEO struct {
     Title       string `json:"title"`
