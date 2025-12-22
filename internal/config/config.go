@@ -6,26 +6,29 @@ import (
     `dpcms/internal/app/middleware/cors`
     `dpcms/internal/config/internal/token`
     `dpcms/internal/httpserver`
-    `dpcms/internal/packages/database`
-    `dpcms/internal/packages/logger`
+    `dpcms/internal/infra/db`
+    `dpcms/internal/infra/hashids`
+    `dpcms/internal/infra/logger`
     
     "github.com/bytedance/sonic"
     `github.com/google/wire`
 )
 
-var ProviderSet = wire.NewSet(
+var ConfigProvider = wire.NewSet(
     GetTokenConfig,
     GetCORSConfig,
     GetDBConfig,
     GetLoggerConfig,
     GetServerConfig,
+    GetHashIdsConfig,
 )
 
 type Config struct {
     GlobalKey string            `json:"globalKey" yaml:"globalKey"`
     Token     token.Config      `json:"token" yaml:"token"`
     CORS      cors.Config       `json:"cors" yaml:"cors"`
-    DB        database.DBConfig `json:"db" yaml:"db"`
+    DB        db.DBConfig       `json:"db" yaml:"db"`
+    HashIds   hashids.Config    `json:"hashids" yaml:"hashids"`
     Log       logger.Config     `json:"log" yaml:"log"`
     Server    httpserver.Config `json:"httpserver" yaml:"httpserver"`
 }

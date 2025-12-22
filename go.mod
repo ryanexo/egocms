@@ -76,6 +76,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
+	github.com/speps/go-hashids v2.0.0+incompatible // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
 	go.uber.org/mock v0.6.0 // indirect

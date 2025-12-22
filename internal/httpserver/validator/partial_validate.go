@@ -1,4 +1,4 @@
-package validate
+package validator
 
 type PartialFields struct {
     fields []string

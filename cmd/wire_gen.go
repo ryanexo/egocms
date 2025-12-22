@@ -13,6 +13,7 @@ import (
 	"dpcms/internal/app/middleware/log"
 	"dpcms/internal/app/middleware/recovery"
 	"dpcms/internal/app/middleware/reqtrace"
+	"dpcms/internal/app/repo"
 	"dpcms/internal/app/service"
 	"dpcms/internal/config"
 	"dpcms/internal/httpserver"
@@ -20,6 +21,7 @@ import (
 	"dpcms/internal/infra/db"
 	"dpcms/internal/infra/hashids"
 	"dpcms/internal/infra/logger"
+	"dpcms/internal/infra/persistence"
 )
 
 // Injectors from wire.go:
@@ -45,6 +47,7 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	if err != nil {
 		return nil, err
 	}
+	query := persistence.New(gormDB)
 	hashidsConfig := config.GetHashIdsConfig(cfg)
 	hashIds, err := hashids.New(hashidsConfig)
 	if err != nil {
@@ -52,33 +55,42 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	}
 	infraInfra := &infra.Infra{
 		DB:      gormDB,
+		Query:   query,
 		Log:     loggerLogger,
 		HashIds: hashIds,
 	}
-	categoryService := service.NewCategoryCategory(infraInfra)
-	userService := service.NewUserService(infraInfra)
-	tokenService := service.NewTokenService(cfg, infraInfra)
-	rbacService, err := service.NewRBACService(infraInfra)
+	category := service.NewCategoryCategory(infraInfra)
+	user := service.NewUserService(infraInfra)
+	token := service.NewTokenService(cfg, infraInfra)
+	rbac, err := service.NewRBACService(infraInfra)
 	if err != nil {
 		return nil, err
 	}
-	roleService, err := service.NewRoleService(infraInfra, rbacService)
+	role, err := service.NewRoleService(infraInfra, rbac)
 	if err != nil {
 		return nil, err
 	}
-	menuService := service.NewMenuService(infraInfra)
+	menu := service.NewMenuService(infraInfra)
+	article := repo.NewArticle(query)
+	repoRepo := &repo.Repo{
+		Article: article,
+	}
+	serviceArticle := service.NewArticle(repoRepo)
+	contentModel := service.NewContentModel(infraInfra)
 	services := &service.Services{
-		Category: categoryService,
-		User:     userService,
-		Token:    tokenService,
-		RBAC:     rbacService,
-		Role:     roleService,
-		Menu:     menuService,
+		Category:     category,
+		User:         user,
+		Token:        token,
+		RBAC:         rbac,
+		Role:         role,
+		Menu:         menu,
+		Article:      serviceArticle,
+		ContentModel: contentModel,
 	}
 	userController := controller.NewUserController(services, infraInfra)
 	menuController := controller.NewMenuController(services)
 	categoryController := controller.NewCategoryController(services)
-	roleController := controller.NewRoleController(services, infraInfra)
+	roleController := controller.NewRoleController(services)
 	controllers := &controller.Controllers{
 		User:     userController,
 		Menu:     menuController,

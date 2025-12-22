@@ -4,8 +4,9 @@ import (
     `dpcms/internal/app/middleware/cors`
     `dpcms/internal/config/internal/token`
     `dpcms/internal/httpserver`
-    `dpcms/internal/packages/database`
-    `dpcms/internal/packages/logger`
+    `dpcms/internal/infra/db`
+    `dpcms/internal/infra/hashids`
+    `dpcms/internal/infra/logger`
 )
 
 func Get() *Config {
@@ -20,7 +21,7 @@ func GetCORSConfig(cfg *Config) cors.Config {
     return cfg.CORS
 }
 
-func GetDBConfig(cfg *Config) database.DBConfig {
+func GetDBConfig(cfg *Config) db.DBConfig {
     return cfg.DB
 }
 
@@ -30,4 +31,8 @@ func GetLoggerConfig(cfg *Config) logger.Config {
 
 func GetServerConfig(cfg *Config) httpserver.Config {
     return cfg.Server
+}
+
+func GetHashIdsConfig(cfg *Config) hashids.Config {
+    return cfg.HashIds
 }

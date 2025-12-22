@@ -4,37 +4,37 @@ import (
     `database/sql`
     `time`
     
-    `dpcms/internal/persistence`
-    `dpcms/internal/persistence/dbscope`
+    `dpcms/internal/infra/persistence/dbscope`
+    `dpcms/internal/infra/persistence/model`
     
     `github.com/go-playground/validator/v10`
 )
 
 type UserPasswdConfirm struct {
-    Password        string `validator:"required,min=6,max=32" json:"password" label:"密码"`
-    PasswordConfirm string `validator:"required,min=6,max=32" json:"passwordConfirm" label:"确认密码"`
+    Password        string `validate:"required,min=6,max=32" json:"password" label:"密码"`
+    PasswordConfirm string `validate:"required,min=6,max=32" json:"passwordConfirm" label:"确认密码"`
 }
 
 type UserCreateParams struct {
     UserPasswdConfirm
-    Username string `validator:"required,alphanum,min=4,max=32" json:"username" label:"用户名"`
-    Email    string `validator:"required,max=64,email" json:"email" label:"邮箱"`
+    Username string `validate:"required,alphanum,min=4,max=32" json:"username" label:"用户名"`
+    Email    string `validate:"required,max=64,email" json:"email" label:"邮箱"`
     IP       string `json:"-"`
 }
 
 type UserPasswdUpdateParams struct {
     UserPasswdConfirm
-    OldPassword string `validator:"required" json:"oldPassword" label:"原密码"`
+    OldPassword string `validate:"required" json:"oldPassword" label:"原密码"`
 }
 
 type UserCredentialParams struct {
-    Username string `validator:"required" json:"username" label:"用户名"`
-    Password string `validator:"required" json:"password" label:"密码"`
+    Username string `validate:"required" json:"username" label:"用户名"`
+    Password string `validate:"required" json:"password" label:"密码"`
 }
 
 type UserPasswdResetParams struct {
-    ID       uint64 `validator:"required" json:"ID" label:"用户ID"`
-    Password string `validator:"required,min=6,max=32" json:"password" label:"密码"`
+    ID       uint64 `validate:"required" json:"ID" label:"用户ID"`
+    Password string `validate:"required,min=6,max=32" json:"password" label:"密码"`
 }
 
 type UserListQueryParams struct {
@@ -47,7 +47,7 @@ type UserListQueryParams struct {
     IP              *string    `json:"ip"`
     RoleID          *uint64    `json:"roleId" label:"角色"`
     Nickname        *string    `json:"nickname" label:"昵称"`
-    Gender          *int8      `validator:"omitnil,oneof=0 1" json:"gender" label:"性别"`
+    Gender          *int8      `validate:"omitnil,oneof=0 1" json:"gender" label:"性别"`
     Country         *string    `json:"country" label:"国家"`
     Province        *string    `json:"province" label:"省份"`
     City            *string    `json:"city" label:"城市"`
@@ -72,7 +72,7 @@ type UserProfile struct {
 }
 
 type User struct {
-    persistence.Model
+    model.Base
     Username   string       `json:"username"`
     Password   string       `json:"-"`
     Email      string       `json:"email"`
@@ -90,6 +90,6 @@ type UserAuthnResult struct {
 }
 
 type UserProfileUpdateParams struct {
-    ID uint64 `validator:"required" json:"id"`
+    ID uint64 `validate:"required" json:"id"`
     UserProfile
 }

@@ -1,20 +1,27 @@
 package infra
 
 import (
-    `dpcms/internal/packages/database`
-    `dpcms/internal/packages/logger`
+    `dpcms/internal/infra/db`
+    `dpcms/internal/infra/hashids`
+    `dpcms/internal/infra/logger`
+    `dpcms/internal/infra/persistence`
+    `dpcms/internal/infra/persistence/query`
     
     "github.com/google/wire"
     "gorm.io/gorm"
 )
 
-var ProviderSet = wire.NewSet(
+var InfraProvider = wire.NewSet(
     wire.Struct(new(Infra), "*"),
     logger.New,
-    database.NewDB,
+    db.NewDB,
+    hashids.New,
+    persistence.New,
 )
 
 type Infra struct {
-    DB  *gorm.DB
-    Log *logger.Logger
+    DB      *gorm.DB
+    Query   *query.Query
+    Log     *logger.Logger
+    HashIds *hashids.HashIds
 }

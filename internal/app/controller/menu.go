@@ -1,10 +1,10 @@
 package controller
 
 import (
-    `dpcms/internal/app/controller/internal/common`
+    `dpcms/internal/app/controller/internal/httpbinding`
+    `dpcms/internal/app/dto`
     `dpcms/internal/app/middleware/authz`
     `dpcms/internal/app/service`
-    `dpcms/internal/app/service/srvparams`
     
     `github.com/gin-gonic/gin`
 )
@@ -39,38 +39,38 @@ func (c MenuController) setup(engine *gin.Engine) {
 }
 
 func (c MenuController) List(ctx *gin.Context) {
-    common.BindJSON[srvparams.MenuListQueryParams](ctx, func(params srvparams.MenuListQueryParams) (any, error) {
+    httpbinding.BindJSON[dto.MenuListQueryParams](ctx, func(params dto.MenuListQueryParams) (any, error) {
         return c.srv.Menu.List(ctx, params)
     })
 }
 
 func (c MenuController) Detail(ctx *gin.Context) {
-    common.BindJSON[srvparams.QueryByResourceID](ctx, func(params srvparams.QueryByResourceID) (any, error) {
+    httpbinding.BindJSON[dto.QueryByResourceID](ctx, func(params dto.QueryByResourceID) (any, error) {
         return c.srv.Menu.FindByID(ctx, params.ID)
     })
 }
 
 func (c MenuController) Create(ctx *gin.Context) {
-    common.BindJSON[srvparams.MenuCreateParams](ctx, func(params srvparams.MenuCreateParams) (any, error) {
+    httpbinding.BindJSON[dto.MenuCreateParams](ctx, func(params dto.MenuCreateParams) (any, error) {
         return c.srv.Menu.Create(ctx, params)
     })
 }
 
 func (c MenuController) Move(ctx *gin.Context) {
-    common.BindJSON[srvparams.MenuMoveParams](ctx, func(params srvparams.MenuMoveParams) (any, error) {
+    httpbinding.BindJSON[dto.MenuMoveParams](ctx, func(params dto.MenuMoveParams) (any, error) {
         return nil, c.srv.Menu.Move(ctx, params.ID, params.TargetID)
     })
 }
 
 func (c MenuController) Update(ctx *gin.Context) {
-    common.BindJSON[srvparams.MenuUpdateParams](ctx, func(params srvparams.MenuUpdateParams) (any, error) {
+    httpbinding.BindJSON[dto.MenuUpdateParams](ctx, func(params dto.MenuUpdateParams) (any, error) {
         err := c.srv.Menu.Update(ctx, params)
         return nil, err
     })
 }
 
 func (c MenuController) Delete(ctx *gin.Context) {
-    common.BindJSON[srvparams.QueryByResourceID](ctx, func(params srvparams.QueryByResourceID) (any, error) {
+    httpbinding.BindJSON[dto.QueryByResourceID](ctx, func(params dto.QueryByResourceID) (any, error) {
         err := c.srv.Menu.Delete(ctx, params.ID)
         return nil, err
     })

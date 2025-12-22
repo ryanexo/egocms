@@ -13,7 +13,7 @@ func ReplaceNotFoundError(err error) error {
         return nil
     }
     if errors.Is(err, gorm.ErrRecordNotFound) {
-        return erroz.ErrDataNotFound.ToError()
+        return erroz.DataNotFound.ToError()
     }
     return err
 }

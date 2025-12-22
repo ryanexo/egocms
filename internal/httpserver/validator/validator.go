@@ -1,4 +1,4 @@
-package validate
+package validator
 
 import (
     `errors`
@@ -10,10 +10,7 @@ import (
     ut "github.com/go-playground/universal-translator"
     "github.com/go-playground/validator/v10"
     "github.com/go-playground/validator/v10/translations/zh"
-    `github.com/google/wire`
 )
-
-var ProviderSet = wire.NewSet(New)
 
 type PartialValidation interface {
     ValidationFields() []string

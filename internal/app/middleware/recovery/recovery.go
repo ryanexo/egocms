@@ -9,7 +9,7 @@ import (
     "strings"
     
     erroz2 `dpcms/internal/app/erroz`
-    `dpcms/internal/packages/logger`
+    `dpcms/internal/infra/logger`
     
     "github.com/gin-gonic/gin"
     "go.uber.org/zap"
@@ -65,7 +65,7 @@ func New(log *logger.Logger) Recovery {
                 ctx.Abort()
             } else {
                 message = "panic"
-                erroz2.ErrUnknown.WithOption(
+                erroz2.Unknown.WithOption(
                     erroz2.WithDebug(panicMsg), erroz2.WithStatus(http.StatusInternalServerError),
                 ).Write(ctx)
             }

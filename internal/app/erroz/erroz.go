@@ -4,7 +4,7 @@ import (
     "errors"
     `fmt`
     
-    `dpcms/internal/packages/validate`
+    `dpcms/internal/httpserver/validator`
     
     "github.com/gin-gonic/gin"
     `gorm.io/gorm`
@@ -93,7 +93,7 @@ func ResolveWithWrite(ctx *gin.Context, err error) {
     var (
         notResolved     bool
         returnValue     businessError
-        validationError validate.ValidationErrors
+        validationError validator.ValidationErrors
     )
     
     switch {
@@ -101,13 +101,13 @@ func ResolveWithWrite(ctx *gin.Context, err error) {
         break
     
     case errors.As(err, &validationError):
-        returnValue = ErrValidation.WithOption(WithData(validationError)).prototype()
+        returnValue = ValidationFailed.WithOption(WithData(validationError)).prototype()
     
     case errors.Is(err, gorm.ErrRecordNotFound):
-        returnValue = ErrDataNotFound.prototype()
+        returnValue = DataNotFound.prototype()
     
     default:
-        returnValue = ErrUnknown.Wrap(err).prototype()
+        returnValue = Unknown.Wrap(err).prototype()
         notResolved = true
     }
     

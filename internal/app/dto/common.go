@@ -1,5 +1,5 @@
 package dto
 
 type QueryByResourceID struct {
-    ID uint64 `validator:"required" json:"id"`
+    ID uint64 `validate:"required" json:"id"`
 }

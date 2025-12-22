@@ -3,6 +3,8 @@ package httpserver
 import (
     "path/filepath"
     
+    `dpcms/internal/httpserver/validator`
+    
     "github.com/gin-gonic/gin"
     "github.com/gin-gonic/gin/binding"
     "github.com/google/wire"
@@ -12,12 +14,12 @@ var ProviderSet = wire.NewSet(
     New,
 )
 
-func New(cfg Config, middleware Middleware, routes Routes, validator binding.StructValidator) (*Launcher, error) {
+func New(cfg Config, middleware Middleware, routes Routes) (*Launcher, error) {
     if cfg.Debug {
         gin.SetMode(gin.DebugMode)
     }
     
-    binding.Validator = validator
+    binding.Validator = validator.New()
     
     engine := gin.New()
     

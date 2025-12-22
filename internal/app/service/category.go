@@ -5,34 +5,34 @@ import (
     `errors`
     `fmt`
     
+    `dpcms/internal/app/dto`
     `dpcms/internal/app/erroz`
-    `dpcms/internal/app/helper/dbscope`
     `dpcms/internal/app/helper/gormhelper`
     `dpcms/internal/app/service/internal/common`
-    `dpcms/internal/app/service/srvparams`
-    `dpcms/internal/database/model`
-    `dpcms/internal/database/query`
     `dpcms/internal/infra`
+    `dpcms/internal/infra/persistence/dbscope`
+    `dpcms/internal/infra/persistence/model`
+    `dpcms/internal/infra/persistence/query`
     
     `github.com/jinzhu/copier`
     `gorm.io/gorm`
 )
 
-type CategoryService struct {
-    query *query.Query
-    infra *infra.Infra
+type Category struct {
+    persist *query.Query
+    db      *gorm.DB
 }
 
-func NewCategoryCategory(infra *infra.Infra) *CategoryService {
-    return &CategoryService{query: query.Use(infra.DB), infra: infra}
+func NewCategoryCategory(i *infra.Infra) *Category {
+    return &Category{persist: i.Query, db: i.DB}
 }
 
-func (srv CategoryService) Create(ctx context.Context, createParams srvparams.CategoryCreateParams) (*model.Category, error) {
+func (srv Category) Create(ctx context.Context, createParams dto.CategoryCreateParams) (*model.Category, error) {
     category := model.Category{}
     if err := copier.Copy(&category, &createParams); err != nil {
         return nil, err
     }
-    err := srv.query.Transaction(func(tx *query.Query) error {
+    err := srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
         txErr := queryCtx.Category.Create(&category)
         if txErr != nil {
@@ -52,29 +52,26 @@ func (srv CategoryService) Create(ctx context.Context, createParams srvparams.Ca
     return &category, nil
 }
 
-func (srv CategoryService) Update(ctx context.Context, category srvparams.CategoryUpdateParams) error {
-    return srv.query.Transaction(func(tx *query.Query) error {
+func (srv Category) Update(ctx context.Context, category dto.CategoryUpdateParams) error {
+    return srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
-        _, err := queryCtx.Category.Where(srv.query.Category.ID.Eq(category.ID)).First()
+        _, err := queryCtx.Category.Where(srv.persist.Category.ID.Eq(category.ID)).First()
         if err != nil {
-            if errors.Is(err, gorm.ErrRecordNotFound) {
-                return erroz.ErrDataNotFound.ToError()
-            }
             return err
         }
-        _, err = srv.query.WithContext(ctx).Category.Updates(category)
+        _, err = srv.persist.WithContext(ctx).Category.Updates(category)
         return err
     })
 }
 
-func (srv CategoryService) Delete(ctx context.Context, id uint64) error {
-    return srv.query.Transaction(func(tx *query.Query) error {
-        ctxDao := srv.query.CategoryContext
+func (srv Category) Delete(ctx context.Context, id uint64) error {
+    return srv.persist.Transaction(func(tx *query.Query) error {
+        ctxDao := srv.persist.CategoryContext
         
         sqlStr := "DELETE FROM %[1]s WHERE id IN ( SELECT d_id FROM ( SELECT t.%[3]s AS d_id FROM %[1]s AS t WHERE %[2]s = ? ) )"
-        deleteSql := fmt.Sprintf(sqlStr, srv.query.Category.TableName(), ctxDao.Ancestor.ColumnName(), ctxDao.Descendant.ColumnName())
+        deleteSql := fmt.Sprintf(sqlStr, srv.persist.Category.TableName(), ctxDao.Ancestor.ColumnName(), ctxDao.Descendant.ColumnName())
         
-        err := srv.infra.DB.WithContext(ctx).Exec(deleteSql, id).Error
+        err := srv.db.WithContext(ctx).Exec(deleteSql, id).Error
         if err != nil {
             return err
         }
@@ -86,11 +83,19 @@ func (srv CategoryService) Delete(ctx context.Context, id uint64) error {
     })
 }
 
-func (srv CategoryService) Move(ctx context.Context, id uint64, target uint64) error {
-    return srv.query.Transaction(func(tx *query.Query) error {
+func (srv Category) Move(ctx context.Context, id uint64, target uint64) error {
+    return srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
+        ctxDao := srv.persist.CategoryContext
         
-        err := queryCtx.CategoryContext.UnbindRelationships(id)
+        _, err := queryCtx.CategoryContext.Where(ctxDao.Ancestor.Eq(id), ctxDao.Descendant.Eq(target)).First()
+        if err == nil {
+            return erroz.CategoryCircularReferenceWhenMove.ToError()
+        } else if !errors.Is(err, gorm.ErrRecordNotFound) {
+            return err
+        }
+        
+        err = queryCtx.CategoryContext.UnbindRelationships(id)
         if err != nil {
             return err
         }
@@ -98,7 +103,7 @@ func (srv CategoryService) Move(ctx context.Context, id uint64, target uint64) e
         if err != nil {
             return err
         }
-        _, err = queryCtx.Category.Where(srv.query.Category.ID.Eq(id)).Update(srv.query.Category.ParentID, target)
+        _, err = queryCtx.Category.Where(srv.persist.Category.ID.Eq(id)).Update(srv.persist.Category.ParentID, target)
         if err != nil {
             return err
         }
@@ -107,8 +112,8 @@ func (srv CategoryService) Move(ctx context.Context, id uint64, target uint64) e
     })
 }
 
-func (srv CategoryService) FindByID(ctx context.Context, id uint64) (*model.Category, error) {
-    q := srv.query.Category
+func (srv Category) FindByID(ctx context.Context, id uint64) (*model.Category, error) {
+    q := srv.persist.Category
     result, err := q.WithContext(ctx).Where(q.ID.Eq(id)).First()
     if err != nil {
         return nil, gormhelper.ReplaceNotFoundError(err)
@@ -116,17 +121,17 @@ func (srv CategoryService) FindByID(ctx context.Context, id uint64) (*model.Cate
     return result, nil
 }
 
-func (srv CategoryService) ListRootNodes(ctx context.Context, pageNo int, pageSize int) ([]*model.Category, error) {
-    return srv.query.Category.WithContext(ctx).Scopes(dbscope.Paginate(pageNo, pageSize)).Where(srv.query.Category.ParentID.Eq(0)).Find()
+func (srv Category) ListRootNodes(ctx context.Context, pageNo int, pageSize int) ([]*model.Category, error) {
+    return srv.persist.Category.WithContext(ctx).Scopes(dbscope.Paginate(pageNo, pageSize)).Where(srv.persist.Category.ParentID.Eq(0)).Find()
 }
 
-func (srv CategoryService) ListNodesByParentID(ctx context.Context, id uint64, pageSize int, pageNo int) ([]*model.Category, error) {
-    q := srv.query.Category
+func (srv Category) ListNodesByParentID(ctx context.Context, id uint64, pageSize int, pageNo int) ([]*model.Category, error) {
+    q := srv.persist.Category
     return q.WithContext(ctx).Where(q.ParentID.Eq(id)).Scopes(dbscope.Paginate(pageNo, pageSize)).Find()
 }
 
-func (srv CategoryService) List(ctx context.Context, params srvparams.CategoryListParams) (*common.PaginatedResult[*model.Category], error) {
-    dao := srv.query.Category
+func (srv Category) List(ctx context.Context, params dto.CategoryListParams) (*common.PaginatedResult[*model.Category], error) {
+    dao := srv.persist.Category
     q := dao.WithContext(ctx).Scopes(dbscope.Paginate(params.PageNo, params.PageSize))
     if params.ID != nil {
         q = q.Where(dao.ID.Eq(*params.ID))

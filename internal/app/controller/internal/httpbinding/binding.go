@@ -1,4 +1,4 @@
-package common
+package httpbinding
 
 import (
     `dpcms/internal/app/erroz`

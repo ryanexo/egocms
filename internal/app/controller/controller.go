@@ -9,7 +9,7 @@ import (
     `github.com/google/wire`
 )
 
-var ProviderSet = wire.NewSet(
+var ControllerProvider = wire.NewSet(
     wire.Struct(new(Controllers), "*"),
     NewRouteRegistrar,
     NewUserController,
@@ -22,7 +22,7 @@ type Controllers struct {
     User     UserController
     Menu     MenuController
     Category CategoryController
-    Role     CategoryController
+    Role     RoleController
 }
 
 type IController interface {

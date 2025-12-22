@@ -7,7 +7,7 @@ import (
     `dpcms/internal/app/erroz`
     `dpcms/internal/app/helper/rbachelper`
     `dpcms/internal/app/service`
-    `dpcms/internal/database/model`
+    `dpcms/internal/infra/persistence/model`
     
     `github.com/armon/go-radix`
     "github.com/gin-gonic/gin"
@@ -62,13 +62,13 @@ func (s acl) Middleware() gin.HandlerFunc {
         
         credential := ctx.GetHeader("Authorization")
         if credential == "" {
-            erroz.ErrUnauthorized.WriteWithAbort(ctx)
+            erroz.Unauthorized.WriteWithAbort(ctx)
             return
         }
         
         token, found := strings.CutPrefix(credential, "Bearer ")
         if !found {
-            erroz.ErrUnauthorized.WriteWithAbort(ctx)
+            erroz.Unauthorized.WriteWithAbort(ctx)
             return
         }
         
@@ -86,7 +86,7 @@ func (s acl) Middleware() gin.HandlerFunc {
                     erroz.ResolveWithAbort(ctx, err)
                     return
                 } else if !pass {
-                    erroz.ErrUnauthorized.WriteWithAbort(ctx)
+                    erroz.Unauthorized.WriteWithAbort(ctx)
                     return
                 }
             }
@@ -96,7 +96,7 @@ func (s acl) Middleware() gin.HandlerFunc {
     }
 }
 
-func shouldSetUserFromToken(ctx *gin.Context, tokenSrv *service.TokenService, token string) (*model.User, error) {
+func shouldSetUserFromToken(ctx *gin.Context, tokenSrv *service.Token, token string) (*model.User, error) {
     user, err := tokenSrv.GetUserFromToken(ctx, token)
     if err != nil {
         return nil, err

@@ -2,34 +2,37 @@ package service
 
 import (
     `context`
+    `errors`
     `fmt`
     
-    `dpcms/internal/app/helper/dbscope`
+    `dpcms/internal/app/dto`
+    `dpcms/internal/app/erroz`
     `dpcms/internal/app/helper/gormhelper`
     `dpcms/internal/app/service/internal/common`
-    `dpcms/internal/app/service/srvparams`
-    `dpcms/internal/database/model`
-    `dpcms/internal/database/query`
     `dpcms/internal/infra`
+    `dpcms/internal/infra/persistence/dbscope`
+    `dpcms/internal/infra/persistence/model`
+    `dpcms/internal/infra/persistence/query`
     
     `github.com/jinzhu/copier`
+    `gorm.io/gorm`
 )
 
-type MenuService struct {
-    query *query.Query
-    infra *infra.Infra
+type Menu struct {
+    persist *query.Query
+    db      *gorm.DB
 }
 
-func NewMenuService(infra *infra.Infra) *MenuService {
-    return &MenuService{query: query.Use(infra.DB), infra: infra}
+func NewMenuService(i *infra.Infra) *Menu {
+    return &Menu{persist: i.Query, db: i.DB}
 }
 
-func (srv MenuService) Create(ctx context.Context, createParams srvparams.MenuCreateParams) (*model.Menu, error) {
+func (srv Menu) Create(ctx context.Context, createParams dto.MenuCreateParams) (*model.Menu, error) {
     menu := model.Menu{}
     if err := copier.Copy(&menu, &createParams); err != nil {
         return nil, err
     }
-    err := srv.query.Transaction(func(tx *query.Query) error {
+    err := srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
         err := queryCtx.Menu.Create(&menu)
         if err != nil {
@@ -48,14 +51,14 @@ func (srv MenuService) Create(ctx context.Context, createParams srvparams.MenuCr
     return &menu, err
 }
 
-func (srv MenuService) Update(ctx context.Context, params srvparams.MenuUpdateParams) error {
-    return srv.query.Transaction(func(tx *query.Query) error {
+func (srv Menu) Update(ctx context.Context, params dto.MenuUpdateParams) error {
+    return srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
-        _, err := queryCtx.Menu.Where(srv.query.Menu.ID.Eq(params.ID)).First()
+        _, err := queryCtx.Menu.Where(srv.persist.Menu.ID.Eq(params.ID)).First()
         if err != nil {
             return err
         }
-        _, err = srv.query.WithContext(ctx).Category.Where(srv.query.Menu.ID.Eq(params.ID)).Updates(params)
+        _, err = srv.persist.WithContext(ctx).Category.Where(srv.persist.Menu.ID.Eq(params.ID)).Updates(params)
         if err != nil {
             return err
         }
@@ -63,14 +66,14 @@ func (srv MenuService) Update(ctx context.Context, params srvparams.MenuUpdatePa
     })
 }
 
-func (srv MenuService) Delete(ctx context.Context, id uint64) error {
-    return srv.query.Transaction(func(tx *query.Query) error {
-        ctxDao := srv.query.MenuContext
+func (srv Menu) Delete(ctx context.Context, id uint64) error {
+    return srv.persist.Transaction(func(tx *query.Query) error {
+        ctxDao := srv.persist.MenuContext
         
         sqlStr := "DELETE FROM %[1]s WHERE id IN ( SELECT d_id FROM ( SELECT t.%[3]s AS d_id FROM %[1]s AS t WHERE %[2]s = ? ) )"
-        deleteSql := fmt.Sprintf(sqlStr, srv.query.Menu.TableName(), ctxDao.Ancestor.ColumnName(), ctxDao.Descendant.ColumnName())
+        deleteSql := fmt.Sprintf(sqlStr, srv.persist.Menu.TableName(), ctxDao.Ancestor.ColumnName(), ctxDao.Descendant.ColumnName())
         
-        err := srv.infra.DB.WithContext(ctx).Exec(deleteSql, id).Error
+        err := srv.db.WithContext(ctx).Exec(deleteSql, id).Error
         if err != nil {
             return err
         }
@@ -82,11 +85,19 @@ func (srv MenuService) Delete(ctx context.Context, id uint64) error {
     })
 }
 
-func (srv MenuService) Move(ctx context.Context, id uint64, target uint64) error {
-    return srv.query.Transaction(func(tx *query.Query) error {
+func (srv Menu) Move(ctx context.Context, id uint64, target uint64) error {
+    return srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
+        ctxDao := srv.persist.MenuContext
         
-        err := queryCtx.MenuContext.UnbindRelationships(id)
+        _, err := queryCtx.MenuContext.Where(ctxDao.Ancestor.Eq(id), ctxDao.Descendant.Eq(target)).First()
+        if err == nil {
+            return erroz.MenuCircularReferenceWhenMove.ToError()
+        } else if !errors.Is(err, gorm.ErrRecordNotFound) {
+            return err
+        }
+        
+        err = queryCtx.MenuContext.UnbindRelationships(id)
         if err != nil {
             return err
         }
@@ -94,7 +105,7 @@ func (srv MenuService) Move(ctx context.Context, id uint64, target uint64) error
         if err != nil {
             return err
         }
-        _, err = queryCtx.Menu.Where(srv.query.Menu.ID.Eq(id)).Update(srv.query.Menu.ParentID, target)
+        _, err = queryCtx.Menu.Where(srv.persist.Menu.ID.Eq(id)).Update(srv.persist.Menu.ParentID, target)
         if err != nil {
             return err
         }
@@ -103,8 +114,8 @@ func (srv MenuService) Move(ctx context.Context, id uint64, target uint64) error
     })
 }
 
-func (srv MenuService) FindByID(ctx context.Context, id uint64) (*model.Menu, error) {
-    q := srv.query.Menu
+func (srv Menu) FindByID(ctx context.Context, id uint64) (*model.Menu, error) {
+    q := srv.persist.Menu
     result, err := q.WithContext(ctx).Where(q.ID.Eq(id)).First()
     if err != nil {
         return nil, gormhelper.ReplaceNotFoundError(err)
@@ -112,8 +123,8 @@ func (srv MenuService) FindByID(ctx context.Context, id uint64) (*model.Menu, er
     return result, nil
 }
 
-func (srv MenuService) List(ctx context.Context, condition srvparams.MenuListQueryParams) (result *common.PaginatedResult[*model.Menu], err error) {
-    menuDAO := srv.query.Menu
+func (srv Menu) List(ctx context.Context, condition dto.MenuListQueryParams) (result *common.PaginatedResult[*model.Menu], err error) {
+    menuDAO := srv.persist.Menu
     q := menuDAO.WithContext(ctx)
     if condition.Ancestor != nil {
         q = q.Where(menuDAO.ParentID.Eq(*condition.Ancestor))

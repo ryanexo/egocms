@@ -1,22 +1,20 @@
 package controller
 
 import (
-    `dpcms/internal/app/controller/internal/common`
+    `dpcms/internal/app/controller/internal/httpbinding`
+    `dpcms/internal/app/dto`
     `dpcms/internal/app/middleware/authz`
     `dpcms/internal/app/service`
-    `dpcms/internal/app/service/srvparams`
-    `dpcms/internal/infra`
     
     `github.com/gin-gonic/gin`
 )
 
 type RoleController struct {
-    srv   *service.Services
-    infra *infra.Infra
+    srv *service.Services
 }
 
-func NewRoleController(srv *service.Services, infra *infra.Infra) RoleController {
-    return RoleController{srv: srv, infra: infra}
+func NewRoleController(srv *service.Services) RoleController {
+    return RoleController{srv: srv}
 }
 
 func (c RoleController) setup(server *gin.Engine) {
@@ -40,31 +38,31 @@ func (c RoleController) setup(server *gin.Engine) {
 }
 
 func (c RoleController) Create(ctx *gin.Context) {
-    common.BindJSON[srvparams.RoleCreateParams](ctx, func(params srvparams.RoleCreateParams) (any, error) {
+    httpbinding.BindJSON[dto.RoleCreateParams](ctx, func(params dto.RoleCreateParams) (any, error) {
         return c.srv.Role.Create(ctx, params)
     })
 }
 
 func (c RoleController) Update(ctx *gin.Context) {
-    common.BindJSON[srvparams.RoleUpdateParams](ctx, func(params srvparams.RoleUpdateParams) (any, error) {
+    httpbinding.BindJSON[dto.RoleUpdateParams](ctx, func(params dto.RoleUpdateParams) (any, error) {
         return nil, c.srv.Role.Update(ctx, params)
     })
 }
 
 func (c RoleController) Delete(ctx *gin.Context) {
-    common.BindJSON[srvparams.QueryByResourceID](ctx, func(params srvparams.QueryByResourceID) (any, error) {
+    httpbinding.BindJSON[dto.QueryByResourceID](ctx, func(params dto.QueryByResourceID) (any, error) {
         return nil, c.srv.Role.Delete(ctx, params.ID)
     })
 }
 
 func (c RoleController) List(ctx *gin.Context) {
-    common.BindJSON[srvparams.RoleListParams](ctx, func(params srvparams.RoleListParams) (any, error) {
+    httpbinding.BindJSON[dto.RoleListParams](ctx, func(params dto.RoleListParams) (any, error) {
         return c.srv.Role.List(ctx, params)
     })
 }
 
 func (c RoleController) Detail(ctx *gin.Context) {
-    common.BindJSON[srvparams.QueryByResourceID](ctx, func(params srvparams.QueryByResourceID) (any, error) {
+    httpbinding.BindJSON[dto.QueryByResourceID](ctx, func(params dto.QueryByResourceID) (any, error) {
         return c.srv.Role.FindRoleById(ctx, params.ID)
     })
 }

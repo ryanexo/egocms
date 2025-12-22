@@ -1,10 +1,10 @@
 package controller
 
 import (
-    `dpcms/internal/app/controller/internal/common`
+    `dpcms/internal/app/controller/internal/httpbinding`
+    `dpcms/internal/app/dto`
     `dpcms/internal/app/middleware/authz`
     `dpcms/internal/app/service`
-    `dpcms/internal/app/service/srvparams`
     
     `github.com/gin-gonic/gin`
 )
@@ -13,11 +13,11 @@ type CategoryController struct {
     srv *service.Services
 }
 
-func NewCategoryController(srv *service.Services) *CategoryController {
-    return &CategoryController{srv}
+func NewCategoryController(srv *service.Services) CategoryController {
+    return CategoryController{srv}
 }
 
-func (c *CategoryController) setup(engine *gin.Engine) {
+func (c CategoryController) setup(engine *gin.Engine) {
     acl := authz.NewWithRBAC(c.srv, "category")
     
     g := engine.Group("/category", acl.Middleware())
@@ -38,39 +38,39 @@ func (c *CategoryController) setup(engine *gin.Engine) {
     )
 }
 
-func (c *CategoryController) List(ctx *gin.Context) {
-    common.BindJSON[srvparams.CategoryListParams](ctx, func(params srvparams.CategoryListParams) (any, error) {
+func (c CategoryController) List(ctx *gin.Context) {
+    httpbinding.BindJSON[dto.CategoryListParams](ctx, func(params dto.CategoryListParams) (any, error) {
         return c.srv.Category.List(ctx, params)
     })
 }
 
-func (c *CategoryController) Detail(ctx *gin.Context) {
-    common.BindJSON[srvparams.QueryByResourceID](ctx, func(params srvparams.QueryByResourceID) (any, error) {
+func (c CategoryController) Detail(ctx *gin.Context) {
+    httpbinding.BindJSON[dto.QueryByResourceID](ctx, func(params dto.QueryByResourceID) (any, error) {
         return c.srv.Category.FindByID(ctx, params.ID)
     })
 }
 
-func (c *CategoryController) Create(ctx *gin.Context) {
-    common.BindJSON[srvparams.CategoryCreateParams](ctx, func(params srvparams.CategoryCreateParams) (any, error) {
+func (c CategoryController) Create(ctx *gin.Context) {
+    httpbinding.BindJSON[dto.CategoryCreateParams](ctx, func(params dto.CategoryCreateParams) (any, error) {
         return c.srv.Category.Create(ctx, params)
     })
 }
 
-func (c *CategoryController) Move(ctx *gin.Context) {
-    common.BindJSON[srvparams.CategoryMoveParams](ctx, func(params srvparams.CategoryMoveParams) (any, error) {
+func (c CategoryController) Move(ctx *gin.Context) {
+    httpbinding.BindJSON[dto.CategoryMoveParams](ctx, func(params dto.CategoryMoveParams) (any, error) {
         return nil, c.srv.Category.Move(ctx, params.ID, params.TargetID)
     })
 }
 
-func (c *CategoryController) Update(ctx *gin.Context) {
-    common.BindJSON[srvparams.CategoryUpdateParams](ctx, func(params srvparams.CategoryUpdateParams) (any, error) {
+func (c CategoryController) Update(ctx *gin.Context) {
+    httpbinding.BindJSON[dto.CategoryUpdateParams](ctx, func(params dto.CategoryUpdateParams) (any, error) {
         err := c.srv.Category.Update(ctx, params)
         return nil, err
     })
 }
 
-func (c *CategoryController) Delete(ctx *gin.Context) {
-    common.BindJSON[srvparams.QueryByResourceID](ctx, func(params srvparams.QueryByResourceID) (any, error) {
+func (c CategoryController) Delete(ctx *gin.Context) {
+    httpbinding.BindJSON[dto.QueryByResourceID](ctx, func(params dto.QueryByResourceID) (any, error) {
         err := c.srv.Category.Delete(ctx, params.ID)
         return nil, err
     })

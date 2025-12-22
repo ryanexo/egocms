@@ -4,45 +4,44 @@ import (
     "context"
     `database/sql`
     
+    `dpcms/internal/app/dto`
     `dpcms/internal/app/erroz`
-    `dpcms/internal/app/helper/dbscope`
     `dpcms/internal/app/service/internal/common`
-    `dpcms/internal/app/service/srvparams`
-    `dpcms/internal/database/model`
-    `dpcms/internal/database/query`
     `dpcms/internal/infra`
-    `dpcms/internal/packages/password`
+    `dpcms/internal/infra/password`
+    `dpcms/internal/infra/persistence/dbscope`
+    `dpcms/internal/infra/persistence/model`
+    `dpcms/internal/infra/persistence/query`
     
     `github.com/jinzhu/copier`
 )
 
-type UserService struct {
-    infra *infra.Infra
-    query *query.Query
+type User struct {
+    persist *query.Query
 }
 
-func NewUserService(infra *infra.Infra) *UserService {
-    return &UserService{infra: infra, query: query.Use(infra.DB)}
+func NewUserService(i *infra.Infra) *User {
+    return &User{persist: i.Query}
 }
 
-func (srv UserService) isUnique(ctx context.Context, username string, email string) error {
-    q := srv.query.User
+func (srv User) isUnique(ctx context.Context, username string, email string) error {
+    q := srv.persist.User
     findResult, err := q.WithContext(ctx).Where(q.Username.Eq(username)).Or(q.Email.Eq(email)).First()
     if err != nil {
         return err
     }
     if findResult != nil {
         if findResult.Username == username {
-            return erroz.ErrUsernameExists.ToError()
+            return erroz.UsernameExists.ToError()
         }
         if findResult.Email == email {
-            return erroz.ErrEMailExists.ToError()
+            return erroz.UserEmailExists.ToError()
         }
     }
     return nil
 }
 
-func (srv UserService) Create(ctx context.Context, params srvparams.UserCreateParams) (result srvparams.User, err error) {
+func (srv User) Create(ctx context.Context, params dto.UserCreateParams) (result dto.User, err error) {
     err = srv.isUnique(ctx, params.Username, params.Email)
     if err != nil {
         return
@@ -60,12 +59,12 @@ func (srv UserService) Create(ctx context.Context, params srvparams.UserCreatePa
         return
     }
     
-    err = srv.query.User.WithContext(ctx).Create(&u)
+    err = srv.persist.User.WithContext(ctx).Create(&u)
     if err != nil {
         return
     }
     profile := model.UserProfile{}
-    err = srv.query.User.Profile.Model(&u).Append(&profile)
+    err = srv.persist.User.Profile.Model(&u).Append(&profile)
     if err != nil {
         return
     }
@@ -74,24 +73,24 @@ func (srv UserService) Create(ctx context.Context, params srvparams.UserCreatePa
     return
 }
 
-func (srv UserService) FindByCredential(ctx context.Context, params srvparams.UserCredentialParams) (*srvparams.User, error) {
-    uo := srv.query.User
-    po := srv.query.UserProfile
-    ro := srv.query.Role
+func (srv User) FindByCredential(ctx context.Context, params dto.UserCredentialParams) (*dto.User, error) {
+    uo := srv.persist.User
+    po := srv.persist.UserProfile
+    ro := srv.persist.Role
     
-    result := srvparams.User{}
+    result := dto.User{}
     err := uo.WithContext(ctx).LeftJoin(po, uo.ID.EqCol(po.ID)).LeftJoin(ro, uo.RoleID.EqCol(ro.ID)).Select(uo.ALL, po.ALL, ro.Name.As("RoleName")).Where(uo.Username.Eq(params.Username)).Scan(&result)
     if err != nil {
         return nil, err
     }
     if !password.Password(result.Password).Compare(params.Password) {
-        return nil, erroz.ErrWrongPassword.ToError()
+        return nil, erroz.UserWrongPassword.ToError()
     }
     return &result, nil
 }
 
-func (srv UserService) FindByID(ctx context.Context, id uint64) (result srvparams.User, err error) {
-    q := srv.query.User
+func (srv User) FindByID(ctx context.Context, id uint64) (result dto.User, err error) {
+    q := srv.persist.User
     u, err := q.WithContext(ctx).Where(q.ID.Eq(id)).First()
     if err != nil {
         return
@@ -100,8 +99,8 @@ func (srv UserService) FindByID(ctx context.Context, id uint64) (result srvparam
     return
 }
 
-func (srv UserService) FindByName(ctx context.Context, name string) (result srvparams.User, err error) {
-    q := srv.query.User
+func (srv User) FindByName(ctx context.Context, name string) (result dto.User, err error) {
+    q := srv.persist.User
     u, err := q.WithContext(ctx).Where(q.Username.Eq(name)).First()
     if err != nil {
         return
@@ -110,8 +109,8 @@ func (srv UserService) FindByName(ctx context.Context, name string) (result srvp
     return
 }
 
-func (srv UserService) ResetPassword(ctx context.Context, id uint64, pwd string) error {
-    q := srv.query.User
+func (srv User) ResetPassword(ctx context.Context, id uint64, pwd string) error {
+    q := srv.persist.User
     hashedPwd, err := password.Password(pwd).Generate()
     if err != nil {
         return err
@@ -120,14 +119,14 @@ func (srv UserService) ResetPassword(ctx context.Context, id uint64, pwd string)
     return err
 }
 
-func (srv UserService) Delete(ctx context.Context, id uint64) error {
-    return srv.query.Transaction(func(tx *query.Query) error {
+func (srv User) Delete(ctx context.Context, id uint64) error {
+    return srv.persist.Transaction(func(tx *query.Query) error {
         q := tx.WithContext(ctx)
-        _, err := q.User.Where(srv.query.User.ID.Eq(id)).Delete()
+        _, err := q.User.Where(srv.persist.User.ID.Eq(id)).Delete()
         if err != nil {
             return err
         }
-        _, err = q.UserProfile.Where(srv.query.UserProfile.UserID.Eq(id)).Delete()
+        _, err = q.UserProfile.Where(srv.persist.UserProfile.UserID.Eq(id)).Delete()
         if err != nil {
             return err
         }
@@ -135,26 +134,26 @@ func (srv UserService) Delete(ctx context.Context, id uint64) error {
     })
 }
 
-func (srv UserService) UpdateProfile(ctx context.Context, params srvparams.UserProfileUpdateParams) error {
+func (srv User) UpdateProfile(ctx context.Context, params dto.UserProfileUpdateParams) error {
     profile := model.UserProfile{}
     err := copier.Copy(&profile, params)
     if err != nil {
         return err
     }
-    _, err = srv.query.WithContext(ctx).UserProfile.Select(
-        srv.query.UserProfile.Gender,
-        srv.query.UserProfile.Country,
-        srv.query.UserProfile.Province,
-        srv.query.UserProfile.City,
-        srv.query.UserProfile.Nickname,
-        srv.query.UserProfile.Description,
-    ).Where(srv.query.UserProfile.UserID.Eq(params.ID)).Updates(&profile)
+    _, err = srv.persist.WithContext(ctx).UserProfile.Select(
+        srv.persist.UserProfile.Gender,
+        srv.persist.UserProfile.Country,
+        srv.persist.UserProfile.Province,
+        srv.persist.UserProfile.City,
+        srv.persist.UserProfile.Nickname,
+        srv.persist.UserProfile.Description,
+    ).Where(srv.persist.UserProfile.UserID.Eq(params.ID)).Updates(&profile)
     return err
 }
 
-func (srv UserService) List(ctx context.Context, p srvparams.UserListQueryParams) (result common.PaginatedResult[srvparams.User], err error) {
-    userDAO := srv.query.User
-    profileDAO := srv.query.UserProfile
+func (srv User) List(ctx context.Context, p dto.UserListQueryParams) (result common.PaginatedResult[dto.User], err error) {
+    userDAO := srv.persist.User
+    profileDAO := srv.persist.UserProfile
     q := userDAO.WithContext(ctx).LeftJoin(profileDAO, profileDAO.UserID.EqCol(userDAO.ID))
     if p.Username != nil {
         q = q.Where(userDAO.Username.Like(*p.Username + "%"))
@@ -209,10 +208,10 @@ func (srv UserService) List(ctx context.Context, p srvparams.UserListQueryParams
         return
     }
     
-    userList := make([]srvparams.User, len(users))
+    userList := make([]dto.User, len(users))
     err = copier.Copy(&userList, &users)
     
-    return common.PaginatedResult[srvparams.User]{
+    return common.PaginatedResult[dto.User]{
         PageNo:   p.PageNo,
         PageSize: p.PageSize,
         Total:    count,

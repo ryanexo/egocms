@@ -4,7 +4,7 @@ import (
     "time"
     
     `dpcms/internal/app/constant`
-    `dpcms/internal/packages/logger`
+    `dpcms/internal/infra/logger`
     
     "github.com/gin-gonic/gin"
     "go.uber.org/zap"

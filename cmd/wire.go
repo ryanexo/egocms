@@ -16,12 +16,12 @@ import (
 
 func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
     panic(wire.Build(
-        config.ProviderSet,
-        infra.ProviderSet,
+        config.ConfigProvider,
+        infra.InfraProvider,
         middleware.ProviderSet,
-        service.ProviderSet,
-        controller.ProviderSet,
+        service.ServiceProvider,
+        controller.ControllerProvider,
         httpserver.ProviderSet,
-        repo.ProviderSet,
+        repo.RepoProvider,
     ))
 }

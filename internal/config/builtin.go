@@ -6,8 +6,8 @@ import (
     `dpcms/internal/app/middleware/cors`
     `dpcms/internal/config/internal/token`
     `dpcms/internal/httpserver`
-    `dpcms/internal/packages/database`
-    `dpcms/internal/packages/logger`
+    `dpcms/internal/infra/db`
+    `dpcms/internal/infra/logger`
 )
 
 var defaultConfig = &Config{
@@ -22,7 +22,7 @@ var defaultConfig = &Config{
         AllowCredentials: false,
         ExposeHeaders:    "",
     },
-    DB: database.DBConfig{
+    DB: db.DBConfig{
         Type:    "sqlite",
         Host:    "./runtime/data.db",
         Name:    "",

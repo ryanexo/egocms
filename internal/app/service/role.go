@@ -3,31 +3,31 @@ package service
 import (
     `context`
     
+    `dpcms/internal/app/dto`
     `dpcms/internal/app/erroz`
-    `dpcms/internal/app/helper/dbscope`
     `dpcms/internal/app/helper/rbachelper`
     `dpcms/internal/app/service/internal/common`
-    `dpcms/internal/app/service/srvparams`
-    `dpcms/internal/database/model`
-    `dpcms/internal/database/query`
     `dpcms/internal/infra`
+    `dpcms/internal/infra/persistence/dbscope`
+    `dpcms/internal/infra/persistence/model`
+    `dpcms/internal/infra/persistence/query`
     
     `github.com/jinzhu/copier`
 )
 
-type RoleService struct {
-    rbac  *RBACService
-    query *query.Query
+type Role struct {
+    rbac    *RBAC
+    persist *query.Query
 }
 
-func NewRoleService(infra *infra.Infra, rbac *RBACService) (*RoleService, error) {
-    return &RoleService{rbac: rbac, query: query.Use(infra.DB)}, nil
+func NewRoleService(i *infra.Infra, rbac *RBAC) (*Role, error) {
+    return &Role{rbac: rbac, persist: i.Query}, nil
 }
 
-func (srv RoleService) Create(ctx context.Context, params srvparams.RoleCreateParams) (result *srvparams.Role, err error) {
+func (srv Role) Create(ctx context.Context, params dto.RoleCreateParams) (result *dto.Role, err error) {
     roleModel := model.Role{Name: params.Name, Description: params.Description}
     
-    err = srv.query.Transaction(func(tx *query.Query) error {
+    err = srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
         txErr := queryCtx.Role.Create(&roleModel)
         if txErr != nil {
@@ -59,7 +59,7 @@ func (srv RoleService) Create(ctx context.Context, params srvparams.RoleCreatePa
         return
     }
     
-    roles, err := srv.query.WithContext(ctx).Role.Where(srv.query.Role.ID.In(params.InheritList...)).Find()
+    roles, err := srv.persist.WithContext(ctx).Role.Where(srv.persist.Role.ID.In(params.InheritList...)).Find()
     if err != nil {
         return
     }
@@ -75,11 +75,11 @@ func (srv RoleService) Create(ctx context.Context, params srvparams.RoleCreatePa
     return
 }
 
-func (srv RoleService) Update(ctx context.Context, params srvparams.RoleUpdateParams) error {
-    return srv.query.Transaction(func(tx *query.Query) error {
+func (srv Role) Update(ctx context.Context, params dto.RoleUpdateParams) error {
+    return srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
         
-        _, err := queryCtx.Role.Where(srv.query.Role.ID.Eq(params.ID)).Updates(model.Role{
+        _, err := queryCtx.Role.Where(srv.persist.Role.ID.Eq(params.ID)).Updates(model.Role{
             Name:        params.Name,
             Description: params.Description,
         })
@@ -101,11 +101,11 @@ func (srv RoleService) Update(ctx context.Context, params srvparams.RoleUpdatePa
             }
             
             if isCircleRelate {
-                childRole, err := srv.query.Role.WithContext(ctx).Where(srv.query.Role.ID.Eq(inheritRoleID)).First()
+                childRole, err := srv.persist.Role.WithContext(ctx).Where(srv.persist.Role.ID.Eq(inheritRoleID)).First()
                 if err != nil {
                     return err
                 }
-                return erroz.ErrRoleCircularReference.Format(childRole.Name).ToError()
+                return erroz.RoleCircularReference.Format(childRole.Name).ToError()
             }
             
             _, err = enforcer.AddRoleForUser(currentRoleName, rbachelper.GetRoleSubject(inheritRoleID))
@@ -123,10 +123,10 @@ func (srv RoleService) Update(ctx context.Context, params srvparams.RoleUpdatePa
     })
 }
 
-func (srv RoleService) Delete(ctx context.Context, id uint64) error {
-    return srv.query.Transaction(func(tx *query.Query) error {
+func (srv Role) Delete(ctx context.Context, id uint64) error {
+    return srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
-        _, err := queryCtx.Role.Where(srv.query.Role.ID.Eq(id)).Delete()
+        _, err := queryCtx.Role.Where(srv.persist.Role.ID.Eq(id)).Delete()
         if err != nil {
             return err
         }
@@ -143,8 +143,8 @@ func (srv RoleService) Delete(ctx context.Context, id uint64) error {
     })
 }
 
-func (srv RoleService) FindRoleById(ctx context.Context, id uint64) (result srvparams.Role, err error) {
-    dao := srv.query.Role
+func (srv Role) FindRoleById(ctx context.Context, id uint64) (result dto.Role, err error) {
+    dao := srv.persist.Role
     r, err := dao.WithContext(ctx).Where(dao.ID.Eq(id)).First()
     if err != nil {
         return
@@ -171,8 +171,8 @@ func (srv RoleService) FindRoleById(ctx context.Context, id uint64) (result srvp
     return
 }
 
-func (srv RoleService) List(ctx context.Context, params srvparams.RoleListParams) (*common.PaginatedResult[*model.Role], error) {
-    dao := srv.query.Role
+func (srv Role) List(ctx context.Context, params dto.RoleListParams) (*common.PaginatedResult[*model.Role], error) {
+    dao := srv.persist.Role
     q := dao.WithContext(ctx).Scopes(dbscope.Paginate(params.PageNo, params.PageSize))
     
     if params.Name != nil {
