@@ -13,7 +13,6 @@ import (
 	"dpcms/internal/app/middleware/log"
 	"dpcms/internal/app/middleware/recovery"
 	"dpcms/internal/app/middleware/reqtrace"
-	"dpcms/internal/app/repo"
 	"dpcms/internal/app/service"
 	"dpcms/internal/config"
 	"dpcms/internal/httpserver"
@@ -28,16 +27,16 @@ import (
 
 func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	httpserverConfig := config.GetServerConfig(cfg)
-	reqTrace := reqtrace.New()
 	loggerConfig := config.GetLoggerConfig(cfg)
 	loggerLogger := logger.New(loggerConfig)
 	recoveryRecovery := recovery.New(loggerLogger)
+	reqTrace := reqtrace.New()
 	loggerMiddleware := log.New(loggerLogger)
 	corsConfig := config.GetCORSConfig(cfg)
 	corsCORS := cors.New(corsConfig)
 	middlewareMiddleware := &middleware.Middleware{
-		ReqTrace: reqTrace,
 		Recovery: recoveryRecovery,
+		ReqTrace: reqTrace,
 		Logger:   loggerMiddleware,
 		CORS:     corsCORS,
 	}
@@ -71,11 +70,7 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		return nil, err
 	}
 	menu := service.NewMenuService(infraInfra)
-	article := repo.NewArticle(query)
-	repoRepo := &repo.Repo{
-		Article: article,
-	}
-	serviceArticle := service.NewArticle(repoRepo)
+	article := service.NewArticle(query)
 	contentModel := service.NewContentModel(infraInfra)
 	services := &service.Services{
 		Category:     category,
@@ -84,7 +79,7 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		RBAC:         rbac,
 		Role:         role,
 		Menu:         menu,
-		Article:      serviceArticle,
+		Article:      article,
 		ContentModel: contentModel,
 	}
 	userController := controller.NewUserController(services, infraInfra)
