@@ -18,16 +18,19 @@ const (
     ArticleOffline
     // ArticleReject 审核拒绝
     ArticleReject
+    // ArticlePendingRepublish 编辑后等待重新审核
+    ArticlePendingRepublish
 )
 
 var stateMachine = map[ArticleStatus]struct {
     From  ArticleStatus
     Error error
 }{
-    ArticlePending:   {From: ArticleDraft, Error: erroz.ArticleSubmitStatusNotAllowed.ToError()},
-    ArticlePublished: {From: ArticlePending, Error: erroz.ArticlePublishStatusNotAllowed.ToError()},
-    ArticleOffline:   {From: ArticlePublished, Error: erroz.ArticleOfflineStatusNotAllowed.ToError()},
-    ArticleReject:    {From: ArticlePending, Error: erroz.ArticleRejectStatusNotAllowed.ToError()},
+    ArticlePending:          {From: ArticleDraft, Error: erroz.ArticleSubmitStatusNotAllowed.ToError()},
+    ArticlePublished:        {From: ArticlePending, Error: erroz.ArticlePublishStatusNotAllowed.ToError()},
+    ArticleOffline:          {From: ArticlePublished, Error: erroz.ArticleOfflineStatusNotAllowed.ToError()},
+    ArticleReject:           {From: ArticlePending, Error: erroz.ArticleRejectStatusNotAllowed.ToError()},
+    ArticlePendingRepublish: {From: ArticlePublished, Error: erroz.ArticleRepublishStatusNotAllowed.ToError()},
 }
 
 type Article struct {
@@ -69,7 +72,7 @@ func (s *Article) Submit() error {
     if !s.actor.CanSubmit {
         return erroz.ArticleMissingSubmitPerm.ToError()
     }
-    if s.status == ArticleDraft {
+    if s.status == ArticlePending {
         return erroz.ArticleAlreadySubmitted.ToError()
     }
     return s.transitionStatus(ArticlePending)
@@ -105,6 +108,18 @@ func (s *Article) Reject() error {
         return erroz.ArticleAlreadyReject.ToError()
     }
     return s.transitionStatus(ArticleReject)
+}
+
+func (s *Article) Republish() error {
+    if !s.actor.CanPublishDirect {
+        if !s.actor.CanPublish {
+            return erroz.ArticleMissingPublishPerm.ToError()
+        }
+        if s.status == ArticlePendingRepublish {
+            return erroz.ArticleAlreadyRepublish.ToError()
+        }
+    }
+    return s.transitionStatus(ArticlePendingRepublish)
 }
 
 func (s *Article) GetStatus() ArticleStatus {
