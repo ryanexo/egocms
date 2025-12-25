@@ -8,7 +8,7 @@ import (
     "os"
     "strings"
     
-    erroz2 `dpcms/internal/app/erroz`
+    `dpcms/internal/app/erroz`
     `dpcms/internal/infra/logger`
     
     "github.com/gin-gonic/gin"
@@ -65,8 +65,8 @@ func New(log *logger.Logger) Recovery {
                 ctx.Abort()
             } else {
                 message = "panic"
-                erroz2.Unknown.WithOption(
-                    erroz2.WithDebug(panicMsg), erroz2.WithStatus(http.StatusInternalServerError),
+                erroz.Unknown.WithOption(
+                    erroz.WithDebug(panicMsg), erroz.WithStatus(http.StatusInternalServerError),
                 ).Write(ctx)
             }
             

@@ -1,45 +1,17 @@
-package domain
+package article
 
 import (
     `dpcms/internal/app/erroz`
     `dpcms/internal/infra/persistence/model`
 )
 
-type ArticleStatus int8
-
-const (
-    // ArticleDraft 草稿状态
-    ArticleDraft ArticleStatus = iota
-    // ArticlePending 待审核
-    ArticlePending
-    // ArticlePublished 已发布
-    ArticlePublished
-    // ArticleOffline 已下线
-    ArticleOffline
-    // ArticleReject 审核拒绝
-    ArticleReject
-    // ArticlePendingRepublish 编辑后等待重新审核
-    ArticlePendingRepublish
-)
-
-var stateMachine = map[ArticleStatus]struct {
-    From  ArticleStatus
-    Error error
-}{
-    ArticlePending:          {From: ArticleDraft, Error: erroz.ArticleSubmitStatusNotAllowed.ToError()},
-    ArticlePublished:        {From: ArticlePending, Error: erroz.ArticlePublishStatusNotAllowed.ToError()},
-    ArticleOffline:          {From: ArticlePublished, Error: erroz.ArticleOfflineStatusNotAllowed.ToError()},
-    ArticleReject:           {From: ArticlePending, Error: erroz.ArticleRejectStatusNotAllowed.ToError()},
-    ArticlePendingRepublish: {From: ArticlePublished, Error: erroz.ArticleRepublishStatusNotAllowed.ToError()},
-}
-
 type Article struct {
-    actor  ArticleActor
+    actor  Actor
     id     uint64
-    status ArticleStatus
+    status Status
 }
 
-type ArticleActor struct {
+type Actor struct {
     CanSubmit        bool
     CanPublish       bool
     CanPublishDirect bool
@@ -48,14 +20,14 @@ type ArticleActor struct {
 }
 
 func NewArticle(data *model.Article) *Article {
-    return &Article{id: data.ID, status: ArticleStatus(data.Status)}
+    return &Article{id: data.ID, status: Status(data.Status)}
 }
 
-func (s *Article) WithActor(actor ArticleActor) {
+func (s *Article) WithActor(actor Actor) {
     s.actor = actor
 }
 
-func (s *Article) transitionStatus(expect ArticleStatus) error {
+func (s *Article) transitionStatus(expect Status) error {
     nextState := stateMachine[expect]
     if nextState.From != s.status {
         return nextState.Error
@@ -66,16 +38,16 @@ func (s *Article) transitionStatus(expect ArticleStatus) error {
 
 func (s *Article) Submit() error {
     if s.actor.CanPublishDirect {
-        s.status = ArticlePublished
+        s.status = Published
         return nil
     }
     if !s.actor.CanSubmit {
         return erroz.ArticleMissingSubmitPerm.ToError()
     }
-    if s.status == ArticlePending {
+    if s.status == Pending {
         return erroz.ArticleAlreadySubmitted.ToError()
     }
-    return s.transitionStatus(ArticlePending)
+    return s.transitionStatus(Pending)
 }
 
 func (s *Article) Publish() error {
@@ -83,31 +55,31 @@ func (s *Article) Publish() error {
         if !s.actor.CanPublish {
             return erroz.ArticleMissingPublishPerm.ToError()
         }
-        if s.status == ArticlePublished {
+        if s.status == Published {
             return erroz.ArticleAlreadyPublished.ToError()
         }
     }
-    return s.transitionStatus(ArticlePublished)
+    return s.transitionStatus(Published)
 }
 
 func (s *Article) Offline() error {
     if !s.actor.CanOffline {
         return erroz.ArticleMissingOfflinePerm.ToError()
     }
-    if s.status == ArticleOffline {
+    if s.status == Offline {
         return erroz.ArticleAlreadyOffline.ToError()
     }
-    return s.transitionStatus(ArticleOffline)
+    return s.transitionStatus(Offline)
 }
 
 func (s *Article) Reject() error {
     if !s.actor.CanReject {
         return erroz.ArticleMissingRejectPerm.ToError()
     }
-    if s.status == ArticleReject {
+    if s.status == Reject {
         return erroz.ArticleAlreadyReject.ToError()
     }
-    return s.transitionStatus(ArticleReject)
+    return s.transitionStatus(Reject)
 }
 
 func (s *Article) Republish() error {
@@ -115,13 +87,13 @@ func (s *Article) Republish() error {
         if !s.actor.CanPublish {
             return erroz.ArticleMissingPublishPerm.ToError()
         }
-        if s.status == ArticlePendingRepublish {
+        if s.status == PendingRepublish {
             return erroz.ArticleAlreadyRepublish.ToError()
         }
     }
-    return s.transitionStatus(ArticlePendingRepublish)
+    return s.transitionStatus(PendingRepublish)
 }
 
-func (s *Article) GetStatus() ArticleStatus {
+func (s *Article) GetStatus() Status {
     return s.status
 }

@@ -19,11 +19,11 @@ import (
 	"dpcms/internal/infra/persistence/model"
 )
 
-func newContentModelDefinition(db *gorm.DB, opts ...gen.DOOption) contentModelDefinition {
+func newContentModelSchema(db *gorm.DB, opts ...gen.DOOption) contentModelDefinition {
 	_contentModelDefinition := contentModelDefinition{}
 
 	_contentModelDefinition.contentModelDefinitionDo.UseDB(db, opts...)
-	_contentModelDefinition.contentModelDefinitionDo.UseModel(&model.ContentModelDefinition{})
+	_contentModelDefinition.contentModelDefinitionDo.UseModel(&model.ArticleModelSchema{})
 
 	tableName := _contentModelDefinition.contentModelDefinitionDo.TableName()
 	_contentModelDefinition.ALL = field.NewAsterisk(tableName)
@@ -224,57 +224,57 @@ func (c contentModelDefinitionDo) Unscoped() *contentModelDefinitionDo {
 	return c.withDO(c.DO.Unscoped())
 }
 
-func (c contentModelDefinitionDo) Create(values ...*model.ContentModelDefinition) error {
+func (c contentModelDefinitionDo) Create(values ...*model.ArticleModelSchema) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return c.DO.Create(values)
 }
 
-func (c contentModelDefinitionDo) CreateInBatches(values []*model.ContentModelDefinition, batchSize int) error {
+func (c contentModelDefinitionDo) CreateInBatches(values []*model.ArticleModelSchema, batchSize int) error {
 	return c.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (c contentModelDefinitionDo) Save(values ...*model.ContentModelDefinition) error {
+func (c contentModelDefinitionDo) Save(values ...*model.ArticleModelSchema) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return c.DO.Save(values)
 }
 
-func (c contentModelDefinitionDo) First() (*model.ContentModelDefinition, error) {
+func (c contentModelDefinitionDo) First() (*model.ArticleModelSchema, error) {
 	if result, err := c.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ContentModelDefinition), nil
+		return result.(*model.ArticleModelSchema), nil
 	}
 }
 
-func (c contentModelDefinitionDo) Take() (*model.ContentModelDefinition, error) {
+func (c contentModelDefinitionDo) Take() (*model.ArticleModelSchema, error) {
 	if result, err := c.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ContentModelDefinition), nil
+		return result.(*model.ArticleModelSchema), nil
 	}
 }
 
-func (c contentModelDefinitionDo) Last() (*model.ContentModelDefinition, error) {
+func (c contentModelDefinitionDo) Last() (*model.ArticleModelSchema, error) {
 	if result, err := c.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ContentModelDefinition), nil
+		return result.(*model.ArticleModelSchema), nil
 	}
 }
 
-func (c contentModelDefinitionDo) Find() ([]*model.ContentModelDefinition, error) {
+func (c contentModelDefinitionDo) Find() ([]*model.ArticleModelSchema, error) {
 	result, err := c.DO.Find()
-	return result.([]*model.ContentModelDefinition), err
+	return result.([]*model.ArticleModelSchema), err
 }
 
-func (c contentModelDefinitionDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ContentModelDefinition, err error) {
-	buf := make([]*model.ContentModelDefinition, 0, batchSize)
+func (c contentModelDefinitionDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ArticleModelSchema, err error) {
+	buf := make([]*model.ArticleModelSchema, 0, batchSize)
 	err = c.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -282,7 +282,7 @@ func (c contentModelDefinitionDo) FindInBatch(batchSize int, fc func(tx gen.Dao,
 	return results, err
 }
 
-func (c contentModelDefinitionDo) FindInBatches(result *[]*model.ContentModelDefinition, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (c contentModelDefinitionDo) FindInBatches(result *[]*model.ArticleModelSchema, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return c.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -308,23 +308,23 @@ func (c contentModelDefinitionDo) Preload(fields ...field.RelationField) *conten
 	return &c
 }
 
-func (c contentModelDefinitionDo) FirstOrInit() (*model.ContentModelDefinition, error) {
+func (c contentModelDefinitionDo) FirstOrInit() (*model.ArticleModelSchema, error) {
 	if result, err := c.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ContentModelDefinition), nil
+		return result.(*model.ArticleModelSchema), nil
 	}
 }
 
-func (c contentModelDefinitionDo) FirstOrCreate() (*model.ContentModelDefinition, error) {
+func (c contentModelDefinitionDo) FirstOrCreate() (*model.ArticleModelSchema, error) {
 	if result, err := c.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ContentModelDefinition), nil
+		return result.(*model.ArticleModelSchema), nil
 	}
 }
 
-func (c contentModelDefinitionDo) FindByPage(offset int, limit int) (result []*model.ContentModelDefinition, count int64, err error) {
+func (c contentModelDefinitionDo) FindByPage(offset int, limit int) (result []*model.ArticleModelSchema, count int64, err error) {
 	result, err = c.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -353,7 +353,7 @@ func (c contentModelDefinitionDo) Scan(result interface{}) (err error) {
 	return c.DO.Scan(result)
 }
 
-func (c contentModelDefinitionDo) Delete(models ...*model.ContentModelDefinition) (result gen.ResultInfo, err error) {
+func (c contentModelDefinitionDo) Delete(models ...*model.ArticleModelSchema) (result gen.ResultInfo, err error) {
 	return c.DO.Delete(models)
 }
 

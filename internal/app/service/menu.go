@@ -7,8 +7,8 @@ import (
     
     `dpcms/internal/app/dto`
     `dpcms/internal/app/erroz`
-    `dpcms/internal/app/helper/gormhelper`
     `dpcms/internal/app/service/internal/common`
+    `dpcms/internal/app/util/gormutil`
     `dpcms/internal/infra`
     `dpcms/internal/infra/persistence/dbscope`
     `dpcms/internal/infra/persistence/model`
@@ -54,11 +54,11 @@ func (srv Menu) Create(ctx context.Context, createParams dto.MenuCreateParams) (
 func (srv Menu) Update(ctx context.Context, params dto.MenuUpdateParams) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
-        _, err := queryCtx.Menu.Where(srv.persist.Menu.ID.Eq(params.ID)).First()
+        _, err := queryCtx.Menu.Where(tx.Menu.ID.Eq(params.ID)).First()
         if err != nil {
             return err
         }
-        _, err = srv.persist.WithContext(ctx).Category.Where(srv.persist.Menu.ID.Eq(params.ID)).Updates(params)
+        _, err = tx.WithContext(ctx).Category.Where(tx.Menu.ID.Eq(params.ID)).Updates(params)
         if err != nil {
             return err
         }
@@ -68,10 +68,10 @@ func (srv Menu) Update(ctx context.Context, params dto.MenuUpdateParams) error {
 
 func (srv Menu) Delete(ctx context.Context, id uint64) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
-        ctxDao := srv.persist.MenuContext
+        ctxDao := tx.MenuContext
         
         sqlStr := "DELETE FROM %[1]s WHERE id IN ( SELECT d_id FROM ( SELECT t.%[3]s AS d_id FROM %[1]s AS t WHERE %[2]s = ? ) )"
-        deleteSql := fmt.Sprintf(sqlStr, srv.persist.Menu.TableName(), ctxDao.Ancestor.ColumnName(), ctxDao.Descendant.ColumnName())
+        deleteSql := fmt.Sprintf(sqlStr, tx.Menu.TableName(), ctxDao.Ancestor.ColumnName(), ctxDao.Descendant.ColumnName())
         
         err := srv.db.WithContext(ctx).Exec(deleteSql, id).Error
         if err != nil {
@@ -88,11 +88,11 @@ func (srv Menu) Delete(ctx context.Context, id uint64) error {
 func (srv Menu) Move(ctx context.Context, id uint64, target uint64) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
-        ctxDao := srv.persist.MenuContext
+        ctxDao := tx.MenuContext
         
         _, err := queryCtx.MenuContext.Where(ctxDao.Ancestor.Eq(id), ctxDao.Descendant.Eq(target)).First()
         if err == nil {
-            return erroz.MenuCircularReferenceWhenMove.ToError()
+            return erroz.MenuCircular.ToError()
         } else if !errors.Is(err, gorm.ErrRecordNotFound) {
             return err
         }
@@ -105,7 +105,7 @@ func (srv Menu) Move(ctx context.Context, id uint64, target uint64) error {
         if err != nil {
             return err
         }
-        _, err = queryCtx.Menu.Where(srv.persist.Menu.ID.Eq(id)).Update(srv.persist.Menu.ParentID, target)
+        _, err = queryCtx.Menu.Where(tx.Menu.ID.Eq(id)).Update(tx.Menu.ParentID, target)
         if err != nil {
             return err
         }
@@ -118,7 +118,7 @@ func (srv Menu) FindByID(ctx context.Context, id uint64) (*model.Menu, error) {
     q := srv.persist.Menu
     result, err := q.WithContext(ctx).Where(q.ID.Eq(id)).First()
     if err != nil {
-        return nil, gormhelper.ReplaceNotFoundError(err)
+        return nil, gormutil.ReplaceNotFoundError(err)
     }
     return result, nil
 }

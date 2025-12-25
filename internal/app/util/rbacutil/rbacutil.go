@@ -1,4 +1,4 @@
-package rbachelper
+package rbacutil
 
 import (
     `strconv`

@@ -73,7 +73,7 @@ func (s ArticleModel) UpdateDefinition(ctx context.Context, params dto.ArticleMo
     })
 }
 
-func (s ArticleModel) FindDefinition(ctx context.Context, id uint64) ([]*dto.ArticleModelSchemaParams, error) {
+func (s ArticleModel) FindDefinitionList(ctx context.Context, id uint64) ([]*dto.ArticleModelSchemaParams, error) {
     defs, err := s.persist.WithContext(ctx).ArticleModelSchema.Where(s.persist.ArticleModelSchema.ModelId.Eq(id)).Find()
     if err != nil {
         return nil, err

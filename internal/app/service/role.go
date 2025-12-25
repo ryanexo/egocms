@@ -5,8 +5,8 @@ import (
     
     `dpcms/internal/app/dto`
     `dpcms/internal/app/erroz`
-    `dpcms/internal/app/helper/rbachelper`
     `dpcms/internal/app/service/internal/common`
+    `dpcms/internal/app/util/rbacutil`
     `dpcms/internal/infra`
     `dpcms/internal/infra/persistence/dbscope`
     `dpcms/internal/infra/persistence/model`
@@ -39,11 +39,11 @@ func (srv Role) Create(ctx context.Context, params dto.RoleCreateParams) (result
         inheritList := make([]string, 0, len(params.InheritList))
         
         for _, inheritID := range params.InheritList {
-            inheritList = append(inheritList, rbachelper.GetRoleSubject(inheritID))
+            inheritList = append(inheritList, rbacutil.GetRoleSubject(inheritID))
         }
         
         enforcer := srv.rbac.GetEnforcer()
-        _, txErr = enforcer.AddRolesForUser(rbachelper.GetRoleSubject(roleModel.ID), inheritList)
+        _, txErr = enforcer.AddRolesForUser(rbacutil.GetRoleSubject(roleModel.ID), inheritList)
         if txErr != nil {
             return txErr
         }
@@ -92,23 +92,23 @@ func (srv Role) Update(ctx context.Context, params dto.RoleUpdateParams) error {
         }
         
         enforcer := srv.rbac.GetEnforcer()
-        currentRoleName := rbachelper.GetRoleSubject(params.ID)
+        currentRoleName := rbacutil.GetRoleSubject(params.ID)
         for _, inheritRoleID := range params.InheritList {
-            inheritRoleName := rbachelper.GetRoleSubject(inheritRoleID)
+            inheritRoleName := rbacutil.GetRoleSubject(inheritRoleID)
             isCircleRelate, err := enforcer.HasRoleForUser(inheritRoleName, currentRoleName)
             if err != nil {
                 return err
             }
             
             if isCircleRelate {
-                childRole, err := srv.persist.Role.WithContext(ctx).Where(srv.persist.Role.ID.Eq(inheritRoleID)).First()
+                childRole, err := tx.Role.WithContext(ctx).Where(tx.Role.ID.Eq(inheritRoleID)).First()
                 if err != nil {
                     return err
                 }
-                return erroz.RoleCircularReference.Format(childRole.Name).ToError()
+                return erroz.RoleCircular.Format(childRole.Name).ToError()
             }
             
-            _, err = enforcer.AddRoleForUser(currentRoleName, rbachelper.GetRoleSubject(inheritRoleID))
+            _, err = enforcer.AddRoleForUser(currentRoleName, rbacutil.GetRoleSubject(inheritRoleID))
             if err != nil {
                 return err
             }
@@ -126,12 +126,12 @@ func (srv Role) Update(ctx context.Context, params dto.RoleUpdateParams) error {
 func (srv Role) Delete(ctx context.Context, id uint64) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
-        _, err := queryCtx.Role.Where(srv.persist.Role.ID.Eq(id)).Delete()
+        _, err := queryCtx.Role.Where(tx.Role.ID.Eq(id)).Delete()
         if err != nil {
             return err
         }
         enforcer := srv.rbac.GetEnforcer()
-        _, err = enforcer.DeleteRole(rbachelper.GetRoleSubject(id))
+        _, err = enforcer.DeleteRole(rbacutil.GetRoleSubject(id))
         if err != nil {
             return err
         }
@@ -155,13 +155,13 @@ func (srv Role) FindRoleById(ctx context.Context, id uint64) (result dto.Role, e
         return
     }
     
-    currentRoleName := rbachelper.GetRoleSubject(r.ID)
+    currentRoleName := rbacutil.GetRoleSubject(r.ID)
     inheritRoleNames, err := srv.rbac.GetEnforcer().GetRolesForUser(currentRoleName)
     if err != nil {
         return
     }
     
-    idList, err := rbachelper.ParseRoleSubject(inheritRoleNames...)
+    idList, err := rbacutil.ParseRoleSubject(inheritRoleNames...)
     inheritRoles, err := dao.WithContext(ctx).Where(dao.ID.In(idList...)).Find()
     if err != nil {
         return
@@ -182,12 +182,12 @@ func (srv Role) List(ctx context.Context, params dto.RoleListParams) (*common.Pa
         q = q.Where(dao.Description.Eq(*params.Description))
     }
     if params.InheritId != nil {
-        sub := rbachelper.GetRoleSubject(*params.InheritId)
+        sub := rbacutil.GetRoleSubject(*params.InheritId)
         inheritSubjects, err := srv.rbac.GetEnforcer().GetUsersForRole(sub)
         if err != nil {
             return nil, err
         }
-        inheritIdList, err := rbachelper.ParseRoleSubject(inheritSubjects...)
+        inheritIdList, err := rbacutil.ParseRoleSubject(inheritSubjects...)
         if err != nil {
             return nil, err
         }

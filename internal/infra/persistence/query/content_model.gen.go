@@ -23,7 +23,7 @@ func newContentModel(db *gorm.DB, opts ...gen.DOOption) contentModel {
 	_contentModel := contentModel{}
 
 	_contentModel.contentModelDo.UseDB(db, opts...)
-	_contentModel.contentModelDo.UseModel(&model.ContentModel{})
+	_contentModel.contentModelDo.UseModel(&model.ArticleModel{})
 
 	tableName := _contentModel.contentModelDo.TableName()
 	_contentModel.ALL = field.NewAsterisk(tableName)
@@ -33,6 +33,11 @@ func newContentModel(db *gorm.DB, opts ...gen.DOOption) contentModel {
 	_contentModel.DeletedAt = field.NewField(tableName, "deleted_at")
 	_contentModel.Name = field.NewString(tableName, "name")
 	_contentModel.Description = field.NewString(tableName, "description")
+	_contentModel.Definition = contentModelHasManyDefinition{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Definition", "model.ArticleModelSchema"),
+	}
 
 	_contentModel.fillFieldMap()
 
@@ -49,6 +54,7 @@ type contentModel struct {
 	DeletedAt   field.Field
 	Name        field.String
 	Description field.String
+	Definition  contentModelHasManyDefinition
 
 	fieldMap map[string]field.Expr
 }
@@ -99,23 +105,108 @@ func (c *contentModel) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (c *contentModel) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 6)
+	c.fieldMap = make(map[string]field.Expr, 7)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["created_at"] = c.CreatedAt
 	c.fieldMap["updated_at"] = c.UpdatedAt
 	c.fieldMap["deleted_at"] = c.DeletedAt
 	c.fieldMap["name"] = c.Name
 	c.fieldMap["description"] = c.Description
+
 }
 
 func (c contentModel) clone(db *gorm.DB) contentModel {
 	c.contentModelDo.ReplaceConnPool(db.Statement.ConnPool)
+	c.Definition.db = db.Session(&gorm.Session{Initialized: true})
+	c.Definition.db.Statement.ConnPool = db.Statement.ConnPool
 	return c
 }
 
 func (c contentModel) replaceDB(db *gorm.DB) contentModel {
 	c.contentModelDo.ReplaceDB(db)
+	c.Definition.db = db.Session(&gorm.Session{})
 	return c
+}
+
+type contentModelHasManyDefinition struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a contentModelHasManyDefinition) Where(conds ...field.Expr) *contentModelHasManyDefinition {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a contentModelHasManyDefinition) WithContext(ctx context.Context) *contentModelHasManyDefinition {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a contentModelHasManyDefinition) Session(session *gorm.Session) *contentModelHasManyDefinition {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a contentModelHasManyDefinition) Model(m *model.ArticleModel) *contentModelHasManyDefinitionTx {
+	return &contentModelHasManyDefinitionTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a contentModelHasManyDefinition) Unscoped() *contentModelHasManyDefinition {
+	a.db = a.db.Unscoped()
+	return &a
+}
+
+type contentModelHasManyDefinitionTx struct{ tx *gorm.Association }
+
+func (a contentModelHasManyDefinitionTx) Find() (result []*model.ArticleModelSchema, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a contentModelHasManyDefinitionTx) Append(values ...*model.ArticleModelSchema) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a contentModelHasManyDefinitionTx) Replace(values ...*model.ArticleModelSchema) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a contentModelHasManyDefinitionTx) Delete(values ...*model.ArticleModelSchema) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a contentModelHasManyDefinitionTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a contentModelHasManyDefinitionTx) Count() int64 {
+	return a.tx.Count()
+}
+
+func (a contentModelHasManyDefinitionTx) Unscoped() *contentModelHasManyDefinitionTx {
+	a.tx = a.tx.Unscoped()
+	return &a
 }
 
 type contentModelDo struct{ gen.DO }
@@ -212,57 +303,57 @@ func (c contentModelDo) Unscoped() *contentModelDo {
 	return c.withDO(c.DO.Unscoped())
 }
 
-func (c contentModelDo) Create(values ...*model.ContentModel) error {
+func (c contentModelDo) Create(values ...*model.ArticleModel) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return c.DO.Create(values)
 }
 
-func (c contentModelDo) CreateInBatches(values []*model.ContentModel, batchSize int) error {
+func (c contentModelDo) CreateInBatches(values []*model.ArticleModel, batchSize int) error {
 	return c.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (c contentModelDo) Save(values ...*model.ContentModel) error {
+func (c contentModelDo) Save(values ...*model.ArticleModel) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return c.DO.Save(values)
 }
 
-func (c contentModelDo) First() (*model.ContentModel, error) {
+func (c contentModelDo) First() (*model.ArticleModel, error) {
 	if result, err := c.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ContentModel), nil
+		return result.(*model.ArticleModel), nil
 	}
 }
 
-func (c contentModelDo) Take() (*model.ContentModel, error) {
+func (c contentModelDo) Take() (*model.ArticleModel, error) {
 	if result, err := c.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ContentModel), nil
+		return result.(*model.ArticleModel), nil
 	}
 }
 
-func (c contentModelDo) Last() (*model.ContentModel, error) {
+func (c contentModelDo) Last() (*model.ArticleModel, error) {
 	if result, err := c.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ContentModel), nil
+		return result.(*model.ArticleModel), nil
 	}
 }
 
-func (c contentModelDo) Find() ([]*model.ContentModel, error) {
+func (c contentModelDo) Find() ([]*model.ArticleModel, error) {
 	result, err := c.DO.Find()
-	return result.([]*model.ContentModel), err
+	return result.([]*model.ArticleModel), err
 }
 
-func (c contentModelDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ContentModel, err error) {
-	buf := make([]*model.ContentModel, 0, batchSize)
+func (c contentModelDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ArticleModel, err error) {
+	buf := make([]*model.ArticleModel, 0, batchSize)
 	err = c.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -270,7 +361,7 @@ func (c contentModelDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int
 	return results, err
 }
 
-func (c contentModelDo) FindInBatches(result *[]*model.ContentModel, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (c contentModelDo) FindInBatches(result *[]*model.ArticleModel, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return c.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -296,23 +387,23 @@ func (c contentModelDo) Preload(fields ...field.RelationField) *contentModelDo {
 	return &c
 }
 
-func (c contentModelDo) FirstOrInit() (*model.ContentModel, error) {
+func (c contentModelDo) FirstOrInit() (*model.ArticleModel, error) {
 	if result, err := c.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ContentModel), nil
+		return result.(*model.ArticleModel), nil
 	}
 }
 
-func (c contentModelDo) FirstOrCreate() (*model.ContentModel, error) {
+func (c contentModelDo) FirstOrCreate() (*model.ArticleModel, error) {
 	if result, err := c.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ContentModel), nil
+		return result.(*model.ArticleModel), nil
 	}
 }
 
-func (c contentModelDo) FindByPage(offset int, limit int) (result []*model.ContentModel, count int64, err error) {
+func (c contentModelDo) FindByPage(offset int, limit int) (result []*model.ArticleModel, count int64, err error) {
 	result, err = c.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -341,7 +432,7 @@ func (c contentModelDo) Scan(result interface{}) (err error) {
 	return c.DO.Scan(result)
 }
 
-func (c contentModelDo) Delete(models ...*model.ContentModel) (result gen.ResultInfo, err error) {
+func (c contentModelDo) Delete(models ...*model.ArticleModel) (result gen.ResultInfo, err error) {
 	return c.DO.Delete(models)
 }
 

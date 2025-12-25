@@ -47,8 +47,8 @@ func (srv Token) Create(userId uint64) (string, error) {
 func (srv Token) isRevoked(ctx context.Context, userId uint64, uuid string, expires int) (bool, error) {
     isRevoked := true
     err := srv.persist.Transaction(func(tx *query.Query) error {
-        queryCtx := srv.persist.WithContext(ctx)
-        dao := srv.persist.TokenBlacklist
+        queryCtx := tx.WithContext(ctx)
+        dao := tx.TokenBlacklist
         _, err := queryCtx.TokenBlacklist.Clauses(clause.Locking{Strength: "UPDATE"}).Where(dao.UserId.Eq(userId)).Select(field.NewUnsafeFieldRaw("1")).Find()
         if err != nil {
             return err

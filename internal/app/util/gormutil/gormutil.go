@@ -1,4 +1,4 @@
-package gormhelper
+package gormutil
 
 import (
     `errors`

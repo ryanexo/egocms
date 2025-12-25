@@ -32,10 +32,10 @@ func main() {
         model.Article{},
         model.ArticleKeywords{},
         model.ArticleContent{},
-        model.ArticleContentModel{},
-        model.ContentModel{},
-        model.ContentModelDefinition{},
-        model.ContentModelData{},
+        model.ArticleModelRelationship{},
+        model.ArticleModel{},
+        model.ArticleModelSchema{},
+        model.ArticleModelData{},
     )
     
     g.ApplyInterface(

@@ -8,7 +8,7 @@ import (
 
 type Base struct {
     ID        uint64         `gorm:"primaryKey" json:"id"`
-    CreatedAt time.Time      `json:"createdAt"`
-    UpdatedAt time.Time      `json:"updatedAt"`
+    CreatedAt time.Time      `gorm:"type:datetime" json:"createdAt"`
+    UpdatedAt time.Time      `gorm:"type:datetime" json:"updatedAt"`
     DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 }

@@ -23,19 +23,18 @@ func newContentModelData(db *gorm.DB, opts ...gen.DOOption) contentModelData {
 	_contentModelData := contentModelData{}
 
 	_contentModelData.contentModelDataDo.UseDB(db, opts...)
-	_contentModelData.contentModelDataDo.UseModel(&model.ContentModelData{})
+	_contentModelData.contentModelDataDo.UseModel(&model.ArticleModelData{})
 
 	tableName := _contentModelData.contentModelDataDo.TableName()
 	_contentModelData.ALL = field.NewAsterisk(tableName)
 	_contentModelData.ID = field.NewUint64(tableName, "id")
 	_contentModelData.ContentModelId = field.NewUint64(tableName, "content_model_id")
 	_contentModelData.ArticleId = field.NewUint64(tableName, "article_id")
-	_contentModelData.Name = field.NewString(tableName, "name")
 	_contentModelData.Field = field.NewString(tableName, "field")
 	_contentModelData.ValueString = field.NewField(tableName, "value_string")
 	_contentModelData.ValueNumber = field.NewField(tableName, "value_number")
 	_contentModelData.ValueBool = field.NewField(tableName, "value_bool")
-	_contentModelData.ValueFlag = field.NewField(tableName, "value_flag")
+	_contentModelData.ValueFloat = field.NewField(tableName, "value_float")
 	_contentModelData.ValueTime = field.NewField(tableName, "value_time")
 
 	_contentModelData.fillFieldMap()
@@ -50,12 +49,11 @@ type contentModelData struct {
 	ID             field.Uint64
 	ContentModelId field.Uint64
 	ArticleId      field.Uint64
-	Name           field.String
 	Field          field.String
 	ValueString    field.Field
 	ValueNumber    field.Field
 	ValueBool      field.Field
-	ValueFlag      field.Field
+	ValueFloat     field.Field
 	ValueTime      field.Field
 
 	fieldMap map[string]field.Expr
@@ -76,12 +74,11 @@ func (c *contentModelData) updateTableName(table string) *contentModelData {
 	c.ID = field.NewUint64(table, "id")
 	c.ContentModelId = field.NewUint64(table, "content_model_id")
 	c.ArticleId = field.NewUint64(table, "article_id")
-	c.Name = field.NewString(table, "name")
 	c.Field = field.NewString(table, "field")
 	c.ValueString = field.NewField(table, "value_string")
 	c.ValueNumber = field.NewField(table, "value_number")
 	c.ValueBool = field.NewField(table, "value_bool")
-	c.ValueFlag = field.NewField(table, "value_flag")
+	c.ValueFloat = field.NewField(table, "value_float")
 	c.ValueTime = field.NewField(table, "value_time")
 
 	c.fillFieldMap()
@@ -111,16 +108,15 @@ func (c *contentModelData) GetFieldByName(fieldName string) (field.OrderExpr, bo
 }
 
 func (c *contentModelData) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 10)
+	c.fieldMap = make(map[string]field.Expr, 9)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["content_model_id"] = c.ContentModelId
 	c.fieldMap["article_id"] = c.ArticleId
-	c.fieldMap["name"] = c.Name
 	c.fieldMap["field"] = c.Field
 	c.fieldMap["value_string"] = c.ValueString
 	c.fieldMap["value_number"] = c.ValueNumber
 	c.fieldMap["value_bool"] = c.ValueBool
-	c.fieldMap["value_flag"] = c.ValueFlag
+	c.fieldMap["value_float"] = c.ValueFloat
 	c.fieldMap["value_time"] = c.ValueTime
 }
 
@@ -228,57 +224,57 @@ func (c contentModelDataDo) Unscoped() *contentModelDataDo {
 	return c.withDO(c.DO.Unscoped())
 }
 
-func (c contentModelDataDo) Create(values ...*model.ContentModelData) error {
+func (c contentModelDataDo) Create(values ...*model.ArticleModelData) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return c.DO.Create(values)
 }
 
-func (c contentModelDataDo) CreateInBatches(values []*model.ContentModelData, batchSize int) error {
+func (c contentModelDataDo) CreateInBatches(values []*model.ArticleModelData, batchSize int) error {
 	return c.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (c contentModelDataDo) Save(values ...*model.ContentModelData) error {
+func (c contentModelDataDo) Save(values ...*model.ArticleModelData) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return c.DO.Save(values)
 }
 
-func (c contentModelDataDo) First() (*model.ContentModelData, error) {
+func (c contentModelDataDo) First() (*model.ArticleModelData, error) {
 	if result, err := c.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ContentModelData), nil
+		return result.(*model.ArticleModelData), nil
 	}
 }
 
-func (c contentModelDataDo) Take() (*model.ContentModelData, error) {
+func (c contentModelDataDo) Take() (*model.ArticleModelData, error) {
 	if result, err := c.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ContentModelData), nil
+		return result.(*model.ArticleModelData), nil
 	}
 }
 
-func (c contentModelDataDo) Last() (*model.ContentModelData, error) {
+func (c contentModelDataDo) Last() (*model.ArticleModelData, error) {
 	if result, err := c.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ContentModelData), nil
+		return result.(*model.ArticleModelData), nil
 	}
 }
 
-func (c contentModelDataDo) Find() ([]*model.ContentModelData, error) {
+func (c contentModelDataDo) Find() ([]*model.ArticleModelData, error) {
 	result, err := c.DO.Find()
-	return result.([]*model.ContentModelData), err
+	return result.([]*model.ArticleModelData), err
 }
 
-func (c contentModelDataDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ContentModelData, err error) {
-	buf := make([]*model.ContentModelData, 0, batchSize)
+func (c contentModelDataDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ArticleModelData, err error) {
+	buf := make([]*model.ArticleModelData, 0, batchSize)
 	err = c.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -286,7 +282,7 @@ func (c contentModelDataDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch
 	return results, err
 }
 
-func (c contentModelDataDo) FindInBatches(result *[]*model.ContentModelData, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (c contentModelDataDo) FindInBatches(result *[]*model.ArticleModelData, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return c.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -312,23 +308,23 @@ func (c contentModelDataDo) Preload(fields ...field.RelationField) *contentModel
 	return &c
 }
 
-func (c contentModelDataDo) FirstOrInit() (*model.ContentModelData, error) {
+func (c contentModelDataDo) FirstOrInit() (*model.ArticleModelData, error) {
 	if result, err := c.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ContentModelData), nil
+		return result.(*model.ArticleModelData), nil
 	}
 }
 
-func (c contentModelDataDo) FirstOrCreate() (*model.ContentModelData, error) {
+func (c contentModelDataDo) FirstOrCreate() (*model.ArticleModelData, error) {
 	if result, err := c.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ContentModelData), nil
+		return result.(*model.ArticleModelData), nil
 	}
 }
 
-func (c contentModelDataDo) FindByPage(offset int, limit int) (result []*model.ContentModelData, count int64, err error) {
+func (c contentModelDataDo) FindByPage(offset int, limit int) (result []*model.ArticleModelData, count int64, err error) {
 	result, err = c.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -357,7 +353,7 @@ func (c contentModelDataDo) Scan(result interface{}) (err error) {
 	return c.DO.Scan(result)
 }
 
-func (c contentModelDataDo) Delete(models ...*model.ContentModelData) (result gen.ResultInfo, err error) {
+func (c contentModelDataDo) Delete(models ...*model.ArticleModelData) (result gen.ResultInfo, err error) {
 	return c.DO.Delete(models)
 }
 

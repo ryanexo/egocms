@@ -17,68 +17,68 @@ import (
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:                     db,
-		Article:                newArticle(db, opts...),
-		ArticleContent:         newArticleContent(db, opts...),
-		ArticleContentModel:    newArticleContentModel(db, opts...),
-		ArticleKeywords:        newArticleKeywords(db, opts...),
-		Category:               newCategory(db, opts...),
-		CategoryContext:        newCategoryContext(db, opts...),
-		CategorySeo:            newCategorySeo(db, opts...),
-		ContentModel:           newContentModel(db, opts...),
-		ContentModelData:       newContentModelData(db, opts...),
-		ContentModelDefinition: newContentModelDefinition(db, opts...),
-		Menu:                   newMenu(db, opts...),
-		MenuContext:            newMenuContext(db, opts...),
-		Role:                   newRole(db, opts...),
-		TokenBlacklist:         newTokenBlacklist(db, opts...),
-		User:                   newUser(db, opts...),
-		UserProfile:            newUserProfile(db, opts...),
+		db:                       db,
+		Article:                  newArticle(db, opts...),
+		ArticleContent:           newArticleContent(db, opts...),
+		ArticleKeywords:          newArticleKeywords(db, opts...),
+		ArticleModel:             newArticleModel(db, opts...),
+		ArticleModelData:         newArticleModelData(db, opts...),
+		ArticleModelRelationship: newArticleModelRelationship(db, opts...),
+		ArticleModelSchema:       newArticleModelSchema(db, opts...),
+		Category:                 newCategory(db, opts...),
+		CategoryContext:          newCategoryContext(db, opts...),
+		CategorySeo:              newCategorySeo(db, opts...),
+		Menu:                     newMenu(db, opts...),
+		MenuContext:              newMenuContext(db, opts...),
+		Role:                     newRole(db, opts...),
+		TokenBlacklist:           newTokenBlacklist(db, opts...),
+		User:                     newUser(db, opts...),
+		UserProfile:              newUserProfile(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Article                article
-	ArticleContent         articleContent
-	ArticleContentModel    articleContentModel
-	ArticleKeywords        articleKeywords
-	Category               category
-	CategoryContext        categoryContext
-	CategorySeo            categorySeo
-	ContentModel           contentModel
-	ContentModelData       contentModelData
-	ContentModelDefinition contentModelDefinition
-	Menu                   menu
-	MenuContext            menuContext
-	Role                   role
-	TokenBlacklist         tokenBlacklist
-	User                   user
-	UserProfile            userProfile
+	Article                  article
+	ArticleContent           articleContent
+	ArticleKeywords          articleKeywords
+	ArticleModel             articleModel
+	ArticleModelData         articleModelData
+	ArticleModelRelationship articleModelRelationship
+	ArticleModelSchema       articleModelSchema
+	Category                 category
+	CategoryContext          categoryContext
+	CategorySeo              categorySeo
+	Menu                     menu
+	MenuContext              menuContext
+	Role                     role
+	TokenBlacklist           tokenBlacklist
+	User                     user
+	UserProfile              userProfile
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:                     db,
-		Article:                q.Article.clone(db),
-		ArticleContent:         q.ArticleContent.clone(db),
-		ArticleContentModel:    q.ArticleContentModel.clone(db),
-		ArticleKeywords:        q.ArticleKeywords.clone(db),
-		Category:               q.Category.clone(db),
-		CategoryContext:        q.CategoryContext.clone(db),
-		CategorySeo:            q.CategorySeo.clone(db),
-		ContentModel:           q.ContentModel.clone(db),
-		ContentModelData:       q.ContentModelData.clone(db),
-		ContentModelDefinition: q.ContentModelDefinition.clone(db),
-		Menu:                   q.Menu.clone(db),
-		MenuContext:            q.MenuContext.clone(db),
-		Role:                   q.Role.clone(db),
-		TokenBlacklist:         q.TokenBlacklist.clone(db),
-		User:                   q.User.clone(db),
-		UserProfile:            q.UserProfile.clone(db),
+		db:                       db,
+		Article:                  q.Article.clone(db),
+		ArticleContent:           q.ArticleContent.clone(db),
+		ArticleKeywords:          q.ArticleKeywords.clone(db),
+		ArticleModel:             q.ArticleModel.clone(db),
+		ArticleModelData:         q.ArticleModelData.clone(db),
+		ArticleModelRelationship: q.ArticleModelRelationship.clone(db),
+		ArticleModelSchema:       q.ArticleModelSchema.clone(db),
+		Category:                 q.Category.clone(db),
+		CategoryContext:          q.CategoryContext.clone(db),
+		CategorySeo:              q.CategorySeo.clone(db),
+		Menu:                     q.Menu.clone(db),
+		MenuContext:              q.MenuContext.clone(db),
+		Role:                     q.Role.clone(db),
+		TokenBlacklist:           q.TokenBlacklist.clone(db),
+		User:                     q.User.clone(db),
+		UserProfile:              q.UserProfile.clone(db),
 	}
 }
 
@@ -92,63 +92,63 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:                     db,
-		Article:                q.Article.replaceDB(db),
-		ArticleContent:         q.ArticleContent.replaceDB(db),
-		ArticleContentModel:    q.ArticleContentModel.replaceDB(db),
-		ArticleKeywords:        q.ArticleKeywords.replaceDB(db),
-		Category:               q.Category.replaceDB(db),
-		CategoryContext:        q.CategoryContext.replaceDB(db),
-		CategorySeo:            q.CategorySeo.replaceDB(db),
-		ContentModel:           q.ContentModel.replaceDB(db),
-		ContentModelData:       q.ContentModelData.replaceDB(db),
-		ContentModelDefinition: q.ContentModelDefinition.replaceDB(db),
-		Menu:                   q.Menu.replaceDB(db),
-		MenuContext:            q.MenuContext.replaceDB(db),
-		Role:                   q.Role.replaceDB(db),
-		TokenBlacklist:         q.TokenBlacklist.replaceDB(db),
-		User:                   q.User.replaceDB(db),
-		UserProfile:            q.UserProfile.replaceDB(db),
+		db:                       db,
+		Article:                  q.Article.replaceDB(db),
+		ArticleContent:           q.ArticleContent.replaceDB(db),
+		ArticleKeywords:          q.ArticleKeywords.replaceDB(db),
+		ArticleModel:             q.ArticleModel.replaceDB(db),
+		ArticleModelData:         q.ArticleModelData.replaceDB(db),
+		ArticleModelRelationship: q.ArticleModelRelationship.replaceDB(db),
+		ArticleModelSchema:       q.ArticleModelSchema.replaceDB(db),
+		Category:                 q.Category.replaceDB(db),
+		CategoryContext:          q.CategoryContext.replaceDB(db),
+		CategorySeo:              q.CategorySeo.replaceDB(db),
+		Menu:                     q.Menu.replaceDB(db),
+		MenuContext:              q.MenuContext.replaceDB(db),
+		Role:                     q.Role.replaceDB(db),
+		TokenBlacklist:           q.TokenBlacklist.replaceDB(db),
+		User:                     q.User.replaceDB(db),
+		UserProfile:              q.UserProfile.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Article                *articleDo
-	ArticleContent         *articleContentDo
-	ArticleContentModel    *articleContentModelDo
-	ArticleKeywords        *articleKeywordsDo
-	Category               *categoryDo
-	CategoryContext        *categoryContextDo
-	CategorySeo            *categorySeoDo
-	ContentModel           *contentModelDo
-	ContentModelData       *contentModelDataDo
-	ContentModelDefinition *contentModelDefinitionDo
-	Menu                   *menuDo
-	MenuContext            *menuContextDo
-	Role                   *roleDo
-	TokenBlacklist         *tokenBlacklistDo
-	User                   *userDo
-	UserProfile            *userProfileDo
+	Article                  *articleDo
+	ArticleContent           *articleContentDo
+	ArticleKeywords          *articleKeywordsDo
+	ArticleModel             *articleModelDo
+	ArticleModelData         *articleModelDataDo
+	ArticleModelRelationship *articleModelRelationshipDo
+	ArticleModelSchema       *articleModelSchemaDo
+	Category                 *categoryDo
+	CategoryContext          *categoryContextDo
+	CategorySeo              *categorySeoDo
+	Menu                     *menuDo
+	MenuContext              *menuContextDo
+	Role                     *roleDo
+	TokenBlacklist           *tokenBlacklistDo
+	User                     *userDo
+	UserProfile              *userProfileDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Article:                q.Article.WithContext(ctx),
-		ArticleContent:         q.ArticleContent.WithContext(ctx),
-		ArticleContentModel:    q.ArticleContentModel.WithContext(ctx),
-		ArticleKeywords:        q.ArticleKeywords.WithContext(ctx),
-		Category:               q.Category.WithContext(ctx),
-		CategoryContext:        q.CategoryContext.WithContext(ctx),
-		CategorySeo:            q.CategorySeo.WithContext(ctx),
-		ContentModel:           q.ContentModel.WithContext(ctx),
-		ContentModelData:       q.ContentModelData.WithContext(ctx),
-		ContentModelDefinition: q.ContentModelDefinition.WithContext(ctx),
-		Menu:                   q.Menu.WithContext(ctx),
-		MenuContext:            q.MenuContext.WithContext(ctx),
-		Role:                   q.Role.WithContext(ctx),
-		TokenBlacklist:         q.TokenBlacklist.WithContext(ctx),
-		User:                   q.User.WithContext(ctx),
-		UserProfile:            q.UserProfile.WithContext(ctx),
+		Article:                  q.Article.WithContext(ctx),
+		ArticleContent:           q.ArticleContent.WithContext(ctx),
+		ArticleKeywords:          q.ArticleKeywords.WithContext(ctx),
+		ArticleModel:             q.ArticleModel.WithContext(ctx),
+		ArticleModelData:         q.ArticleModelData.WithContext(ctx),
+		ArticleModelRelationship: q.ArticleModelRelationship.WithContext(ctx),
+		ArticleModelSchema:       q.ArticleModelSchema.WithContext(ctx),
+		Category:                 q.Category.WithContext(ctx),
+		CategoryContext:          q.CategoryContext.WithContext(ctx),
+		CategorySeo:              q.CategorySeo.WithContext(ctx),
+		Menu:                     q.Menu.WithContext(ctx),
+		MenuContext:              q.MenuContext.WithContext(ctx),
+		Role:                     q.Role.WithContext(ctx),
+		TokenBlacklist:           q.TokenBlacklist.WithContext(ctx),
+		User:                     q.User.WithContext(ctx),
+		UserProfile:              q.UserProfile.WithContext(ctx),
 	}
 }
 

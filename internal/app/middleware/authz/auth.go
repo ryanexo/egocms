@@ -5,8 +5,8 @@ import (
     
     `dpcms/internal/app/constant`
     `dpcms/internal/app/erroz`
-    `dpcms/internal/app/helper/rbachelper`
     `dpcms/internal/app/service`
+    `dpcms/internal/app/util/rbacutil`
     `dpcms/internal/infra/persistence/model`
     
     `github.com/armon/go-radix`
@@ -79,7 +79,7 @@ func (s acl) Middleware() gin.HandlerFunc {
         }
         
         if user.ID != 1 && s.object != "" {
-            subject := rbachelper.GetRoleSubject(user.RoleID)
+            subject := rbacutil.GetRoleSubject(user.RoleID)
             path := ctx.FullPath()
             if _, perm, found := s.perm.LongestPrefix(path); found {
                 if pass, err := s.service.RBAC.GetEnforcer().Enforce(subject, s.object, perm); err != nil {

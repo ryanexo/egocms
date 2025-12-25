@@ -7,8 +7,8 @@ import (
     
     `dpcms/internal/app/dto`
     `dpcms/internal/app/erroz`
-    `dpcms/internal/app/helper/gormhelper`
     `dpcms/internal/app/service/internal/common`
+    `dpcms/internal/app/util/gormutil`
     `dpcms/internal/infra`
     `dpcms/internal/infra/persistence/dbscope`
     `dpcms/internal/infra/persistence/model`
@@ -55,7 +55,7 @@ func (srv Category) Create(ctx context.Context, createParams dto.CategoryCreateP
 func (srv Category) Update(ctx context.Context, category dto.CategoryUpdateParams) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
-        _, err := queryCtx.Category.Where(srv.persist.Category.ID.Eq(category.ID)).First()
+        _, err := queryCtx.Category.Where(tx.Category.ID.Eq(category.ID)).First()
         if err != nil {
             return err
         }
@@ -66,10 +66,10 @@ func (srv Category) Update(ctx context.Context, category dto.CategoryUpdateParam
 
 func (srv Category) Delete(ctx context.Context, id uint64) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
-        ctxDao := srv.persist.CategoryContext
+        ctxDao := tx.CategoryContext
         
         sqlStr := "DELETE FROM %[1]s WHERE id IN ( SELECT d_id FROM ( SELECT t.%[3]s AS d_id FROM %[1]s AS t WHERE %[2]s = ? ) )"
-        deleteSql := fmt.Sprintf(sqlStr, srv.persist.Category.TableName(), ctxDao.Ancestor.ColumnName(), ctxDao.Descendant.ColumnName())
+        deleteSql := fmt.Sprintf(sqlStr, tx.Category.TableName(), ctxDao.Ancestor.ColumnName(), ctxDao.Descendant.ColumnName())
         
         err := srv.db.WithContext(ctx).Exec(deleteSql, id).Error
         if err != nil {
@@ -86,11 +86,11 @@ func (srv Category) Delete(ctx context.Context, id uint64) error {
 func (srv Category) Move(ctx context.Context, id uint64, target uint64) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
-        ctxDao := srv.persist.CategoryContext
+        ctxDao := tx.CategoryContext
         
         _, err := queryCtx.CategoryContext.Where(ctxDao.Ancestor.Eq(id), ctxDao.Descendant.Eq(target)).First()
         if err == nil {
-            return erroz.CategoryCircularReferenceWhenMove.ToError()
+            return erroz.CategoryCircular.ToError()
         } else if !errors.Is(err, gorm.ErrRecordNotFound) {
             return err
         }
@@ -116,7 +116,7 @@ func (srv Category) FindByID(ctx context.Context, id uint64) (*model.Category, e
     q := srv.persist.Category
     result, err := q.WithContext(ctx).Where(q.ID.Eq(id)).First()
     if err != nil {
-        return nil, gormhelper.ReplaceNotFoundError(err)
+        return nil, gormutil.ReplaceNotFoundError(err)
     }
     return result, nil
 }

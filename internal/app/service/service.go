@@ -12,7 +12,7 @@ type Services struct {
     Role         *Role
     Menu         *Menu
     Article      *Article
-    ContentModel *ContentModel
+    ContentModel *ArticleModel
 }
 
 var ServiceProvider = wire.NewSet(

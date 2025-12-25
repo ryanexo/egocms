@@ -33,14 +33,18 @@ func newArticle(db *gorm.DB, opts ...gen.DOOption) article {
 	_article.DeletedAt = field.NewField(tableName, "deleted_at")
 	_article.Url = field.NewString(tableName, "url")
 	_article.CategoryID = field.NewUint64(tableName, "category_id")
-	_article.UserID = field.NewUint64(tableName, "user_id")
+	_article.AuthorId = field.NewUint64(tableName, "author_id")
 	_article.Flag = field.NewInt16(tableName, "flag")
 	_article.Title = field.NewString(tableName, "title")
 	_article.Description = field.NewString(tableName, "description")
 	_article.ClickCount = field.NewUint64(tableName, "click_count")
 	_article.Status = field.NewInt8(tableName, "status")
 	_article.Target = field.NewField(tableName, "target")
-	_article.ContentModelId = field.NewUint64(tableName, "content_model_id")
+	_article.ModelId = field.NewUint64(tableName, "model_id")
+	_article.SubmitAt = field.NewTime(tableName, "submit_at")
+	_article.PublishAt = field.NewTime(tableName, "publish_at")
+	_article.OfflineAt = field.NewTime(tableName, "offline_at")
+	_article.RejectAt = field.NewTime(tableName, "reject_at")
 	_article.Content = articleHasOneContent{
 		db: db.Session(&gorm.Session{}),
 
@@ -50,7 +54,7 @@ func newArticle(db *gorm.DB, opts ...gen.DOOption) article {
 	_article.Extra = articleHasOneExtra{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("Extra", "model.ArticleContentModel"),
+		RelationField: field.NewRelation("Extra", "model.ArticleModelRelationship"),
 	}
 
 	_article.Keywords = articleHasManyKeywords{
@@ -67,22 +71,26 @@ func newArticle(db *gorm.DB, opts ...gen.DOOption) article {
 type article struct {
 	articleDo articleDo
 
-	ALL            field.Asterisk
-	ID             field.Uint64
-	CreatedAt      field.Time
-	UpdatedAt      field.Time
-	DeletedAt      field.Field
-	Url            field.String
-	CategoryID     field.Uint64
-	UserID         field.Uint64
-	Flag           field.Int16
-	Title          field.String
-	Description    field.String
-	ClickCount     field.Uint64
-	Status         field.Int8
-	Target         field.Field
-	ContentModelId field.Uint64
-	Content        articleHasOneContent
+	ALL         field.Asterisk
+	ID          field.Uint64
+	CreatedAt   field.Time
+	UpdatedAt   field.Time
+	DeletedAt   field.Field
+	Url         field.String
+	CategoryID  field.Uint64
+	AuthorId    field.Uint64
+	Flag        field.Int16
+	Title       field.String
+	Description field.String
+	ClickCount  field.Uint64
+	Status      field.Int8
+	Target      field.Field
+	ModelId     field.Uint64
+	SubmitAt    field.Time
+	PublishAt   field.Time
+	OfflineAt   field.Time
+	RejectAt    field.Time
+	Content     articleHasOneContent
 
 	Extra articleHasOneExtra
 
@@ -109,14 +117,18 @@ func (a *article) updateTableName(table string) *article {
 	a.DeletedAt = field.NewField(table, "deleted_at")
 	a.Url = field.NewString(table, "url")
 	a.CategoryID = field.NewUint64(table, "category_id")
-	a.UserID = field.NewUint64(table, "user_id")
+	a.AuthorId = field.NewUint64(table, "author_id")
 	a.Flag = field.NewInt16(table, "flag")
 	a.Title = field.NewString(table, "title")
 	a.Description = field.NewString(table, "description")
 	a.ClickCount = field.NewUint64(table, "click_count")
 	a.Status = field.NewInt8(table, "status")
 	a.Target = field.NewField(table, "target")
-	a.ContentModelId = field.NewUint64(table, "content_model_id")
+	a.ModelId = field.NewUint64(table, "model_id")
+	a.SubmitAt = field.NewTime(table, "submit_at")
+	a.PublishAt = field.NewTime(table, "publish_at")
+	a.OfflineAt = field.NewTime(table, "offline_at")
+	a.RejectAt = field.NewTime(table, "reject_at")
 
 	a.fillFieldMap()
 
@@ -141,21 +153,25 @@ func (a *article) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *article) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 17)
+	a.fieldMap = make(map[string]field.Expr, 21)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["created_at"] = a.CreatedAt
 	a.fieldMap["updated_at"] = a.UpdatedAt
 	a.fieldMap["deleted_at"] = a.DeletedAt
 	a.fieldMap["url"] = a.Url
 	a.fieldMap["category_id"] = a.CategoryID
-	a.fieldMap["user_id"] = a.UserID
+	a.fieldMap["author_id"] = a.AuthorId
 	a.fieldMap["flag"] = a.Flag
 	a.fieldMap["title"] = a.Title
 	a.fieldMap["description"] = a.Description
 	a.fieldMap["click_count"] = a.ClickCount
 	a.fieldMap["status"] = a.Status
 	a.fieldMap["target"] = a.Target
-	a.fieldMap["content_model_id"] = a.ContentModelId
+	a.fieldMap["model_id"] = a.ModelId
+	a.fieldMap["submit_at"] = a.SubmitAt
+	a.fieldMap["publish_at"] = a.PublishAt
+	a.fieldMap["offline_at"] = a.OfflineAt
+	a.fieldMap["reject_at"] = a.RejectAt
 
 }
 
@@ -299,11 +315,11 @@ func (a articleHasOneExtra) Unscoped() *articleHasOneExtra {
 
 type articleHasOneExtraTx struct{ tx *gorm.Association }
 
-func (a articleHasOneExtraTx) Find() (result *model.ArticleContentModel, err error) {
+func (a articleHasOneExtraTx) Find() (result *model.ArticleModelRelationship, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a articleHasOneExtraTx) Append(values ...*model.ArticleContentModel) (err error) {
+func (a articleHasOneExtraTx) Append(values ...*model.ArticleModelRelationship) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -311,7 +327,7 @@ func (a articleHasOneExtraTx) Append(values ...*model.ArticleContentModel) (err 
 	return a.tx.Append(targetValues...)
 }
 
-func (a articleHasOneExtraTx) Replace(values ...*model.ArticleContentModel) (err error) {
+func (a articleHasOneExtraTx) Replace(values ...*model.ArticleModelRelationship) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -319,7 +335,7 @@ func (a articleHasOneExtraTx) Replace(values ...*model.ArticleContentModel) (err
 	return a.tx.Replace(targetValues...)
 }
 
-func (a articleHasOneExtraTx) Delete(values ...*model.ArticleContentModel) (err error) {
+func (a articleHasOneExtraTx) Delete(values ...*model.ArticleModelRelationship) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v

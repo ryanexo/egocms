@@ -32,7 +32,7 @@ func (srv User) isUnique(ctx context.Context, username string, email string) err
     }
     if findResult != nil {
         if findResult.Username == username {
-            return erroz.UsernameExists.ToError()
+            return erroz.UserNameExists.ToError()
         }
         if findResult.Email == email {
             return erroz.UserEmailExists.ToError()
@@ -59,7 +59,9 @@ func (srv User) Create(ctx context.Context, params dto.UserCreateParams) (result
         return
     }
     
-    err = srv.persist.User.WithContext(ctx).Create(&u)
+    err = srv.persist.Transaction(func(tx *query.Query) error {
+        return tx.User.WithContext(ctx).Create(&u)
+    })
     if err != nil {
         return
     }
@@ -84,7 +86,7 @@ func (srv User) FindByCredential(ctx context.Context, params dto.UserCredentialP
         return nil, err
     }
     if !password.Password(result.Password).Compare(params.Password) {
-        return nil, erroz.UserWrongPassword.ToError()
+        return nil, erroz.UserWrongPasswd.ToError()
     }
     return &result, nil
 }
@@ -122,11 +124,11 @@ func (srv User) ResetPassword(ctx context.Context, id uint64, pwd string) error 
 func (srv User) Delete(ctx context.Context, id uint64) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
         q := tx.WithContext(ctx)
-        _, err := q.User.Where(srv.persist.User.ID.Eq(id)).Delete()
+        _, err := q.User.Where(tx.User.ID.Eq(id)).Delete()
         if err != nil {
             return err
         }
-        _, err = q.UserProfile.Where(srv.persist.UserProfile.UserID.Eq(id)).Delete()
+        _, err = q.UserProfile.Where(tx.UserProfile.UserID.Eq(id)).Delete()
         if err != nil {
             return err
         }
@@ -140,14 +142,15 @@ func (srv User) UpdateProfile(ctx context.Context, params dto.UserProfileUpdateP
     if err != nil {
         return err
     }
+    profileDao := srv.persist.UserProfile
     _, err = srv.persist.WithContext(ctx).UserProfile.Select(
-        srv.persist.UserProfile.Gender,
-        srv.persist.UserProfile.Country,
-        srv.persist.UserProfile.Province,
-        srv.persist.UserProfile.City,
-        srv.persist.UserProfile.Nickname,
-        srv.persist.UserProfile.Description,
-    ).Where(srv.persist.UserProfile.UserID.Eq(params.ID)).Updates(&profile)
+        profileDao.Gender,
+        profileDao.Country,
+        profileDao.Province,
+        profileDao.City,
+        profileDao.Nickname,
+        profileDao.Description,
+    ).Where(profileDao.UserID.Eq(params.ID)).Updates(&profile)
     return err
 }
 

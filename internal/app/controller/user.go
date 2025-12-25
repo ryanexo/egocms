@@ -81,10 +81,10 @@ func (c UserController) Logout(ctx *gin.Context) {
 func (c UserController) UpdatePassword(ctx *gin.Context) {
     httpbinding.BindJSON[dto.UserPasswdUpdateParams](ctx, func(params dto.UserPasswdUpdateParams) (any, error) {
         if params.Password != params.PasswordConfirm {
-            return nil, erroz.UserWrongConfirmPassword.ToError()
+            return nil, erroz.UserWrongConfirmPasswd.ToError()
         }
         if params.Password == params.OldPassword {
-            return nil, erroz.UserNewPwdEqualsOldPwd.ToError()
+            return nil, erroz.UserEqualsOldPasswd.ToError()
         }
         u := authz.GetAuthorizedUser(ctx)
         _, err := c.services.User.FindByCredential(ctx, dto.UserCredentialParams{
