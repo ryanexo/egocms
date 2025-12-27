@@ -36,6 +36,8 @@ func newArticleModelSchema(db *gorm.DB, opts ...gen.DOOption) articleModelSchema
 	_articleModelSchema.MaxLen = field.NewInt(tableName, "max_len")
 	_articleModelSchema.MinValue = field.NewField(tableName, "min_value")
 	_articleModelSchema.MaxValue = field.NewField(tableName, "max_value")
+	_articleModelSchema.MinTime = field.NewField(tableName, "min_time")
+	_articleModelSchema.MaxTime = field.NewField(tableName, "max_time")
 	_articleModelSchema.Pattern = field.NewString(tableName, "pattern")
 	_articleModelSchema.Sequence = field.NewInt64(tableName, "sequence")
 	_articleModelSchema.Type = field.NewInt16(tableName, "type")
@@ -63,6 +65,8 @@ type articleModelSchema struct {
 	MaxLen      field.Int
 	MinValue    field.Field
 	MaxValue    field.Field
+	MinTime     field.Field
+	MaxTime     field.Field
 	Pattern     field.String
 	Sequence    field.Int64
 	Type        field.Int16
@@ -96,6 +100,8 @@ func (a *articleModelSchema) updateTableName(table string) *articleModelSchema {
 	a.MaxLen = field.NewInt(table, "max_len")
 	a.MinValue = field.NewField(table, "min_value")
 	a.MaxValue = field.NewField(table, "max_value")
+	a.MinTime = field.NewField(table, "min_time")
+	a.MaxTime = field.NewField(table, "max_time")
 	a.Pattern = field.NewString(table, "pattern")
 	a.Sequence = field.NewInt64(table, "sequence")
 	a.Type = field.NewInt16(table, "type")
@@ -132,7 +138,7 @@ func (a *articleModelSchema) GetFieldByName(fieldName string) (field.OrderExpr, 
 }
 
 func (a *articleModelSchema) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 17)
+	a.fieldMap = make(map[string]field.Expr, 19)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["model_id"] = a.ModelId
 	a.fieldMap["field_key"] = a.FieldKey
@@ -142,6 +148,8 @@ func (a *articleModelSchema) fillFieldMap() {
 	a.fieldMap["max_len"] = a.MaxLen
 	a.fieldMap["min_value"] = a.MinValue
 	a.fieldMap["max_value"] = a.MaxValue
+	a.fieldMap["min_time"] = a.MinTime
+	a.fieldMap["max_time"] = a.MaxTime
 	a.fieldMap["pattern"] = a.Pattern
 	a.fieldMap["sequence"] = a.Sequence
 	a.fieldMap["type"] = a.Type

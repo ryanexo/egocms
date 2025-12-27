@@ -32,6 +32,8 @@ type ArticleModelSchema struct {
     MaxLen      int                    `gorm:"default:0" json:"maxLen"`
     MinValue    decimal.NullDecimal    `gorm:"decimal(10,2)" json:"minValue"`
     MaxValue    decimal.NullDecimal    `gorm:"decimal(10,2)" json:"maxValue"`
+    MinTime     sql.NullTime           `json:"minTime"`
+    MaxTime     sql.NullTime           `json:"maxTime"`
     Pattern     string                 `gorm:"type:varchar(255)" json:"pattern"`
     Sequence    int64                  `gorm:"index;default:0" json:"sequence"`
     Type        int16                  `gorm:"type:smallint;not null" json:"type"`

@@ -2,49 +2,29 @@ package article
 
 import (
     `dpcms/internal/app/domain/article`
-    `dpcms/internal/app/erroz`
     `dpcms/internal/infra/persistence/model`
 )
 
-type ArticleModelData struct{}
+type ModelData model.ArticleModelData
 
-func NewArticleModelData(schema model.ArticleModelSchema, value any) (*model.ArticleModelData, error) {
-    data := model.ArticleModelData{ModelId: schema.ModelId, FieldKey: schema.FieldKey, Type: schema.Type}
-    
-    convRules := []struct {
-        Src int16
-        Dst interface{ Scan(any) error }
-    }{
-        {
-            Src: article.ValueTypeString,
-            Dst: &data.ValueString,
-        },
-        {
-            Src: article.ValueTypeNumber,
-            Dst: &data.ValueNumber,
-        },
-        {
-            Src: article.ValueTypeBool,
-            Dst: &data.ValueBool,
-        },
-        {
-            Src: article.ValueTypeFloat,
-            Dst: &data.ValueFloat,
-        },
-        {
-            Src: article.ValueTypeTime,
-            Dst: &data.ValueTime,
-        },
-    }
-    
-    for _, rule := range convRules {
-        if rule.Src != data.Type {
-            continue
-        }
-        if err := rule.Dst.Scan(value); err == nil {
-            return &ArticleModelData{schema, data}, nil
-        }
-    }
-    
-    return nil, erroz.ArticleModelDataInvalidType.Format(schema.FieldName).ToError()
+var _ article.Scannable = (*ModelData)(nil)
+
+func NewModelData(data *model.ArticleModelData) *ModelData {
+    return (*ModelData)(data)
+}
+
+func (m *ModelData) ScanString(value any) error {
+    return m.ValueString.Scan(value)
+}
+
+func (m *ModelData) ScanNumber(value any) error {
+    return m.ValueNumber.Scan(value)
+}
+
+func (m *ModelData) ScanBool(value any) error {
+    return m.ValueBool.Scan(value)
+}
+
+func (m *ModelData) ScanTime(value any) error {
+    return m.ValueTime.Scan(value)
 }

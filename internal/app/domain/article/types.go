@@ -1,6 +1,8 @@
 package article
 
 import (
+    `time`
+    
     `dpcms/internal/infra/persistence/customvalue`
     
     `github.com/shopspring/decimal`
@@ -12,18 +14,18 @@ type Value interface {
     SupportsInRange() bool
     SupportsEnumConstraint() bool
     SupportsRegex() bool
+    SupportsInTimeRange() bool
     IsEmpty() bool
-    Match(string) (bool, error)
-    IsValidLen(int, int) bool
-    IsValidFraction(any) bool
-    IsEnumValue(customvalue.EnumValues) bool
-    InRange(decimal.NullDecimal, decimal.NullDecimal) bool
+    Match(pattern string) (bool, error)
+    IsValidLen(minLen int, maxLen int) bool
+    IsEnumValue(values customvalue.EnumValues) bool
+    InRange(minValue decimal.Decimal, maxValue decimal.Decimal) bool
+    InTimeRange(minValue time.Time, maxValue time.Time) bool
 }
 
 type Scannable interface {
-    ScanString(any) error
-    ScanNumber(any) error
-    ScanBool(any) error
-    ScanFloat(any) error
-    ScanTime(any) error
+    ScanString(value any) error
+    ScanNumber(value any) error
+    ScanBool(value any) error
+    ScanTime(value any) error
 }

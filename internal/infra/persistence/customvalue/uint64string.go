@@ -29,6 +29,7 @@ func (u *Uint64String) Scan(value any) error {
         }
         *u = Uint64String(s)
     default:
+        *u = ""
         return fmt.Errorf("unsupported Scan type %T", v)
     }
     

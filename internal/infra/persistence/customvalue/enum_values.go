@@ -15,7 +15,7 @@ type EnumValue struct {
 type EnumValues []EnumValue
 
 func (v *EnumValues) Scan(value any) error {
-    if value == nil {
+    if value == nil || value == "" {
         *v = []EnumValue{}
         return nil
     }
