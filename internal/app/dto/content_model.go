@@ -30,5 +30,4 @@ type ArticleModelSchemaParams struct {
     EnumOptions customvalue.EnumValues    `json:"enumOptions"`
     Hidden      bool                      `json:"hidden"`
     Enable      bool                      `json:"enable"`
-    Readonly    bool                      `json:"readonly"`
 }

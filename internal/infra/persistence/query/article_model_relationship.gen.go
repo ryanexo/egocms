@@ -23,7 +23,7 @@ func newArticleModelRelationship(db *gorm.DB, opts ...gen.DOOption) articleModel
 	_articleModelRelationship := articleModelRelationship{}
 
 	_articleModelRelationship.articleModelRelationshipDo.UseDB(db, opts...)
-	_articleModelRelationship.articleModelRelationshipDo.UseModel(&model.ArticleModelRelationship{})
+	_articleModelRelationship.articleModelRelationshipDo.UseModel(&model.ArticleModelJsonData{})
 
 	tableName := _articleModelRelationship.articleModelRelationshipDo.TableName()
 	_articleModelRelationship.ALL = field.NewAsterisk(tableName)
@@ -204,57 +204,57 @@ func (a articleModelRelationshipDo) Unscoped() *articleModelRelationshipDo {
 	return a.withDO(a.DO.Unscoped())
 }
 
-func (a articleModelRelationshipDo) Create(values ...*model.ArticleModelRelationship) error {
+func (a articleModelRelationshipDo) Create(values ...*model.ArticleModelJsonData) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return a.DO.Create(values)
 }
 
-func (a articleModelRelationshipDo) CreateInBatches(values []*model.ArticleModelRelationship, batchSize int) error {
+func (a articleModelRelationshipDo) CreateInBatches(values []*model.ArticleModelJsonData, batchSize int) error {
 	return a.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (a articleModelRelationshipDo) Save(values ...*model.ArticleModelRelationship) error {
+func (a articleModelRelationshipDo) Save(values ...*model.ArticleModelJsonData) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return a.DO.Save(values)
 }
 
-func (a articleModelRelationshipDo) First() (*model.ArticleModelRelationship, error) {
+func (a articleModelRelationshipDo) First() (*model.ArticleModelJsonData, error) {
 	if result, err := a.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleModelRelationship), nil
+		return result.(*model.ArticleModelJsonData), nil
 	}
 }
 
-func (a articleModelRelationshipDo) Take() (*model.ArticleModelRelationship, error) {
+func (a articleModelRelationshipDo) Take() (*model.ArticleModelJsonData, error) {
 	if result, err := a.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleModelRelationship), nil
+		return result.(*model.ArticleModelJsonData), nil
 	}
 }
 
-func (a articleModelRelationshipDo) Last() (*model.ArticleModelRelationship, error) {
+func (a articleModelRelationshipDo) Last() (*model.ArticleModelJsonData, error) {
 	if result, err := a.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleModelRelationship), nil
+		return result.(*model.ArticleModelJsonData), nil
 	}
 }
 
-func (a articleModelRelationshipDo) Find() ([]*model.ArticleModelRelationship, error) {
+func (a articleModelRelationshipDo) Find() ([]*model.ArticleModelJsonData, error) {
 	result, err := a.DO.Find()
-	return result.([]*model.ArticleModelRelationship), err
+	return result.([]*model.ArticleModelJsonData), err
 }
 
-func (a articleModelRelationshipDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ArticleModelRelationship, err error) {
-	buf := make([]*model.ArticleModelRelationship, 0, batchSize)
+func (a articleModelRelationshipDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ArticleModelJsonData, err error) {
+	buf := make([]*model.ArticleModelJsonData, 0, batchSize)
 	err = a.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -262,7 +262,7 @@ func (a articleModelRelationshipDo) FindInBatch(batchSize int, fc func(tx gen.Da
 	return results, err
 }
 
-func (a articleModelRelationshipDo) FindInBatches(result *[]*model.ArticleModelRelationship, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (a articleModelRelationshipDo) FindInBatches(result *[]*model.ArticleModelJsonData, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return a.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -288,23 +288,23 @@ func (a articleModelRelationshipDo) Preload(fields ...field.RelationField) *arti
 	return &a
 }
 
-func (a articleModelRelationshipDo) FirstOrInit() (*model.ArticleModelRelationship, error) {
+func (a articleModelRelationshipDo) FirstOrInit() (*model.ArticleModelJsonData, error) {
 	if result, err := a.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleModelRelationship), nil
+		return result.(*model.ArticleModelJsonData), nil
 	}
 }
 
-func (a articleModelRelationshipDo) FirstOrCreate() (*model.ArticleModelRelationship, error) {
+func (a articleModelRelationshipDo) FirstOrCreate() (*model.ArticleModelJsonData, error) {
 	if result, err := a.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleModelRelationship), nil
+		return result.(*model.ArticleModelJsonData), nil
 	}
 }
 
-func (a articleModelRelationshipDo) FindByPage(offset int, limit int) (result []*model.ArticleModelRelationship, count int64, err error) {
+func (a articleModelRelationshipDo) FindByPage(offset int, limit int) (result []*model.ArticleModelJsonData, count int64, err error) {
 	result, err = a.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -333,7 +333,7 @@ func (a articleModelRelationshipDo) Scan(result interface{}) (err error) {
 	return a.DO.Scan(result)
 }
 
-func (a articleModelRelationshipDo) Delete(models ...*model.ArticleModelRelationship) (result gen.ResultInfo, err error) {
+func (a articleModelRelationshipDo) Delete(models ...*model.ArticleModelJsonData) (result gen.ResultInfo, err error) {
 	return a.DO.Delete(models)
 }
 

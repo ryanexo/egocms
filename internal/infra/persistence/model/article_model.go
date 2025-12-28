@@ -15,11 +15,11 @@ type ArticleModel struct {
     Definition  []ArticleModelSchema `gorm:"foreignKey:ModelId;referenceKey:ID"`
 }
 
-type ArticleModelRelationship struct {
-    ID        uint64 `gorm:"primaryKey"`
-    ArticleId uint64 `gorm:"index:idx_art,priority:1"`
-    ModelId   uint64 `gorm:"index:idx_art,priority:2"`
-    Data      string `gorm:"type:text;not null" json:"data"`
+type ArticleModelJsonData struct {
+    ID        uint64              `gorm:"primaryKey"`
+    ArticleId uint64              `gorm:"index:idx_art,priority:1"`
+    ModelId   uint64              `gorm:"index:idx_art,priority:2"`
+    Data      customvalue.JSONMap `gorm:"type:text;" json:"data"`
 }
 
 type ArticleModelSchema struct {
@@ -41,7 +41,6 @@ type ArticleModelSchema struct {
     Required    bool                   `gorm:"type:bool;default:false" json:"required"`
     Hidden      bool                   `gorm:"type:bool;default:false" json:"hidden"`
     Enable      bool                   `gorm:"type:bool;default:true" json:"enable"`
-    Readonly    bool                   `gorm:"type:bool;default:false" json:"readonly"`
 }
 
 type ArticleModelData struct {

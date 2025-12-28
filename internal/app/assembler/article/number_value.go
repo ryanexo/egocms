@@ -14,30 +14,6 @@ type NumberValue decimal.Decimal
 
 var _ article.Value = (*NumberValue)(nil)
 
-func (n NumberValue) Type() int16 {
-    return article.ValueTypeNumber
-}
-
-func (n NumberValue) SupportsLen() bool {
-    return false
-}
-
-func (n NumberValue) SupportsInRange() bool {
-    return true
-}
-
-func (s NumberValue) SupportsInTimeRange() bool {
-    return false
-}
-
-func (n NumberValue) SupportsEnumConstraint() bool {
-    return true
-}
-
-func (n NumberValue) SupportsRegex() bool {
-    return true
-}
-
 func (n NumberValue) IsEmpty() bool {
     return false
 }
@@ -49,7 +25,7 @@ func (n NumberValue) Match(pattern string) (bool, error) {
 }
 
 func (n NumberValue) IsValidLen(_ int, _ int) bool {
-    return false
+    return true
 }
 
 func (n NumberValue) IsEnumValue(values customvalue.EnumValues) bool {
@@ -68,5 +44,9 @@ func (n NumberValue) InRange(minValue decimal.Decimal, maxValue decimal.Decimal)
 }
 
 func (n NumberValue) InTimeRange(_ time.Time, _ time.Time) bool {
-    return false
+    return true
+}
+
+func (n NumberValue) Assign(s article.Scannable) error {
+    return s.ScanNumber(decimal.Decimal(n))
 }

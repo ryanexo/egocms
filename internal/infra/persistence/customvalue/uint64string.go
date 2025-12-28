@@ -48,3 +48,7 @@ func (u Uint64String) Value() (driver.Value, error) {
     
     return n, nil
 }
+
+func NewUint64String(n uint64) Uint64String {
+    return Uint64String(strconv.FormatUint(n, 10))
+}

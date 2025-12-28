@@ -14,30 +14,6 @@ type StringValue string
 
 var _ article.Value = (*StringValue)(nil)
 
-func (s StringValue) Type() int16 {
-    return article.ValueTypeString
-}
-
-func (s StringValue) SupportsLen() bool {
-    return true
-}
-
-func (s StringValue) SupportsInRange() bool {
-    return false
-}
-
-func (s StringValue) SupportsInTimeRange() bool {
-    return false
-}
-
-func (s StringValue) SupportsEnumConstraint() bool {
-    return true
-}
-
-func (s StringValue) SupportsRegex() bool {
-    return true
-}
-
 func (s StringValue) IsEmpty() bool {
     return s == ""
 }
@@ -61,9 +37,13 @@ func (s StringValue) IsEnumValue(values customvalue.EnumValues) bool {
 }
 
 func (s StringValue) InRange(_ decimal.Decimal, _ decimal.Decimal) bool {
-    return false
+    return true
 }
 
 func (s StringValue) InTimeRange(_ time.Time, _ time.Time) bool {
-    return false
+    return true
+}
+
+func (s StringValue) Assign(scannable article.Scannable) error {
+    return scannable.ScanString(string(s))
 }

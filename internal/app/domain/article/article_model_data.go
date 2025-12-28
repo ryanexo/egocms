@@ -2,91 +2,62 @@ package article
 
 import (
     `dpcms/internal/app/erroz`
-    `dpcms/internal/infra/persistence/model`
     
     `github.com/shopspring/decimal`
 )
 
 type ModelValue struct {
-    value  Value
-    schema model.ArticleModelSchema
+    value Value
+    rules Rules
 }
 
-const (
-    ValueTypeString = iota
-    ValueTypeNumber
-    ValueTypeBool
-    ValueTypeTime
-)
-
-func NewModelValue(schema model.ArticleModelSchema, value Value) *ModelValue {
-    return &ModelValue{value, schema}
+func NewModelValue(rules Rules, value Value) *ModelValue {
+    return &ModelValue{rules: rules, value: value}
 }
 
 func (v *ModelValue) IsValid() error {
-    if !v.schema.Enable {
-        return erroz.ArticleModelDataDisabled.Format(v.schema.FieldKey).ToError()
+    if !v.rules.IsEnable() {
+        return erroz.ArticleModelDataDisabled.Format(v.rules.FieldKey()).ToError()
     }
     
-    if v.schema.Required && v.value.IsEmpty() {
-        return erroz.ArticleModelDataMissingValue.Format(v.schema.FieldName).ToError()
+    if v.rules.IsRequired() && v.value.IsEmpty() {
+        return erroz.ArticleModelDataMissingValue.Format(v.rules.FieldName()).ToError()
     }
     
-    if v.value.SupportsLen() && !v.value.IsValidLen(v.schema.MinLen, v.schema.MaxLen) {
-        return erroz.ArticleModelDataInvalidLen.Format(v.schema.MinLen, v.schema.MaxLen).ToError()
+    if !v.value.IsValidLen(v.rules.MinLen(), v.rules.MaxLen()) {
+        return erroz.ArticleModelDataInvalidLen.Format(v.rules.MinLen(), v.rules.MaxLen()).ToError()
     }
     
-    hasRange := v.schema.MinValue.Decimal.Equal(v.schema.MaxValue.Decimal) && !v.schema.MinValue.Decimal.Equal(decimal.New(0, 0))
-    
-    if hasRange && v.value.SupportsInRange() {
-        vMin, vMax := v.schema.MinValue, v.schema.MaxValue
+    vMin, vMax := v.rules.MinValue(), v.rules.MaxValue()
+    if vMin.Decimal.Equal(vMax.Decimal) && !vMax.Decimal.Equal(decimal.New(0, 0)) {
         validMin, validMax := vMin.Valid, vMax.Valid
-        
         if !validMin || validMax || !v.value.InRange(vMin.Decimal, vMax.Decimal) {
-            return erroz.ArticleModelDataInvalidNumRange.Format(v.schema.MinValue, v.schema.MaxValue).ToError()
+            return erroz.ArticleModelDataInvalidNumRange.Format(v.rules.MinValue(), v.rules.MaxValue()).ToError()
         }
     }
     
-    if len(v.schema.EnumOptions) > 0 && v.value.SupportsEnumConstraint() && !v.value.IsEnumValue(v.schema.EnumOptions) {
-        return erroz.ArticleModelDataInvalidValue.Format(v.schema.FieldName).ToError()
+    if len(v.rules.EnumOptions()) > 0 && !v.value.IsEnumValue(v.rules.EnumOptions()) {
+        return erroz.ArticleModelDataInvalidValue.Format(v.rules.FieldName()).ToError()
     }
     
-    if v.value.SupportsRegex() {
-        matched, err := v.value.Match(v.schema.Pattern)
+    pattern := v.rules.Pattern()
+    if len(pattern) > 0 {
+        matched, err := v.value.Match(pattern)
         if err != nil {
             return err
         }
         if !matched {
-            return erroz.ArticleModelDataInvalidValue.Format(v.schema.FieldName).ToError()
+            return erroz.ArticleModelDataInvalidValue.Format(v.rules.FieldName()).ToError()
         }
     }
     
-    if v.value.SupportsInTimeRange() {
-        vMin, vMax := v.schema.MinTime, v.schema.MaxTime
-        validMin, validMax := vMin.Valid, vMax.Valid
-        
-        if !validMin || !validMax || !v.value.InTimeRange(vMin.Time, vMax.Time) {
-            return erroz.ArticleModelDataInvalidTimeRange.Format(v.schema.FieldName, v.schema.MinTime, v.schema.MaxTime).ToError()
+    vMinTime, vMaxTime := v.rules.MinTime(), v.rules.MaxTime()
+    if !vMinTime.Time.IsZero() || !vMaxTime.Time.IsZero() {
+        validMin, validMax := vMinTime.Valid, vMaxTime.Valid
+        if !validMin || !validMax || !v.value.InTimeRange(vMinTime.Time, vMaxTime.Time) {
+            return erroz.ArticleModelDataInvalidTimeRange.Format(v.rules.FieldName(), vMinTime, vMaxTime).ToError()
         }
     }
     
     return nil
-}
-
-func (v *ModelValue) Value(value Scannable) error {
-    switch v.value.Type() {
-    case ValueTypeString:
-        return value.ScanString(v.value)
-    
-    case ValueTypeBool:
-        return value.ScanBool(v.value)
-    
-    case ValueTypeTime:
-        return value.ScanTime(v.value)
-    
-    case ValueTypeNumber:
-        return value.ScanNumber(v.value)
-    }
-    
-    return erroz.ArticleModelDataInvalidType.ToError()
 }

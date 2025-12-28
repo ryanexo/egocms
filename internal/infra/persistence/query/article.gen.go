@@ -51,10 +51,10 @@ func newArticle(db *gorm.DB, opts ...gen.DOOption) article {
 		RelationField: field.NewRelation("Content", "model.ArticleContent"),
 	}
 
-	_article.Extra = articleHasOneExtra{
+	_article.ModelData = articleHasOneModelData{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("Extra", "model.ArticleModelRelationship"),
+		RelationField: field.NewRelation("ModelData", "model.ArticleModelJsonData"),
 	}
 
 	_article.Keywords = articleHasManyKeywords{
@@ -92,7 +92,7 @@ type article struct {
 	RejectAt    field.Time
 	Content     articleHasOneContent
 
-	Extra articleHasOneExtra
+	ModelData articleHasOneModelData
 
 	Keywords articleHasManyKeywords
 
@@ -179,8 +179,8 @@ func (a article) clone(db *gorm.DB) article {
 	a.articleDo.ReplaceConnPool(db.Statement.ConnPool)
 	a.Content.db = db.Session(&gorm.Session{Initialized: true})
 	a.Content.db.Statement.ConnPool = db.Statement.ConnPool
-	a.Extra.db = db.Session(&gorm.Session{Initialized: true})
-	a.Extra.db.Statement.ConnPool = db.Statement.ConnPool
+	a.ModelData.db = db.Session(&gorm.Session{Initialized: true})
+	a.ModelData.db.Statement.ConnPool = db.Statement.ConnPool
 	a.Keywords.db = db.Session(&gorm.Session{Initialized: true})
 	a.Keywords.db.Statement.ConnPool = db.Statement.ConnPool
 	return a
@@ -189,7 +189,7 @@ func (a article) clone(db *gorm.DB) article {
 func (a article) replaceDB(db *gorm.DB) article {
 	a.articleDo.ReplaceDB(db)
 	a.Content.db = db.Session(&gorm.Session{})
-	a.Extra.db = db.Session(&gorm.Session{})
+	a.ModelData.db = db.Session(&gorm.Session{})
 	a.Keywords.db = db.Session(&gorm.Session{})
 	return a
 }
@@ -275,13 +275,13 @@ func (a articleHasOneContentTx) Unscoped() *articleHasOneContentTx {
 	return &a
 }
 
-type articleHasOneExtra struct {
+type articleHasOneModelData struct {
 	db *gorm.DB
 
 	field.RelationField
 }
 
-func (a articleHasOneExtra) Where(conds ...field.Expr) *articleHasOneExtra {
+func (a articleHasOneModelData) Where(conds ...field.Expr) *articleHasOneModelData {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -294,32 +294,32 @@ func (a articleHasOneExtra) Where(conds ...field.Expr) *articleHasOneExtra {
 	return &a
 }
 
-func (a articleHasOneExtra) WithContext(ctx context.Context) *articleHasOneExtra {
+func (a articleHasOneModelData) WithContext(ctx context.Context) *articleHasOneModelData {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a articleHasOneExtra) Session(session *gorm.Session) *articleHasOneExtra {
+func (a articleHasOneModelData) Session(session *gorm.Session) *articleHasOneModelData {
 	a.db = a.db.Session(session)
 	return &a
 }
 
-func (a articleHasOneExtra) Model(m *model.Article) *articleHasOneExtraTx {
-	return &articleHasOneExtraTx{a.db.Model(m).Association(a.Name())}
+func (a articleHasOneModelData) Model(m *model.Article) *articleHasOneModelDataTx {
+	return &articleHasOneModelDataTx{a.db.Model(m).Association(a.Name())}
 }
 
-func (a articleHasOneExtra) Unscoped() *articleHasOneExtra {
+func (a articleHasOneModelData) Unscoped() *articleHasOneModelData {
 	a.db = a.db.Unscoped()
 	return &a
 }
 
-type articleHasOneExtraTx struct{ tx *gorm.Association }
+type articleHasOneModelDataTx struct{ tx *gorm.Association }
 
-func (a articleHasOneExtraTx) Find() (result *model.ArticleModelRelationship, err error) {
+func (a articleHasOneModelDataTx) Find() (result *model.ArticleModelJsonData, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a articleHasOneExtraTx) Append(values ...*model.ArticleModelRelationship) (err error) {
+func (a articleHasOneModelDataTx) Append(values ...*model.ArticleModelJsonData) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -327,7 +327,7 @@ func (a articleHasOneExtraTx) Append(values ...*model.ArticleModelRelationship) 
 	return a.tx.Append(targetValues...)
 }
 
-func (a articleHasOneExtraTx) Replace(values ...*model.ArticleModelRelationship) (err error) {
+func (a articleHasOneModelDataTx) Replace(values ...*model.ArticleModelJsonData) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -335,7 +335,7 @@ func (a articleHasOneExtraTx) Replace(values ...*model.ArticleModelRelationship)
 	return a.tx.Replace(targetValues...)
 }
 
-func (a articleHasOneExtraTx) Delete(values ...*model.ArticleModelRelationship) (err error) {
+func (a articleHasOneModelDataTx) Delete(values ...*model.ArticleModelJsonData) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -343,15 +343,15 @@ func (a articleHasOneExtraTx) Delete(values ...*model.ArticleModelRelationship) 
 	return a.tx.Delete(targetValues...)
 }
 
-func (a articleHasOneExtraTx) Clear() error {
+func (a articleHasOneModelDataTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a articleHasOneExtraTx) Count() int64 {
+func (a articleHasOneModelDataTx) Count() int64 {
 	return a.tx.Count()
 }
 
-func (a articleHasOneExtraTx) Unscoped() *articleHasOneExtraTx {
+func (a articleHasOneModelDataTx) Unscoped() *articleHasOneModelDataTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }

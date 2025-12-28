@@ -26,6 +26,12 @@ func (r *Article) Create(article *model.Article) error {
     return r.persist.Article.WithContext(r.context).Create(article)
 }
 
+func (r *Article) FindBasicById(article *model.Article) error {
+}
+
+func (r *Article) FindDetailById(article *model.Article) error {
+}
+
 func (r *Article) UpdateKeywords(id uint64, keywords []string) error {
     _, err := r.persist.ArticleKeywords.WithContext(r.context).Where(r.persist.ArticleKeywords.ArticleID.Eq(id)).Delete()
     if err != nil {
@@ -38,11 +44,15 @@ func (r *Article) UpdateKeywords(id uint64, keywords []string) error {
     return r.persist.ArticleKeywords.WithContext(r.context).Create(keywordSlice...)
 }
 
-func (r *Article) SaveContentModelData(id uint64, data []*model.ArticleModelData) error {
-    defDao := r.persist.ContentModelData
-    _, err := defDao.WithContext(r.context).Where(defDao.ContentModelId.Eq(id)).Delete()
+func (r *Article) SaveContentModelData(art model.Article, jsonMap map[string]any, data []*model.ArticleModelData) error {
+    jsonData := model.ArticleModelJsonData{
+        ArticleId: art.ID,
+        ModelId:   art.ModelId,
+        Data:      jsonMap,
+    }
+    err := r.persist.ArticleModelJsonData.WithContext(r.context).Create(&jsonData)
     if err != nil {
         return err
     }
-    return defDao.WithContext(r.context).Create(data...)
+    return r.persist.ArticleModelData.WithContext(r.context).Create(data...)
 }

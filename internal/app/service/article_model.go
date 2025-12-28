@@ -80,10 +80,7 @@ func (s ArticleModel) FindDefinitionList(ctx context.Context, id uint64) ([]*dto
     }
     
     result := make([]*dto.ArticleModelSchemaParams, 0, len(defs))
-    err = copier.CopyWithOption(&result, &defs, copier.Option{
-        Converters: []copier.TypeConverter{copierutil.WithUint64ToString(),
-        },
-    })
+    err = copier.Copy(&result, &defs)
     if err != nil {
         return nil, err
     }

@@ -45,7 +45,6 @@ func newArticleModelSchema(db *gorm.DB, opts ...gen.DOOption) articleModelSchema
 	_articleModelSchema.Required = field.NewBool(tableName, "required")
 	_articleModelSchema.Hidden = field.NewBool(tableName, "hidden")
 	_articleModelSchema.Enable = field.NewBool(tableName, "enable")
-	_articleModelSchema.Readonly = field.NewBool(tableName, "readonly")
 
 	_articleModelSchema.fillFieldMap()
 
@@ -74,7 +73,6 @@ type articleModelSchema struct {
 	Required    field.Bool
 	Hidden      field.Bool
 	Enable      field.Bool
-	Readonly    field.Bool
 
 	fieldMap map[string]field.Expr
 }
@@ -109,7 +107,6 @@ func (a *articleModelSchema) updateTableName(table string) *articleModelSchema {
 	a.Required = field.NewBool(table, "required")
 	a.Hidden = field.NewBool(table, "hidden")
 	a.Enable = field.NewBool(table, "enable")
-	a.Readonly = field.NewBool(table, "readonly")
 
 	a.fillFieldMap()
 
@@ -138,7 +135,7 @@ func (a *articleModelSchema) GetFieldByName(fieldName string) (field.OrderExpr, 
 }
 
 func (a *articleModelSchema) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 19)
+	a.fieldMap = make(map[string]field.Expr, 18)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["model_id"] = a.ModelId
 	a.fieldMap["field_key"] = a.FieldKey
@@ -157,7 +154,6 @@ func (a *articleModelSchema) fillFieldMap() {
 	a.fieldMap["required"] = a.Required
 	a.fieldMap["hidden"] = a.Hidden
 	a.fieldMap["enable"] = a.Enable
-	a.fieldMap["readonly"] = a.Readonly
 }
 
 func (a articleModelSchema) clone(db *gorm.DB) articleModelSchema {

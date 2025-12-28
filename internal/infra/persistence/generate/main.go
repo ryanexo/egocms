@@ -32,7 +32,7 @@ func main() {
         model.Article{},
         model.ArticleKeywords{},
         model.ArticleContent{},
-        model.ArticleModelRelationship{},
+        model.ArticleModelJsonData{},
         model.ArticleModel{},
         model.ArticleModelSchema{},
         model.ArticleModelData{},
