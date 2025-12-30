@@ -18,6 +18,19 @@ type ArticleCreateParams struct {
     ModelData   map[string]any            `json:"modelData"`
 }
 
+type ArticleUpdateParams struct {
+    ID          customvalue.Uint64String `json:"id"`
+    Url         string                   `json:"url"`
+    CategoryId  customvalue.Uint64String `json:"categoryId"`
+    Flag        int16                    `json:"flag"`
+    Title       string                   `json:"title"`
+    Description string                   `json:"description"`
+    Content     string                   `json:"content"`
+    Target      string                   `json:"target"`
+    Keywords    []string                 `json:"keywords"`
+    ModelData   map[string]any           `json:"modelData"`
+}
+
 type Article struct {
     model.Base
     Url          string                   `json:"url"`
@@ -33,7 +46,7 @@ type Article struct {
     Target       string                   `json:"target"`
     Keywords     []string                 `json:"keywords"`
     ModelId      customvalue.Uint64String `json:"modelId"`
-    ModelSchema  []ArticleModelSchema     `json:"modelSchema"`
+    ModelSchema  []*ArticleModelSchema    `json:"modelSchema"`
     ModelData    map[string]any           `json:"modelData"`
     PublishAt    time.Time                `json:"publishAt"`
 }

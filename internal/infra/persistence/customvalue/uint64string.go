@@ -2,6 +2,7 @@ package customvalue
 
 import (
     `database/sql/driver`
+    `errors`
     `fmt`
     `strconv`
 )
@@ -47,6 +48,17 @@ func (u Uint64String) Value() (driver.Value, error) {
     }
     
     return n, nil
+}
+
+func (u Uint64String) Uint64() (uint64, error) {
+    if u == "" {
+        return 0, errors.New("invalid Uint64String")
+    }
+    return strconv.ParseUint(string(u), 10, 64)
+}
+
+func (u Uint64String) String() string {
+    return string(u)
 }
 
 func NewUint64String(n uint64) Uint64String {

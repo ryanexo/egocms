@@ -61,3 +61,7 @@ func (v *ModelValue) IsValid() error {
     
     return nil
 }
+
+func (v *ModelValue) Assign(s Scannable) error {
+    return v.value.Assign(s)
+}

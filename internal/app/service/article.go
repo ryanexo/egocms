@@ -3,15 +3,14 @@ package service
 import (
     `context`
     `database/sql`
-    `strconv`
     
     artAssembler `dpcms/internal/app/assembler/article`
-    `dpcms/internal/app/domain/article`
+    artDomain `dpcms/internal/app/domain/article`
     `dpcms/internal/app/dto`
     `dpcms/internal/app/erroz`
-    `dpcms/internal/app/repo`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
+    `dpcms/internal/infra/persistence/repo`
 )
 
 type Article struct {
@@ -22,8 +21,8 @@ func NewArticle(query *query.Query) *Article {
     return &Article{query}
 }
 
-func (s Article) Create(ctx context.Context, params dto.ArticleCreateParams) (*dto.ArticleDetail, error) {
-    art := model.Article{
+func (s Article) Create(ctx context.Context, params dto.ArticleCreateParams) error {
+    artModel := &model.Article{
         Url:         params.Url,
         Title:       params.Title,
         Description: params.Description,
@@ -32,57 +31,134 @@ func (s Article) Create(ctx context.Context, params dto.ArticleCreateParams) (*d
     }
     
     if params.ModelId != nil {
-        idStr := *(*string)(params.ModelId)
-        idInt, err := strconv.ParseUint(idStr, 10, 64)
+        idInt, err := params.ModelId.Uint64()
         if err != nil {
-            return nil, err
+            return err
         }
-        art.ModelId = idInt
+        artModel.ModelId = idInt
     }
     
-    if params.Description != "" && params.Content != "" {
-        contentStr := []rune(params.Content)
-        art.Description = string(contentStr[:200])
-    }
+    art := artDomain.NewArticle(artDomain.Draft{Description: params.Description, Content: params.Content})
+    params.Description = art.GetDescription()
     
-    err := s.query.Transaction(func(tx *query.Query) error {
-        artRepo := repo.NewArticle(ctx, tx)
-        txErr := artRepo.Create(&art)
-        if txErr != nil {
-            return txErr
-        }
-        
-        jsonMap, modelData, err := s.transformModelDataWithVerify(ctx, art, params.ModelData)
+    return s.query.Transaction(func(tx *query.Query) error {
+        err := repo.NewArticle(tx).Create(ctx, artModel)
         if err != nil {
             return err
         }
         
-        return artRepo.SaveContentModelData(art, jsonMap, modelData)
+        artModelRepo := repo.NewArticleModel(tx)
+        schema, err := artModelRepo.FindSchema(ctx, artModel.ModelId)
+        if err != nil {
+            return err
+        }
+        
+        jsonData, modelData, err := s.buildArticleModelData(artModel, schema, params.ModelData)
+        if err != nil {
+            return err
+        }
+        
+        err = artModelRepo.CreateModelTypedData(ctx, modelData)
+        if err != nil {
+            return err
+        }
+        
+        err = artModelRepo.CreateModelJsonData(ctx, jsonData)
+        if err != nil {
+            return err
+        }
+        
+        return nil
     })
-    
-    if err != nil {
-        return nil, err
-    }
-    
-    return s.FindDetailById(art.ID)
 }
 
-func (s Article) FindBasicById(id uint64) (*dto.Article, error) {
-
+func (s Article) FindById(ctx context.Context, id uint64) (*model.Article, error) {
+    return repo.NewArticle(s.query).FindById(ctx, id)
 }
 
-func (s Article) FindDetailById(id uint64) (*dto.ArticleDetail, error) {}
+func (s Article) FindByIdWithContent(ctx context.Context, id uint64) (*model.Article, error) {
+    return repo.NewArticle(s.query).FindByIdWithContent(ctx, id)
+}
 
-func (s Article) transformModelDataWithVerify(ctx context.Context, art model.Article, data map[string]any) (map[string]any, []*model.ArticleModelData, error) {
-    defDao := s.query.ArticleModelSchema
-    defs, err := defDao.WithContext(ctx).Where(defDao.ModelId.Eq(art.ModelId)).Find()
+func (s Article) Update(ctx context.Context, data dto.ArticleUpdateParams) error {
+    artId, err := data.ID.Uint64()
     if err != nil {
-        return nil, nil, err
+        return err
     }
     
-    jsonMapResult := make(map[string]any)
-    modelResult := make([]*model.ArticleModelData, 0, len(defs))
-    for _, def := range defs {
+    catId, err := data.CategoryId.Uint64()
+    if err != nil {
+        return err
+    }
+    
+    rawArt, err := repo.NewArticle(s.query).FindById(ctx, artId)
+    if err != nil {
+        return err
+    }
+    
+    art := artDomain.NewArticle(artDomain.Draft{Description: data.Description, Content: data.Content})
+    
+    artUpdateData := &model.Article{
+        Base:        model.Base{ID: artId},
+        Url:         data.Url,
+        CategoryID:  catId,
+        Flag:        data.Flag,
+        Title:       data.Title,
+        Description: art.GetDescription(),
+        Target:      sql.NullString{String: data.Target, Valid: true},
+    }
+    
+    return s.query.Transaction(func(tx *query.Query) error {
+        artRepo := repo.NewArticle(tx)
+        txErr := artRepo.Update(ctx, artUpdateData)
+        if txErr != nil {
+            return txErr
+        }
+        
+        txErr = artRepo.UpdateContent(ctx, artUpdateData.ID, data.Content)
+        if txErr != nil {
+            return txErr
+        }
+        
+        txErr = artRepo.UpdateKeywords(ctx, artUpdateData.ID, data.Keywords)
+        if txErr != nil {
+            return txErr
+        }
+        
+        artModelRepo := repo.NewArticleModel(tx)
+        schema, txErr := artModelRepo.FindSchema(ctx, rawArt.ModelId)
+        if txErr != nil {
+            return txErr
+        }
+        
+        artJsonData, artTypedData, txErr := s.buildArticleModelData(rawArt, schema, data.ModelData)
+        if txErr != nil {
+            return txErr
+        }
+        
+        txErr = artModelRepo.UpdateModelTypedData(ctx, artTypedData)
+        if txErr != nil {
+            return txErr
+        }
+        
+        txErr = artModelRepo.UpdateModelJsonData(ctx, artJsonData)
+        if txErr != nil {
+            return txErr
+        }
+        
+        return nil
+    })
+}
+
+func (s Article) buildArticleModelData(art *model.Article, schema []*model.ArticleModelSchema, data map[string]any) (*model.ArticleModelJsonData, []*model.ArticleModelData, error) {
+    jsonResult := &model.ArticleModelJsonData{
+        ArticleId: art.ID,
+        ModelId:   art.ModelId,
+        Data:      make(map[string]any),
+    }
+    modelResult := make([]*model.ArticleModelData, 0, len(schema))
+    
+    for _, def := range schema {
         value := data[def.FieldKey]
         
         v, err := artAssembler.NewValue(def.Type, value)
@@ -90,23 +166,24 @@ func (s Article) transformModelDataWithVerify(ctx context.Context, art model.Art
             return nil, nil, erroz.ArticleModelDataInvalidType.Format(def.FieldName).ToError()
         }
         
-        if err := article.NewModelValue(artAssembler.NewRules(def), v).IsValid(); err != nil {
+        artModel := artDomain.NewModelValue(artAssembler.NewRules(def), v)
+        if err := artModel.IsValid(); err != nil {
             return nil, nil, err
         }
         
-        scannableModelData, persistModelData := artAssembler.NewModelData(model.ArticleModelData{
+        modelData := artAssembler.NewModelData(&model.ArticleModelData{
             ModelId:   art.ModelId,
             ArticleId: art.ID,
             FieldKey:  def.FieldKey,
             Type:      def.Type,
         })
-        if err := v.Assign(scannableModelData); err != nil {
+        if err := artModel.Assign(modelData); err != nil {
             return nil, nil, err
         }
         
-        jsonMapResult[def.FieldKey] = value
-        modelResult = append(modelResult, persistModelData)
+        jsonResult.Data[def.FieldKey] = value
+        modelResult = append(modelResult, modelData.Model())
     }
     
-    return jsonMapResult, modelResult, nil
+    return jsonResult, modelResult, nil
 }

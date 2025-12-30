@@ -5,27 +5,27 @@ import `dpcms/internal/app/erroz`
 type Status int8
 
 const (
-    // Draft 草稿状态
-    Draft Status = iota
-    // Pending 待审核
-    Pending
-    // Published 已发布
-    Published
-    // Offline 已下线
-    Offline
-    // Reject 审核拒绝
-    Reject
-    // PendingRepublish 编辑后等待重新审核
-    PendingRepublish
+    // StatusDraft 草稿状态
+    StatusDraft Status = iota
+    // StatusPending 待审核
+    StatusPending
+    // StatusPublished 已发布
+    StatusPublished
+    // StatusOffline 已下线
+    StatusOffline
+    // StatusReject 审核拒绝
+    StatusReject
+    // StatusPendingRepublish 编辑后等待重新审核
+    StatusPendingRepublish
 )
 
 var stateMachine = map[Status]struct {
     From  Status
     Error error
 }{
-    Pending:          {From: Draft, Error: erroz.ArticleSubmitStatusNotAllowed.ToError()},
-    Published:        {From: Pending, Error: erroz.ArticlePublishStatusNotAllowed.ToError()},
-    Offline:          {From: Published, Error: erroz.ArticleOfflineStatusNotAllowed.ToError()},
-    Reject:           {From: Pending, Error: erroz.ArticleRejectStatusNotAllowed.ToError()},
-    PendingRepublish: {From: Published, Error: erroz.ArticleRepublishStatusNotAllowed.ToError()},
+    StatusPending:          {From: StatusDraft, Error: erroz.ArticleSubmitStatusNotAllowed.ToError()},
+    StatusPublished:        {From: StatusPending, Error: erroz.ArticlePublishStatusNotAllowed.ToError()},
+    StatusOffline:          {From: StatusPublished, Error: erroz.ArticleOfflineStatusNotAllowed.ToError()},
+    StatusReject:           {From: StatusPending, Error: erroz.ArticleRejectStatusNotAllowed.ToError()},
+    StatusPendingRepublish: {From: StatusPublished, Error: erroz.ArticleRepublishStatusNotAllowed.ToError()},
 }

@@ -4,7 +4,7 @@
 //go:build !wireinject
 // +build !wireinject
 
-package main
+package app
 
 import (
 	"dpcms/internal/app/controller"
@@ -21,6 +21,7 @@ import (
 	"dpcms/internal/infra/hashids"
 	"dpcms/internal/infra/logger"
 	"dpcms/internal/infra/persistence"
+	"dpcms/internal/infra/persistence/repo"
 )
 
 // Injectors from wire.go:
@@ -70,8 +71,14 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		return nil, err
 	}
 	menu := service.NewMenuService(infraInfra)
-	article := service.NewArticle(query)
-	contentModel := service.NewContentModel(infraInfra)
+	article := repo.NewArticle(query)
+	articleModel := repo.NewArticleModel(query)
+	repoRepo := &repo.Repo{
+		Article:      article,
+		ArticleModel: articleModel,
+	}
+	serviceArticle := service.NewArticle(repoRepo, query)
+	serviceArticleModel := service.NewContentModel(query)
 	services := &service.Services{
 		Category:     category,
 		User:         user,
@@ -79,8 +86,8 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		RBAC:         rbac,
 		Role:         role,
 		Menu:         menu,
-		Article:      article,
-		ContentModel: contentModel,
+		Article:      serviceArticle,
+		ContentModel: serviceArticleModel,
 	}
 	userController := controller.NewUserController(services, infraInfra)
 	menuController := controller.NewMenuController(services)

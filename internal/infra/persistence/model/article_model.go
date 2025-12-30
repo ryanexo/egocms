@@ -10,9 +10,9 @@ import (
 
 type ArticleModel struct {
     Base
-    Name        string               `gorm:"type:varchar(255);not null" json:"name"`
-    Description string               `gorm:"type:varchar(255);not null" json:"description"`
-    Definition  []ArticleModelSchema `gorm:"foreignKey:ModelId;referenceKey:ID"`
+    Name        string                `gorm:"type:varchar(255);not null" json:"name"`
+    Description string                `gorm:"type:varchar(255);not null" json:"description"`
+    Definition  []*ArticleModelSchema `gorm:"foreignKey:ModelId;referenceKey:ID"`
 }
 
 type ArticleModelJsonData struct {
@@ -47,7 +47,7 @@ type ArticleModelData struct {
     ID          uint64              `gorm:"primaryKey"`
     ModelId     uint64              `gorm:"index:idx_art,priority:1"`
     ArticleId   uint64              `gorm:"index:idx_art,priority:2"`
-    FieldKey    string              `gorm:"type:varchar(255)"`
+    FieldKey    string              `gorm:"index:idx_art,priority:3;type:varchar(255)"`
     Type        int16               `gorm:"type:smallint;not null"`
     ValueString sql.NullString      `gorm:"type:varchar(255)"`
     ValueBool   sql.NullBool        `gorm:"type:bool"`

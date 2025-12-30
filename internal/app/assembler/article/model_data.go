@@ -29,12 +29,10 @@ func (m *ModelData) ScanTime(value any) error {
     return s.ValueTime.Scan(value)
 }
 
-func NewModelData(defaultValue model.ArticleModelData) (*ModelData, *model.ArticleModelData) {
-    persist := &model.ArticleModelData{
-        ModelId:   defaultValue.ModelId,
-        ArticleId: defaultValue.ArticleId,
-        FieldKey:  defaultValue.FieldKey,
-        Type:      defaultValue.Type,
-    }
-    return (*ModelData)(persist), persist
+func (m *ModelData) Model() *model.ArticleModelData {
+    return (*model.ArticleModelData)(m)
+}
+
+func NewModelData(data *model.ArticleModelData) *ModelData {
+    return (*ModelData)(data)
 }
