@@ -30,8 +30,8 @@ func (s Article) Create(ctx context.Context, params dto.ArticleCreateParams) err
         Content:     model.ArticleContent{Content: params.Content},
     }
     
+    idInt, err := params.ModelId.Uint64()
     if params.ModelId != nil {
-        idInt, err := params.ModelId.Uint64()
         if err != nil {
             return err
         }
@@ -48,7 +48,7 @@ func (s Article) Create(ctx context.Context, params dto.ArticleCreateParams) err
         }
         
         artModelRepo := repo.NewArticleModel(tx)
-        schema, err := artModelRepo.FindSchema(ctx, artModel.ModelId)
+        schema, err := artModelRepo.FindAllSchema(ctx, artModel.ModelId)
         if err != nil {
             return err
         }
@@ -126,7 +126,7 @@ func (s Article) Update(ctx context.Context, data dto.ArticleUpdateParams) error
         }
         
         artModelRepo := repo.NewArticleModel(tx)
-        schema, txErr := artModelRepo.FindSchema(ctx, rawArt.ModelId)
+        schema, txErr := artModelRepo.FindAllSchema(ctx, rawArt.ModelId)
         if txErr != nil {
             return txErr
         }
@@ -150,23 +150,46 @@ func (s Article) Update(ctx context.Context, data dto.ArticleUpdateParams) error
     })
 }
 
-func (s Article) buildArticleModelData(art *model.Article, schema []*model.ArticleModelSchema, data map[string]any) (*model.ArticleModelJsonData, []*model.ArticleModelData, error) {
+func (s Article) Delete(ctx context.Context, id uint64) error {
+    return s.query.Transaction(func(tx *query.Query) error {
+        artRepo := repo.NewArticle(s.query)
+        err := artRepo.DeleteArticle(ctx, id)
+        if err != nil {
+            return err
+        }
+        err = artRepo.DeleteContent(ctx, id)
+        if err != nil {
+            return err
+        }
+        err = artRepo.DeleteKeywords(ctx, id)
+        if err != nil {
+            return err
+        }
+        err = repo.NewArticleModel(s.query).DeleteArticleData(ctx, id)
+        if err != nil {
+            return err
+        }
+        return nil
+    })
+}
+
+func (s Article) buildArticleModelData(art *model.Article, schemas []*model.ArticleModelSchema, data map[string]any) (*model.ArticleModelJsonData, []*model.ArticleModelData, error) {
     jsonResult := &model.ArticleModelJsonData{
         ArticleId: art.ID,
         ModelId:   art.ModelId,
         Data:      make(map[string]any),
     }
-    modelResult := make([]*model.ArticleModelData, 0, len(schema))
+    modelResult := make([]*model.ArticleModelData, 0, len(schemas))
     
-    for _, def := range schema {
-        value := data[def.FieldKey]
+    for _, schema := range schemas {
+        value := data[schema.FieldKey]
         
-        v, err := artAssembler.NewValue(def.Type, value)
+        v, err := artAssembler.NewValue(schema.Type, value)
         if err != nil {
-            return nil, nil, erroz.ArticleModelDataInvalidType.Format(def.FieldName).ToError()
+            return nil, nil, erroz.ArticleModelDataInvalidType.Format(schema.FieldName).ToError()
         }
         
-        artModel := artDomain.NewModelValue(artAssembler.NewRules(def), v)
+        artModel := artDomain.NewModelValue(artAssembler.NewRules(schema), v)
         if err := artModel.IsValid(); err != nil {
             return nil, nil, err
         }
@@ -174,14 +197,15 @@ func (s Article) buildArticleModelData(art *model.Article, schema []*model.Artic
         modelData := artAssembler.NewModelData(&model.ArticleModelData{
             ModelId:   art.ModelId,
             ArticleId: art.ID,
-            FieldKey:  def.FieldKey,
-            Type:      def.Type,
+            FieldKey:  schema.FieldKey,
+            FieldName: schema.FieldName,
+            Type:      schema.Type,
         })
         if err := artModel.Assign(modelData); err != nil {
             return nil, nil, err
         }
         
-        jsonResult.Data[def.FieldKey] = value
+        jsonResult.Data[schema.FieldKey] = value
         modelResult = append(modelResult, modelData.Model())
     }
     

@@ -1,6 +1,6 @@
 //go:build wireinject
 
-package app
+package main
 
 import (
     `dpcms/internal/app/controller`

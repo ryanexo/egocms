@@ -47,6 +47,7 @@ type ArticleModelData struct {
     ID          uint64              `gorm:"primaryKey"`
     ModelId     uint64              `gorm:"index:idx_art,priority:1"`
     ArticleId   uint64              `gorm:"index:idx_art,priority:2"`
+    FieldName   string              `gorm:"type:varchar(255)"`
     FieldKey    string              `gorm:"index:idx_art,priority:3;type:varchar(255)"`
     Type        int16               `gorm:"type:smallint;not null"`
     ValueString sql.NullString      `gorm:"type:varchar(255)"`

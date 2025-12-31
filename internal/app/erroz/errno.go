@@ -6,10 +6,9 @@ import (
 )
 
 var (
-    OK                = New(Code(errmod.Server, errtype.OK, 0), "成功")
-    Unknown           = New(Code(errmod.Server, errtype.Unknown, 0), "系统异常")
-    DataNotFound      = New(Code(errmod.Server, errtype.NotFound, 0), "数据不存在")
-    ConvertTypeFailed = New(Code(errmod.Server, errtype.Parameter, 0), "数据不存在")
+    OK           = New(Code(errmod.Server, errtype.OK, 0), "成功")
+    Unknown      = New(Code(errmod.Server, errtype.Unknown, 0), "系统异常")
+    DataNotFound = New(Code(errmod.Server, errtype.NotFound, 0), "数据不存在")
     
     ValidationFailed = New(Code(errmod.Client, errtype.Parameter, 0), "参数错误")
     

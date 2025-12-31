@@ -2,15 +2,12 @@ package service
 
 import (
     `context`
-    `strconv`
     
     `dpcms/internal/app/dto`
-    `dpcms/internal/app/erroz`
     `dpcms/internal/app/util/copierutil`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
-    
-    `github.com/jinzhu/copier`
+    `dpcms/internal/infra/persistence/repo`
 )
 
 type ArticleModel struct {
@@ -27,12 +24,12 @@ func (s ArticleModel) Create(ctx context.Context, params dto.ArticleModelCreateP
     return &m, err
 }
 
-func (s ArticleModel) UpdateDefinition(ctx context.Context, params dto.ArticleModelSchemaUpdateParams) error {
+func (s ArticleModel) UpdateSchemas(ctx context.Context, params dto.ArticleModelSchemaUpdateParams) error {
     modelDao := s.persist.ArticleModel
     
-    modelId, err := strconv.ParseUint(string(params.ModelId), 10, 64)
+    modelId, err := params.ModelId.Uint64()
     if err != nil {
-        return erroz.ConvertTypeFailed.Wrap(err).ToError()
+        return err
     }
     
     _, err = s.persist.ArticleModel.WithContext(ctx).Where(modelDao.ID.Eq(modelId)).First()
@@ -40,49 +37,68 @@ func (s ArticleModel) UpdateDefinition(ctx context.Context, params dto.ArticleMo
         return err
     }
     
-    defCount := len(params.Data)
+    schemaCount := len(params.Data)
+    appendSchemas := make([]*model.ArticleModelSchema, 0, schemaCount)
+    updateSchemas := make([]*model.ArticleModelSchema, 0, schemaCount)
     
-    appendDefs := make([]*model.ArticleModelSchema, 0, defCount)
-    updateDefs := make([]*model.ArticleModelSchema, 0, defCount)
-    
-    for _, defParams := range params.Data {
-        tmpDef := &model.ArticleModelSchema{ModelId: modelId}
-        err := copier.Copy(&tmpDef, defParams)
+    for _, schemaParams := range params.Data {
+        tmpSchema := &model.ArticleModelSchema{ModelId: modelId}
+        err := copierutil.CopyWithIdConverter(&tmpSchema, &schemaParams)
         if err != nil {
             return err
         }
         
-        if defParams.ID != nil {
-            updateDefs = append(updateDefs, tmpDef)
+        if schemaParams.ID != nil {
+            updateSchemas = append(updateSchemas, tmpSchema)
         } else {
-            appendDefs = append(appendDefs, tmpDef)
+            appendSchemas = append(appendSchemas, tmpSchema)
         }
     }
     
     return s.persist.Transaction(func(tx *query.Query) error {
         defDao := tx.WithContext(ctx).ArticleModelSchema
         
-        for _, def := range updateDefs {
+        for _, def := range updateSchemas {
             _, err := defDao.Updates(def)
             if err != nil {
                 return err
             }
         }
         
-        return defDao.CreateInBatches(appendDefs, 500)
+        return defDao.CreateInBatches(appendSchemas, 500)
     })
 }
 
-func (s ArticleModel) FindDefinitionList(ctx context.Context, id uint64) ([]*dto.ArticleModelSchemaParams, error) {
-    defs, err := s.persist.WithContext(ctx).ArticleModelSchema.Where(s.persist.ArticleModelSchema.ModelId.Eq(id)).Find()
+func (s ArticleModel) FindAllSchema(ctx context.Context, id uint64) ([]*dto.ArticleModelSchemaParams, error) {
+    schemas, err := repo.NewArticleModel(s.persist).FindAllSchema(ctx, id)
+    if err != nil {
+        return nil, err
+    }
+    result := make([]*dto.ArticleModelSchemaParams, 0, len(schemas))
+    
+    err = copierutil.CopyWithIdConverter(&result, &schemas)
     if err != nil {
         return nil, err
     }
     
-    result := make([]*dto.ArticleModelSchemaParams, 0, len(defs))
-    err = copier.Copy(&result, &defs)
-    if err != nil {
-        return nil, err
-    }
     return result, nil
+}
+
+func (s ArticleModel) DeleteSchema(ctx context.Context, schemaId uint64) error {
+    return repo.NewArticleModel(s.persist).DeleteSchema(ctx, schemaId)
+}
+
+func (s ArticleModel) DeleteModel(ctx context.Context, modelId uint64) error {
+    return s.persist.Transaction(func(tx *query.Query) error {
+        modelRepo := repo.NewArticleModel(s.persist)
+        txErr := modelRepo.DeleteModel(ctx, modelId)
+        if txErr != nil {
+            return txErr
+        }
+        txErr = modelRepo.DeleteAllSchema(ctx, modelId)
+        if txErr != nil {
+            return txErr
+        }
+        return nil
+    })
 }

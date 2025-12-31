@@ -1,18 +1,17 @@
 package main
 
 import (
-    `dpcms/cmd/app`
     `dpcms/internal/config`
 )
 
 var appConfig = config.NewWithBasicConfig()
 
 func main() {
-    err := app.registerCommand()
+    err := registerCommand()
     if err != nil {
         panic(err)
     }
-    launcher, err := app.createHttpServer(appConfig)
+    launcher, err := createHttpServer(appConfig)
     if err != nil {
         panic(err)
     }

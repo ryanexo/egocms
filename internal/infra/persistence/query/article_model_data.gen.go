@@ -30,6 +30,7 @@ func newArticleModelData(db *gorm.DB, opts ...gen.DOOption) articleModelData {
 	_articleModelData.ID = field.NewUint64(tableName, "id")
 	_articleModelData.ModelId = field.NewUint64(tableName, "model_id")
 	_articleModelData.ArticleId = field.NewUint64(tableName, "article_id")
+	_articleModelData.FieldName = field.NewString(tableName, "field_name")
 	_articleModelData.FieldKey = field.NewString(tableName, "field_key")
 	_articleModelData.Type = field.NewInt16(tableName, "type")
 	_articleModelData.ValueString = field.NewField(tableName, "value_string")
@@ -49,6 +50,7 @@ type articleModelData struct {
 	ID          field.Uint64
 	ModelId     field.Uint64
 	ArticleId   field.Uint64
+	FieldName   field.String
 	FieldKey    field.String
 	Type        field.Int16
 	ValueString field.Field
@@ -74,6 +76,7 @@ func (a *articleModelData) updateTableName(table string) *articleModelData {
 	a.ID = field.NewUint64(table, "id")
 	a.ModelId = field.NewUint64(table, "model_id")
 	a.ArticleId = field.NewUint64(table, "article_id")
+	a.FieldName = field.NewString(table, "field_name")
 	a.FieldKey = field.NewString(table, "field_key")
 	a.Type = field.NewInt16(table, "type")
 	a.ValueString = field.NewField(table, "value_string")
@@ -108,10 +111,11 @@ func (a *articleModelData) GetFieldByName(fieldName string) (field.OrderExpr, bo
 }
 
 func (a *articleModelData) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 9)
+	a.fieldMap = make(map[string]field.Expr, 10)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["model_id"] = a.ModelId
 	a.fieldMap["article_id"] = a.ArticleId
+	a.fieldMap["field_name"] = a.FieldName
 	a.fieldMap["field_key"] = a.FieldKey
 	a.fieldMap["type"] = a.Type
 	a.fieldMap["value_string"] = a.ValueString

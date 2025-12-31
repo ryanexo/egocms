@@ -1,10 +1,9 @@
-package app
+package main
 
 import (
     "fmt"
     "os"
     
-    app2 `dpcms/cmd/app`
     "dpcms/internal/config"
     "dpcms/internal/httpserver"
     
@@ -63,7 +62,7 @@ func registerCommand() error {
         if err != nil {
             panic(err)
         }
-        app2.appConfig = cfg
+        appConfig = cfg
     }
     
     return nil

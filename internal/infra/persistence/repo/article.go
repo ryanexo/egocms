@@ -13,37 +13,37 @@ type Article struct {
     persist *query.Query
 }
 
-func NewArticle(persist *query.Query) *Article {
-    return &Article{persist}
+func NewArticle(persist *query.Query) Article {
+    return Article{persist}
 }
 
-func (r *Article) Create(ctx context.Context, article *model.Article) error {
+func (r Article) Create(ctx context.Context, article *model.Article) error {
     return r.persist.Article.WithContext(ctx).Create(article)
 }
 
-func (r *Article) Update(ctx context.Context, article *model.Article) error {
+func (r Article) FindById(ctx context.Context, id uint64) (*model.Article, error) {
+    artModel := r.persist.Article
+    return artModel.WithContext(ctx).Preload(artModel.Keywords, artModel.ModelData).Where(artModel.ID.Eq(id)).First()
+}
+
+func (r Article) FindByIdWithContent(ctx context.Context, id uint64) (*model.Article, error) {
+    artModel := r.persist.Article
+    return artModel.WithContext(ctx).Preload(field.Associations).Where(artModel.ID.Eq(id)).First()
+}
+
+func (r Article) Update(ctx context.Context, article *model.Article) error {
     _, err := r.persist.Article.WithContext(ctx).Where(r.persist.Article.ID.Eq(article.ID)).Updates(article)
     return err
 }
 
-func (r *Article) UpdateContent(ctx context.Context, id uint64, content string) error {
+func (r Article) UpdateContent(ctx context.Context, id uint64, content string) error {
     contentModel := r.persist.ArticleContent
     _, err := contentModel.WithContext(ctx).Where(contentModel.ArticleID.Eq(id)).Update(contentModel.Content, content)
     return err
 }
 
-func (r *Article) FindById(ctx context.Context, id uint64) (*model.Article, error) {
-    artModel := r.persist.Article
-    return artModel.WithContext(ctx).Preload(artModel.Keywords, artModel.ModelData).Where(artModel.ID.Eq(id)).First()
-}
-
-func (r *Article) FindByIdWithContent(ctx context.Context, id uint64) (*model.Article, error) {
-    artModel := r.persist.Article
-    return artModel.WithContext(ctx).Preload(field.Associations).Where(artModel.ID.Eq(id)).First()
-}
-
-func (r *Article) UpdateKeywords(ctx context.Context, id uint64, keywords []string) error {
-    _, err := r.persist.ArticleKeywords.WithContext(ctx).Where(r.persist.ArticleKeywords.ArticleID.Eq(id)).Delete()
+func (r Article) UpdateKeywords(ctx context.Context, id uint64, keywords []string) error {
+    err := r.DeleteKeywords(ctx, id)
     if err != nil {
         return err
     }
@@ -57,4 +57,19 @@ func (r *Article) UpdateKeywords(ctx context.Context, id uint64, keywords []stri
     }
     
     return nil
+}
+
+func (r Article) DeleteArticle(ctx context.Context, id uint64) error {
+    _, err := r.persist.Article.WithContext(ctx).Where(r.persist.Article.ID.Eq(id)).Delete()
+    return err
+}
+
+func (r Article) DeleteContent(ctx context.Context, id uint64) error {
+    _, err := r.persist.ArticleContent.WithContext(ctx).Where(r.persist.ArticleContent.ArticleID.Eq(id)).Delete()
+    return err
+}
+
+func (r Article) DeleteKeywords(ctx context.Context, id uint64) error {
+    _, err := r.persist.ArticleKeywords.WithContext(ctx).Where(r.persist.ArticleKeywords.ArticleID.Eq(id)).Delete()
+    return err
 }
