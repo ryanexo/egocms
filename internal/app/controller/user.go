@@ -120,13 +120,13 @@ func (c UserController) Profile(ctx *gin.Context) {
 }
 
 func (c UserController) Detail(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.QueryByResourceID](ctx, func(params dto.QueryByResourceID) (any, error) {
+    httpbinding.BindJSON[dto.ResourceID](ctx, func(params dto.ResourceID) (any, error) {
         return c.services.User.FindByID(ctx, params.ID)
     })
 }
 
 func (c UserController) Delete(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.QueryByResourceID](ctx, func(params dto.QueryByResourceID) (any, error) {
+    httpbinding.BindJSON[dto.ResourceID](ctx, func(params dto.ResourceID) (any, error) {
         return nil, c.services.User.Delete(ctx, params.ID)
     })
 }

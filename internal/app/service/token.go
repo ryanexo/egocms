@@ -9,6 +9,7 @@ import (
     `dpcms/internal/app/service/internal/token`
     `dpcms/internal/config`
     `dpcms/internal/infra`
+    `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
     
@@ -28,7 +29,7 @@ func NewTokenService(config *config.Config, i *infra.Infra) *Token {
     return &Token{persist: i.Query, config: config}
 }
 
-func (srv Token) Create(userId uint64) (string, error) {
+func (srv Token) Create(userId datatype.SafeUint64) (string, error) {
     uuid, err := uuid.NewV7()
     if err != nil {
         return "", err
@@ -44,16 +45,16 @@ func (srv Token) Create(userId uint64) (string, error) {
     }).SignedString(tokenKey)
 }
 
-func (srv Token) isRevoked(ctx context.Context, userId uint64, uuid string, expires int) (bool, error) {
+func (srv Token) isRevoked(ctx context.Context, userId datatype.SafeUint64, uuid string, expires int) (bool, error) {
     isRevoked := true
     err := srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
         dao := tx.TokenBlacklist
-        _, err := queryCtx.TokenBlacklist.Clauses(clause.Locking{Strength: "UPDATE"}).Where(dao.UserId.Eq(userId)).Select(field.NewUnsafeFieldRaw("1")).Find()
+        _, err := queryCtx.TokenBlacklist.Clauses(clause.Locking{Strength: "UPDATE"}).Where(dao.UserId.Eq(userId.Raw())).Select(field.NewUnsafeFieldRaw("1")).Find()
         if err != nil {
             return err
         }
-        token, err := queryCtx.TokenBlacklist.Where(dao.UserId.Eq(userId), dao.UUID.Eq(uuid)).First()
+        token, err := queryCtx.TokenBlacklist.Where(dao.UserId.Eq(userId.Raw()), dao.UUID.Eq(uuid)).First()
         if err != nil {
             if errors.Is(err, gorm.ErrRecordNotFound) {
                 isRevoked = false
@@ -104,7 +105,7 @@ func (srv Token) GetUserFromToken(ctx context.Context, tokenString string) (*mod
         return nil, err
     }
     uo := srv.persist.User
-    return uo.WithContext(ctx).Preload(uo.Profile).Where(uo.ID.Eq(claims.UserID)).First()
+    return uo.WithContext(ctx).Preload(uo.Profile).Where(uo.ID.Eq(claims.UserID.Raw())).First()
 }
 
 func (srv Token) Revoke(ctx context.Context, tokenString string) error {

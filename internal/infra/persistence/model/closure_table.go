@@ -1,5 +1,7 @@
 package model
 
+import `dpcms/internal/infra/persistence/datatype`
+
 type ClosureTable interface {
     // INSERT INTO @@table (ancestor, descendant, distance)
     // SELECT @id, @id, 0, @ancestor
@@ -31,7 +33,7 @@ type ClosureTable interface {
 }
 
 type ClosureTableModel struct {
-    Ancestor   uint64 `gorm:"not null;index:idx_relationships;priority:1"`
-    Descendant uint64 `gorm:"not null;index:idx_relationships;priority:2"`
-    Distance   uint64 `gorm:"not null"`
+    Ancestor   datatype.SafeUint64 `gorm:"not null;index:,composite:ct;priority:1"`
+    Descendant datatype.SafeUint64 `gorm:"not null;index:,composite:ct;priority:2"`
+    Distance   datatype.SafeUint64 `gorm:"not null"`
 }

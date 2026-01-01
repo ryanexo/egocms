@@ -33,10 +33,10 @@ func newArticleModel(db *gorm.DB, opts ...gen.DOOption) articleModel {
 	_articleModel.DeletedAt = field.NewField(tableName, "deleted_at")
 	_articleModel.Name = field.NewString(tableName, "name")
 	_articleModel.Description = field.NewString(tableName, "description")
-	_articleModel.Definition = articleModelHasManyDefinition{
+	_articleModel.Schema = articleModelHasManySchema{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("Definition", "model.ArticleModelSchema"),
+		RelationField: field.NewRelation("Schema", "model.ArticleModelSchema"),
 	}
 
 	_articleModel.fillFieldMap()
@@ -54,7 +54,7 @@ type articleModel struct {
 	DeletedAt   field.Field
 	Name        field.String
 	Description field.String
-	Definition  articleModelHasManyDefinition
+	Schema      articleModelHasManySchema
 
 	fieldMap map[string]field.Expr
 }
@@ -117,24 +117,24 @@ func (a *articleModel) fillFieldMap() {
 
 func (a articleModel) clone(db *gorm.DB) articleModel {
 	a.articleModelDo.ReplaceConnPool(db.Statement.ConnPool)
-	a.Definition.db = db.Session(&gorm.Session{Initialized: true})
-	a.Definition.db.Statement.ConnPool = db.Statement.ConnPool
+	a.Schema.db = db.Session(&gorm.Session{Initialized: true})
+	a.Schema.db.Statement.ConnPool = db.Statement.ConnPool
 	return a
 }
 
 func (a articleModel) replaceDB(db *gorm.DB) articleModel {
 	a.articleModelDo.ReplaceDB(db)
-	a.Definition.db = db.Session(&gorm.Session{})
+	a.Schema.db = db.Session(&gorm.Session{})
 	return a
 }
 
-type articleModelHasManyDefinition struct {
+type articleModelHasManySchema struct {
 	db *gorm.DB
 
 	field.RelationField
 }
 
-func (a articleModelHasManyDefinition) Where(conds ...field.Expr) *articleModelHasManyDefinition {
+func (a articleModelHasManySchema) Where(conds ...field.Expr) *articleModelHasManySchema {
 	if len(conds) == 0 {
 		return &a
 	}
@@ -147,32 +147,32 @@ func (a articleModelHasManyDefinition) Where(conds ...field.Expr) *articleModelH
 	return &a
 }
 
-func (a articleModelHasManyDefinition) WithContext(ctx context.Context) *articleModelHasManyDefinition {
+func (a articleModelHasManySchema) WithContext(ctx context.Context) *articleModelHasManySchema {
 	a.db = a.db.WithContext(ctx)
 	return &a
 }
 
-func (a articleModelHasManyDefinition) Session(session *gorm.Session) *articleModelHasManyDefinition {
+func (a articleModelHasManySchema) Session(session *gorm.Session) *articleModelHasManySchema {
 	a.db = a.db.Session(session)
 	return &a
 }
 
-func (a articleModelHasManyDefinition) Model(m *model.ArticleModel) *articleModelHasManyDefinitionTx {
-	return &articleModelHasManyDefinitionTx{a.db.Model(m).Association(a.Name())}
+func (a articleModelHasManySchema) Model(m *model.ArticleModel) *articleModelHasManySchemaTx {
+	return &articleModelHasManySchemaTx{a.db.Model(m).Association(a.Name())}
 }
 
-func (a articleModelHasManyDefinition) Unscoped() *articleModelHasManyDefinition {
+func (a articleModelHasManySchema) Unscoped() *articleModelHasManySchema {
 	a.db = a.db.Unscoped()
 	return &a
 }
 
-type articleModelHasManyDefinitionTx struct{ tx *gorm.Association }
+type articleModelHasManySchemaTx struct{ tx *gorm.Association }
 
-func (a articleModelHasManyDefinitionTx) Find() (result []*model.ArticleModelSchema, err error) {
+func (a articleModelHasManySchemaTx) Find() (result []*model.ArticleModelSchema, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a articleModelHasManyDefinitionTx) Append(values ...*model.ArticleModelSchema) (err error) {
+func (a articleModelHasManySchemaTx) Append(values ...*model.ArticleModelSchema) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -180,7 +180,7 @@ func (a articleModelHasManyDefinitionTx) Append(values ...*model.ArticleModelSch
 	return a.tx.Append(targetValues...)
 }
 
-func (a articleModelHasManyDefinitionTx) Replace(values ...*model.ArticleModelSchema) (err error) {
+func (a articleModelHasManySchemaTx) Replace(values ...*model.ArticleModelSchema) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -188,7 +188,7 @@ func (a articleModelHasManyDefinitionTx) Replace(values ...*model.ArticleModelSc
 	return a.tx.Replace(targetValues...)
 }
 
-func (a articleModelHasManyDefinitionTx) Delete(values ...*model.ArticleModelSchema) (err error) {
+func (a articleModelHasManySchemaTx) Delete(values ...*model.ArticleModelSchema) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -196,15 +196,15 @@ func (a articleModelHasManyDefinitionTx) Delete(values ...*model.ArticleModelSch
 	return a.tx.Delete(targetValues...)
 }
 
-func (a articleModelHasManyDefinitionTx) Clear() error {
+func (a articleModelHasManySchemaTx) Clear() error {
 	return a.tx.Clear()
 }
 
-func (a articleModelHasManyDefinitionTx) Count() int64 {
+func (a articleModelHasManySchemaTx) Count() int64 {
 	return a.tx.Count()
 }
 
-func (a articleModelHasManyDefinitionTx) Unscoped() *articleModelHasManyDefinitionTx {
+func (a articleModelHasManySchemaTx) Unscoped() *articleModelHasManySchemaTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }

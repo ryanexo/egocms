@@ -71,7 +71,7 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	}
 	menu := service.NewMenuService(infraInfra)
 	article := service.NewArticle(query)
-	articleModel := service.NewContentModel(query)
+	articleModel := service.NewArticleModel(query)
 	services := &service.Services{
 		Category:     category,
 		User:         user,
@@ -80,17 +80,19 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		Role:         role,
 		Menu:         menu,
 		Article:      article,
-		ContentModel: articleModel,
+		ArticleModel: articleModel,
 	}
 	userController := controller.NewUserController(services, infraInfra)
 	menuController := controller.NewMenuController(services)
 	categoryController := controller.NewCategoryController(services)
 	roleController := controller.NewRoleController(services)
+	articleModelController := controller.NewArticleModelController(services)
 	controllers := &controller.Controllers{
 		User:     userController,
 		Menu:     menuController,
 		Category: categoryController,
 		Role:     roleController,
+		Article:  articleModelController,
 	}
 	routes := controller.NewRouteRegistrar(controllers)
 	launcher, err := httpserver.New(httpserverConfig, httpserverMiddleware, routes)

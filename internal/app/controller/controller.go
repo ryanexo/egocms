@@ -16,6 +16,7 @@ var ControllerProvider = wire.NewSet(
     NewMenuController,
     NewCategoryController,
     NewRoleController,
+    NewArticleModelController,
 )
 
 type Controllers struct {
@@ -23,6 +24,7 @@ type Controllers struct {
     Menu     MenuController
     Category CategoryController
     Role     RoleController
+    Article  ArticleModelController
 }
 
 type IController interface {

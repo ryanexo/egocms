@@ -3,6 +3,7 @@ package repo
 import (
     `context`
     
+    `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
 )
@@ -26,6 +27,12 @@ func (r ArticleModel) CreateModelTypedData(ctx context.Context, data []*model.Ar
     return r.persist.ArticleModelData.WithContext(ctx).Create(data...)
 }
 
+func (r ArticleModel) Update(ctx context.Context, data *model.ArticleModel) error {
+    m := r.persist.ArticleModel
+    _, err := m.WithContext(ctx).Updates(data)
+    return err
+}
+
 func (r ArticleModel) UpdateModelTypedData(ctx context.Context, data []*model.ArticleModelData) error {
     if len(data) == 0 {
         return nil
@@ -33,8 +40,8 @@ func (r ArticleModel) UpdateModelTypedData(ctx context.Context, data []*model.Ar
     typedModel := r.persist.ArticleModelData
     for _, item := range data {
         _, err := typedModel.WithContext(ctx).Where(
-            typedModel.ModelId.Eq(item.ModelId),
-            typedModel.ArticleId.Eq(item.ArticleId),
+            typedModel.ModelId.Eq(item.ModelId.Raw()),
+            typedModel.ArticleId.Eq(item.ArticleId.Raw()),
             typedModel.FieldKey.Eq(item.FieldKey),
         ).Updates(item)
         
@@ -48,41 +55,40 @@ func (r ArticleModel) UpdateModelTypedData(ctx context.Context, data []*model.Ar
 func (r ArticleModel) UpdateModelJsonData(ctx context.Context, data *model.ArticleModelJsonData) error {
     jsonModel := r.persist.ArticleModelJsonData
     _, err := jsonModel.WithContext(ctx).Where(
-        jsonModel.ModelId.Eq(data.ModelId),
-        jsonModel.ArticleId.Eq(data.ArticleId),
+        jsonModel.ModelId.Eq(data.ModelId.Raw()),
+        jsonModel.ArticleId.Eq(data.ArticleId.Raw()),
     ).Update(jsonModel.Data, data.Data)
     return err
 }
 
-func (r ArticleModel) UpdateSchema(ctx context.Context, id uint64, data *model.ArticleModelSchema) error {
-    _, err := r.persist.ArticleModelSchema.WithContext(ctx).Updates(data)
-    return err
+func (r ArticleModel) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.ArticleModel, error) {
+    return r.persist.ArticleModel.WithContext(ctx).Where(r.persist.ArticleModel.ID.Eq(id.Raw())).First()
 }
 
-func (r ArticleModel) FindAllSchema(ctx context.Context, modelId uint64) ([]*model.ArticleModelSchema, error) {
+func (r ArticleModel) FindAllSchema(ctx context.Context, modelId datatype.SafeUint64) ([]*model.ArticleModelSchema, error) {
     schemaModel := r.persist.ArticleModelSchema
-    return schemaModel.WithContext(ctx).Where(schemaModel.ModelId.Eq(modelId)).Find()
+    return schemaModel.WithContext(ctx).Where(schemaModel.ModelId.Eq(modelId.Raw())).Find()
 }
 
-func (r ArticleModel) DeleteModel(ctx context.Context, modelId uint64) error {
-    _, err := r.persist.ArticleModel.WithContext(ctx).Where(r.persist.ArticleModel.ID.Eq(modelId)).Delete()
+func (r ArticleModel) DeleteModel(ctx context.Context, modelId datatype.SafeUint64) error {
+    _, err := r.persist.ArticleModel.WithContext(ctx).Where(r.persist.ArticleModel.ID.Eq(modelId.Raw())).Delete()
     return err
 }
 
-func (r ArticleModel) DeleteSchema(ctx context.Context, id uint64) error {
+func (r ArticleModel) DeleteSchema(ctx context.Context, id datatype.SafeUint64) error {
     m := r.persist.ArticleModelSchema
-    _, err := m.WithContext(ctx).Where(m.ModelId.Eq(id)).Delete()
+    _, err := m.WithContext(ctx).Where(m.ModelId.Eq(id.Raw())).Delete()
     return err
 }
 
-func (r ArticleModel) DeleteAllSchema(ctx context.Context, id uint64) error {
+func (r ArticleModel) DeleteAllSchema(ctx context.Context, id datatype.SafeUint64) error {
     m := r.persist.ArticleModelSchema
-    _, err := m.WithContext(ctx).Where(m.ModelId.Eq(id)).Delete()
+    _, err := m.WithContext(ctx).Where(m.ModelId.Eq(id.Raw())).Delete()
     return err
 }
 
-func (r ArticleModel) DeleteArticleData(ctx context.Context, articleId uint64) error {
+func (r ArticleModel) DeleteArticleData(ctx context.Context, articleId datatype.SafeUint64) error {
     m := r.persist.ArticleModelData
-    _, err := m.WithContext(ctx).Where(m.ArticleId.Eq(articleId)).Delete()
+    _, err := m.WithContext(ctx).Where(m.ArticleId.Eq(articleId.Raw())).Delete()
     return err
 }

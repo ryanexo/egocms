@@ -1,8 +1,12 @@
 package token
 
-import `github.com/golang-jwt/jwt/v5`
+import (
+    `dpcms/internal/infra/persistence/datatype`
+    
+    `github.com/golang-jwt/jwt/v5`
+)
 
 type UserToken struct {
     jwt.RegisteredClaims
-    UserID uint64 `json:"uid"`
+    UserID datatype.SafeUint64 `json:"uid"`
 }

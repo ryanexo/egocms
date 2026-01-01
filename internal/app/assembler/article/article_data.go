@@ -2,7 +2,7 @@ package article
 
 import (
     `dpcms/internal/app/dto`
-    `dpcms/internal/infra/persistence/customvalue`
+    `dpcms/internal/app/dto/type`
     `dpcms/internal/infra/persistence/model`
 )
 
@@ -17,14 +17,14 @@ type DataViewContext struct {
 
 func NewArticleBasicData(ctx DataViewContext) *dto.Article {
     keywords := make([]string, len(ctx.Keywords))
-    schema := make([]dto.ArticleModelSchema, len(ctx.Schema))
+    schema := make([]*dto.ArticleModelSchema, len(ctx.Schema))
     
     for _, keyword := range ctx.Keywords {
         keywords = append(keywords, keyword.Keyword)
     }
     
     for _, modelSchema := range ctx.Schema {
-        schema = append(schema, dto.ArticleModelSchema{
+        schema = append(schema, &dto.ArticleModelSchema{
             FieldKey:  modelSchema.FieldKey,
             FieldName: modelSchema.FieldName,
             Type:      modelSchema.Type,
@@ -33,20 +33,24 @@ func NewArticleBasicData(ctx DataViewContext) *dto.Article {
     }
     
     return &dto.Article{
-        Base:         ctx.Article.Base,
+        Base: dtotype.Base{
+            ID:        ctx.Article.Base.ID,
+            CreatedAt: ctx.Article.Base.CreatedAt,
+            UpdatedAt: ctx.Article.Base.UpdatedAt,
+        },
         Url:          ctx.Article.Url,
-        CategoryId:   customvalue.NewUint64String(ctx.Category.ID),
+        CategoryId:   ctx.Category.ID,
         CategoryName: ctx.Category.Name,
-        AuthorId:     customvalue.NewUint64String(ctx.Author.ID),
+        AuthorId:     ctx.Author.ID,
         AuthorName:   ctx.Author.Nickname,
         Flag:         ctx.Article.Flag,
         Title:        ctx.Article.Title,
         Description:  ctx.Article.Description,
-        ClickCount:   customvalue.NewUint64String(ctx.Article.ClickCount),
+        ClickCount:   ctx.Article.ClickCount,
         Status:       ctx.Article.Status,
         Target:       ctx.Article.Target.String,
         Keywords:     keywords,
-        ModelId:      customvalue.NewUint64String(ctx.Article.ModelId),
+        ModelId:      ctx.Article.ModelId,
         ModelSchema:  schema,
         ModelData:    ctx.ModelData,
     }

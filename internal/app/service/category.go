@@ -11,6 +11,7 @@ import (
     `dpcms/internal/app/util/gormutil`
     `dpcms/internal/infra`
     `dpcms/internal/infra/persistence/dbscope`
+    `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
     
@@ -39,7 +40,7 @@ func (srv Category) Create(ctx context.Context, createParams dto.CategoryCreateP
             return txErr
         }
         
-        txErr = queryCtx.CategoryContext.CreateSubtree(category.ID, category.ParentID)
+        txErr = queryCtx.CategoryContext.CreateSubtree(category.ID.Raw(), category.ParentID.Raw())
         if txErr != nil {
             return txErr
         }
@@ -55,7 +56,7 @@ func (srv Category) Create(ctx context.Context, createParams dto.CategoryCreateP
 func (srv Category) Update(ctx context.Context, category dto.CategoryUpdateParams) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
-        _, err := queryCtx.Category.Where(tx.Category.ID.Eq(category.ID)).First()
+        _, err := queryCtx.Category.Where(tx.Category.ID.Eq(category.ID.Raw())).First()
         if err != nil {
             return err
         }
@@ -64,7 +65,7 @@ func (srv Category) Update(ctx context.Context, category dto.CategoryUpdateParam
     })
 }
 
-func (srv Category) Delete(ctx context.Context, id uint64) error {
+func (srv Category) Delete(ctx context.Context, id datatype.SafeUint64) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
         ctxDao := tx.CategoryContext
         
@@ -75,7 +76,7 @@ func (srv Category) Delete(ctx context.Context, id uint64) error {
         if err != nil {
             return err
         }
-        err = tx.WithContext(ctx).CategoryContext.DropSubtree(id)
+        err = tx.WithContext(ctx).CategoryContext.DropSubtree(id.Raw())
         if err != nil {
             return err
         }
@@ -83,27 +84,27 @@ func (srv Category) Delete(ctx context.Context, id uint64) error {
     })
 }
 
-func (srv Category) Move(ctx context.Context, id uint64, target uint64) error {
+func (srv Category) Move(ctx context.Context, id datatype.SafeUint64, target datatype.SafeUint64) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
         ctxDao := tx.CategoryContext
         
-        _, err := queryCtx.CategoryContext.Where(ctxDao.Ancestor.Eq(id), ctxDao.Descendant.Eq(target)).First()
+        _, err := queryCtx.CategoryContext.Where(ctxDao.Ancestor.Eq(id.Raw()), ctxDao.Descendant.Eq(target.Raw())).First()
         if err == nil {
             return erroz.CategoryCircular.ToError()
         } else if !errors.Is(err, gorm.ErrRecordNotFound) {
             return err
         }
         
-        err = queryCtx.CategoryContext.UnbindRelationships(id)
+        err = queryCtx.CategoryContext.UnbindRelationships(id.Raw())
         if err != nil {
             return err
         }
-        err = queryCtx.CategoryContext.ReBindRelationships(id, target)
+        err = queryCtx.CategoryContext.ReBindRelationships(id.Raw(), target.Raw())
         if err != nil {
             return err
         }
-        _, err = queryCtx.Category.Where(srv.persist.Category.ID.Eq(id)).Update(srv.persist.Category.ParentID, target)
+        _, err = queryCtx.Category.Where(srv.persist.Category.ID.Eq(id.Raw())).Update(srv.persist.Category.ParentID, target)
         if err != nil {
             return err
         }
@@ -112,9 +113,9 @@ func (srv Category) Move(ctx context.Context, id uint64, target uint64) error {
     })
 }
 
-func (srv Category) FindByID(ctx context.Context, id uint64) (*model.Category, error) {
+func (srv Category) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.Category, error) {
     q := srv.persist.Category
-    result, err := q.WithContext(ctx).Where(q.ID.Eq(id)).First()
+    result, err := q.WithContext(ctx).Where(q.ID.Eq(id.Raw())).First()
     if err != nil {
         return nil, gormutil.ReplaceNotFoundError(err)
     }
@@ -125,19 +126,19 @@ func (srv Category) ListRootNodes(ctx context.Context, pageNo int, pageSize int)
     return srv.persist.Category.WithContext(ctx).Scopes(dbscope.Paginate(pageNo, pageSize)).Where(srv.persist.Category.ParentID.Eq(0)).Find()
 }
 
-func (srv Category) ListNodesByParentID(ctx context.Context, id uint64, pageSize int, pageNo int) ([]*model.Category, error) {
+func (srv Category) ListNodesByParentID(ctx context.Context, id datatype.SafeUint64, pageSize int, pageNo int) ([]*model.Category, error) {
     q := srv.persist.Category
-    return q.WithContext(ctx).Where(q.ParentID.Eq(id)).Scopes(dbscope.Paginate(pageNo, pageSize)).Find()
+    return q.WithContext(ctx).Where(q.ParentID.Eq(id.Raw())).Scopes(dbscope.Paginate(pageNo, pageSize)).Find()
 }
 
 func (srv Category) List(ctx context.Context, params dto.CategoryListParams) (*common.PaginatedResult[*model.Category], error) {
     dao := srv.persist.Category
     q := dao.WithContext(ctx).Scopes(dbscope.Paginate(params.PageNo, params.PageSize))
     if params.ID != nil {
-        q = q.Where(dao.ID.Eq(*params.ID))
+        q = q.Where(dao.ID.Eq(params.ID.Raw()))
     }
     if params.ParentID != nil {
-        q = q.Where(dao.ParentID.Eq(*params.ParentID))
+        q = q.Where(dao.ParentID.Eq(params.ParentID.Raw()))
     }
     if params.Type != nil {
         q = q.Where(dao.Type.Eq(*params.Type))

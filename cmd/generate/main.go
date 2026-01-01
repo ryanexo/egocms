@@ -1,6 +1,9 @@
 package main
 
 import (
+    `os`
+    `path`
+    
     `dpcms/internal/config`
     `dpcms/internal/infra/db`
     `dpcms/internal/infra/persistence/model`
@@ -9,8 +12,14 @@ import (
 )
 
 func main() {
+    outputPath := path.Clean("./internal/infra/persistence/query")
+    err := os.RemoveAll(outputPath)
+    if err != nil {
+        panic(err)
+    }
+    
     g := gen.NewGenerator(gen.Config{
-        OutPath:        "./internal/infra/persistence/query",
+        OutPath:        outputPath,
         FieldNullable:  true,
         FieldCoverable: true,
     })

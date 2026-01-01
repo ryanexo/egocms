@@ -50,7 +50,7 @@ func (c RoleController) Update(ctx *gin.Context) {
 }
 
 func (c RoleController) Delete(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.QueryByResourceID](ctx, func(params dto.QueryByResourceID) (any, error) {
+    httpbinding.BindJSON[dto.ResourceID](ctx, func(params dto.ResourceID) (any, error) {
         return nil, c.srv.Role.Delete(ctx, params.ID)
     })
 }
@@ -62,7 +62,7 @@ func (c RoleController) List(ctx *gin.Context) {
 }
 
 func (c RoleController) Detail(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.QueryByResourceID](ctx, func(params dto.QueryByResourceID) (any, error) {
-        return c.srv.Role.FindRoleById(ctx, params.ID)
+    httpbinding.BindJSON[dto.ResourceID](ctx, func(params dto.ResourceID) (any, error) {
+        return c.srv.Role.FindRoleByID(ctx, params.ID)
     })
 }

@@ -20,6 +20,13 @@ func main() {
         db.Set("gorm:table_options", "ENGINE=InnoDB")
     }
     err = db.AutoMigrate(
+        &model.Article{},
+        &model.ArticleKeywords{},
+        &model.ArticleContent{},
+        &model.ArticleModel{},
+        &model.ArticleModelJsonData{},
+        &model.ArticleModelSchema{},
+        &model.ArticleModelData{},
         &model.Category{},
         &model.CategorySeo{},
         &model.CategoryContext{},

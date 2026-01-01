@@ -10,6 +10,7 @@ import (
     `dpcms/internal/app/service/internal/common`
     `dpcms/internal/app/util/gormutil`
     `dpcms/internal/infra`
+    `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/dbscope`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
@@ -39,7 +40,7 @@ func (srv Menu) Create(ctx context.Context, createParams dto.MenuCreateParams) (
             return err
         }
         
-        err = queryCtx.MenuContext.CreateSubtree(menu.ID, menu.ParentID)
+        err = queryCtx.MenuContext.CreateSubtree(menu.ID.Raw(), menu.ParentID.Raw())
         if err != nil {
             return err
         }
@@ -54,11 +55,11 @@ func (srv Menu) Create(ctx context.Context, createParams dto.MenuCreateParams) (
 func (srv Menu) Update(ctx context.Context, params dto.MenuUpdateParams) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
-        _, err := queryCtx.Menu.Where(tx.Menu.ID.Eq(params.ID)).First()
+        _, err := queryCtx.Menu.Where(tx.Menu.ID.Eq(params.ID.Raw())).First()
         if err != nil {
             return err
         }
-        _, err = tx.WithContext(ctx).Category.Where(tx.Menu.ID.Eq(params.ID)).Updates(params)
+        _, err = tx.WithContext(ctx).Category.Where(tx.Menu.ID.Eq(params.ID.Raw())).Updates(params)
         if err != nil {
             return err
         }
@@ -66,7 +67,7 @@ func (srv Menu) Update(ctx context.Context, params dto.MenuUpdateParams) error {
     })
 }
 
-func (srv Menu) Delete(ctx context.Context, id uint64) error {
+func (srv Menu) Delete(ctx context.Context, id datatype.SafeUint64) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
         ctxDao := tx.MenuContext
         
@@ -77,7 +78,7 @@ func (srv Menu) Delete(ctx context.Context, id uint64) error {
         if err != nil {
             return err
         }
-        err = tx.WithContext(ctx).CategoryContext.DropSubtree(id)
+        err = tx.WithContext(ctx).CategoryContext.DropSubtree(id.Raw())
         if err != nil {
             return err
         }
@@ -85,27 +86,27 @@ func (srv Menu) Delete(ctx context.Context, id uint64) error {
     })
 }
 
-func (srv Menu) Move(ctx context.Context, id uint64, target uint64) error {
+func (srv Menu) Move(ctx context.Context, id datatype.SafeUint64, target datatype.SafeUint64) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
         queryCtx := tx.WithContext(ctx)
         ctxDao := tx.MenuContext
         
-        _, err := queryCtx.MenuContext.Where(ctxDao.Ancestor.Eq(id), ctxDao.Descendant.Eq(target)).First()
+        _, err := queryCtx.MenuContext.Where(ctxDao.Ancestor.Eq(id.Raw()), ctxDao.Descendant.Eq(target.Raw())).First()
         if err == nil {
             return erroz.MenuCircular.ToError()
         } else if !errors.Is(err, gorm.ErrRecordNotFound) {
             return err
         }
         
-        err = queryCtx.MenuContext.UnbindRelationships(id)
+        err = queryCtx.MenuContext.UnbindRelationships(id.Raw())
         if err != nil {
             return err
         }
-        err = queryCtx.MenuContext.ReBindRelationships(id, target)
+        err = queryCtx.MenuContext.ReBindRelationships(id.Raw(), target.Raw())
         if err != nil {
             return err
         }
-        _, err = queryCtx.Menu.Where(tx.Menu.ID.Eq(id)).Update(tx.Menu.ParentID, target)
+        _, err = queryCtx.Menu.Where(tx.Menu.ID.Eq(id.Raw())).Update(tx.Menu.ParentID, target)
         if err != nil {
             return err
         }
@@ -114,9 +115,9 @@ func (srv Menu) Move(ctx context.Context, id uint64, target uint64) error {
     })
 }
 
-func (srv Menu) FindByID(ctx context.Context, id uint64) (*model.Menu, error) {
+func (srv Menu) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.Menu, error) {
     q := srv.persist.Menu
-    result, err := q.WithContext(ctx).Where(q.ID.Eq(id)).First()
+    result, err := q.WithContext(ctx).Where(q.ID.Eq(id.Raw())).First()
     if err != nil {
         return nil, gormutil.ReplaceNotFoundError(err)
     }
@@ -127,7 +128,7 @@ func (srv Menu) List(ctx context.Context, condition dto.MenuListQueryParams) (re
     menuDAO := srv.persist.Menu
     q := menuDAO.WithContext(ctx)
     if condition.Ancestor != nil {
-        q = q.Where(menuDAO.ParentID.Eq(*condition.Ancestor))
+        q = q.Where(menuDAO.ParentID.Eq(condition.Ancestor.Raw()))
     }
     if condition.Name != nil {
         q = q.Where(menuDAO.Name.Like(*condition.Name))

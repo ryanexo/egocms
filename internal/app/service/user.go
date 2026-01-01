@@ -10,6 +10,7 @@ import (
     `dpcms/internal/infra`
     `dpcms/internal/infra/password`
     `dpcms/internal/infra/persistence/dbscope`
+    `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
     
@@ -91,9 +92,9 @@ func (srv User) FindByCredential(ctx context.Context, params dto.UserCredentialP
     return &result, nil
 }
 
-func (srv User) FindByID(ctx context.Context, id uint64) (result dto.User, err error) {
+func (srv User) FindByID(ctx context.Context, id datatype.SafeUint64) (result dto.User, err error) {
     q := srv.persist.User
-    u, err := q.WithContext(ctx).Where(q.ID.Eq(id)).First()
+    u, err := q.WithContext(ctx).Where(q.ID.Eq(id.Raw())).First()
     if err != nil {
         return
     }
@@ -111,24 +112,24 @@ func (srv User) FindByName(ctx context.Context, name string) (result dto.User, e
     return
 }
 
-func (srv User) ResetPassword(ctx context.Context, id uint64, pwd string) error {
+func (srv User) ResetPassword(ctx context.Context, id datatype.SafeUint64, pwd string) error {
     q := srv.persist.User
     hashedPwd, err := password.Password(pwd).Generate()
     if err != nil {
         return err
     }
-    _, err = q.WithContext(ctx).Where(q.ID.Eq(id)).Update(q.Password, hashedPwd)
+    _, err = q.WithContext(ctx).Where(q.ID.Eq(id.Raw())).Update(q.Password, hashedPwd)
     return err
 }
 
-func (srv User) Delete(ctx context.Context, id uint64) error {
+func (srv User) Delete(ctx context.Context, id datatype.SafeUint64) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
         q := tx.WithContext(ctx)
-        _, err := q.User.Where(tx.User.ID.Eq(id)).Delete()
+        _, err := q.User.Where(tx.User.ID.Eq(id.Raw())).Delete()
         if err != nil {
             return err
         }
-        _, err = q.UserProfile.Where(tx.UserProfile.UserID.Eq(id)).Delete()
+        _, err = q.UserProfile.Where(tx.UserProfile.UserID.Eq(id.Raw())).Delete()
         if err != nil {
             return err
         }
@@ -150,7 +151,7 @@ func (srv User) UpdateProfile(ctx context.Context, params dto.UserProfileUpdateP
         profileDao.City,
         profileDao.Nickname,
         profileDao.Description,
-    ).Where(profileDao.UserID.Eq(params.ID)).Updates(&profile)
+    ).Where(profileDao.UserID.Eq(params.ID.Raw())).Updates(&profile)
     return err
 }
 
@@ -184,7 +185,7 @@ func (srv User) List(ctx context.Context, p dto.UserListQueryParams) (result com
         q = q.Where(userDAO.IP.Like(*p.IP))
     }
     if p.RoleID != nil {
-        q = q.Where(userDAO.RoleID.Eq(*p.RoleID))
+        q = q.Where(userDAO.RoleID.Eq(p.RoleID.Raw()))
     }
     if p.Nickname != nil {
         q = q.Where(profileDAO.Nickname.Eq(*p.Nickname))

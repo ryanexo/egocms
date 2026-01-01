@@ -5,6 +5,7 @@ import (
     `time`
     
     `dpcms/internal/infra/persistence/dbscope`
+    `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     
     `github.com/go-playground/validator/v10`
@@ -33,24 +34,24 @@ type UserCredentialParams struct {
 }
 
 type UserPasswdResetParams struct {
-    ID       uint64 `validate:"required" json:"ID" label:"用户ID"`
-    Password string `validate:"required,min=6,max=32" json:"password" label:"密码"`
+    ID       datatype.SafeUint64 `validate:"required" json:"ID" label:"用户ID"`
+    Password string              `validate:"required,min=6,max=32" json:"password" label:"密码"`
 }
 
 type UserListQueryParams struct {
     dbscope.Pagination
-    Username        *string    `json:"username" label:"用户名"`
-    Status          *int8      `json:"status" label:"状态"`
-    VerifyStartTime *time.Time `json:"verifyStartTime" label:"验证时间起始"`
-    VerifyEndTime   *time.Time `json:"verifyEndTime" label:"验证时间结束"`
-    Email           *string    `json:"email" label:"邮箱"`
-    IP              *string    `json:"ip"`
-    RoleID          *uint64    `json:"roleId" label:"角色"`
-    Nickname        *string    `json:"nickname" label:"昵称"`
-    Gender          *int8      `validate:"omitnil,oneof=0 1" json:"gender" label:"性别"`
-    Country         *string    `json:"country" label:"国家"`
-    Province        *string    `json:"province" label:"省份"`
-    City            *string    `json:"city" label:"城市"`
+    Username        *string              `json:"username" label:"用户名"`
+    Status          *int8                `json:"status" label:"状态"`
+    VerifyStartTime *time.Time           `json:"verifyStartTime" label:"验证时间起始"`
+    VerifyEndTime   *time.Time           `json:"verifyEndTime" label:"验证时间结束"`
+    Email           *string              `json:"email" label:"邮箱"`
+    IP              *string              `json:"ip"`
+    RoleID          *datatype.SafeUint64 `json:"roleId" label:"角色"`
+    Nickname        *string              `json:"nickname" label:"昵称"`
+    Gender          *int8                `validate:"omitnil,oneof=0 1" json:"gender" label:"性别"`
+    Country         *string              `json:"country" label:"国家"`
+    Province        *string              `json:"province" label:"省份"`
+    City            *string              `json:"city" label:"城市"`
 }
 
 func (u *UserListQueryParams) ValidationMessage(e validator.FieldError) (string, bool) {
@@ -73,15 +74,15 @@ type UserProfile struct {
 
 type User struct {
     model.Base
-    Username   string       `json:"username"`
-    Password   string       `json:"-"`
-    Email      string       `json:"email"`
-    VerifiedAt sql.NullTime `json:"verifiedAt"`
-    IP         string       `json:"ip"`
-    Status     int8         `json:"status"`
-    RoleID     uint64       `json:"roleId"`
-    RoleName   string       `json:"roleName"`
-    Profile    *UserProfile `json:"profile"`
+    Username   string              `json:"username"`
+    Password   string              `json:"-"`
+    Email      string              `json:"email"`
+    VerifiedAt sql.NullTime        `json:"verifiedAt"`
+    IP         string              `json:"ip"`
+    Status     int8                `json:"status"`
+    RoleID     datatype.SafeUint64 `json:"roleId"`
+    RoleName   string              `json:"roleName"`
+    Profile    *UserProfile        `json:"profile"`
 }
 
 type UserAuthnResult struct {
@@ -90,6 +91,6 @@ type UserAuthnResult struct {
 }
 
 type UserProfileUpdateParams struct {
-    ID uint64 `validate:"required" json:"id"`
+    ID datatype.SafeUint64 `validate:"required" json:"id"`
     UserProfile
 }

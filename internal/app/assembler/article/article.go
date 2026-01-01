@@ -5,6 +5,7 @@ import (
     `time`
     
     `dpcms/internal/app/domain/article`
+    `dpcms/internal/infra/persistence/datatype`
     
     `github.com/shopspring/decimal`
 )
@@ -50,6 +51,8 @@ func NewValue(vType int16, value any) (article.Value, error) {
             return NumberValue(decimal.NewFromUint64(uint64(dv))), nil
         case uint64:
             return NumberValue(decimal.NewFromUint64(dv)), nil
+        case datatype.SafeUint64:
+            return NumberValue(decimal.NewFromUint64(dv.Raw())), nil
         }
     
     case article.ValueString:

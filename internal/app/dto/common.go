@@ -1,5 +1,9 @@
 package dto
 
-type QueryByResourceID struct {
-    ID uint64 `validate:"required" json:"id"`
+import (
+    `dpcms/internal/infra/persistence/datatype`
+)
+
+type ResourceID struct {
+    ID datatype.SafeUint64 `validate:"required" json:"id"`
 }

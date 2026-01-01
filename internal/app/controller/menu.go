@@ -45,7 +45,7 @@ func (c MenuController) List(ctx *gin.Context) {
 }
 
 func (c MenuController) Detail(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.QueryByResourceID](ctx, func(params dto.QueryByResourceID) (any, error) {
+    httpbinding.BindJSON[dto.ResourceID](ctx, func(params dto.ResourceID) (any, error) {
         return c.srv.Menu.FindByID(ctx, params.ID)
     })
 }
@@ -70,7 +70,7 @@ func (c MenuController) Update(ctx *gin.Context) {
 }
 
 func (c MenuController) Delete(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.QueryByResourceID](ctx, func(params dto.QueryByResourceID) (any, error) {
+    httpbinding.BindJSON[dto.ResourceID](ctx, func(params dto.ResourceID) (any, error) {
         err := c.srv.Menu.Delete(ctx, params.ID)
         return nil, err
     })

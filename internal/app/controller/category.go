@@ -45,7 +45,7 @@ func (c CategoryController) List(ctx *gin.Context) {
 }
 
 func (c CategoryController) Detail(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.QueryByResourceID](ctx, func(params dto.QueryByResourceID) (any, error) {
+    httpbinding.BindJSON[dto.ResourceID](ctx, func(params dto.ResourceID) (any, error) {
         return c.srv.Category.FindByID(ctx, params.ID)
     })
 }
@@ -70,7 +70,7 @@ func (c CategoryController) Update(ctx *gin.Context) {
 }
 
 func (c CategoryController) Delete(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.QueryByResourceID](ctx, func(params dto.QueryByResourceID) (any, error) {
+    httpbinding.BindJSON[dto.ResourceID](ctx, func(params dto.ResourceID) (any, error) {
         err := c.srv.Category.Delete(ctx, params.ID)
         return nil, err
     })

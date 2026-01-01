@@ -79,7 +79,7 @@ func (s acl) Middleware() gin.HandlerFunc {
         }
         
         if user.ID != 1 && s.object != "" {
-            subject := rbacutil.GetRoleSubject(user.RoleID)
+            subject := rbacutil.GetRoleSubject(user.RoleID.Raw())
             path := ctx.FullPath()
             if _, perm, found := s.perm.LongestPrefix(path); found {
                 if pass, err := s.service.RBAC.GetEnforcer().Enforce(subject, s.object, perm); err != nil {

@@ -8,6 +8,7 @@ import (
     artDomain `dpcms/internal/app/domain/article`
     `dpcms/internal/app/dto`
     `dpcms/internal/app/erroz`
+    `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
     `dpcms/internal/infra/persistence/repo`
@@ -30,12 +31,8 @@ func (s Article) Create(ctx context.Context, params dto.ArticleCreateParams) err
         Content:     model.ArticleContent{Content: params.Content},
     }
     
-    idInt, err := params.ModelId.Uint64()
     if params.ModelId != nil {
-        if err != nil {
-            return err
-        }
-        artModel.ModelId = idInt
+        artModel.ModelId = *params.ModelId
     }
     
     art := artDomain.NewArticle(artDomain.Draft{Description: params.Description, Content: params.Content})
@@ -72,26 +69,16 @@ func (s Article) Create(ctx context.Context, params dto.ArticleCreateParams) err
     })
 }
 
-func (s Article) FindById(ctx context.Context, id uint64) (*model.Article, error) {
-    return repo.NewArticle(s.query).FindById(ctx, id)
+func (s Article) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
+    return repo.NewArticle(s.query).FindByID(ctx, id)
 }
 
-func (s Article) FindByIdWithContent(ctx context.Context, id uint64) (*model.Article, error) {
-    return repo.NewArticle(s.query).FindByIdWithContent(ctx, id)
+func (s Article) FindByIDWithContent(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
+    return repo.NewArticle(s.query).FindByIDWithContent(ctx, id)
 }
 
 func (s Article) Update(ctx context.Context, data dto.ArticleUpdateParams) error {
-    artId, err := data.ID.Uint64()
-    if err != nil {
-        return err
-    }
-    
-    catId, err := data.CategoryId.Uint64()
-    if err != nil {
-        return err
-    }
-    
-    rawArt, err := repo.NewArticle(s.query).FindById(ctx, artId)
+    rawArt, err := repo.NewArticle(s.query).FindByID(ctx, data.ID)
     if err != nil {
         return err
     }
@@ -99,9 +86,9 @@ func (s Article) Update(ctx context.Context, data dto.ArticleUpdateParams) error
     art := artDomain.NewArticle(artDomain.Draft{Description: data.Description, Content: data.Content})
     
     artUpdateData := &model.Article{
-        Base:        model.Base{ID: artId},
+        Base:        model.Base{ID: data.ID},
         Url:         data.Url,
-        CategoryID:  catId,
+        CategoryID:  data.CategoryId,
         Flag:        data.Flag,
         Title:       data.Title,
         Description: art.GetDescription(),
@@ -150,7 +137,7 @@ func (s Article) Update(ctx context.Context, data dto.ArticleUpdateParams) error
     })
 }
 
-func (s Article) Delete(ctx context.Context, id uint64) error {
+func (s Article) Delete(ctx context.Context, id datatype.SafeUint64) error {
     return s.query.Transaction(func(tx *query.Query) error {
         artRepo := repo.NewArticle(s.query)
         err := artRepo.DeleteArticle(ctx, id)
@@ -173,15 +160,15 @@ func (s Article) Delete(ctx context.Context, id uint64) error {
     })
 }
 
-func (s Article) buildArticleModelData(art *model.Article, schemas []*model.ArticleModelSchema, data map[string]any) (*model.ArticleModelJsonData, []*model.ArticleModelData, error) {
+func (s Article) buildArticleModelData(art *model.Article, allSchema []*model.ArticleModelSchema, data map[string]any) (*model.ArticleModelJsonData, []*model.ArticleModelData, error) {
     jsonResult := &model.ArticleModelJsonData{
         ArticleId: art.ID,
         ModelId:   art.ModelId,
         Data:      make(map[string]any),
     }
-    modelResult := make([]*model.ArticleModelData, 0, len(schemas))
+    modelResult := make([]*model.ArticleModelData, 0, len(allSchema))
     
-    for _, schema := range schemas {
+    for _, schema := range allSchema {
         value := data[schema.FieldKey]
         
         v, err := artAssembler.NewValue(schema.Type, value)
