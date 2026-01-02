@@ -4,7 +4,8 @@ import (
     `dpcms/internal/app/controller/internal/httpbinding`
     `dpcms/internal/app/dto`
     `dpcms/internal/app/service`
-    
+    "fmt"
+
     `github.com/gin-gonic/gin`
 )
 
@@ -29,7 +30,8 @@ func (s ArticleModelController) setup(engine *gin.Engine) {
 
 func (s ArticleModelController) Create(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ArticleModelCreateParams](ctx, func(params dto.ArticleModelCreateParams) (any, error) {
-        return s.srv.ArticleModel.Create(ctx, params)
+        fmt.Println(params)
+        return nil, nil
     })
 }
 
