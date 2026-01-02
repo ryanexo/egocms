@@ -19,7 +19,7 @@ type Category struct {
 }
 
 type CategorySeo struct {
-    ID          datatype.SafeUint64 `gorm:"primaryKey" json:"Id"`
+    Base
     CategoryID  datatype.SafeUint64 `gorm:"not null;index" json:"categoryId"`
     Title       string              `gorm:"type:varchar(255);not null" json:"title"`
     Keywords    string              `gorm:"type:varchar(255);not null" json:"keywords"`

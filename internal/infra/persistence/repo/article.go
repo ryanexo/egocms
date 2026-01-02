@@ -71,6 +71,6 @@ func (r Article) DeleteContent(ctx context.Context, id datatype.SafeUint64) erro
 }
 
 func (r Article) DeleteKeywords(ctx context.Context, id datatype.SafeUint64) error {
-    _, err := r.persist.ArticleKeywords.WithContext(ctx).Where(r.persist.ArticleKeywords.ArticleID.Eq(id.Raw())).Delete()
+    _, err := r.persist.ArticleKeywords.WithContext(ctx).Unscoped().Where(r.persist.ArticleKeywords.ArticleID.Eq(id.Raw())).Delete()
     return err
 }

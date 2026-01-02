@@ -3,9 +3,9 @@ package controller
 import (
     `dpcms/internal/app/controller/internal/httpbinding`
     `dpcms/internal/app/dto`
+    `dpcms/internal/app/middleware/authz`
     `dpcms/internal/app/service`
-    "fmt"
-
+    
     `github.com/gin-gonic/gin`
 )
 
@@ -18,20 +18,35 @@ func NewArticleModelController(srv *service.Services) ArticleModelController {
 }
 
 func (s ArticleModelController) setup(engine *gin.Engine) {
-    // acl := authz.NewWithRBAC(s.srv, "article-model")
+    acl := authz.NewWithRBAC(s.srv, "article-model")
     
-    g := engine.Group("/article-model")
+    g := engine.Group("/article-model", acl.Middleware())
     g.POST("/create", s.Create)
     g.POST("/delete", s.Delete)
     g.POST("/detail", s.Detail)
     g.POST("/update", s.Update)
     g.POST("/update-schema", s.UpdateSchema)
+    
+    acl.WithRouterOption(
+        g,
+        authz.WithRouterPermission("/create", "create"),
+        authz.WithRouterPermission("/update-schema", "update"),
+        authz.WithRouterPermission("/update", "update"),
+        authz.WithRouterPermission("/delete", "delete"),
+        authz.WithRouterPermission("/detail", "read"),
+    )
 }
 
+// Create 创建文章模型
+// @Tags    article
+// @Accept  json
+// @Produce json
+// @Param   body    body   dto.ArticleModelCreateParams    true    "test"
+// @Success 200 {null}  nil
+// @Router  /article-model/create [post]
 func (s ArticleModelController) Create(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ArticleModelCreateParams](ctx, func(params dto.ArticleModelCreateParams) (any, error) {
-        fmt.Println(params)
-        return nil, nil
+        return s.srv.ArticleModel.Create(ctx, params)
     })
 }
 

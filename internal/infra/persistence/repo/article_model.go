@@ -71,24 +71,24 @@ func (r ArticleModel) FindAllSchema(ctx context.Context, modelId datatype.SafeUi
 }
 
 func (r ArticleModel) DeleteModel(ctx context.Context, modelId datatype.SafeUint64) error {
-    _, err := r.persist.ArticleModel.WithContext(ctx).Where(r.persist.ArticleModel.ID.Eq(modelId.Raw())).Delete()
+    _, err := r.persist.ArticleModel.WithContext(ctx).Unscoped().Where(r.persist.ArticleModel.ID.Eq(modelId.Raw())).Delete()
     return err
 }
 
 func (r ArticleModel) DeleteSchema(ctx context.Context, id datatype.SafeUint64) error {
     m := r.persist.ArticleModelSchema
-    _, err := m.WithContext(ctx).Where(m.ModelId.Eq(id.Raw())).Delete()
+    _, err := m.WithContext(ctx).Unscoped().Where(m.ModelId.Eq(id.Raw())).Delete()
     return err
 }
 
 func (r ArticleModel) DeleteAllSchema(ctx context.Context, id datatype.SafeUint64) error {
     m := r.persist.ArticleModelSchema
-    _, err := m.WithContext(ctx).Where(m.ModelId.Eq(id.Raw())).Delete()
+    _, err := m.WithContext(ctx).Unscoped().Where(m.ModelId.Eq(id.Raw())).Delete()
     return err
 }
 
 func (r ArticleModel) DeleteArticleData(ctx context.Context, articleId datatype.SafeUint64) error {
     m := r.persist.ArticleModelData
-    _, err := m.WithContext(ctx).Where(m.ArticleId.Eq(articleId.Raw())).Delete()
+    _, err := m.WithContext(ctx).Unscoped().Where(m.ArticleId.Eq(articleId.Raw())).Delete()
     return err
 }

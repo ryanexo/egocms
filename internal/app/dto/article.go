@@ -12,7 +12,7 @@ type ArticleCreateParams struct {
     Title       string               `validate:"required,max=255" json:"title"`
     Description string               `validate:"max=255" json:"description"`
     Content     string               `validate:"max=65535" json:"content"`
-    Target      string               `validate:"http_url" json:"target"`
+    Target      string               `validate:"omitempty,http_url" json:"target"`
     Keywords    []string             `validate:"max=10" json:"keywords"`
     ModelId     *datatype.SafeUint64 `json:"modelId"`
     ModelData   map[string]any       `json:"modelData"`

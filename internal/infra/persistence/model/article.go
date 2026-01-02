@@ -29,13 +29,13 @@ type Article struct {
 }
 
 type ArticleKeywords struct {
-    ID        datatype.SafeUint64 `gorm:"primaryKey" json:"-"`
+    Base
     ArticleID datatype.SafeUint64 `gorm:"index" json:"articleId"`
     Keyword   string              `gorm:"type:varchar(255);not null" json:"keyword"`
 }
 
 type ArticleContent struct {
-    ID        datatype.SafeUint64 `gorm:"primaryKey" json:"-"`
+    Base
     ArticleID datatype.SafeUint64 `gorm:"index" json:"-"`
     Content   string              `gorm:"type:text;not null;default:''" json:"content"`
 }

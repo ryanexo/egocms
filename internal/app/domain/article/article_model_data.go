@@ -2,8 +2,6 @@ package article
 
 import (
     `dpcms/internal/app/erroz`
-    
-    `github.com/shopspring/decimal`
 )
 
 type ModelValue struct {
@@ -24,14 +22,15 @@ func (v *ModelValue) IsValid() error {
         return erroz.ArticleModelDataMissingValue.Format(v.rules.FieldName()).ToError()
     }
     
-    if !v.value.IsValidLen(v.rules.MinLen(), v.rules.MaxLen()) {
-        return erroz.ArticleModelDataInvalidLen.Format(v.rules.MinLen(), v.rules.MaxLen()).ToError()
+    lenMin, lenMax := v.rules.MinLen(), v.rules.MaxLen()
+    if lenMin < lenMax && !v.value.IsValidLen(lenMin, v.rules.MaxLen()) {
+        return erroz.ArticleModelDataInvalidLen.Format(lenMin, v.rules.MaxLen()).ToError()
     }
     
     vMin, vMax := v.rules.MinValue(), v.rules.MaxValue()
-    if vMin.Decimal.Equal(vMax.Decimal) && !vMax.Decimal.Equal(decimal.New(0, 0)) {
+    if vMin.Decimal.LessThan(vMax.Decimal) {
         validMin, validMax := vMin.Valid, vMax.Valid
-        if !validMin || validMax || !v.value.InRange(vMin.Decimal, vMax.Decimal) {
+        if !validMin || !validMax || !v.value.InRange(vMin.Decimal, vMax.Decimal) {
             return erroz.ArticleModelDataInvalidNumRange.Format(v.rules.MinValue(), v.rules.MaxValue()).ToError()
         }
     }

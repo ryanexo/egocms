@@ -23,6 +23,10 @@ import (
 	"dpcms/internal/infra/persistence"
 )
 
+import (
+	_ "dpcms/docs"
+)
+
 // Injectors from wire.go:
 
 func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
@@ -86,13 +90,15 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	menuController := controller.NewMenuController(services)
 	categoryController := controller.NewCategoryController(services)
 	roleController := controller.NewRoleController(services)
+	articleController := controller.NewArticleController(services)
 	articleModelController := controller.NewArticleModelController(services)
 	controllers := &controller.Controllers{
-		User:     userController,
-		Menu:     menuController,
-		Category: categoryController,
-		Role:     roleController,
-		Article:  articleModelController,
+		User:         userController,
+		Menu:         menuController,
+		Category:     categoryController,
+		Role:         roleController,
+		Article:      articleController,
+		ArticleModel: articleModelController,
 	}
 	routes := controller.NewRouteRegistrar(controllers)
 	launcher, err := httpserver.New(httpserverConfig, httpserverMiddleware, routes)
