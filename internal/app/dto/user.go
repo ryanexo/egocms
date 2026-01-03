@@ -34,7 +34,7 @@ type UserCredentialParams struct {
 }
 
 type UserPasswdResetParams struct {
-    ID       datatype.SafeUint64 `validate:"required" json:"ID" label:"用户ID"`
+    ID       datatype.SafeUint64 `validate:"required" json:"ID" label:"用户ID" swaggertype:"string"`
     Password string              `validate:"required,min=6,max=32" json:"password" label:"密码"`
 }
 
@@ -46,7 +46,7 @@ type UserListQueryParams struct {
     VerifyEndTime   *time.Time           `json:"verifyEndTime" label:"验证时间结束"`
     Email           *string              `json:"email" label:"邮箱"`
     IP              *string              `json:"ip"`
-    RoleID          *datatype.SafeUint64 `json:"roleId" label:"角色"`
+    RoleID          *datatype.SafeUint64 `json:"roleId" label:"角色" swaggertype:"string"`
     Nickname        *string              `json:"nickname" label:"昵称"`
     Gender          *int8                `validate:"omitnil,oneof=0 1" json:"gender" label:"性别"`
     Country         *string              `json:"country" label:"国家"`
@@ -80,7 +80,7 @@ type User struct {
     VerifiedAt sql.NullTime        `json:"verifiedAt"`
     IP         string              `json:"ip"`
     Status     int8                `json:"status"`
-    RoleID     datatype.SafeUint64 `json:"roleId"`
+    RoleID     datatype.SafeUint64 `json:"roleId" swaggertype:"string"`
     RoleName   string              `json:"roleName"`
     Profile    *UserProfile        `json:"profile"`
 }
@@ -91,6 +91,6 @@ type UserAuthnResult struct {
 }
 
 type UserProfileUpdateParams struct {
-    ID datatype.SafeUint64 `validate:"required" json:"id"`
+    ID datatype.SafeUint64 `validate:"required" json:"id" swaggertype:"string"`
     UserProfile
 }

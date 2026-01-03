@@ -14,14 +14,14 @@ type ArticleCreateParams struct {
     Content     string               `validate:"max=65535" json:"content"`
     Target      string               `validate:"omitempty,http_url" json:"target"`
     Keywords    []string             `validate:"max=10" json:"keywords"`
-    ModelId     *datatype.SafeUint64 `json:"modelId"`
+    ModelId     *datatype.SafeUint64 `json:"modelId" swaggertype:"string"`
     ModelData   map[string]any       `json:"modelData"`
 }
 
 type ArticleUpdateParams struct {
-    ID          datatype.SafeUint64 `json:"id"`
+    ID          datatype.SafeUint64 `json:"id" swaggertype:"string"`
     Url         string              `json:"url"`
-    CategoryId  datatype.SafeUint64 `json:"categoryId"`
+    CategoryId  datatype.SafeUint64 `json:"categoryId" swaggertype:"string"`
     Flag        int16               `json:"flag"`
     Title       string              `json:"title"`
     Description string              `json:"description"`
@@ -34,18 +34,18 @@ type ArticleUpdateParams struct {
 type Article struct {
     dtotype.Base
     Url          string                `json:"url"`
-    CategoryId   datatype.SafeUint64   `json:"categoryId"`
+    CategoryId   datatype.SafeUint64   `json:"categoryId" swaggertype:"string"`
     CategoryName string                `json:"categoryName"`
-    AuthorId     datatype.SafeUint64   `json:"authorId"`
+    AuthorId     datatype.SafeUint64   `json:"authorId" swaggertype:"string"`
     AuthorName   string                `json:"authorName"`
     Flag         int16                 `json:"flag"`
     Title        string                `json:"title"`
     Description  string                `json:"description"`
-    ClickCount   datatype.SafeUint64   `json:"clickCount"`
+    ClickCount   datatype.SafeUint64   `json:"clickCount" swaggertype:"string"`
     Status       int8                  `json:"status"`
     Target       string                `json:"target"`
     Keywords     []string              `json:"keywords"`
-    ModelId      datatype.SafeUint64   `json:"modelId"`
+    ModelId      datatype.SafeUint64   `json:"modelId" swaggertype:"string"`
     ModelSchema  []*ArticleModelSchema `json:"modelSchema"`
     ModelData    map[string]any        `json:"modelData"`
     PublishAt    time.Time             `json:"publishAt"`
@@ -60,5 +60,5 @@ type ArticleModelSchema struct {
     FieldKey  string
     FieldName string
     Type      int16
-    Sequence  datatype.SafeInt64
+    Sequence  datatype.SafeInt64 `swaggertype:"string"`
 }

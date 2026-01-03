@@ -12,7 +12,7 @@ type CategorySEO struct {
 }
 
 type CategoryCreateParams struct {
-    ParentID datatype.SafeUint64 `json:"parentID,omitempty"`
+    ParentID datatype.SafeUint64 `json:"parentID,omitempty" swaggertype:"string"`
     Sequence uint                `json:"sequence,omitempty"`
     Type     uint                `json:"type,omitempty"`
     Name     string              `validate:"required" json:"name" label:"名称"`
@@ -22,7 +22,7 @@ type CategoryCreateParams struct {
 }
 
 type CategoryUpdateParams struct {
-    ID       datatype.SafeUint64 `validate:"required" json:"id"`
+    ID       datatype.SafeUint64 `validate:"required" json:"id" swaggertype:"string"`
     Sequence uint                `json:"sequence,omitempty"`
     Type     uint                `json:"type,omitempty"`
     Name     string              `json:"name"`
@@ -32,14 +32,14 @@ type CategoryUpdateParams struct {
 }
 
 type CategoryMoveParams struct {
-    ID       datatype.SafeUint64 `json:"id"`
-    TargetID datatype.SafeUint64 `json:"targetId"`
+    ID       datatype.SafeUint64 `json:"id" swaggertype:"string"`
+    TargetID datatype.SafeUint64 `json:"targetId" swaggertype:"string"`
 }
 
 type CategoryListParams struct {
     dbscope.Pagination
-    ID       *datatype.SafeUint64 `json:"id"`
-    ParentID *datatype.SafeUint64 `json:"parentId"`
+    ID       *datatype.SafeUint64 `json:"id" swaggertype:"string"`
+    ParentID *datatype.SafeUint64 `json:"parentId" swaggertype:"string"`
     Type     *uint                `json:"type"`
     Name     *string              `json:"name"`
     Path     *string              `json:"path"`

@@ -1,9 +1,55 @@
 basePath: /
+definitions:
+  dto.ArticleModelCreateParams:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - description
+    - name
+    type: object
+  erroz.Result:
+    properties:
+      code:
+        type: string
+      data: {}
+      msg:
+        type: string
+    type: object
 info:
   contact: {}
   license:
     name: Apache 2.0
   title: EgoCms Api
   version: "1.0"
-paths: {}
+paths:
+  /article-model/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ArticleModelCreateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 创建文章模型
+      tags:
+      - article
+      x-apifox-folder: 文章/内容模型
 swagger: "2.0"

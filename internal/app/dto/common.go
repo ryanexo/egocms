@@ -5,5 +5,5 @@ import (
 )
 
 type ResourceID struct {
-    ID datatype.SafeUint64 `validate:"required" json:"id"`
+    ID datatype.SafeUint64 `validate:"required" json:"id" swaggertype:"string"`
 }
