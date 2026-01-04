@@ -18,7 +18,7 @@ type Services struct {
 var ServiceProvider = wire.NewSet(
     wire.Struct(new(Services), "*"),
     NewUserService,
-    NewCategoryCategory,
+    NewCategoryService,
     NewTokenService,
     NewRBACService,
     NewRoleService,

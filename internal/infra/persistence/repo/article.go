@@ -6,8 +6,6 @@ import (
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
-    
-    `gorm.io/gen/field`
 )
 
 type Article struct {
@@ -24,12 +22,35 @@ func (r Article) Create(ctx context.Context, article *model.Article) error {
 
 func (r Article) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
     artModel := r.persist.Article
-    return artModel.WithContext(ctx).Preload(artModel.Keywords, artModel.ModelData).Where(artModel.ID.Eq(id.Raw())).First()
+    schemaModel := r.persist.ArticleModelSchema
+    return artModel.WithContext(ctx).
+        Preload(
+            artModel.Keywords.Select(r.persist.ArticleKeywords.Keyword),
+            artModel.ModelData.Select(r.persist.ArticleModelJsonData.Data),
+            artModel.ModelSchema.Select(
+                schemaModel.Type,
+                schemaModel.FieldName,
+                schemaModel.FieldKey,
+                schemaModel.Description,
+            ),
+            artModel.Author.Select(r.persist.UserProfile.Nickname),
+            artModel.Category.Select(r.persist.Category.Name),
+        ).
+        Where(artModel.ID.Eq(id.Raw())).
+        First()
 }
 
 func (r Article) FindByIDWithContent(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
-    artModel := r.persist.Article
-    return artModel.WithContext(ctx).Preload(field.Associations).Where(artModel.ID.Eq(id.Raw())).First()
+    artData, err := r.FindByID(ctx, id)
+    if err != nil {
+        return nil, err
+    }
+    content, err := r.persist.ArticleContent.WithContext(ctx).Where(r.persist.ArticleContent.ArticleID.Eq(id.Raw())).First()
+    if err != nil {
+        return nil, err
+    }
+    artData.Content = content
+    return artData, nil
 }
 
 func (r Article) Update(ctx context.Context, article *model.Article) error {

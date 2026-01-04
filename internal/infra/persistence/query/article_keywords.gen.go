@@ -28,6 +28,9 @@ func newArticleKeywords(db *gorm.DB, opts ...gen.DOOption) articleKeywords {
 	tableName := _articleKeywords.articleKeywordsDo.TableName()
 	_articleKeywords.ALL = field.NewAsterisk(tableName)
 	_articleKeywords.ID = field.NewUint64(tableName, "id")
+	_articleKeywords.CreatedAt = field.NewTime(tableName, "created_at")
+	_articleKeywords.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_articleKeywords.DeletedAt = field.NewField(tableName, "deleted_at")
 	_articleKeywords.ArticleID = field.NewUint64(tableName, "article_id")
 	_articleKeywords.Keyword = field.NewString(tableName, "keyword")
 
@@ -41,6 +44,9 @@ type articleKeywords struct {
 
 	ALL       field.Asterisk
 	ID        field.Uint64
+	CreatedAt field.Time
+	UpdatedAt field.Time
+	DeletedAt field.Field
 	ArticleID field.Uint64
 	Keyword   field.String
 
@@ -60,6 +66,9 @@ func (a articleKeywords) As(alias string) *articleKeywords {
 func (a *articleKeywords) updateTableName(table string) *articleKeywords {
 	a.ALL = field.NewAsterisk(table)
 	a.ID = field.NewUint64(table, "id")
+	a.CreatedAt = field.NewTime(table, "created_at")
+	a.UpdatedAt = field.NewTime(table, "updated_at")
+	a.DeletedAt = field.NewField(table, "deleted_at")
 	a.ArticleID = field.NewUint64(table, "article_id")
 	a.Keyword = field.NewString(table, "keyword")
 
@@ -90,8 +99,11 @@ func (a *articleKeywords) GetFieldByName(fieldName string) (field.OrderExpr, boo
 }
 
 func (a *articleKeywords) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 3)
+	a.fieldMap = make(map[string]field.Expr, 6)
 	a.fieldMap["id"] = a.ID
+	a.fieldMap["created_at"] = a.CreatedAt
+	a.fieldMap["updated_at"] = a.UpdatedAt
+	a.fieldMap["deleted_at"] = a.DeletedAt
 	a.fieldMap["article_id"] = a.ArticleID
 	a.fieldMap["keyword"] = a.Keyword
 }

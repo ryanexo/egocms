@@ -3,6 +3,7 @@ package main
 import (
     _ `dpcms/docs`
     `dpcms/internal/config`
+    _ `dpcms/internal/swaggertype`
 )
 
 var appConfig = config.NewWithBasicConfig()

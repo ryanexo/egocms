@@ -1,32 +1,53 @@
 package dto
 
 import (
-    `dpcms/internal/infra/persistence/dbscope`
+    dtotype `dpcms/internal/app/dto/type`
     `dpcms/internal/infra/persistence/datatype`
+    `dpcms/internal/infra/persistence/dbscope`
 )
+
+type Menu struct {
+    dtotype.Base
+    ParentID   datatype.SafeUint64 `json:"parentId"`
+    Type       int8                `json:"type"`
+    Name       string              `json:"name"`
+    Sequence   int64               `json:"sequence"`
+    Visible    bool                `json:"visible"`
+    URI        string              `json:"uri"`
+    Resource   string              `json:"resource"`
+    Permission string              `json:"permission"`
+    Template   string              `json:"template"`
+    Remark     string              `json:"remark"`
+}
 
 type MenuListQueryParams struct {
     dbscope.Pagination
     Name     *string              `json:"name"`
-    Ancestor *datatype.SafeUint64 `json:"ancestor" swaggertype:"string"`
+    ParentID *datatype.SafeUint64 `json:"parentId" swaggertype:"string"`
 }
 
 type MenuCreateParams struct {
-    ParentID datatype.SafeUint64 `json:"parentId" swaggertype:"string"`
-    Name     string              `validate:"required" json:"name" label:"名称"`
-    Sequence datatype.SafeInt64  `json:"sequence" swaggertype:"string"`
-    URI      string              `validate:"required,alphanum" json:"uri"`
-    Template string              `json:"template"`
-    Remark   string              `json:"remark"`
+    ParentID   datatype.SafeUint64 `json:"parentId" swaggertype:"string"`
+    Type       int8                `json:"type"`
+    Name       string              `validate:"required" json:"name" label:"名称"`
+    Sequence   datatype.SafeInt64  `json:"sequence" swaggertype:"string"`
+    URI        string              `validate:"required,alphanum" json:"uri"`
+    Resource   string              `json:"resource"`
+    Permission string              `json:"permission"`
+    Template   string              `json:"template"`
+    Remark     string              `json:"remark"`
 }
 
 type MenuUpdateParams struct {
-    ID       datatype.SafeUint64 `validate:"required" json:"id" swaggertype:"string"`
-    Name     string              `json:"name"`
-    Sequence datatype.SafeInt64  `json:"sequence" swaggertype:"string"`
-    URI      string              `json:"uri"`
-    Template string              `json:"template"`
-    Remark   string              `json:"remark"`
+    ID         datatype.SafeUint64 `validate:"required" json:"id" swaggertype:"string"`
+    Type       int8                `json:"type"`
+    Name       string              `json:"name"`
+    Sequence   datatype.SafeInt64  `json:"sequence" swaggertype:"string"`
+    URI        string              `json:"uri"`
+    Resource   string              `json:"resource"`
+    Permission string              `json:"permission"`
+    Template   string              `json:"template"`
+    Remark     string              `json:"remark"`
 }
 
 type MenuMoveParams struct {

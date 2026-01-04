@@ -1,9 +1,21 @@
 package dto
 
 import (
-    `dpcms/internal/infra/persistence/dbscope`
+    dtotype `dpcms/internal/app/dto/type`
     `dpcms/internal/infra/persistence/datatype`
+    `dpcms/internal/infra/persistence/dbscope`
 )
+
+type Category struct {
+    dtotype.Base `json:"dtotype.Base"`
+    ParentID     datatype.SafeUint64 `json:"parentId"`
+    Sequence     uint                `json:"sequence"`
+    Name         string              `json:"name"`
+    Path         string              `json:"path"`
+    Type         uint                `json:"type"`
+    Display      uint                `json:"display"`
+    SEO          *CategorySEO        `json:"seo"`
+}
 
 type CategorySEO struct {
     Title       string `json:"title"`

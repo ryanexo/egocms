@@ -38,7 +38,7 @@ func (s ArticleModel) Update(ctx context.Context, params dto.ArticleModelUpdateP
 func (s ArticleModel) UpdateSchema(ctx context.Context, params dto.ArticleModelSchemaUpdateParams) error {
     modelDao := s.persist.ArticleModel
     
-    _, err := s.persist.ArticleModel.WithContext(ctx).Where(modelDao.ID.Eq(params.ModelId.Raw())).First()
+    _, err := s.persist.ArticleModel.WithContext(ctx).Where(modelDao.ID.Eq(params.ID.Raw())).First()
     if err != nil {
         return err
     }
@@ -48,7 +48,7 @@ func (s ArticleModel) UpdateSchema(ctx context.Context, params dto.ArticleModelS
     updateSchema := make([]*model.ArticleModelSchema, 0, schemaCount)
     
     for _, schemaParams := range params.Data {
-        tmpSchema := &model.ArticleModelSchema{ModelId: params.ModelId}
+        tmpSchema := &model.ArticleModelSchema{ModelId: params.ID}
         err := copier.Copy(&tmpSchema, &schemaParams)
         if err != nil {
             return err

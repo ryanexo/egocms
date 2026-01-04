@@ -32,10 +32,13 @@ func newMenu(db *gorm.DB, opts ...gen.DOOption) menu {
 	_menu.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_menu.DeletedAt = field.NewField(tableName, "deleted_at")
 	_menu.ParentID = field.NewUint64(tableName, "parent_id")
+	_menu.Type = field.NewInt8(tableName, "type")
 	_menu.Name = field.NewString(tableName, "name")
 	_menu.Sequence = field.NewInt64(tableName, "sequence")
 	_menu.Visible = field.NewBool(tableName, "visible")
 	_menu.URI = field.NewString(tableName, "uri")
+	_menu.Resource = field.NewString(tableName, "resource")
+	_menu.Permission = field.NewString(tableName, "permission")
 	_menu.Template = field.NewString(tableName, "template")
 	_menu.Remark = field.NewString(tableName, "remark")
 
@@ -47,18 +50,21 @@ func newMenu(db *gorm.DB, opts ...gen.DOOption) menu {
 type menu struct {
 	menuDo menuDo
 
-	ALL       field.Asterisk
-	ID        field.Uint64
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	DeletedAt field.Field
-	ParentID  field.Uint64
-	Name      field.String
-	Sequence  field.Int64
-	Visible   field.Bool
-	URI       field.String
-	Template  field.String
-	Remark    field.String
+	ALL        field.Asterisk
+	ID         field.Uint64
+	CreatedAt  field.Time
+	UpdatedAt  field.Time
+	DeletedAt  field.Field
+	ParentID   field.Uint64
+	Type       field.Int8
+	Name       field.String
+	Sequence   field.Int64
+	Visible    field.Bool
+	URI        field.String
+	Resource   field.String
+	Permission field.String
+	Template   field.String
+	Remark     field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -80,10 +86,13 @@ func (m *menu) updateTableName(table string) *menu {
 	m.UpdatedAt = field.NewTime(table, "updated_at")
 	m.DeletedAt = field.NewField(table, "deleted_at")
 	m.ParentID = field.NewUint64(table, "parent_id")
+	m.Type = field.NewInt8(table, "type")
 	m.Name = field.NewString(table, "name")
 	m.Sequence = field.NewInt64(table, "sequence")
 	m.Visible = field.NewBool(table, "visible")
 	m.URI = field.NewString(table, "uri")
+	m.Resource = field.NewString(table, "resource")
+	m.Permission = field.NewString(table, "permission")
 	m.Template = field.NewString(table, "template")
 	m.Remark = field.NewString(table, "remark")
 
@@ -110,16 +119,19 @@ func (m *menu) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (m *menu) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 11)
+	m.fieldMap = make(map[string]field.Expr, 14)
 	m.fieldMap["id"] = m.ID
 	m.fieldMap["created_at"] = m.CreatedAt
 	m.fieldMap["updated_at"] = m.UpdatedAt
 	m.fieldMap["deleted_at"] = m.DeletedAt
 	m.fieldMap["parent_id"] = m.ParentID
+	m.fieldMap["type"] = m.Type
 	m.fieldMap["name"] = m.Name
 	m.fieldMap["sequence"] = m.Sequence
 	m.fieldMap["visible"] = m.Visible
 	m.fieldMap["uri"] = m.URI
+	m.fieldMap["resource"] = m.Resource
+	m.fieldMap["permission"] = m.Permission
 	m.fieldMap["template"] = m.Template
 	m.fieldMap["remark"] = m.Remark
 }

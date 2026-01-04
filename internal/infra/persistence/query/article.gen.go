@@ -33,18 +33,35 @@ func newArticle(db *gorm.DB, opts ...gen.DOOption) article {
 	_article.DeletedAt = field.NewField(tableName, "deleted_at")
 	_article.Url = field.NewString(tableName, "url")
 	_article.CategoryID = field.NewUint64(tableName, "category_id")
-	_article.AuthorId = field.NewUint64(tableName, "author_id")
+	_article.AuthorID = field.NewUint64(tableName, "author_id")
 	_article.Flag = field.NewInt16(tableName, "flag")
 	_article.Title = field.NewString(tableName, "title")
 	_article.Description = field.NewString(tableName, "description")
 	_article.ClickCount = field.NewUint64(tableName, "click_count")
 	_article.Status = field.NewInt8(tableName, "status")
 	_article.Target = field.NewField(tableName, "target")
-	_article.ModelId = field.NewUint64(tableName, "model_id")
+	_article.ModelID = field.NewUint64(tableName, "model_id")
 	_article.SubmitAt = field.NewTime(tableName, "submit_at")
 	_article.PublishAt = field.NewTime(tableName, "publish_at")
 	_article.OfflineAt = field.NewTime(tableName, "offline_at")
 	_article.RejectAt = field.NewTime(tableName, "reject_at")
+	_article.Category = articleHasOneCategory{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Category", "model.Category"),
+		SEO: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Category.SEO", "model.CategorySeo"),
+		},
+	}
+
+	_article.Author = articleHasOneAuthor{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Author", "model.UserProfile"),
+	}
+
 	_article.Content = articleHasOneContent{
 		db: db.Session(&gorm.Session{}),
 
@@ -63,6 +80,12 @@ func newArticle(db *gorm.DB, opts ...gen.DOOption) article {
 		RelationField: field.NewRelation("Keywords", "model.ArticleKeywords"),
 	}
 
+	_article.ModelSchema = articleHasManyModelSchema{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("ModelSchema", "model.ArticleModelSchema"),
+	}
+
 	_article.fillFieldMap()
 
 	return _article
@@ -78,23 +101,29 @@ type article struct {
 	DeletedAt   field.Field
 	Url         field.String
 	CategoryID  field.Uint64
-	AuthorId    field.Uint64
+	AuthorID    field.Uint64
 	Flag        field.Int16
 	Title       field.String
 	Description field.String
 	ClickCount  field.Uint64
 	Status      field.Int8
 	Target      field.Field
-	ModelId     field.Uint64
+	ModelID     field.Uint64
 	SubmitAt    field.Time
 	PublishAt   field.Time
 	OfflineAt   field.Time
 	RejectAt    field.Time
-	Content     articleHasOneContent
+	Category    articleHasOneCategory
+
+	Author articleHasOneAuthor
+
+	Content articleHasOneContent
 
 	ModelData articleHasOneModelData
 
 	Keywords articleHasManyKeywords
+
+	ModelSchema articleHasManyModelSchema
 
 	fieldMap map[string]field.Expr
 }
@@ -117,14 +146,14 @@ func (a *article) updateTableName(table string) *article {
 	a.DeletedAt = field.NewField(table, "deleted_at")
 	a.Url = field.NewString(table, "url")
 	a.CategoryID = field.NewUint64(table, "category_id")
-	a.AuthorId = field.NewUint64(table, "author_id")
+	a.AuthorID = field.NewUint64(table, "author_id")
 	a.Flag = field.NewInt16(table, "flag")
 	a.Title = field.NewString(table, "title")
 	a.Description = field.NewString(table, "description")
 	a.ClickCount = field.NewUint64(table, "click_count")
 	a.Status = field.NewInt8(table, "status")
 	a.Target = field.NewField(table, "target")
-	a.ModelId = field.NewUint64(table, "model_id")
+	a.ModelID = field.NewUint64(table, "model_id")
 	a.SubmitAt = field.NewTime(table, "submit_at")
 	a.PublishAt = field.NewTime(table, "publish_at")
 	a.OfflineAt = field.NewTime(table, "offline_at")
@@ -153,21 +182,21 @@ func (a *article) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *article) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 21)
+	a.fieldMap = make(map[string]field.Expr, 24)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["created_at"] = a.CreatedAt
 	a.fieldMap["updated_at"] = a.UpdatedAt
 	a.fieldMap["deleted_at"] = a.DeletedAt
 	a.fieldMap["url"] = a.Url
 	a.fieldMap["category_id"] = a.CategoryID
-	a.fieldMap["author_id"] = a.AuthorId
+	a.fieldMap["author_id"] = a.AuthorID
 	a.fieldMap["flag"] = a.Flag
 	a.fieldMap["title"] = a.Title
 	a.fieldMap["description"] = a.Description
 	a.fieldMap["click_count"] = a.ClickCount
 	a.fieldMap["status"] = a.Status
 	a.fieldMap["target"] = a.Target
-	a.fieldMap["model_id"] = a.ModelId
+	a.fieldMap["model_id"] = a.ModelID
 	a.fieldMap["submit_at"] = a.SubmitAt
 	a.fieldMap["publish_at"] = a.PublishAt
 	a.fieldMap["offline_at"] = a.OfflineAt
@@ -177,21 +206,196 @@ func (a *article) fillFieldMap() {
 
 func (a article) clone(db *gorm.DB) article {
 	a.articleDo.ReplaceConnPool(db.Statement.ConnPool)
+	a.Category.db = db.Session(&gorm.Session{Initialized: true})
+	a.Category.db.Statement.ConnPool = db.Statement.ConnPool
+	a.Author.db = db.Session(&gorm.Session{Initialized: true})
+	a.Author.db.Statement.ConnPool = db.Statement.ConnPool
 	a.Content.db = db.Session(&gorm.Session{Initialized: true})
 	a.Content.db.Statement.ConnPool = db.Statement.ConnPool
 	a.ModelData.db = db.Session(&gorm.Session{Initialized: true})
 	a.ModelData.db.Statement.ConnPool = db.Statement.ConnPool
 	a.Keywords.db = db.Session(&gorm.Session{Initialized: true})
 	a.Keywords.db.Statement.ConnPool = db.Statement.ConnPool
+	a.ModelSchema.db = db.Session(&gorm.Session{Initialized: true})
+	a.ModelSchema.db.Statement.ConnPool = db.Statement.ConnPool
 	return a
 }
 
 func (a article) replaceDB(db *gorm.DB) article {
 	a.articleDo.ReplaceDB(db)
+	a.Category.db = db.Session(&gorm.Session{})
+	a.Author.db = db.Session(&gorm.Session{})
 	a.Content.db = db.Session(&gorm.Session{})
 	a.ModelData.db = db.Session(&gorm.Session{})
 	a.Keywords.db = db.Session(&gorm.Session{})
+	a.ModelSchema.db = db.Session(&gorm.Session{})
 	return a
+}
+
+type articleHasOneCategory struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	SEO struct {
+		field.RelationField
+	}
+}
+
+func (a articleHasOneCategory) Where(conds ...field.Expr) *articleHasOneCategory {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a articleHasOneCategory) WithContext(ctx context.Context) *articleHasOneCategory {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a articleHasOneCategory) Session(session *gorm.Session) *articleHasOneCategory {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a articleHasOneCategory) Model(m *model.Article) *articleHasOneCategoryTx {
+	return &articleHasOneCategoryTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a articleHasOneCategory) Unscoped() *articleHasOneCategory {
+	a.db = a.db.Unscoped()
+	return &a
+}
+
+type articleHasOneCategoryTx struct{ tx *gorm.Association }
+
+func (a articleHasOneCategoryTx) Find() (result *model.Category, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a articleHasOneCategoryTx) Append(values ...*model.Category) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a articleHasOneCategoryTx) Replace(values ...*model.Category) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a articleHasOneCategoryTx) Delete(values ...*model.Category) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a articleHasOneCategoryTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a articleHasOneCategoryTx) Count() int64 {
+	return a.tx.Count()
+}
+
+func (a articleHasOneCategoryTx) Unscoped() *articleHasOneCategoryTx {
+	a.tx = a.tx.Unscoped()
+	return &a
+}
+
+type articleHasOneAuthor struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a articleHasOneAuthor) Where(conds ...field.Expr) *articleHasOneAuthor {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a articleHasOneAuthor) WithContext(ctx context.Context) *articleHasOneAuthor {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a articleHasOneAuthor) Session(session *gorm.Session) *articleHasOneAuthor {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a articleHasOneAuthor) Model(m *model.Article) *articleHasOneAuthorTx {
+	return &articleHasOneAuthorTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a articleHasOneAuthor) Unscoped() *articleHasOneAuthor {
+	a.db = a.db.Unscoped()
+	return &a
+}
+
+type articleHasOneAuthorTx struct{ tx *gorm.Association }
+
+func (a articleHasOneAuthorTx) Find() (result *model.UserProfile, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a articleHasOneAuthorTx) Append(values ...*model.UserProfile) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a articleHasOneAuthorTx) Replace(values ...*model.UserProfile) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a articleHasOneAuthorTx) Delete(values ...*model.UserProfile) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a articleHasOneAuthorTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a articleHasOneAuthorTx) Count() int64 {
+	return a.tx.Count()
+}
+
+func (a articleHasOneAuthorTx) Unscoped() *articleHasOneAuthorTx {
+	a.tx = a.tx.Unscoped()
+	return &a
 }
 
 type articleHasOneContent struct {
@@ -433,6 +637,87 @@ func (a articleHasManyKeywordsTx) Count() int64 {
 }
 
 func (a articleHasManyKeywordsTx) Unscoped() *articleHasManyKeywordsTx {
+	a.tx = a.tx.Unscoped()
+	return &a
+}
+
+type articleHasManyModelSchema struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a articleHasManyModelSchema) Where(conds ...field.Expr) *articleHasManyModelSchema {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a articleHasManyModelSchema) WithContext(ctx context.Context) *articleHasManyModelSchema {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a articleHasManyModelSchema) Session(session *gorm.Session) *articleHasManyModelSchema {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a articleHasManyModelSchema) Model(m *model.Article) *articleHasManyModelSchemaTx {
+	return &articleHasManyModelSchemaTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a articleHasManyModelSchema) Unscoped() *articleHasManyModelSchema {
+	a.db = a.db.Unscoped()
+	return &a
+}
+
+type articleHasManyModelSchemaTx struct{ tx *gorm.Association }
+
+func (a articleHasManyModelSchemaTx) Find() (result []*model.ArticleModelSchema, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a articleHasManyModelSchemaTx) Append(values ...*model.ArticleModelSchema) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a articleHasManyModelSchemaTx) Replace(values ...*model.ArticleModelSchema) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a articleHasManyModelSchemaTx) Delete(values ...*model.ArticleModelSchema) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a articleHasManyModelSchemaTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a articleHasManyModelSchemaTx) Count() int64 {
+	return a.tx.Count()
+}
+
+func (a articleHasManyModelSchemaTx) Unscoped() *articleHasManyModelSchemaTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }

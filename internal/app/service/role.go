@@ -4,12 +4,12 @@ import (
     `context`
     
     `dpcms/internal/app/dto`
+    `dpcms/internal/app/dto/type`
     `dpcms/internal/app/erroz`
-    `dpcms/internal/app/service/internal/common`
     `dpcms/internal/app/util/rbacutil`
     `dpcms/internal/infra`
-    `dpcms/internal/infra/persistence/dbscope`
     `dpcms/internal/infra/persistence/datatype`
+    `dpcms/internal/infra/persistence/dbscope`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
     
@@ -177,7 +177,7 @@ func (srv Role) FindRoleByID(ctx context.Context, id datatype.SafeUint64) (resul
     return
 }
 
-func (srv Role) List(ctx context.Context, params dto.RoleListParams) (*common.PaginatedResult[*model.Role], error) {
+func (srv Role) List(ctx context.Context, params dto.RoleListParams) (*dtotype.PaginatedResult[*model.Role], error) {
     dao := srv.persist.Role
     q := dao.WithContext(ctx).Scopes(dbscope.Paginate(params.PageNo, params.PageSize))
     
@@ -209,7 +209,7 @@ func (srv Role) List(ctx context.Context, params dto.RoleListParams) (*common.Pa
         return nil, err
     }
     
-    return &common.PaginatedResult[*model.Role]{
+    return &dtotype.PaginatedResult[*model.Role]{
         Total:    count,
         PageNo:   params.PageNo,
         PageSize: params.PageSize,

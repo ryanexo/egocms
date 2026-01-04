@@ -104,7 +104,3 @@ func shouldSetUserFromToken(ctx *gin.Context, tokenSrv *service.Token, token str
     ctx.Set(constant.RequestUserKey, user)
     return user, nil
 }
-
-func GetAuthorizedUser(ctx *gin.Context) *model.User {
-    return ctx.MustGet(constant.RequestUserKey).(*model.User)
-}

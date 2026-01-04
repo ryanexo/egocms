@@ -62,7 +62,7 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		Log:     loggerLogger,
 		HashIds: hashIds,
 	}
-	category := service.NewCategoryCategory(infraInfra)
+	category := service.NewCategoryService(infraInfra)
 	user := service.NewUserService(infraInfra)
 	token := service.NewTokenService(cfg, infraInfra)
 	rbac, err := service.NewRBACService(infraInfra)

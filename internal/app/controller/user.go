@@ -6,6 +6,7 @@ import (
     `dpcms/internal/app/erroz`
     `dpcms/internal/app/middleware/authz`
     `dpcms/internal/app/service`
+    `dpcms/internal/app/util/contextutil`
     `dpcms/internal/infra`
     `dpcms/internal/infra/logger`
     
@@ -86,8 +87,11 @@ func (c UserController) UpdatePassword(ctx *gin.Context) {
         if params.Password == params.OldPassword {
             return nil, erroz.UserEqualsOldPasswd.ToError()
         }
-        u := authz.GetAuthorizedUser(ctx)
-        _, err := c.services.User.FindByCredential(ctx, dto.UserCredentialParams{
+        u, err := contextutil.GetAuthorizedUser(ctx)
+        if err != nil {
+            return nil, err
+        }
+        _, err = c.services.User.FindByCredential(ctx, dto.UserCredentialParams{
             Username: u.Username,
             Password: params.OldPassword,
         })
@@ -115,7 +119,11 @@ func (c UserController) List(ctx *gin.Context) {
 }
 
 func (c UserController) Profile(ctx *gin.Context) {
-    u := authz.GetAuthorizedUser(ctx)
+    u, err := contextutil.GetAuthorizedUser(ctx)
+    if err != nil {
+        erroz.ResolveWithWrite(ctx, err)
+        return
+    }
     erroz.OK.WithOption(erroz.WithData(u)).Write(ctx)
 }
 

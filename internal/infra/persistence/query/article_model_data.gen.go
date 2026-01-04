@@ -28,6 +28,9 @@ func newArticleModelData(db *gorm.DB, opts ...gen.DOOption) articleModelData {
 	tableName := _articleModelData.articleModelDataDo.TableName()
 	_articleModelData.ALL = field.NewAsterisk(tableName)
 	_articleModelData.ID = field.NewUint64(tableName, "id")
+	_articleModelData.CreatedAt = field.NewTime(tableName, "created_at")
+	_articleModelData.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_articleModelData.DeletedAt = field.NewField(tableName, "deleted_at")
 	_articleModelData.ModelId = field.NewUint64(tableName, "model_id")
 	_articleModelData.ArticleId = field.NewUint64(tableName, "article_id")
 	_articleModelData.FieldName = field.NewString(tableName, "field_name")
@@ -48,6 +51,9 @@ type articleModelData struct {
 
 	ALL         field.Asterisk
 	ID          field.Uint64
+	CreatedAt   field.Time
+	UpdatedAt   field.Time
+	DeletedAt   field.Field
 	ModelId     field.Uint64
 	ArticleId   field.Uint64
 	FieldName   field.String
@@ -74,6 +80,9 @@ func (a articleModelData) As(alias string) *articleModelData {
 func (a *articleModelData) updateTableName(table string) *articleModelData {
 	a.ALL = field.NewAsterisk(table)
 	a.ID = field.NewUint64(table, "id")
+	a.CreatedAt = field.NewTime(table, "created_at")
+	a.UpdatedAt = field.NewTime(table, "updated_at")
+	a.DeletedAt = field.NewField(table, "deleted_at")
 	a.ModelId = field.NewUint64(table, "model_id")
 	a.ArticleId = field.NewUint64(table, "article_id")
 	a.FieldName = field.NewString(table, "field_name")
@@ -111,8 +120,11 @@ func (a *articleModelData) GetFieldByName(fieldName string) (field.OrderExpr, bo
 }
 
 func (a *articleModelData) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 10)
+	a.fieldMap = make(map[string]field.Expr, 13)
 	a.fieldMap["id"] = a.ID
+	a.fieldMap["created_at"] = a.CreatedAt
+	a.fieldMap["updated_at"] = a.UpdatedAt
+	a.fieldMap["deleted_at"] = a.DeletedAt
 	a.fieldMap["model_id"] = a.ModelId
 	a.fieldMap["article_id"] = a.ArticleId
 	a.fieldMap["field_name"] = a.FieldName

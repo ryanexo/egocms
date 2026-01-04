@@ -1,11 +1,10 @@
 package dto
 
 import (
-    `database/sql`
     `time`
     
-    `dpcms/internal/infra/persistence/dbscope`
     `dpcms/internal/infra/persistence/datatype`
+    `dpcms/internal/infra/persistence/dbscope`
     `dpcms/internal/infra/persistence/model`
     
     `github.com/go-playground/validator/v10`
@@ -77,7 +76,7 @@ type User struct {
     Username   string              `json:"username"`
     Password   string              `json:"-"`
     Email      string              `json:"email"`
-    VerifiedAt sql.NullTime        `json:"verifiedAt"`
+    VerifiedAt *time.Time          `json:"verifiedAt"`
     IP         string              `json:"ip"`
     Status     int8                `json:"status"`
     RoleID     datatype.SafeUint64 `json:"roleId" swaggertype:"string"`

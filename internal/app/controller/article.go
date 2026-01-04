@@ -5,6 +5,7 @@ import (
     `dpcms/internal/app/dto`
     `dpcms/internal/app/middleware/authz`
     `dpcms/internal/app/service`
+    `dpcms/internal/app/util/contextutil`
     
     `github.com/gin-gonic/gin`
 )
@@ -35,24 +36,64 @@ func (s ArticleController) setup(engine *gin.Engine) {
     )
 }
 
+// Create 创建文章
+// @x-apifox-folder "文章/内容模型"
+// @Summary 创建文章
+// @Tags    文章
+// @Accept  json
+// @Produce json
+// @Param   body body dto.ArticleCreateParams true "请求参数"
+// @Success 200 {object} erroz.Result{data=nil}
+// @Router  /article/create [post]
 func (s ArticleController) Create(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ArticleCreateParams](ctx, func(params dto.ArticleCreateParams) (any, error) {
-        return nil, s.srv.Article.Create(ctx, params)
+        u, err := contextutil.GetAuthorizedUser(ctx)
+        if err != nil {
+            return nil, err
+        }
+        return s.srv.Article.Create(ctx, u, params)
     })
 }
 
+// Update 更新文章
+// @x-apifox-folder "文章/内容模型"
+// @Summary 更新文章
+// @Tags    文章
+// @Accept  json
+// @Produce json
+// @Param   body body dto.ArticleUpdateParams true "请求参数"
+// @Success 200 {object} erroz.Result{data=nil}
+// @Router  /article/update [post]
 func (s ArticleController) Update(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ArticleUpdateParams](ctx, func(params dto.ArticleUpdateParams) (any, error) {
         return nil, s.srv.Article.Update(ctx, params)
     })
 }
 
+// Delete 删除文章
+// @x-apifox-folder "文章/内容模型"
+// @Summary 删除文章
+// @Tags    文章
+// @Accept  json
+// @Produce json
+// @Param   body body dto.ResourceID true "请求参数"
+// @Success 200 {object} erroz.Result{data=nil}
+// @Router  /article/delete [post]
 func (s ArticleController) Delete(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ResourceID](ctx, func(params dto.ResourceID) (any, error) {
         return nil, s.srv.Article.Delete(ctx, params.ID)
     })
 }
 
+// Detail 查看文章
+// @x-apifox-folder "文章/内容模型"
+// @Summary 查看文章
+// @Tags    文章
+// @Accept  json
+// @Produce json
+// @Param   body body dto.ResourceID true "请求参数"
+// @Success 200 {object} erroz.Result{data=nil}
+// @Router  /article/detail [post]
 func (s ArticleController) Detail(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ResourceID](ctx, func(params dto.ResourceID) (any, error) {
         return s.srv.Article.FindByID(ctx, params.ID)

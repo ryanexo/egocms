@@ -1,5 +1,40 @@
 basePath: /
 definitions:
+  customvalue.EnumValue:
+    properties:
+      label:
+        type: string
+      value:
+        type: string
+    type: object
+  dto.ArticleCreateParams:
+    properties:
+      content:
+        maxLength: 65535
+        type: string
+      description:
+        maxLength: 255
+        type: string
+      keywords:
+        items:
+          type: string
+        maxItems: 10
+        type: array
+      modelData:
+        additionalProperties: {}
+        type: object
+      modelId:
+        type: string
+      target:
+        type: string
+      title:
+        maxLength: 255
+        type: string
+      url:
+        type: string
+    required:
+    - title
+    type: object
   dto.ArticleModelCreateParams:
     properties:
       description:
@@ -10,11 +45,287 @@ definitions:
     - description
     - name
     type: object
+  dto.ArticleModelSchemaParams:
+    properties:
+      description:
+        maxLength: 255
+        type: string
+      enable:
+        type: boolean
+      enumOptions:
+        items:
+          $ref: '#/definitions/customvalue.EnumValue'
+        type: array
+      fieldKey:
+        maxLength: 255
+        type: string
+      fieldName:
+        maxLength: 255
+        type: string
+      hidden:
+        type: boolean
+      id:
+        type: string
+      maxLen:
+        type: string
+      maxValue:
+        type: integer
+      minLen:
+        type: string
+      minValue:
+        type: integer
+      pattern:
+        type: string
+      required:
+        type: boolean
+      sequence:
+        type: integer
+      type:
+        type: integer
+    required:
+    - fieldKey
+    - fieldName
+    - type
+    type: object
+  dto.ArticleModelSchemaUpdateParams:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.ArticleModelSchemaParams'
+        type: array
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  dto.ArticleModelUpdateParams:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - id
+    type: object
+  dto.ArticleUpdateParams:
+    properties:
+      categoryId:
+        type: string
+      content:
+        type: string
+      description:
+        type: string
+      flag:
+        type: integer
+      id:
+        type: string
+      keywords:
+        items:
+          type: string
+        type: array
+      modelData:
+        additionalProperties: {}
+        type: object
+      target:
+        type: string
+      title:
+        type: string
+      url:
+        type: string
+    type: object
+  dto.CategoryCreateParams:
+    properties:
+      display:
+        type: integer
+      name:
+        type: string
+      parentID:
+        type: string
+      path:
+        type: string
+      seo:
+        $ref: '#/definitions/dto.CategorySEO'
+      sequence:
+        type: integer
+      type:
+        type: integer
+    required:
+    - name
+    - path
+    type: object
+  dto.CategoryListParams:
+    properties:
+      display:
+        type: integer
+      id:
+        type: string
+      name:
+        type: string
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+      parentId:
+        type: string
+      path:
+        type: string
+      type:
+        type: integer
+    type: object
+  dto.CategoryMoveParams:
+    properties:
+      id:
+        type: string
+      targetId:
+        type: string
+    type: object
+  dto.CategorySEO:
+    properties:
+      description:
+        type: string
+      keywords:
+        type: string
+      title:
+        type: string
+    type: object
+  dto.CategoryUpdateParams:
+    properties:
+      display:
+        type: integer
+      id:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+      seo:
+        $ref: '#/definitions/dto.CategorySEO'
+      sequence:
+        type: integer
+      type:
+        type: integer
+    required:
+    - id
+    type: object
+  dto.MenuCreateParams:
+    properties:
+      name:
+        type: string
+      parentId:
+        type: string
+      remark:
+        type: string
+      sequence:
+        type: string
+      template:
+        type: string
+      uri:
+        type: string
+    required:
+    - name
+    - uri
+    type: object
+  dto.MenuListQueryParams:
+    properties:
+      ancestor:
+        type: string
+      name:
+        type: string
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+    type: object
+  dto.MenuMoveParams:
+    properties:
+      id:
+        type: string
+      targetId:
+        type: string
+    required:
+    - id
+    - targetId
+    type: object
+  dto.MenuUpdateParams:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      remark:
+        type: string
+      sequence:
+        type: string
+      template:
+        type: string
+      uri:
+        type: string
+    required:
+    - id
+    type: object
+  dto.ResourceID:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
   erroz.Result:
     properties:
       code:
         type: string
       data: {}
+      msg:
+        type: string
+    type: object
+  model.Category:
+    properties:
+      SEO:
+        $ref: '#/definitions/model.CategorySeo'
+      createdAt:
+        type: string
+      display:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      parentId:
+        type: integer
+      path:
+        type: string
+      sequence:
+        type: integer
+      type:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  model.CategorySeo:
+    properties:
+      categoryId:
+        type: integer
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      keywords:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  swaggertype.CategoryList:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/model.Category'
       msg:
         type: string
     type: object
@@ -30,7 +341,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 创建参数
+      - description: 请求参数
         in: body
         name: body
         required: true
@@ -50,6 +361,534 @@ paths:
               type: object
       summary: 创建文章模型
       tags:
-      - article
+      - 文章
       x-apifox-folder: 文章/内容模型
+  /article-model/delete:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 删除文章模型
+      tags:
+      - 文章
+      x-apifox-folder: 文章/内容模型
+  /article-model/detail:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 删除文章模型
+      tags:
+      - 文章
+      x-apifox-folder: 文章/内容模型
+  /article-model/update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ArticleModelUpdateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 更新文章模型
+      tags:
+      - 文章
+      x-apifox-folder: 文章/内容模型
+  /article-model/update-schema:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ArticleModelSchemaUpdateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 更新文章模型
+      tags:
+      - 文章
+      x-apifox-folder: 文章/内容模型
+  /article/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ArticleCreateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 创建文章
+      tags:
+      - 文章
+      x-apifox-folder: 文章/内容模型
+  /article/delete:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 删除文章
+      tags:
+      - 文章
+      x-apifox-folder: 文章/内容模型
+  /article/detail:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 查看文章
+      tags:
+      - 文章
+      x-apifox-folder: 文章/内容模型
+  /article/update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ArticleUpdateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 更新文章
+      tags:
+      - 文章
+      x-apifox-folder: 文章/内容模型
+  /category/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CategoryCreateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 创建分类
+      tags:
+      - 分类
+      x-apifox-folder: 内容分类
+  /category/delete:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 删除分类
+      tags:
+      - 分类
+      x-apifox-folder: 内容分类
+  /category/detail:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: 查看分类
+      tags:
+      - 分类
+      x-apifox-folder: 内容分类
+  /category/list:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CategoryListParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.CategoryList'
+      summary: 分类列表
+      tags:
+      - 分类
+      x-apifox-folder: 内容分类
+  /category/move:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CategoryMoveParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 移动分类
+      tags:
+      - 分类
+      x-apifox-folder: 内容分类
+  /category/update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CategoryUpdateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 更新分类
+      tags:
+      - 分类
+      x-apifox-folder: 内容分类
+  /menu/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MenuCreateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 创建菜单
+      tags:
+      - 菜单
+      x-apifox-folder: 菜单
+  /menu/delete:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 删除菜单
+      tags:
+      - 菜单
+      x-apifox-folder: 菜单
+  /menu/detail:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 查看菜单
+      tags:
+      - 菜单
+      x-apifox-folder: 菜单
+  /menu/list:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MenuListQueryParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 菜单列表
+      tags:
+      - 菜单
+      x-apifox-folder: 菜单
+  /menu/move:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MenuMoveParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 移动菜单
+      tags:
+      - 菜单
+      x-apifox-folder: 菜单
+  /menu/update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MenuUpdateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 更新菜单
+      tags:
+      - 菜单
+      x-apifox-folder: 菜单
 swagger: "2.0"

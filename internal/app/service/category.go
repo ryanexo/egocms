@@ -3,19 +3,17 @@ package service
 import (
     "context"
     `errors`
-    `fmt`
     
+    catAssembler `dpcms/internal/app/assembler/category`
     `dpcms/internal/app/dto`
+    `dpcms/internal/app/dto/type`
     `dpcms/internal/app/erroz`
-    `dpcms/internal/app/service/internal/common`
-    `dpcms/internal/app/util/gormutil`
     `dpcms/internal/infra`
-    `dpcms/internal/infra/persistence/dbscope`
     `dpcms/internal/infra/persistence/datatype`
-    `dpcms/internal/infra/persistence/model`
+    `dpcms/internal/infra/persistence/dbscope`
     `dpcms/internal/infra/persistence/query`
+    `dpcms/internal/infra/persistence/repo`
     
-    `github.com/jinzhu/copier`
     `gorm.io/gorm`
 )
 
@@ -24,148 +22,104 @@ type Category struct {
     db      *gorm.DB
 }
 
-func NewCategoryCategory(i *infra.Infra) *Category {
+func NewCategoryService(i *infra.Infra) *Category {
     return &Category{persist: i.Query, db: i.DB}
 }
 
-func (srv Category) Create(ctx context.Context, createParams dto.CategoryCreateParams) (*model.Category, error) {
-    category := model.Category{}
-    if err := copier.Copy(&category, &createParams); err != nil {
+func (srv Category) Create(ctx context.Context, params dto.CategoryCreateParams) (*dto.Category, error) {
+    cat, err := catAssembler.ToCategoryCreateCommand(&params)
+    if err != nil {
         return nil, err
     }
-    err := srv.persist.Transaction(func(tx *query.Query) error {
-        queryCtx := tx.WithContext(ctx)
-        txErr := queryCtx.Category.Create(&category)
+    err = srv.persist.Transaction(func(tx *query.Query) error {
+        catRepo := repo.NewCategoryRepo(tx)
+        txErr := catRepo.Create(ctx, cat)
         if txErr != nil {
             return txErr
         }
-        
-        txErr = queryCtx.CategoryContext.CreateSubtree(category.ID.Raw(), category.ParentID.Raw())
+        txErr = catRepo.CreateSubtree(ctx, cat.ID.Raw(), cat.ParentID.Raw())
         if txErr != nil {
             return txErr
         }
-        
         return nil
     })
     if err != nil {
         return nil, err
     }
-    return &category, nil
+    return catAssembler.ToCategoryDTO(cat)
 }
 
-func (srv Category) Update(ctx context.Context, category dto.CategoryUpdateParams) error {
-    return srv.persist.Transaction(func(tx *query.Query) error {
-        queryCtx := tx.WithContext(ctx)
-        _, err := queryCtx.Category.Where(tx.Category.ID.Eq(category.ID.Raw())).First()
-        if err != nil {
-            return err
-        }
-        _, err = srv.persist.WithContext(ctx).Category.Updates(category)
+func (srv Category) Update(ctx context.Context, params dto.CategoryUpdateParams) error {
+    catRepo := repo.NewCategoryRepo(srv.persist)
+    _, err := catRepo.FindByID(ctx, params.ID.Raw())
+    if err != nil {
         return err
-    })
+    }
+    cat, err := catAssembler.ToCategoryUpdateCommand(&params)
+    if err != nil {
+        return err
+    }
+    _, err = catRepo.Update(ctx, cat)
+    return err
 }
 
 func (srv Category) Delete(ctx context.Context, id datatype.SafeUint64) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
-        ctxDao := tx.CategoryContext
-        
-        sqlStr := "DELETE FROM %[1]s WHERE id IN ( SELECT d_id FROM ( SELECT t.%[3]s AS d_id FROM %[1]s AS t WHERE %[2]s = ? ) )"
-        deleteSql := fmt.Sprintf(sqlStr, tx.Category.TableName(), ctxDao.Ancestor.ColumnName(), ctxDao.Descendant.ColumnName())
-        
-        err := srv.db.WithContext(ctx).Exec(deleteSql, id).Error
-        if err != nil {
-            return err
-        }
-        err = tx.WithContext(ctx).CategoryContext.DropSubtree(id.Raw())
-        if err != nil {
-            return err
-        }
-        return nil
+        return repo.NewCategoryRepo(tx).Delete(ctx, id.Raw())
     })
 }
 
 func (srv Category) Move(ctx context.Context, id datatype.SafeUint64, target datatype.SafeUint64) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
-        queryCtx := tx.WithContext(ctx)
-        ctxDao := tx.CategoryContext
-        
-        _, err := queryCtx.CategoryContext.Where(ctxDao.Ancestor.Eq(id.Raw()), ctxDao.Descendant.Eq(target.Raw())).First()
+        catRepo := repo.NewCategoryRepo(tx)
+        _, err := catRepo.FindByIDWithAncestor(ctx, id.Raw(), target.Raw())
         if err == nil {
             return erroz.CategoryCircular.ToError()
         } else if !errors.Is(err, gorm.ErrRecordNotFound) {
             return err
         }
         
-        err = queryCtx.CategoryContext.UnbindRelationships(id.Raw())
-        if err != nil {
-            return err
-        }
-        err = queryCtx.CategoryContext.ReBindRelationships(id.Raw(), target.Raw())
-        if err != nil {
-            return err
-        }
-        _, err = queryCtx.Category.Where(srv.persist.Category.ID.Eq(id.Raw())).Update(srv.persist.Category.ParentID, target)
-        if err != nil {
-            return err
-        }
-        
-        return nil
+        return catRepo.Move(ctx, id.Raw(), target.Raw())
     })
 }
 
-func (srv Category) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.Category, error) {
-    q := srv.persist.Category
-    result, err := q.WithContext(ctx).Where(q.ID.Eq(id.Raw())).First()
-    if err != nil {
-        return nil, gormutil.ReplaceNotFoundError(err)
-    }
-    return result, nil
-}
-
-func (srv Category) ListRootNodes(ctx context.Context, pageNo int, pageSize int) ([]*model.Category, error) {
-    return srv.persist.Category.WithContext(ctx).Scopes(dbscope.Paginate(pageNo, pageSize)).Where(srv.persist.Category.ParentID.Eq(0)).Find()
-}
-
-func (srv Category) ListNodesByParentID(ctx context.Context, id datatype.SafeUint64, pageSize int, pageNo int) ([]*model.Category, error) {
-    q := srv.persist.Category
-    return q.WithContext(ctx).Where(q.ParentID.Eq(id.Raw())).Scopes(dbscope.Paginate(pageNo, pageSize)).Find()
-}
-
-func (srv Category) List(ctx context.Context, params dto.CategoryListParams) (*common.PaginatedResult[*model.Category], error) {
-    dao := srv.persist.Category
-    q := dao.WithContext(ctx).Scopes(dbscope.Paginate(params.PageNo, params.PageSize))
-    if params.ID != nil {
-        q = q.Where(dao.ID.Eq(params.ID.Raw()))
-    }
-    if params.ParentID != nil {
-        q = q.Where(dao.ParentID.Eq(params.ParentID.Raw()))
-    }
-    if params.Type != nil {
-        q = q.Where(dao.Type.Eq(*params.Type))
-    }
-    if params.Name != nil {
-        q = q.Where(dao.Name.Eq(*params.Name))
-    }
-    if params.Path != nil {
-        q = q.Where(dao.Path.Eq(*params.Path))
-    }
-    if params.Display != nil {
-        q = q.Where(dao.Display.Eq(*params.Display))
-    }
-    
-    total, err := q.Count()
+func (srv Category) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Category, error) {
+    cat, err := repo.NewCategoryRepo(srv.persist).FindByID(ctx, id.Raw())
     if err != nil {
         return nil, err
     }
-    result, err := q.Find()
+    return catAssembler.ToCategoryDTO(cat)
+}
+
+func (srv Category) ListRootNodes(ctx context.Context, pageNo int, pageSize int) (*dtotype.PaginatedResult[*dto.Category], error) {
+    pid := datatype.SafeUint64(0)
+    return srv.List(ctx, dto.CategoryListParams{
+        ParentID:   &pid,
+        Pagination: dbscope.Pagination{PageNo: pageNo, PageSize: pageSize},
+    })
+}
+
+func (srv Category) ListNodesByParentID(ctx context.Context, id datatype.SafeUint64, pageSize int, pageNo int) (*dtotype.PaginatedResult[*dto.Category], error) {
+    return srv.List(ctx, dto.CategoryListParams{
+        ParentID:   &id,
+        Pagination: dbscope.Pagination{PageNo: pageNo, PageSize: pageSize},
+    })
+}
+
+func (srv Category) List(ctx context.Context, params dto.CategoryListParams) (*dtotype.PaginatedResult[*dto.Category], error) {
+    data, total, err := repo.NewCategoryRepo(srv.persist).List(ctx, params)
+    if err != nil {
+        return nil, err
+    }
+    list, err := catAssembler.ToCategoryListDTO(data)
     if err != nil {
         return nil, err
     }
     
-    return &common.PaginatedResult[*model.Category]{
+    return &dtotype.PaginatedResult[*dto.Category]{
         Total:    total,
         PageSize: params.PageSize,
         PageNo:   params.PageNo,
-        List:     result,
+        List:     list,
     }, nil
 }

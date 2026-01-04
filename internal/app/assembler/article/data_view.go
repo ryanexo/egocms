@@ -7,19 +7,17 @@ import (
 )
 
 type DataViewContext struct {
-    Article   *model.Article
-    Category  *model.Category
-    Author    *model.UserProfile
-    Keywords  []*model.ArticleKeywords
-    Schema    []*model.ArticleModelSchema
-    ModelData map[string]any
+    Article  *model.Article
+    Category *model.Category
+    Author   *model.UserProfile
+    Schema   []*model.ArticleModelSchema
 }
 
-func NewArticleBasicData(ctx DataViewContext) *dto.Article {
-    keywords := make([]string, len(ctx.Keywords))
+func NewArticleDataView(ctx DataViewContext) *dto.Article {
+    keywords := make([]string, len(ctx.Article.Keywords))
     schema := make([]*dto.ArticleModelSchema, len(ctx.Schema))
     
-    for _, keyword := range ctx.Keywords {
+    for _, keyword := range ctx.Article.Keywords {
         keywords = append(keywords, keyword.Keyword)
     }
     
@@ -39,9 +37,9 @@ func NewArticleBasicData(ctx DataViewContext) *dto.Article {
             UpdatedAt: ctx.Article.Base.UpdatedAt,
         },
         Url:          ctx.Article.Url,
-        CategoryId:   ctx.Category.ID,
+        CategoryID:   ctx.Category.ID,
         CategoryName: ctx.Category.Name,
-        AuthorId:     ctx.Author.ID,
+        AuthorID:     ctx.Author.ID,
         AuthorName:   ctx.Author.Nickname,
         Flag:         ctx.Article.Flag,
         Title:        ctx.Article.Title,
@@ -50,8 +48,8 @@ func NewArticleBasicData(ctx DataViewContext) *dto.Article {
         Status:       ctx.Article.Status,
         Target:       ctx.Article.Target.String,
         Keywords:     keywords,
-        ModelId:      ctx.Article.ModelId,
+        ModelID:      ctx.Article.ModelID,
         ModelSchema:  schema,
-        ModelData:    ctx.ModelData,
+        ModelData:    ctx.Article.ModelData.Data,
     }
 }

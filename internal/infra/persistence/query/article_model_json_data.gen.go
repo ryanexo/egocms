@@ -28,6 +28,9 @@ func newArticleModelJsonData(db *gorm.DB, opts ...gen.DOOption) articleModelJson
 	tableName := _articleModelJsonData.articleModelJsonDataDo.TableName()
 	_articleModelJsonData.ALL = field.NewAsterisk(tableName)
 	_articleModelJsonData.ID = field.NewUint64(tableName, "id")
+	_articleModelJsonData.CreatedAt = field.NewTime(tableName, "created_at")
+	_articleModelJsonData.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_articleModelJsonData.DeletedAt = field.NewField(tableName, "deleted_at")
 	_articleModelJsonData.ArticleId = field.NewUint64(tableName, "article_id")
 	_articleModelJsonData.ModelId = field.NewUint64(tableName, "model_id")
 	_articleModelJsonData.Data = field.NewField(tableName, "data")
@@ -42,6 +45,9 @@ type articleModelJsonData struct {
 
 	ALL       field.Asterisk
 	ID        field.Uint64
+	CreatedAt field.Time
+	UpdatedAt field.Time
+	DeletedAt field.Field
 	ArticleId field.Uint64
 	ModelId   field.Uint64
 	Data      field.Field
@@ -62,6 +68,9 @@ func (a articleModelJsonData) As(alias string) *articleModelJsonData {
 func (a *articleModelJsonData) updateTableName(table string) *articleModelJsonData {
 	a.ALL = field.NewAsterisk(table)
 	a.ID = field.NewUint64(table, "id")
+	a.CreatedAt = field.NewTime(table, "created_at")
+	a.UpdatedAt = field.NewTime(table, "updated_at")
+	a.DeletedAt = field.NewField(table, "deleted_at")
 	a.ArticleId = field.NewUint64(table, "article_id")
 	a.ModelId = field.NewUint64(table, "model_id")
 	a.Data = field.NewField(table, "data")
@@ -93,8 +102,11 @@ func (a *articleModelJsonData) GetFieldByName(fieldName string) (field.OrderExpr
 }
 
 func (a *articleModelJsonData) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 4)
+	a.fieldMap = make(map[string]field.Expr, 7)
 	a.fieldMap["id"] = a.ID
+	a.fieldMap["created_at"] = a.CreatedAt
+	a.fieldMap["updated_at"] = a.UpdatedAt
+	a.fieldMap["deleted_at"] = a.DeletedAt
 	a.fieldMap["article_id"] = a.ArticleId
 	a.fieldMap["model_id"] = a.ModelId
 	a.fieldMap["data"] = a.Data

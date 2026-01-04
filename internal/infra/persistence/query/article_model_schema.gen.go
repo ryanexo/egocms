@@ -28,6 +28,9 @@ func newArticleModelSchema(db *gorm.DB, opts ...gen.DOOption) articleModelSchema
 	tableName := _articleModelSchema.articleModelSchemaDo.TableName()
 	_articleModelSchema.ALL = field.NewAsterisk(tableName)
 	_articleModelSchema.ID = field.NewUint64(tableName, "id")
+	_articleModelSchema.CreatedAt = field.NewTime(tableName, "created_at")
+	_articleModelSchema.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_articleModelSchema.DeletedAt = field.NewField(tableName, "deleted_at")
 	_articleModelSchema.ModelId = field.NewUint64(tableName, "model_id")
 	_articleModelSchema.FieldKey = field.NewString(tableName, "field_key")
 	_articleModelSchema.FieldName = field.NewString(tableName, "field_name")
@@ -56,6 +59,9 @@ type articleModelSchema struct {
 
 	ALL         field.Asterisk
 	ID          field.Uint64
+	CreatedAt   field.Time
+	UpdatedAt   field.Time
+	DeletedAt   field.Field
 	ModelId     field.Uint64
 	FieldKey    field.String
 	FieldName   field.String
@@ -90,6 +96,9 @@ func (a articleModelSchema) As(alias string) *articleModelSchema {
 func (a *articleModelSchema) updateTableName(table string) *articleModelSchema {
 	a.ALL = field.NewAsterisk(table)
 	a.ID = field.NewUint64(table, "id")
+	a.CreatedAt = field.NewTime(table, "created_at")
+	a.UpdatedAt = field.NewTime(table, "updated_at")
+	a.DeletedAt = field.NewField(table, "deleted_at")
 	a.ModelId = field.NewUint64(table, "model_id")
 	a.FieldKey = field.NewString(table, "field_key")
 	a.FieldName = field.NewString(table, "field_name")
@@ -135,8 +144,11 @@ func (a *articleModelSchema) GetFieldByName(fieldName string) (field.OrderExpr, 
 }
 
 func (a *articleModelSchema) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 18)
+	a.fieldMap = make(map[string]field.Expr, 21)
 	a.fieldMap["id"] = a.ID
+	a.fieldMap["created_at"] = a.CreatedAt
+	a.fieldMap["updated_at"] = a.UpdatedAt
+	a.fieldMap["deleted_at"] = a.DeletedAt
 	a.fieldMap["model_id"] = a.ModelId
 	a.fieldMap["field_key"] = a.FieldKey
 	a.fieldMap["field_name"] = a.FieldName

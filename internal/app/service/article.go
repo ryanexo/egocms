@@ -15,70 +15,76 @@ import (
 )
 
 type Article struct {
-    query *query.Query
+    persist *query.Query
 }
 
 func NewArticle(query *query.Query) *Article {
     return &Article{query}
 }
 
-func (s Article) Create(ctx context.Context, params dto.ArticleCreateParams) error {
-    artModel := &model.Article{
-        Url:         params.Url,
-        Title:       params.Title,
-        Description: params.Description,
-        Target:      sql.NullString{String: params.Target, Valid: true},
-        Content:     model.ArticleContent{Content: params.Content},
-    }
+func (s Article) Create(ctx context.Context, user *model.User, params dto.ArticleCreateParams) (datatype.SafeUint64, error) {
+    artData := artAssembler.BuildArticleCreateCommand(user, &params)
     
-    if params.ModelId != nil {
-        artModel.ModelId = *params.ModelId
-    }
+    art := artDomain.NewArticle(
+        artDomain.Draft{
+            Description: artData.Description,
+            Content:     artData.Content.Content,
+        },
+    )
+    artData.Description = art.GetDescription()
     
-    art := artDomain.NewArticle(artDomain.Draft{Description: params.Description, Content: params.Content})
-    params.Description = art.GetDescription()
-    
-    return s.query.Transaction(func(tx *query.Query) error {
-        err := repo.NewArticle(tx).Create(ctx, artModel)
+    err := s.persist.Transaction(func(tx *query.Query) error {
+        err := repo.NewArticle(tx).Create(ctx, artData)
         if err != nil {
             return err
         }
         
         artModelRepo := repo.NewArticleModel(tx)
-        schema, err := artModelRepo.FindAllSchema(ctx, artModel.ModelId)
-        if err != nil {
-            return err
-        }
         
-        jsonData, modelData, err := s.buildArticleModelData(artModel, schema, params.ModelData)
-        if err != nil {
-            return err
-        }
-        
-        err = artModelRepo.CreateModelTypedData(ctx, modelData)
-        if err != nil {
-            return err
-        }
-        
-        err = artModelRepo.CreateModelJsonData(ctx, jsonData)
-        if err != nil {
-            return err
+        if artData.ModelID != nil {
+            schema, err := artModelRepo.FindAllSchema(ctx, *artData.ModelID)
+            if err != nil {
+                return err
+            }
+            
+            jsonData, modelData, err := s.buildArticleModelData(artData.ID, *artData.ModelID, schema, params.ModelData)
+            if err != nil {
+                return err
+            }
+            
+            err = artModelRepo.CreateModelTypedData(ctx, modelData)
+            if err != nil {
+                return err
+            }
+            
+            err = artModelRepo.CreateModelJsonData(ctx, jsonData)
+            if err != nil {
+                return err
+            }
         }
         
         return nil
     })
+    if err != nil {
+        return 0, err
+    }
+    return artData.ID, nil
 }
 
-func (s Article) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
-    return repo.NewArticle(s.query).FindByID(ctx, id)
+func (s Article) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Article, error) {
+    artData, err := repo.NewArticle(s.persist).FindByID(ctx, id)
+    if err != nil {
+        return nil, err
+    }
+    return artAssembler.BuildArticleDTO(artData)
 }
 
 func (s Article) FindByIDWithContent(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
-    return repo.NewArticle(s.query).FindByIDWithContent(ctx, id)
+    return repo.NewArticle(s.persist).FindByIDWithContent(ctx, id)
 }
 
 func (s Article) Update(ctx context.Context, data dto.ArticleUpdateParams) error {
-    rawArt, err := repo.NewArticle(s.query).FindByID(ctx, data.ID)
+    rawArt, err := repo.NewArticle(s.persist).FindByID(ctx, data.ID)
     if err != nil {
         return err
     }
@@ -95,7 +101,7 @@ func (s Article) Update(ctx context.Context, data dto.ArticleUpdateParams) error
         Target:      sql.NullString{String: data.Target, Valid: true},
     }
     
-    return s.query.Transaction(func(tx *query.Query) error {
+    return s.persist.Transaction(func(tx *query.Query) error {
         artRepo := repo.NewArticle(tx)
         txErr := artRepo.Update(ctx, artUpdateData)
         if txErr != nil {
@@ -112,25 +118,27 @@ func (s Article) Update(ctx context.Context, data dto.ArticleUpdateParams) error
             return txErr
         }
         
-        artModelRepo := repo.NewArticleModel(tx)
-        schema, txErr := artModelRepo.FindAllSchema(ctx, rawArt.ModelId)
-        if txErr != nil {
-            return txErr
-        }
-        
-        artJsonData, artTypedData, txErr := s.buildArticleModelData(rawArt, schema, data.ModelData)
-        if txErr != nil {
-            return txErr
-        }
-        
-        txErr = artModelRepo.UpdateModelTypedData(ctx, artTypedData)
-        if txErr != nil {
-            return txErr
-        }
-        
-        txErr = artModelRepo.UpdateModelJsonData(ctx, artJsonData)
-        if txErr != nil {
-            return txErr
+        if rawArt.ModelID != nil {
+            artModelRepo := repo.NewArticleModel(tx)
+            schema, txErr := artModelRepo.FindAllSchema(ctx, *rawArt.ModelID)
+            if txErr != nil {
+                return txErr
+            }
+            
+            artJsonData, artTypedData, txErr := s.buildArticleModelData(rawArt.ID, *rawArt.ModelID, schema, data.ModelData)
+            if txErr != nil {
+                return txErr
+            }
+            
+            txErr = artModelRepo.UpdateModelTypedData(ctx, artTypedData)
+            if txErr != nil {
+                return txErr
+            }
+            
+            txErr = artModelRepo.UpdateModelJsonData(ctx, artJsonData)
+            if txErr != nil {
+                return txErr
+            }
         }
         
         return nil
@@ -138,8 +146,8 @@ func (s Article) Update(ctx context.Context, data dto.ArticleUpdateParams) error
 }
 
 func (s Article) Delete(ctx context.Context, id datatype.SafeUint64) error {
-    return s.query.Transaction(func(tx *query.Query) error {
-        artRepo := repo.NewArticle(s.query)
+    return s.persist.Transaction(func(tx *query.Query) error {
+        artRepo := repo.NewArticle(s.persist)
         err := artRepo.DeleteArticle(ctx, id)
         if err != nil {
             return err
@@ -152,7 +160,7 @@ func (s Article) Delete(ctx context.Context, id datatype.SafeUint64) error {
         if err != nil {
             return err
         }
-        err = repo.NewArticleModel(s.query).DeleteArticleData(ctx, id)
+        err = repo.NewArticleModel(s.persist).DeleteArticleData(ctx, id)
         if err != nil {
             return err
         }
@@ -160,10 +168,10 @@ func (s Article) Delete(ctx context.Context, id datatype.SafeUint64) error {
     })
 }
 
-func (s Article) buildArticleModelData(art *model.Article, allSchema []*model.ArticleModelSchema, data map[string]any) (*model.ArticleModelJsonData, []*model.ArticleModelData, error) {
+func (s Article) buildArticleModelData(artId datatype.SafeUint64, modelId datatype.SafeUint64, allSchema []*model.ArticleModelSchema, data map[string]any) (*model.ArticleModelJsonData, []*model.ArticleModelData, error) {
     jsonResult := &model.ArticleModelJsonData{
-        ArticleId: art.ID,
-        ModelId:   art.ModelId,
+        ArticleId: artId,
+        ModelId:   modelId,
         Data:      make(map[string]any),
     }
     modelResult := make([]*model.ArticleModelData, 0, len(allSchema))
@@ -182,8 +190,8 @@ func (s Article) buildArticleModelData(art *model.Article, allSchema []*model.Ar
         }
         
         modelData := artAssembler.NewModelData(&model.ArticleModelData{
-            ModelId:   art.ModelId,
-            ArticleId: art.ID,
+            ModelId:   modelId,
+            ArticleId: artId,
             FieldKey:  schema.FieldKey,
             FieldName: schema.FieldName,
             Type:      schema.Type,
