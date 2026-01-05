@@ -1,11 +1,20 @@
 package swaggertype
 
-// PaginatedResult[T]
-type PaginatedResult[T any] = Result[T]
-
-// Result[T]
 type Result[T any] struct {
     Data T      `json:"data,omitempty"`
+    Code string `json:"code"`
+    Msg  string `json:"msg"`
+}
+
+type PaginatedResult[T any] = Result[[]T]
+
+type CreateResult struct {
+    Data string `json:"data" example:"123456" description:"数据ID"`
+    Code string `json:"code"`
+    Msg  string `json:"msg"`
+}
+
+type EmptyResult struct {
     Code string `json:"code"`
     Msg  string `json:"msg"`
 }

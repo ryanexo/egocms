@@ -3,7 +3,6 @@ package model
 import (
     `database/sql`
     
-    `dpcms/internal/infra/persistence/customvalue`
     `dpcms/internal/infra/persistence/datatype`
     
     `github.com/shopspring/decimal`
@@ -20,7 +19,7 @@ type ArticleModelJsonData struct {
     Base
     ArticleId datatype.SafeUint64 `gorm:"index:idx_artid_modelid,priority:1"`
     ModelId   datatype.SafeUint64 `gorm:"index:idx_artid_modelid,priority:2"`
-    Data      customvalue.JSONMap `gorm:"type:text;"`
+    Data      datatype.JSONMap    `gorm:"type:text;"`
 }
 
 type ArticleModelSchema struct {
@@ -29,19 +28,19 @@ type ArticleModelSchema struct {
     FieldKey    string              `gorm:"type:varchar(255);not null;uniqueIndex:idx_field_key,priority:2"`
     FieldName   string              `gorm:"type:varchar(255);not null;"`
     Description string              `gorm:"type:varchar(255);not null;default:''"`
-    MinLen      int                 `gorm:"default:0"`
-    MaxLen      int                 `gorm:"default:0"`
+    MinLen      datatype.SafeUint64 `gorm:"default:0"`
+    MaxLen      datatype.SafeUint64 `gorm:"default:0"`
     MinValue    decimal.NullDecimal `gorm:"decimal(10,2)"`
     MaxValue    decimal.NullDecimal `gorm:"decimal(10,2)"`
     MinTime     sql.NullTime
     MaxTime     sql.NullTime
-    Pattern     string                 `gorm:"type:varchar(255)"`
-    Sequence    datatype.SafeInt64     `gorm:"index;default:0"`
-    Type        int16                  `gorm:"type:smallint;not null"`
-    EnumOptions customvalue.EnumValues `gorm:"type:text"`
-    Required    bool                   `gorm:"type:bool;default:false"`
-    Hidden      bool                   `gorm:"type:bool;default:false"`
-    Enable      bool                   `gorm:"type:bool;default:true"`
+    Pattern     string              `gorm:"type:varchar(255)"`
+    Sequence    datatype.SafeInt64  `gorm:"index;default:0"`
+    Type        int16               `gorm:"type:smallint;not null"`
+    EnumOptions datatype.EnumValues `gorm:"type:text"`
+    Required    datatype.BoolInt8   `gorm:"type:tinyint;default:0"`
+    Hidden      datatype.BoolInt8   `gorm:"type:tinyint;default:0"`
+    Enable      datatype.BoolInt8   `gorm:"type:tinyint;default:1"`
 }
 
 type ArticleModelData struct {

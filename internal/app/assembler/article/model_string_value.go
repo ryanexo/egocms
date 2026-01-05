@@ -5,7 +5,7 @@ import (
     `time`
     
     `dpcms/internal/app/domain/article`
-    `dpcms/internal/infra/persistence/customvalue`
+    `dpcms/internal/infra/persistence/datatype`
     
     `github.com/shopspring/decimal`
 )
@@ -22,12 +22,12 @@ func (s StringValue) Match(pattern string) (bool, error) {
     return regexp.Match(pattern, []byte(s))
 }
 
-func (s StringValue) IsValidLen(minLen int, maxLen int) bool {
-    strLen := len(s)
+func (s StringValue) IsValidLen(minLen uint64, maxLen uint64) bool {
+    strLen := uint64(len(s))
     return strLen >= minLen && strLen <= maxLen
 }
 
-func (s StringValue) IsEnumValue(values customvalue.EnumValues) bool {
+func (s StringValue) IsEnumValue(values datatype.EnumValues) bool {
     for _, v := range values {
         if v.Value == string(s) {
             return true

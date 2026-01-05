@@ -1,4 +1,4 @@
-package customvalue
+package datatype
 
 import (
     `database/sql/driver`

@@ -2,41 +2,65 @@ package category
 
 import (
     `dpcms/internal/app/dto`
+    `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
-    
-    `github.com/jinzhu/copier`
 )
 
-func BuildMenuCreateCommand(data *dto.MenuCreateParams) (*model.Menu, error) {
-    result := &model.Menu{}
-    err := copier.Copy(&result, data)
-    if err != nil {
-        return nil, err
+func BuildMenuCreateCommand(data *dto.MenuCreateParams) *model.Menu {
+    return &model.Menu{
+        ParentID:   data.ParentID,
+        Type:       data.Type,
+        Name:       data.Name,
+        Sequence:   data.Sequence,
+        Visible:    datatype.BoolInt8(1),
+        URI:        data.URI,
+        Resource:   data.Resource,
+        Permission: data.Permission,
+        Template:   data.Template,
+        Remark:     data.Remark,
     }
-    return result, nil
 }
 
-func BuildMenuUpdateCommand(data *dto.MenuUpdateParams) (*model.Menu, error) {
-    result := &model.Menu{}
-    err := copier.Copy(&result, data)
-    if err != nil {
-        return nil, err
+func BuildMenuUpdateCommand(data *dto.MenuUpdateParams) *model.Menu {
+    return &model.Menu{
+        Base: model.Base{
+            ID: data.ID,
+        },
+        Type:       data.Type,
+        Name:       data.Name,
+        Sequence:   data.Sequence,
+        URI:        data.URI,
+        Resource:   data.Resource,
+        Permission: data.Permission,
+        Template:   data.Template,
+        Remark:     data.Remark,
     }
-    return result, nil
 }
 
-func BuildMenuDTO(category *model.Menu) (*dto.Menu, error) {
-    var result *dto.Menu
-    if err := copier.Copy(&result, category); err != nil {
-        return nil, err
+func BuildMenuDTO(data *model.Menu) *dto.Menu {
+    return &dto.Menu{
+        Base: dto.Base{
+            ID:        data.ID,
+            CreatedAt: data.CreatedAt,
+            UpdatedAt: data.UpdatedAt,
+        },
+        ParentID:   data.ParentID,
+        Type:       data.Type,
+        Name:       data.Name,
+        Sequence:   data.Sequence,
+        Visible:    &data.Visible,
+        URI:        data.URI,
+        Resource:   data.Resource,
+        Permission: data.Permission,
+        Template:   data.Template,
+        Remark:     data.Remark,
     }
-    return result, nil
 }
 
-func BuildMenuListDTO(categories []*model.Menu) ([]*dto.Menu, error) {
-    var result []*dto.Menu
-    if err := copier.Copy(&result, categories); err != nil {
-        return nil, err
+func BuildMenuListDTO(data []*model.Menu) []*dto.Menu {
+    result := make([]*dto.Menu, 0, len(data))
+    for _, item := range data {
+        result = append(result, BuildMenuDTO(item))
     }
-    return result, nil
+    return result
 }

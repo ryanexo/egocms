@@ -1,18 +1,17 @@
 package dto
 
 import (
-    dtotype `dpcms/internal/app/dto/type`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/dbscope`
 )
 
 type Menu struct {
-    dtotype.Base
-    ParentID   datatype.SafeUint64 `json:"parentId"`
+    Base
+    ParentID   datatype.SafeUint64 `json:"parentId" swaggertype:"string"`
     Type       int8                `json:"type"`
     Name       string              `json:"name"`
-    Sequence   int64               `json:"sequence"`
-    Visible    bool                `json:"visible"`
+    Sequence   datatype.SafeInt64  `json:"sequence" swaggertype:"string"`
+    Visible    *datatype.BoolInt8  `json:"visible,omitempty" swaggertype:"boolean"`
     URI        string              `json:"uri"`
     Resource   string              `json:"resource"`
     Permission string              `json:"permission"`

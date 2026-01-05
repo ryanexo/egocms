@@ -5,7 +5,6 @@ import (
     `errors`
     
     `dpcms/internal/app/dto`
-    `dpcms/internal/app/dto/type`
     `dpcms/internal/app/erroz`
     `dpcms/internal/infra`
     `dpcms/internal/infra/persistence/datatype`
@@ -27,8 +26,8 @@ func NewMenuService(i *infra.Infra) *Menu {
 }
 
 func (srv Menu) Create(ctx context.Context, params dto.MenuCreateParams) (*model.Menu, error) {
-    menu, err := menuAssembler.BuildMenuCreateCommand(&params)
-    err = srv.persist.Transaction(func(tx *query.Query) error {
+    menu := menuAssembler.BuildMenuCreateCommand(&params)
+    err := srv.persist.Transaction(func(tx *query.Query) error {
         menuRepo := repo.NewMenuRepo(srv.persist)
         txErr := menuRepo.Create(ctx, menu)
         if txErr != nil {
@@ -43,7 +42,7 @@ func (srv Menu) Create(ctx context.Context, params dto.MenuCreateParams) (*model
     if err != nil {
         return nil, err
     }
-    return menu, err
+    return menu, nil
 }
 
 func (srv Menu) Update(ctx context.Context, params dto.MenuUpdateParams) error {
@@ -52,10 +51,7 @@ func (srv Menu) Update(ctx context.Context, params dto.MenuUpdateParams) error {
     if err != nil {
         return err
     }
-    menu, err := menuAssembler.BuildMenuUpdateCommand(&params)
-    if err != nil {
-        return err
-    }
+    menu := menuAssembler.BuildMenuUpdateCommand(&params)
     _, err = menuRepo.Update(ctx, menu)
     return err
 }
@@ -85,18 +81,17 @@ func (srv Menu) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Menu
     if err != nil {
         return nil, err
     }
-    return menuAssembler.BuildMenuDTO(menu)
+    return menuAssembler.BuildMenuDTO(menu), nil
 }
 
-func (srv Menu) List(ctx context.Context, condition dto.MenuListQueryParams) (*dtotype.PaginatedResult[*dto.Menu], error) {
+func (srv Menu) List(ctx context.Context, condition dto.MenuListQueryParams) (*dto.PaginatedResult[*dto.Menu], error) {
     data, total, err := repo.NewMenuRepo(srv.persist).List(ctx, condition)
-    list, err := menuAssembler.BuildMenuListDTO(data)
     if err != nil {
         return nil, err
     }
-    result := &dtotype.PaginatedResult[*dto.Menu]{
+    result := &dto.PaginatedResult[*dto.Menu]{
         Total:    total,
-        List:     list,
+        List:     menuAssembler.BuildMenuListDTO(data),
         PageNo:   condition.PageNo,
         PageSize: condition.PageSize,
     }

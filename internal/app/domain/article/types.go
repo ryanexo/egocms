@@ -4,7 +4,7 @@ import (
     `database/sql`
     `time`
     
-    `dpcms/internal/infra/persistence/customvalue`
+    `dpcms/internal/infra/persistence/datatype`
     
     `github.com/shopspring/decimal`
 )
@@ -12,8 +12,8 @@ import (
 type Value interface {
     IsEmpty() bool
     Match(pattern string) (bool, error)
-    IsValidLen(minLen int, maxLen int) bool
-    IsEnumValue(values customvalue.EnumValues) bool
+    IsValidLen(minLen uint64, maxLen uint64) bool
+    IsEnumValue(values datatype.EnumValues) bool
     InRange(minValue decimal.Decimal, maxValue decimal.Decimal) bool
     InTimeRange(minValue time.Time, maxValue time.Time) bool
     Assign(s Scannable) error
@@ -22,14 +22,14 @@ type Value interface {
 type Rules interface {
     FieldKey() string
     FieldName() string
-    MinLen() int
-    MaxLen() int
+    MinLen() uint64
+    MaxLen() uint64
     MinValue() decimal.NullDecimal
     MaxValue() decimal.NullDecimal
     MinTime() sql.NullTime
     MaxTime() sql.NullTime
     Pattern() string
-    EnumOptions() customvalue.EnumValues
+    EnumOptions() datatype.EnumValues
     IsRequired() bool
     IsEnable() bool
 }

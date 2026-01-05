@@ -61,7 +61,7 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-apifox-folder": "文章/内容模型"
+                "x-apifox-folder": "文章模型"
             }
         },
         "/article-model/delete": {
@@ -107,7 +107,7 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-apifox-folder": "文章/内容模型"
+                "x-apifox-folder": "文章模型"
             }
         },
         "/article-model/detail": {
@@ -153,7 +153,41 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-apifox-folder": "文章/内容模型"
+                "x-apifox-folder": "文章模型"
+            }
+        },
+        "/article-model/list": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "文章"
+                ],
+                "summary": "查看文章模型列表",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ArticleModelListParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggertype.ArticleModelListResult"
+                        }
+                    }
+                },
+                "x-apifox-folder": "文章模型"
             }
         },
         "/article-model/update": {
@@ -199,7 +233,7 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-apifox-folder": "文章/内容模型"
+                "x-apifox-folder": "文章模型"
             }
         },
         "/article-model/update-schema": {
@@ -213,7 +247,7 @@ const docTemplate = `{
                 "tags": [
                     "文章"
                 ],
-                "summary": "更新文章模型",
+                "summary": "更新文章模型Schema",
                 "parameters": [
                     {
                         "description": "请求参数",
@@ -245,7 +279,7 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-apifox-folder": "文章/内容模型"
+                "x-apifox-folder": "文章模型"
             }
         },
         "/article/create": {
@@ -275,23 +309,11 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/swaggertype.CreateResult"
                         }
                     }
                 },
-                "x-apifox-folder": "文章/内容模型"
+                "x-apifox-folder": "文章"
             }
         },
         "/article/delete": {
@@ -321,23 +343,11 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/swaggertype.EmptyResult"
                         }
                     }
                 },
-                "x-apifox-folder": "文章/内容模型"
+                "x-apifox-folder": "文章"
             }
         },
         "/article/detail": {
@@ -367,23 +377,11 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/swaggertype.Article"
                         }
                     }
                 },
-                "x-apifox-folder": "文章/内容模型"
+                "x-apifox-folder": "文章"
             }
         },
         "/article/update": {
@@ -413,23 +411,11 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/swaggertype.EmptyResult"
                         }
                     }
                 },
-                "x-apifox-folder": "文章/内容模型"
+                "x-apifox-folder": "文章"
             }
         },
         "/category/create": {
@@ -459,23 +445,11 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/swaggertype.CreateResult"
                         }
                     }
                 },
-                "x-apifox-folder": "内容分类"
+                "x-apifox-folder": "文章分类"
             }
         },
         "/category/delete": {
@@ -505,23 +479,11 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/swaggertype.EmptyResult"
                         }
                     }
                 },
-                "x-apifox-folder": "内容分类"
+                "x-apifox-folder": "文章分类"
             }
         },
         "/category/detail": {
@@ -549,10 +511,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggertype.Category"
+                        }
                     }
                 },
-                "x-apifox-folder": "内容分类"
+                "x-apifox-folder": "文章分类"
             }
         },
         "/category/list": {
@@ -586,7 +551,7 @@ const docTemplate = `{
                         }
                     }
                 },
-                "x-apifox-folder": "内容分类"
+                "x-apifox-folder": "文章分类"
             }
         },
         "/category/move": {
@@ -616,23 +581,11 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/swaggertype.EmptyResult"
                         }
                     }
                 },
-                "x-apifox-folder": "内容分类"
+                "x-apifox-folder": "文章分类"
             }
         },
         "/category/update": {
@@ -662,23 +615,11 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/swaggertype.EmptyResult"
                         }
                     }
                 },
-                "x-apifox-folder": "内容分类"
+                "x-apifox-folder": "文章分类"
             }
         },
         "/menu/create": {
@@ -708,19 +649,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/swaggertype.EmptyResult"
                         }
                     }
                 },
@@ -754,19 +683,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/swaggertype.EmptyResult"
                         }
                     }
                 },
@@ -800,19 +717,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/swaggertype.Menu"
                         }
                     }
                 },
@@ -846,19 +751,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/swaggertype.MenuList"
                         }
                     }
                 },
@@ -892,19 +785,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/swaggertype.EmptyResult"
                         }
                     }
                 },
@@ -938,19 +819,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/swaggertype.EmptyResult"
                         }
                     }
                 },
@@ -959,7 +828,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "customvalue.EnumValue": {
+        "datatype.EnumValue": {
             "type": "object",
             "properties": {
                 "label": {
@@ -970,12 +839,88 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.Article": {
+            "type": "object",
+            "properties": {
+                "authorId": {
+                    "type": "string"
+                },
+                "authorName": {
+                    "type": "string"
+                },
+                "categoryId": {
+                    "type": "string"
+                },
+                "categoryName": {
+                    "type": "string"
+                },
+                "clickCount": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "flag": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "keywords": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "modelData": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "modelId": {
+                    "type": "string"
+                },
+                "modelSchema": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ArticleModelSchema"
+                    }
+                },
+                "publishAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "target": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.ArticleCreateParams": {
             "type": "object",
             "required": [
+                "categoryId",
                 "title"
             ],
             "properties": {
+                "categoryId": {
+                    "type": "string"
+                },
                 "content": {
                     "type": "string",
                     "maxLength": 65535
@@ -983,6 +928,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string",
                     "maxLength": 255
+                },
+                "flag": {
+                    "type": "integer"
                 },
                 "keywords": {
                     "type": "array",
@@ -1010,6 +958,26 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ArticleModel": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.ArticleModelCreateParams": {
             "type": "object",
             "required": [
@@ -1022,6 +990,38 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.ArticleModelListParams": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "pageNo": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ArticleModelSchema": {
+            "type": "object",
+            "properties": {
+                "fieldKey": {
+                    "type": "string"
+                },
+                "fieldName": {
+                    "type": "string"
+                },
+                "sequence": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer",
+                    "format": "int32"
                 }
             }
         },
@@ -1043,7 +1043,7 @@ const docTemplate = `{
                 "enumOptions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/customvalue.EnumValue"
+                        "$ref": "#/definitions/datatype.EnumValue"
                     }
                 },
                 "fieldKey": {
@@ -1063,14 +1063,20 @@ const docTemplate = `{
                 "maxLen": {
                     "type": "string"
                 },
+                "maxTime": {
+                    "type": "string"
+                },
                 "maxValue": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "minLen": {
                     "type": "string"
                 },
+                "minTime": {
+                    "type": "string"
+                },
                 "minValue": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "pattern": {
                     "type": "string"
@@ -1079,7 +1085,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "sequence": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "type": {
                     "type": "integer"
@@ -1099,7 +1105,8 @@ const docTemplate = `{
                     }
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123456"
                 }
             }
         },
@@ -1113,7 +1120,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123456"
                 },
                 "name": {
                     "type": "string"
@@ -1159,6 +1167,41 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.Category": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentId": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "seo": {
+                    "$ref": "#/definitions/dto.CategorySEO"
+                },
+                "sequence": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                }
+            }
+        },
         "dto.CategoryCreateParams": {
             "type": "object",
             "required": [
@@ -1166,9 +1209,6 @@ const docTemplate = `{
                 "path"
             ],
             "properties": {
-                "display": {
-                    "type": "integer"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -1182,19 +1222,19 @@ const docTemplate = `{
                     "$ref": "#/definitions/dto.CategorySEO"
                 },
                 "sequence": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "type": {
                     "type": "integer"
+                },
+                "visible": {
+                    "type": "boolean"
                 }
             }
         },
         "dto.CategoryListParams": {
             "type": "object",
             "properties": {
-                "display": {
-                    "type": "integer"
-                },
                 "id": {
                     "type": "string"
                 },
@@ -1215,6 +1255,9 @@ const docTemplate = `{
                 },
                 "type": {
                     "type": "integer"
+                },
+                "visible": {
+                    "type": "boolean"
                 }
             }
         },
@@ -1249,9 +1292,6 @@ const docTemplate = `{
                 "id"
             ],
             "properties": {
-                "display": {
-                    "type": "integer"
-                },
                 "id": {
                     "type": "string"
                 },
@@ -1265,10 +1305,57 @@ const docTemplate = `{
                     "$ref": "#/definitions/dto.CategorySEO"
                 },
                 "sequence": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "type": {
                     "type": "integer"
+                },
+                "visible": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.Menu": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentId": {
+                    "type": "string"
+                },
+                "permission": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "resource": {
+                    "type": "string"
+                },
+                "sequence": {
+                    "type": "string"
+                },
+                "template": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "uri": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
                 }
             }
         },
@@ -1285,7 +1372,13 @@ const docTemplate = `{
                 "parentId": {
                     "type": "string"
                 },
+                "permission": {
+                    "type": "string"
+                },
                 "remark": {
+                    "type": "string"
+                },
+                "resource": {
                     "type": "string"
                 },
                 "sequence": {
@@ -1293,6 +1386,9 @@ const docTemplate = `{
                 },
                 "template": {
                     "type": "string"
+                },
+                "type": {
+                    "type": "integer"
                 },
                 "uri": {
                     "type": "string"
@@ -1302,9 +1398,6 @@ const docTemplate = `{
         "dto.MenuListQueryParams": {
             "type": "object",
             "properties": {
-                "ancestor": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -1313,6 +1406,9 @@ const docTemplate = `{
                 },
                 "pageSize": {
                     "type": "integer"
+                },
+                "parentId": {
+                    "type": "string"
                 }
             }
         },
@@ -1343,7 +1439,13 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "permission": {
+                    "type": "string"
+                },
                 "remark": {
+                    "type": "string"
+                },
+                "resource": {
                     "type": "string"
                 },
                 "sequence": {
@@ -1351,6 +1453,9 @@ const docTemplate = `{
                 },
                 "template": {
                     "type": "string"
+                },
+                "type": {
+                    "type": "integer"
                 },
                 "uri": {
                     "type": "string"
@@ -1364,7 +1469,8 @@ const docTemplate = `{
             ],
             "properties": {
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123456"
                 }
             }
         },
@@ -1383,14 +1489,8 @@ const docTemplate = `{
         "model.Category": {
             "type": "object",
             "properties": {
-                "SEO": {
-                    "$ref": "#/definitions/model.CategorySeo"
-                },
                 "createdAt": {
                     "type": "string"
-                },
-                "display": {
-                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"
@@ -1398,11 +1498,14 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "parentId": {
+                "parentID": {
                     "type": "integer"
                 },
                 "path": {
                     "type": "string"
+                },
+                "seo": {
+                    "$ref": "#/definitions/model.CategorySeo"
                 },
                 "sequence": {
                     "type": "integer"
@@ -1412,13 +1515,16 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
+                },
+                "visible": {
+                    "type": "integer"
                 }
             }
         },
         "model.CategorySeo": {
             "type": "object",
             "properties": {
-                "categoryId": {
+                "categoryID": {
                     "type": "integer"
                 },
                 "createdAt": {
@@ -1441,6 +1547,51 @@ const docTemplate = `{
                 }
             }
         },
+        "swaggertype.Article": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dto.Article"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "swaggertype.ArticleModelListResult": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ArticleModel"
+                    }
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "swaggertype.Category": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dto.Category"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
         "swaggertype.CategoryList": {
             "type": "object",
             "properties": {
@@ -1448,7 +1599,67 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "data": {
-                    "$ref": "#/definitions/model.Category"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Category"
+                    }
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "swaggertype.CreateResult": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "swaggertype.EmptyResult": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "swaggertype.Menu": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dto.Menu"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "swaggertype.MenuList": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Menu"
+                    }
                 },
                 "msg": {
                     "type": "string"

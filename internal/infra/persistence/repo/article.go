@@ -64,7 +64,7 @@ func (r Article) UpdateContent(ctx context.Context, id datatype.SafeUint64, cont
     return err
 }
 
-func (r Article) UpdateKeywords(ctx context.Context, id datatype.SafeUint64, keywords []string) error {
+func (r Article) ReplaceKeywords(ctx context.Context, id datatype.SafeUint64, keywords []string) error {
     err := r.DeleteKeywords(ctx, id)
     if err != nil {
         return err

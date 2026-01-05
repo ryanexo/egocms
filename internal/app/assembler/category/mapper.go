@@ -3,40 +3,71 @@ package category
 import (
     `dpcms/internal/app/dto`
     `dpcms/internal/infra/persistence/model`
-    
-    `github.com/jinzhu/copier`
 )
 
-func ToCategoryCreateCommand(data *dto.CategoryCreateParams) (*model.Category, error) {
-    result := &model.Category{}
-    err := copier.Copy(&result, data)
-    if err != nil {
-        return nil, err
+func ToCategoryCreateCommand(data *dto.CategoryCreateParams) *model.Category {
+    result := &model.Category{
+        ParentID: data.ParentID,
+        Sequence: data.Sequence,
+        Name:     data.Name,
+        Path:     data.Path,
+        Type:     data.Type,
+        SEO: &model.CategorySeo{
+            Title:       data.SEO.Title,
+            Keywords:    data.SEO.Keywords,
+            Description: data.SEO.Description,
+        },
     }
-    return result, nil
+    return result
 }
 
-func ToCategoryUpdateCommand(data *dto.CategoryUpdateParams) (*model.Category, error) {
-    result := &model.Category{}
-    err := copier.Copy(&result, data)
-    if err != nil {
-        return nil, err
+func ToCategoryUpdateCommand(data *dto.CategoryUpdateParams) *model.Category {
+    result := &model.Category{
+        Base: model.Base{
+            ID: data.ID,
+        },
+        Sequence: data.Sequence,
+        Name:     data.Name,
+        Path:     data.Path,
+        Type:     data.Type,
+        SEO: &model.CategorySeo{
+            CategoryID:  data.ID,
+            Title:       data.SEO.Title,
+            Keywords:    data.SEO.Keywords,
+            Description: data.SEO.Description,
+        },
     }
-    return result, nil
+    if data.Visible != nil {
+        result.Visible = *data.Visible
+    }
+    return result
 }
 
-func ToCategoryDTO(category *model.Category) (*dto.Category, error) {
-    var result *dto.Category
-    if err := copier.Copy(&result, category); err != nil {
-        return nil, err
+func ToCategoryDTO(data *model.Category) *dto.Category {
+    return &dto.Category{
+        Base: dto.Base{
+            ID:        data.ID,
+            CreatedAt: data.CreatedAt,
+            UpdatedAt: data.UpdatedAt,
+        },
+        ParentID: data.ParentID,
+        Sequence: data.Sequence,
+        Name:     data.Name,
+        Path:     data.Path,
+        Type:     data.Type,
+        Visible:  &data.Visible,
+        SEO: &dto.CategorySEO{
+            Title:       data.SEO.Title,
+            Keywords:    data.SEO.Keywords,
+            Description: data.SEO.Description,
+        },
     }
-    return result, nil
 }
 
-func ToCategoryListDTO(categories []*model.Category) ([]*dto.Category, error) {
-    var result []*dto.Category
-    if err := copier.Copy(&result, categories); err != nil {
-        return nil, err
+func ToCategoryListDTO(data []*model.Category) []*dto.Category {
+    result := make([]*dto.Category, 0, len(data))
+    for _, item := range data {
+        result = append(result, ToCategoryDTO(item))
     }
-    return result, nil
+    return result
 }

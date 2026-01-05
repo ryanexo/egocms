@@ -5,7 +5,6 @@ import (
     `database/sql`
     
     `dpcms/internal/app/dto`
-    `dpcms/internal/app/dto/type`
     `dpcms/internal/app/erroz`
     `dpcms/internal/infra`
     `dpcms/internal/infra/password`
@@ -155,7 +154,7 @@ func (srv User) UpdateProfile(ctx context.Context, params dto.UserProfileUpdateP
     return err
 }
 
-func (srv User) List(ctx context.Context, p dto.UserListQueryParams) (result dtotype.PaginatedResult[dto.User], err error) {
+func (srv User) List(ctx context.Context, p dto.UserListQueryParams) (result dto.PaginatedResult[dto.User], err error) {
     userDAO := srv.persist.User
     profileDAO := srv.persist.UserProfile
     q := userDAO.WithContext(ctx).LeftJoin(profileDAO, profileDAO.UserID.EqCol(userDAO.ID))
@@ -215,7 +214,7 @@ func (srv User) List(ctx context.Context, p dto.UserListQueryParams) (result dto
     userList := make([]dto.User, len(users))
     err = copier.Copy(&userList, &users)
     
-    return dtotype.PaginatedResult[dto.User]{
+    return dto.PaginatedResult[dto.User]{
         PageNo:   p.PageNo,
         PageSize: p.PageSize,
         Total:    count,

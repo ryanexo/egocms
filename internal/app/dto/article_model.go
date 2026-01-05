@@ -1,13 +1,14 @@
 package dto
 
 import (
-    "dpcms/internal/app/dto/type"
-    "dpcms/internal/infra/persistence/customvalue"
+    `time`
+    
     "dpcms/internal/infra/persistence/datatype"
+    `dpcms/internal/infra/persistence/dbscope`
 )
 
 type ArticleModel struct {
-    dtotype.Base
+    Base
     Name        string `json:"name"`
     Description string `json:"description"`
 }
@@ -29,19 +30,26 @@ type ArticleModelSchemaUpdateParams struct {
 }
 
 type ArticleModelSchemaParams struct {
-    ID          *datatype.SafeUint64   `json:"id" swaggertype:"string"`
-    FieldKey    string                 `validate:"required,max=255" json:"fieldKey"`
-    FieldName   string                 `validate:"required,max=255" json:"fieldName"`
-    Description string                 `validate:"max=255" json:"description"`
-    Sequence    int32                  `json:"sequence"`
-    Type        int16                  `validate:"required" json:"type"`
-    Required    bool                   `json:"required"`
-    MinLen      datatype.SafeUint64    `json:"minLen" swaggertype:"string"`
-    MaxLen      datatype.SafeUint64    `json:"maxLen" swaggertype:"string"`
-    MinValue    int32                  `json:"minValue"`
-    MaxValue    int32                  `json:"maxValue"`
-    Pattern     string                 `json:"pattern"`
-    EnumOptions customvalue.EnumValues `json:"enumOptions"`
-    Hidden      bool                   `json:"hidden"`
-    Enable      bool                   `json:"enable"`
+    ID          *datatype.SafeUint64 `json:"id" swaggertype:"string"`
+    FieldKey    string               `validate:"required,max=255" json:"fieldKey"`
+    FieldName   string               `validate:"required,max=255" json:"fieldName"`
+    Description string               `validate:"max=255" json:"description"`
+    Sequence    datatype.SafeInt64   `json:"sequence" swaggertype:"string"`
+    Type        int16                `validate:"required" json:"type"`
+    Required    datatype.BoolInt8    `json:"required" swaggertype:"boolean"`
+    MinLen      datatype.SafeUint64  `json:"minLen" swaggertype:"string"`
+    MaxLen      datatype.SafeUint64  `json:"maxLen" swaggertype:"string"`
+    MinValue    datatype.SafeInt64   `json:"minValue" swaggertype:"string"`
+    MaxValue    datatype.SafeInt64   `json:"maxValue" swaggertype:"string"`
+    MinTime     time.Time            `json:"minTime"`
+    MaxTime     time.Time            `json:"maxTime"`
+    Pattern     string               `json:"pattern"`
+    EnumOptions datatype.EnumValues  `json:"enumOptions"`
+    Hidden      datatype.BoolInt8    `json:"hidden" swaggertype:"boolean"`
+    Enable      datatype.BoolInt8    `json:"enable" swaggertype:"boolean"`
+}
+
+type ArticleModelListParams struct {
+    dbscope.Pagination
+    Name *string `json:"name"`
 }

@@ -3,13 +3,12 @@ package dto
 import (
     `time`
     
-    `dpcms/internal/app/dto/type`
     `dpcms/internal/infra/persistence/datatype`
 )
 
 type ArticleCreateParams struct {
     Url         string               `json:"url"`
-    CategoryId  datatype.SafeUint64  `validate:"required" json:"categoryId"`
+    CategoryId  datatype.SafeUint64  `validate:"required" json:"categoryId" swaggertype:"string"`
     AuthorId    datatype.SafeUint64  `json:"-" swaggerignore:"true"`
     Flag        int16                `json:"flag"`
     Title       string               `validate:"required,max=255" json:"title"`
@@ -35,7 +34,7 @@ type ArticleUpdateParams struct {
 }
 
 type Article struct {
-    dtotype.Base
+    Base
     Url          string                `json:"url"`
     CategoryID   datatype.SafeUint64   `json:"categoryId" swaggertype:"string"`
     CategoryName string                `json:"categoryName"`
@@ -44,6 +43,7 @@ type Article struct {
     Flag         int16                 `json:"flag"`
     Title        string                `json:"title"`
     Description  string                `json:"description"`
+    Content      *string               `json:"content,omitempty"`
     ClickCount   datatype.SafeUint64   `json:"clickCount" swaggertype:"string"`
     Status       int8                  `json:"status"`
     Target       string                `json:"target"`
@@ -52,11 +52,6 @@ type Article struct {
     ModelSchema  []*ArticleModelSchema `json:"modelSchema"`
     ModelData    map[string]any        `json:"modelData"`
     PublishAt    time.Time             `json:"publishAt"`
-}
-
-type ArticleDetail struct {
-    Article
-    Content string `json:"content"`
 }
 
 type ArticleModelSchema struct {

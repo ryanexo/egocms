@@ -5,5 +5,5 @@ import (
     `dpcms/internal/infra/persistence/model`
 )
 
-type CategoryList PaginatedResult[model.Category]
-type Category Result[dto.Category]
+type CategoryList = PaginatedResult[model.Category]
+type Category = Result[dto.Category]

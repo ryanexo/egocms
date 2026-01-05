@@ -45,7 +45,7 @@ func (c MenuController) setup(engine *gin.Engine) {
 // @Accept  json
 // @Produce json
 // @Param   body body dto.MenuListQueryParams true "请求参数"
-// @Success 200 {object} erroz.Result{data=nil}
+// @Success 200 {object} swaggertype.MenuList
 // @Router  /menu/list [post]
 func (c MenuController) List(ctx *gin.Context) {
     httpbinding.BindJSON[dto.MenuListQueryParams](ctx, func(params dto.MenuListQueryParams) (any, error) {
@@ -60,7 +60,7 @@ func (c MenuController) List(ctx *gin.Context) {
 // @Accept  json
 // @Produce json
 // @Param   body body dto.ResourceID true "请求参数"
-// @Success 200 {object} erroz.Result{data=nil}
+// @Success 200 {object} swaggertype.Menu
 // @Router  /menu/detail [post]
 func (c MenuController) Detail(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ResourceID](ctx, func(params dto.ResourceID) (any, error) {
@@ -75,7 +75,7 @@ func (c MenuController) Detail(ctx *gin.Context) {
 // @Accept  json
 // @Produce json
 // @Param   body body dto.MenuCreateParams true "请求参数"
-// @Success 200 {object} erroz.Result{data=nil}
+// @Success 200 {object} swaggertype.EmptyResult
 // @Router  /menu/create [post]
 func (c MenuController) Create(ctx *gin.Context) {
     httpbinding.BindJSON[dto.MenuCreateParams](ctx, func(params dto.MenuCreateParams) (any, error) {
@@ -90,7 +90,7 @@ func (c MenuController) Create(ctx *gin.Context) {
 // @Accept  json
 // @Produce json
 // @Param   body body dto.MenuMoveParams true "请求参数"
-// @Success 200 {object} erroz.Result{data=nil}
+// @Success 200 {object} swaggertype.EmptyResult
 // @Router  /menu/move [post]
 func (c MenuController) Move(ctx *gin.Context) {
     httpbinding.BindJSON[dto.MenuMoveParams](ctx, func(params dto.MenuMoveParams) (any, error) {
@@ -105,7 +105,7 @@ func (c MenuController) Move(ctx *gin.Context) {
 // @Accept  json
 // @Produce json
 // @Param   body body dto.MenuUpdateParams true "请求参数"
-// @Success 200 {object} erroz.Result{data=nil}
+// @Success 200 {object} swaggertype.EmptyResult
 // @Router  /menu/update [post]
 func (c MenuController) Update(ctx *gin.Context) {
     httpbinding.BindJSON[dto.MenuUpdateParams](ctx, func(params dto.MenuUpdateParams) (any, error) {
@@ -121,7 +121,7 @@ func (c MenuController) Update(ctx *gin.Context) {
 // @Accept  json
 // @Produce json
 // @Param   body body dto.ResourceID true "请求参数"
-// @Success 200 {object} erroz.Result{data=nil}
+// @Success 200 {object} swaggertype.EmptyResult
 // @Router  /menu/delete [post]
 func (c MenuController) Delete(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ResourceID](ctx, func(params dto.ResourceID) (any, error) {

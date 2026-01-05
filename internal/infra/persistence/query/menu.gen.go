@@ -35,7 +35,7 @@ func newMenu(db *gorm.DB, opts ...gen.DOOption) menu {
 	_menu.Type = field.NewInt8(tableName, "type")
 	_menu.Name = field.NewString(tableName, "name")
 	_menu.Sequence = field.NewInt64(tableName, "sequence")
-	_menu.Visible = field.NewBool(tableName, "visible")
+	_menu.Visible = field.NewInt8(tableName, "visible")
 	_menu.URI = field.NewString(tableName, "uri")
 	_menu.Resource = field.NewString(tableName, "resource")
 	_menu.Permission = field.NewString(tableName, "permission")
@@ -59,7 +59,7 @@ type menu struct {
 	Type       field.Int8
 	Name       field.String
 	Sequence   field.Int64
-	Visible    field.Bool
+	Visible    field.Int8
 	URI        field.String
 	Resource   field.String
 	Permission field.String
@@ -89,7 +89,7 @@ func (m *menu) updateTableName(table string) *menu {
 	m.Type = field.NewInt8(table, "type")
 	m.Name = field.NewString(table, "name")
 	m.Sequence = field.NewInt64(table, "sequence")
-	m.Visible = field.NewBool(table, "visible")
+	m.Visible = field.NewInt8(table, "visible")
 	m.URI = field.NewString(table, "uri")
 	m.Resource = field.NewString(table, "resource")
 	m.Permission = field.NewString(table, "permission")
@@ -252,7 +252,7 @@ func (m menuDo) CreateInBatches(values []*model.Menu, batchSize int) error {
 }
 
 // Save : !!! underlying implementation is different with GORM
-// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
+// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).CreateModel(values)
 func (m menuDo) Save(values ...*model.Menu) error {
 	if len(values) == 0 {
 		return nil

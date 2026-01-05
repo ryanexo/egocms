@@ -2,11 +2,10 @@ package article
 
 import (
     `database/sql`
+    `time`
     
     `dpcms/internal/app/dto`
     `dpcms/internal/infra/persistence/model`
-    
-    `github.com/jinzhu/copier`
 )
 
 func extractKeywords(data []*model.ArticleKeywords) []string {
@@ -45,10 +44,29 @@ func BuildArticleCreateCommand(user *model.User, data *dto.ArticleCreateParams) 
     return result
 }
 
-func BuildArticleDTO(data *model.Article) (*dto.Article, error) {
-    result := &dto.Article{Keywords: extractKeywords(data.Keywords)}
-    if err := copier.Copy(&result, data); err != nil {
-        return nil, err
+func BuildArticleDTO(data *model.Article) *dto.Article {
+    result := &dto.Article{
+        Base: dto.Base{
+            ID:        data.ID,
+            CreatedAt: data.CreatedAt,
+            UpdatedAt: data.UpdatedAt,
+        },
+        Url:         data.Url,
+        CategoryID:  data.CategoryID,
+        AuthorID:    data.AuthorID,
+        Flag:        data.Flag,
+        Title:       data.Title,
+        Description: data.Description,
+        ClickCount:  data.ClickCount,
+        Status:      data.Status,
+        Target:      data.Target.String,
+        Keywords:    extractKeywords(data.Keywords),
+        ModelID:     data.ModelID,
+        PublishAt:   time.Time{},
+    }
+    
+    if data.Content != nil {
+        result.Content = &data.Content.Content
     }
     
     if data.Category != nil {
@@ -75,5 +93,5 @@ func BuildArticleDTO(data *model.Article) (*dto.Article, error) {
         result.ModelData = data.ModelData.Data
     }
     
-    return result, nil
+    return result
 }
