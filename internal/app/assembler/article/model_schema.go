@@ -4,7 +4,7 @@ import (
     `database/sql`
     
     `dpcms/internal/app/domain/article`
-    `dpcms/internal/infra/persistence/customvalue`
+    `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     
     `github.com/shopspring/decimal`
@@ -24,12 +24,12 @@ func (m ModelSchema) FieldName() string {
     return m.data.FieldName
 }
 
-func (m ModelSchema) MinLen() int {
-    return m.data.MinLen
+func (m ModelSchema) MinLen() uint64 {
+    return m.data.MinLen.Raw()
 }
 
-func (m ModelSchema) MaxLen() int {
-    return m.data.MaxLen
+func (m ModelSchema) MaxLen() uint64 {
+    return m.data.MaxLen.Raw()
 }
 
 func (m ModelSchema) MinValue() decimal.NullDecimal {
@@ -52,16 +52,16 @@ func (m ModelSchema) Pattern() string {
     return m.data.Pattern
 }
 
-func (m ModelSchema) EnumOptions() customvalue.EnumValues {
+func (m ModelSchema) EnumOptions() datatype.EnumValues {
     return m.data.EnumOptions
 }
 
 func (m ModelSchema) IsRequired() bool {
-    return m.data.Required
+    return m.data.Required == 1
 }
 
 func (m ModelSchema) IsEnable() bool {
-    return m.data.Enable
+    return m.data.Enable == 1
 }
 
 func NewRules(data *model.ArticleModelSchema) article.Rules {

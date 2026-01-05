@@ -3,9 +3,13 @@ package repo
 import (
     `context`
     
+    `dpcms/internal/app/dto`
     `dpcms/internal/infra/persistence/datatype`
+    `dpcms/internal/infra/persistence/dbscope`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
+    
+    `gorm.io/gen`
 )
 
 type ArticleModel struct {
@@ -27,10 +31,19 @@ func (r ArticleModel) CreateModelTypedData(ctx context.Context, data []*model.Ar
     return r.persist.ArticleModelData.WithContext(ctx).Create(data...)
 }
 
-func (r ArticleModel) Update(ctx context.Context, data *model.ArticleModel) error {
+func (r ArticleModel) UpdateModel(ctx context.Context, data *model.ArticleModel) error {
     m := r.persist.ArticleModel
     _, err := m.WithContext(ctx).Updates(data)
     return err
+}
+
+func (r ArticleModel) ReplaceSchema(ctx context.Context, id datatype.SafeUint64, data []*model.ArticleModelSchema) error {
+    _, err := r.DeleteSchema(ctx, id)
+    if err != nil {
+        return err
+    }
+    m := r.persist.ArticleModelSchema
+    return m.WithContext(ctx).CreateInBatches(data, 500)
 }
 
 func (r ArticleModel) UpdateModelTypedData(ctx context.Context, data []*model.ArticleModelData) error {
@@ -75,10 +88,9 @@ func (r ArticleModel) DeleteModel(ctx context.Context, modelId datatype.SafeUint
     return err
 }
 
-func (r ArticleModel) DeleteSchema(ctx context.Context, id datatype.SafeUint64) error {
+func (r ArticleModel) DeleteSchema(ctx context.Context, id datatype.SafeUint64) (gen.ResultInfo, error) {
     m := r.persist.ArticleModelSchema
-    _, err := m.WithContext(ctx).Unscoped().Where(m.ModelId.Eq(id.Raw())).Delete()
-    return err
+    return m.WithContext(ctx).Unscoped().Where(m.ModelId.Eq(id.Raw())).Delete()
 }
 
 func (r ArticleModel) DeleteAllSchema(ctx context.Context, id datatype.SafeUint64) error {
@@ -91,4 +103,21 @@ func (r ArticleModel) DeleteArticleData(ctx context.Context, articleId datatype.
     m := r.persist.ArticleModelData
     _, err := m.WithContext(ctx).Unscoped().Where(m.ArticleId.Eq(articleId.Raw())).Delete()
     return err
+}
+
+func (r ArticleModel) List(ctx context.Context, params dto.ArticleModelListParams) ([]*model.ArticleModel, int64, error) {
+    m := r.persist.ArticleModel
+    q := m.WithContext(ctx).Scopes(dbscope.Paginate(params.PageNo, params.PageSize))
+    if params.Name != nil {
+        q = q.Where(m.Name.Like("%" + *params.Name + "%"))
+    }
+    count, err := q.Count()
+    if err != nil {
+        return nil, 0, err
+    }
+    result, err := q.Find()
+    if err != nil {
+        return nil, 0, err
+    }
+    return result, count, nil
 }

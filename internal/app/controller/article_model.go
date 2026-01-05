@@ -38,7 +38,7 @@ func (s ArticleModelController) setup(engine *gin.Engine) {
 }
 
 // Create 创建文章模型
-// @x-apifox-folder "文章/内容模型"
+// @x-apifox-folder "文章模型"
 // @Summary 创建文章模型
 // @Tags    文章
 // @Accept  json
@@ -48,12 +48,12 @@ func (s ArticleModelController) setup(engine *gin.Engine) {
 // @Router  /article-model/create [post]
 func (s ArticleModelController) Create(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ArticleModelCreateParams](ctx, func(params dto.ArticleModelCreateParams) (any, error) {
-        return s.srv.ArticleModel.Create(ctx, params)
+        return s.srv.ArticleModel.CreateModel(ctx, params)
     })
 }
 
 // Update 更新文章模型
-// @x-apifox-folder "文章/内容模型"
+// @x-apifox-folder "文章模型"
 // @Summary 更新文章模型
 // @Tags    文章
 // @Accept  json
@@ -63,13 +63,13 @@ func (s ArticleModelController) Create(ctx *gin.Context) {
 // @Router  /article-model/update [post]
 func (s ArticleModelController) Update(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ArticleModelUpdateParams](ctx, func(params dto.ArticleModelUpdateParams) (any, error) {
-        return nil, s.srv.ArticleModel.Update(ctx, params)
+        return nil, s.srv.ArticleModel.UpdateModel(ctx, params)
     })
 }
 
 // UpdateSchema 更新文章模型schema
-// @x-apifox-folder "文章/内容模型"
-// @Summary 更新文章模型
+// @x-apifox-folder "文章模型"
+// @Summary 更新文章模型Schema
 // @Tags    文章
 // @Accept  json
 // @Produce json
@@ -78,12 +78,12 @@ func (s ArticleModelController) Update(ctx *gin.Context) {
 // @Router  /article-model/update-schema [post]
 func (s ArticleModelController) UpdateSchema(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ArticleModelSchemaUpdateParams](ctx, func(params dto.ArticleModelSchemaUpdateParams) (any, error) {
-        return nil, s.srv.ArticleModel.UpdateSchema(ctx, params)
+        return nil, s.srv.ArticleModel.ReplaceSchema(ctx, params)
     })
 }
 
 // Delete 删除文章模型
-// @x-apifox-folder "文章/内容模型"
+// @x-apifox-folder "文章模型"
 // @Summary 删除文章模型
 // @Tags    文章
 // @Accept  json
@@ -98,7 +98,7 @@ func (s ArticleModelController) Delete(ctx *gin.Context) {
 }
 
 // Detail 查看文章模型
-// @x-apifox-folder "文章/内容模型"
+// @x-apifox-folder "文章模型"
 // @Summary 删除文章模型
 // @Tags    文章
 // @Accept  json
@@ -109,5 +109,20 @@ func (s ArticleModelController) Delete(ctx *gin.Context) {
 func (s ArticleModelController) Detail(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ResourceID](ctx, func(params dto.ResourceID) (any, error) {
         return s.srv.ArticleModel.FindByID(ctx, params.ID)
+    })
+}
+
+// List 文章模型列表
+// @x-apifox-folder "文章模型"
+// @Summary 查看文章模型列表
+// @Tags    文章
+// @Accept  json
+// @Produce json
+// @Param   body body dto.ArticleModelListParams true "请求参数"
+// @Success 200 {object} swaggertype.ArticleModelListResult
+// @Router  /article-model/list [post]
+func (s ArticleModelController) List(ctx *gin.Context) {
+    httpbinding.BindJSON[dto.ArticleModelListParams](ctx, func(params dto.ArticleModelListParams) (any, error) {
+        return s.srv.ArticleModel.List(ctx, params)
     })
 }

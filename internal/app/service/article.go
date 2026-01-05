@@ -76,11 +76,15 @@ func (s Article) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Art
     if err != nil {
         return nil, err
     }
-    return artAssembler.BuildArticleDTO(artData)
+    return artAssembler.BuildArticleDTO(artData), nil
 }
 
-func (s Article) FindByIDWithContent(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
-    return repo.NewArticle(s.persist).FindByIDWithContent(ctx, id)
+func (s Article) FindByIDWithContent(ctx context.Context, id datatype.SafeUint64) (*dto.Article, error) {
+    artData, err := repo.NewArticle(s.persist).FindByIDWithContent(ctx, id)
+    if err != nil {
+        return nil, err
+    }
+    return artAssembler.BuildArticleDTO(artData), nil
 }
 
 func (s Article) Update(ctx context.Context, data dto.ArticleUpdateParams) error {
@@ -113,7 +117,7 @@ func (s Article) Update(ctx context.Context, data dto.ArticleUpdateParams) error
             return txErr
         }
         
-        txErr = artRepo.UpdateKeywords(ctx, artUpdateData.ID, data.Keywords)
+        txErr = artRepo.ReplaceKeywords(ctx, artUpdateData.ID, data.Keywords)
         if txErr != nil {
             return txErr
         }

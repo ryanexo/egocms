@@ -32,11 +32,11 @@ func newCategory(db *gorm.DB, opts ...gen.DOOption) category {
 	_category.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_category.DeletedAt = field.NewField(tableName, "deleted_at")
 	_category.ParentID = field.NewUint64(tableName, "parent_id")
-	_category.Sequence = field.NewUint(tableName, "sequence")
+	_category.Sequence = field.NewInt64(tableName, "sequence")
 	_category.Name = field.NewString(tableName, "name")
 	_category.Path = field.NewString(tableName, "path")
-	_category.Type = field.NewUint(tableName, "type")
-	_category.Display = field.NewUint(tableName, "display")
+	_category.Type = field.NewInt8(tableName, "type")
+	_category.Visible = field.NewInt8(tableName, "visible")
 	_category.SEO = categoryHasOneSEO{
 		db: db.Session(&gorm.Session{}),
 
@@ -57,11 +57,11 @@ type category struct {
 	UpdatedAt field.Time
 	DeletedAt field.Field
 	ParentID  field.Uint64
-	Sequence  field.Uint
+	Sequence  field.Int64
 	Name      field.String
 	Path      field.String
-	Type      field.Uint // '0:普通分类,1:单页型分类,2:链接'
-	Display   field.Uint
+	Type      field.Int8 // '0:普通分类,1:单页型分类,2:链接'
+	Visible   field.Int8
 	SEO       categoryHasOneSEO
 
 	fieldMap map[string]field.Expr
@@ -84,11 +84,11 @@ func (c *category) updateTableName(table string) *category {
 	c.UpdatedAt = field.NewTime(table, "updated_at")
 	c.DeletedAt = field.NewField(table, "deleted_at")
 	c.ParentID = field.NewUint64(table, "parent_id")
-	c.Sequence = field.NewUint(table, "sequence")
+	c.Sequence = field.NewInt64(table, "sequence")
 	c.Name = field.NewString(table, "name")
 	c.Path = field.NewString(table, "path")
-	c.Type = field.NewUint(table, "type")
-	c.Display = field.NewUint(table, "display")
+	c.Type = field.NewInt8(table, "type")
+	c.Visible = field.NewInt8(table, "visible")
 
 	c.fillFieldMap()
 
@@ -123,7 +123,7 @@ func (c *category) fillFieldMap() {
 	c.fieldMap["name"] = c.Name
 	c.fieldMap["path"] = c.Path
 	c.fieldMap["type"] = c.Type
-	c.fieldMap["display"] = c.Display
+	c.fieldMap["visible"] = c.Visible
 
 }
 
@@ -327,7 +327,7 @@ func (c categoryDo) CreateInBatches(values []*model.Category, batchSize int) err
 }
 
 // Save : !!! underlying implementation is different with GORM
-// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
+// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).CreateModel(values)
 func (c categoryDo) Save(values ...*model.Category) error {
 	if len(values) == 0 {
 		return nil

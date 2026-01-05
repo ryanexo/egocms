@@ -1,20 +1,65 @@
 basePath: /
 definitions:
-  customvalue.EnumValue:
+  dto.Article:
     properties:
-      label:
+      authorId:
         type: string
-      value:
+      authorName:
+        type: string
+      categoryId:
+        type: string
+      categoryName:
+        type: string
+      clickCount:
+        type: string
+      content:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      flag:
+        type: integer
+      id:
+        type: string
+      keywords:
+        items:
+          type: string
+        type: array
+      modelData:
+        additionalProperties: {}
+        type: object
+      modelId:
+        type: string
+      modelSchema:
+        items:
+          $ref: '#/definitions/dto.ArticleModelSchema'
+        type: array
+      publishAt:
+        type: string
+      status:
+        type: integer
+      target:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      url:
         type: string
     type: object
   dto.ArticleCreateParams:
     properties:
+      categoryId:
+        type: integer
       content:
         maxLength: 65535
         type: string
       description:
         maxLength: 255
         type: string
+      flag:
+        type: integer
       keywords:
         items:
           type: string
@@ -33,7 +78,21 @@ definitions:
       url:
         type: string
     required:
+    - categoryId
     - title
+    type: object
+  dto.ArticleModel:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
     type: object
   dto.ArticleModelCreateParams:
     properties:
@@ -45,64 +104,35 @@ definitions:
     - description
     - name
     type: object
-  dto.ArticleModelSchemaParams:
+  dto.ArticleModelListParams:
     properties:
-      description:
-        maxLength: 255
+      name:
         type: string
-      enable:
-        type: boolean
-      enumOptions:
-        items:
-          $ref: '#/definitions/customvalue.EnumValue'
-        type: array
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+    type: object
+  dto.ArticleModelSchema:
+    properties:
       fieldKey:
-        maxLength: 255
         type: string
       fieldName:
-        maxLength: 255
         type: string
-      hidden:
-        type: boolean
-      id:
-        type: string
-      maxLen:
-        type: string
-      maxValue:
-        type: integer
-      minLen:
-        type: string
-      minValue:
-        type: integer
-      pattern:
-        type: string
-      required:
-        type: boolean
       sequence:
-        type: integer
+        type: string
       type:
+        format: int32
         type: integer
-    required:
-    - fieldKey
-    - fieldName
-    - type
     type: object
   dto.ArticleModelSchemaUpdateParams:
-    properties:
-      data:
-        items:
-          $ref: '#/definitions/dto.ArticleModelSchemaParams'
-        type: array
-      id:
-        type: string
-    required:
-    - id
     type: object
   dto.ArticleModelUpdateParams:
     properties:
       description:
         type: string
       id:
+        example: "123456"
         type: string
       name:
         type: string
@@ -136,43 +166,8 @@ definitions:
         type: string
     type: object
   dto.CategoryCreateParams:
-    properties:
-      display:
-        type: integer
-      name:
-        type: string
-      parentID:
-        type: string
-      path:
-        type: string
-      seo:
-        $ref: '#/definitions/dto.CategorySEO'
-      sequence:
-        type: integer
-      type:
-        type: integer
-    required:
-    - name
-    - path
     type: object
   dto.CategoryListParams:
-    properties:
-      display:
-        type: integer
-      id:
-        type: string
-      name:
-        type: string
-      pageNo:
-        type: integer
-      pageSize:
-        type: integer
-      parentId:
-        type: string
-      path:
-        type: string
-      type:
-        type: integer
     type: object
   dto.CategoryMoveParams:
     properties:
@@ -181,33 +176,9 @@ definitions:
       targetId:
         type: string
     type: object
-  dto.CategorySEO:
-    properties:
-      description:
-        type: string
-      keywords:
-        type: string
-      title:
-        type: string
-    type: object
   dto.CategoryUpdateParams:
-    properties:
-      display:
-        type: integer
-      id:
-        type: string
-      name:
-        type: string
-      path:
-        type: string
-      seo:
-        $ref: '#/definitions/dto.CategorySEO'
-      sequence:
-        type: integer
-      type:
-        type: integer
-    required:
-    - id
+    type: object
+  dto.Menu:
     type: object
   dto.MenuCreateParams:
     properties:
@@ -215,12 +186,18 @@ definitions:
         type: string
       parentId:
         type: string
+      permission:
+        type: string
       remark:
+        type: string
+      resource:
         type: string
       sequence:
         type: string
       template:
         type: string
+      type:
+        type: integer
       uri:
         type: string
     required:
@@ -229,14 +206,14 @@ definitions:
     type: object
   dto.MenuListQueryParams:
     properties:
-      ancestor:
-        type: string
       name:
         type: string
       pageNo:
         type: integer
       pageSize:
         type: integer
+      parentId:
+        type: string
     type: object
   dto.MenuMoveParams:
     properties:
@@ -254,12 +231,18 @@ definitions:
         type: string
       name:
         type: string
+      permission:
+        type: string
       remark:
+        type: string
+      resource:
         type: string
       sequence:
         type: string
       template:
         type: string
+      type:
+        type: integer
       uri:
         type: string
     required:
@@ -268,6 +251,7 @@ definitions:
   dto.ResourceID:
     properties:
       id:
+        example: "123456"
         type: string
     required:
     - id
@@ -282,30 +266,30 @@ definitions:
     type: object
   model.Category:
     properties:
-      SEO:
-        $ref: '#/definitions/model.CategorySeo'
       createdAt:
         type: string
-      display:
-        type: integer
       id:
         type: integer
       name:
         type: string
-      parentId:
+      parentID:
         type: integer
       path:
         type: string
+      seo:
+        $ref: '#/definitions/model.CategorySeo'
       sequence:
         type: integer
       type:
         type: integer
       updatedAt:
         type: string
+      visible:
+        type: integer
     type: object
   model.CategorySeo:
     properties:
-      categoryId:
+      categoryID:
         type: integer
       createdAt:
         type: string
@@ -320,14 +304,66 @@ definitions:
       updatedAt:
         type: string
     type: object
+  swaggertype.Article:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dto.Article'
+      msg:
+        type: string
+    type: object
+  swaggertype.ArticleModelListResult:
+    properties:
+      code:
+        type: string
+      data:
+        items:
+          $ref: '#/definitions/dto.ArticleModel'
+        type: array
+      msg:
+        type: string
+    type: object
+  swaggertype.Category:
+    type: object
   swaggertype.CategoryList:
     properties:
       code:
         type: string
       data:
-        $ref: '#/definitions/model.Category'
+        items:
+          $ref: '#/definitions/model.Category'
+        type: array
       msg:
         type: string
+    type: object
+  swaggertype.CreateResult:
+    properties:
+      code:
+        type: string
+      data:
+        example: "123456"
+        type: string
+      msg:
+        type: string
+    type: object
+  swaggertype.EmptyResult:
+    properties:
+      code:
+        type: string
+      msg:
+        type: string
+    type: object
+  swaggertype.Menu:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dto.Menu'
+      msg:
+        type: string
+    type: object
+  swaggertype.MenuList:
     type: object
 info:
   contact: {}
@@ -362,7 +398,7 @@ paths:
       summary: 创建文章模型
       tags:
       - 文章
-      x-apifox-folder: 文章/内容模型
+      x-apifox-folder: 文章模型
   /article-model/delete:
     post:
       consumes:
@@ -389,7 +425,7 @@ paths:
       summary: 删除文章模型
       tags:
       - 文章
-      x-apifox-folder: 文章/内容模型
+      x-apifox-folder: 文章模型
   /article-model/detail:
     post:
       consumes:
@@ -416,7 +452,29 @@ paths:
       summary: 删除文章模型
       tags:
       - 文章
-      x-apifox-folder: 文章/内容模型
+      x-apifox-folder: 文章模型
+  /article-model/list:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ArticleModelListParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.ArticleModelListResult'
+      summary: 查看文章模型列表
+      tags:
+      - 文章
+      x-apifox-folder: 文章模型
   /article-model/update:
     post:
       consumes:
@@ -443,7 +501,7 @@ paths:
       summary: 更新文章模型
       tags:
       - 文章
-      x-apifox-folder: 文章/内容模型
+      x-apifox-folder: 文章模型
   /article-model/update-schema:
     post:
       consumes:
@@ -467,10 +525,10 @@ paths:
                 data:
                   type: object
               type: object
-      summary: 更新文章模型
+      summary: 更新文章模型Schema
       tags:
       - 文章
-      x-apifox-folder: 文章/内容模型
+      x-apifox-folder: 文章模型
   /article/create:
     post:
       consumes:
@@ -488,16 +546,11 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/swaggertype.CreateResult'
       summary: 创建文章
       tags:
       - 文章
-      x-apifox-folder: 文章/内容模型
+      x-apifox-folder: 文章
   /article/delete:
     post:
       consumes:
@@ -515,16 +568,11 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/swaggertype.EmptyResult'
       summary: 删除文章
       tags:
       - 文章
-      x-apifox-folder: 文章/内容模型
+      x-apifox-folder: 文章
   /article/detail:
     post:
       consumes:
@@ -542,16 +590,11 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/swaggertype.Article'
       summary: 查看文章
       tags:
       - 文章
-      x-apifox-folder: 文章/内容模型
+      x-apifox-folder: 文章
   /article/update:
     post:
       consumes:
@@ -569,16 +612,11 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/swaggertype.EmptyResult'
       summary: 更新文章
       tags:
       - 文章
-      x-apifox-folder: 文章/内容模型
+      x-apifox-folder: 文章
   /category/create:
     post:
       consumes:
@@ -596,16 +634,11 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/swaggertype.CreateResult'
       summary: 创建分类
       tags:
       - 分类
-      x-apifox-folder: 内容分类
+      x-apifox-folder: 文章分类
   /category/delete:
     post:
       consumes:
@@ -623,16 +656,11 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/swaggertype.EmptyResult'
       summary: 删除分类
       tags:
       - 分类
-      x-apifox-folder: 内容分类
+      x-apifox-folder: 文章分类
   /category/detail:
     post:
       consumes:
@@ -649,10 +677,12 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.Category'
       summary: 查看分类
       tags:
       - 分类
-      x-apifox-folder: 内容分类
+      x-apifox-folder: 文章分类
   /category/list:
     post:
       consumes:
@@ -674,7 +704,7 @@ paths:
       summary: 分类列表
       tags:
       - 分类
-      x-apifox-folder: 内容分类
+      x-apifox-folder: 文章分类
   /category/move:
     post:
       consumes:
@@ -692,16 +722,11 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/swaggertype.EmptyResult'
       summary: 移动分类
       tags:
       - 分类
-      x-apifox-folder: 内容分类
+      x-apifox-folder: 文章分类
   /category/update:
     post:
       consumes:
@@ -719,16 +744,11 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/swaggertype.EmptyResult'
       summary: 更新分类
       tags:
       - 分类
-      x-apifox-folder: 内容分类
+      x-apifox-folder: 文章分类
   /menu/create:
     post:
       consumes:
@@ -746,12 +766,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/swaggertype.EmptyResult'
       summary: 创建菜单
       tags:
       - 菜单
@@ -773,12 +788,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/swaggertype.EmptyResult'
       summary: 删除菜单
       tags:
       - 菜单
@@ -800,12 +810,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/swaggertype.Menu'
       summary: 查看菜单
       tags:
       - 菜单
@@ -827,12 +832,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/swaggertype.MenuList'
       summary: 菜单列表
       tags:
       - 菜单
@@ -854,12 +854,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/swaggertype.EmptyResult'
       summary: 移动菜单
       tags:
       - 菜单
@@ -881,12 +876,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/swaggertype.EmptyResult'
       summary: 更新菜单
       tags:
       - 菜单

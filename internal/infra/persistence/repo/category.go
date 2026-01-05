@@ -112,8 +112,8 @@ func (s CategoryRepo) List(ctx context.Context, params dto.CategoryListParams) (
     if params.Path != nil {
         q = q.Where(dao.Path.Eq(*params.Path))
     }
-    if params.Display != nil {
-        q = q.Where(dao.Display.Eq(*params.Display))
+    if params.Visible != nil {
+        q = q.Where(dao.Visible.Eq(params.Visible.Raw()))
     }
     
     total, err := q.Count()

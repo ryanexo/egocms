@@ -35,8 +35,8 @@ func newArticleModelSchema(db *gorm.DB, opts ...gen.DOOption) articleModelSchema
 	_articleModelSchema.FieldKey = field.NewString(tableName, "field_key")
 	_articleModelSchema.FieldName = field.NewString(tableName, "field_name")
 	_articleModelSchema.Description = field.NewString(tableName, "description")
-	_articleModelSchema.MinLen = field.NewInt(tableName, "min_len")
-	_articleModelSchema.MaxLen = field.NewInt(tableName, "max_len")
+	_articleModelSchema.MinLen = field.NewUint64(tableName, "min_len")
+	_articleModelSchema.MaxLen = field.NewUint64(tableName, "max_len")
 	_articleModelSchema.MinValue = field.NewField(tableName, "min_value")
 	_articleModelSchema.MaxValue = field.NewField(tableName, "max_value")
 	_articleModelSchema.MinTime = field.NewField(tableName, "min_time")
@@ -45,9 +45,9 @@ func newArticleModelSchema(db *gorm.DB, opts ...gen.DOOption) articleModelSchema
 	_articleModelSchema.Sequence = field.NewInt64(tableName, "sequence")
 	_articleModelSchema.Type = field.NewInt16(tableName, "type")
 	_articleModelSchema.EnumOptions = field.NewField(tableName, "enum_options")
-	_articleModelSchema.Required = field.NewBool(tableName, "required")
-	_articleModelSchema.Hidden = field.NewBool(tableName, "hidden")
-	_articleModelSchema.Enable = field.NewBool(tableName, "enable")
+	_articleModelSchema.Required = field.NewInt8(tableName, "required")
+	_articleModelSchema.Hidden = field.NewInt8(tableName, "hidden")
+	_articleModelSchema.Enable = field.NewInt8(tableName, "enable")
 
 	_articleModelSchema.fillFieldMap()
 
@@ -66,8 +66,8 @@ type articleModelSchema struct {
 	FieldKey    field.String
 	FieldName   field.String
 	Description field.String
-	MinLen      field.Int
-	MaxLen      field.Int
+	MinLen      field.Uint64
+	MaxLen      field.Uint64
 	MinValue    field.Field
 	MaxValue    field.Field
 	MinTime     field.Field
@@ -76,9 +76,9 @@ type articleModelSchema struct {
 	Sequence    field.Int64
 	Type        field.Int16
 	EnumOptions field.Field
-	Required    field.Bool
-	Hidden      field.Bool
-	Enable      field.Bool
+	Required    field.Int8
+	Hidden      field.Int8
+	Enable      field.Int8
 
 	fieldMap map[string]field.Expr
 }
@@ -103,8 +103,8 @@ func (a *articleModelSchema) updateTableName(table string) *articleModelSchema {
 	a.FieldKey = field.NewString(table, "field_key")
 	a.FieldName = field.NewString(table, "field_name")
 	a.Description = field.NewString(table, "description")
-	a.MinLen = field.NewInt(table, "min_len")
-	a.MaxLen = field.NewInt(table, "max_len")
+	a.MinLen = field.NewUint64(table, "min_len")
+	a.MaxLen = field.NewUint64(table, "max_len")
 	a.MinValue = field.NewField(table, "min_value")
 	a.MaxValue = field.NewField(table, "max_value")
 	a.MinTime = field.NewField(table, "min_time")
@@ -113,9 +113,9 @@ func (a *articleModelSchema) updateTableName(table string) *articleModelSchema {
 	a.Sequence = field.NewInt64(table, "sequence")
 	a.Type = field.NewInt16(table, "type")
 	a.EnumOptions = field.NewField(table, "enum_options")
-	a.Required = field.NewBool(table, "required")
-	a.Hidden = field.NewBool(table, "hidden")
-	a.Enable = field.NewBool(table, "enable")
+	a.Required = field.NewInt8(table, "required")
+	a.Hidden = field.NewInt8(table, "hidden")
+	a.Enable = field.NewInt8(table, "enable")
 
 	a.fillFieldMap()
 
@@ -284,7 +284,7 @@ func (a articleModelSchemaDo) CreateInBatches(values []*model.ArticleModelSchema
 }
 
 // Save : !!! underlying implementation is different with GORM
-// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
+// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).CreateModel(values)
 func (a articleModelSchemaDo) Save(values ...*model.ArticleModelSchema) error {
 	if len(values) == 0 {
 		return nil

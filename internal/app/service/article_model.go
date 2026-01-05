@@ -3,13 +3,12 @@ package service
 import (
     `context`
     
+    artmodelAssembler `dpcms/internal/app/assembler/artmodel`
     `dpcms/internal/app/dto`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
     `dpcms/internal/infra/persistence/repo`
-    
-    `github.com/jinzhu/copier`
 )
 
 type ArticleModel struct {
@@ -20,63 +19,47 @@ func NewArticleModel(persist *query.Query) *ArticleModel {
     return &ArticleModel{persist}
 }
 
-func (s ArticleModel) Create(ctx context.Context, params dto.ArticleModelCreateParams) (*model.ArticleModel, error) {
-    m := model.ArticleModel{Name: params.Name, Description: params.Description}
-    err := s.persist.ArticleModel.WithContext(ctx).Create(&m)
-    return &m, err
+func (s ArticleModel) CreateModel(ctx context.Context, params dto.ArticleModelCreateParams) (datatype.SafeUint64, error) {
+    data := artmodelAssembler.BuildArticleModelCreateCommand(&params)
+    err := repo.NewArticleModel(s.persist).Create(ctx, data)
+    if err != nil {
+        return 0, err
+    }
+    return data.ID, nil
 }
 
-func (s ArticleModel) Update(ctx context.Context, params dto.ArticleModelUpdateParams) error {
-    m := &model.ArticleModel{}
-    err := copier.Copy(m, &params)
+func (s ArticleModel) UpdateModel(ctx context.Context, params dto.ArticleModelUpdateParams) error {
+    data := artmodelAssembler.BuildArticleModelUpdateCommand(&params)
+    return repo.NewArticleModel(s.persist).UpdateModel(ctx, data)
+}
+
+func (s ArticleModel) ReplaceSchema(ctx context.Context, params dto.ArticleModelSchemaUpdateParams) error {
+    _, err := repo.NewArticleModel(s.persist).FindByID(ctx, params.ID)
     if err != nil {
         return err
     }
-    return repo.NewArticleModel(s.persist).Update(ctx, m)
-}
-
-func (s ArticleModel) UpdateSchema(ctx context.Context, params dto.ArticleModelSchemaUpdateParams) error {
-    modelDao := s.persist.ArticleModel
     
-    _, err := s.persist.ArticleModel.WithContext(ctx).Where(modelDao.ID.Eq(params.ID.Raw())).First()
-    if err != nil {
-        return err
-    }
+    schema := make([]*model.ArticleModelSchema, 0, len(params.Data))
     
-    schemaCount := len(params.Data)
-    appendSchema := make([]*model.ArticleModelSchema, 0, schemaCount)
-    updateSchema := make([]*model.ArticleModelSchema, 0, schemaCount)
-    
-    for _, schemaParams := range params.Data {
-        tmpSchema := &model.ArticleModelSchema{ModelId: params.ID}
-        err := copier.Copy(&tmpSchema, &schemaParams)
-        if err != nil {
-            return err
+    for _, item := range params.Data {
+        tmpSchema := artmodelAssembler.BuildArticleModelSchemaModel(item)
+        if item.ID != nil {
+            tmpSchema.ModelId = params.ID
         }
-        
-        if schemaParams.ID != nil {
-            updateSchema = append(updateSchema, tmpSchema)
-        } else {
-            appendSchema = append(appendSchema, tmpSchema)
-        }
+        schema = append(schema, tmpSchema)
     }
     
     return s.persist.Transaction(func(tx *query.Query) error {
-        defDao := tx.WithContext(ctx).ArticleModelSchema
-        
-        for _, def := range updateSchema {
-            _, err := defDao.Updates(def)
-            if err != nil {
-                return err
-            }
-        }
-        
-        return defDao.CreateInBatches(appendSchema, 500)
+        return repo.NewArticleModel(tx).ReplaceSchema(ctx, params.ID, schema)
     })
 }
 
-func (s ArticleModel) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.ArticleModel, error) {
-    return repo.NewArticleModel(s.persist).FindByID(ctx, id)
+func (s ArticleModel) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.ArticleModel, error) {
+    data, err := repo.NewArticleModel(s.persist).FindByID(ctx, id)
+    if err != nil {
+        return nil, err
+    }
+    return artmodelAssembler.BuildArticleModelDTO(data), nil
 }
 
 func (s ArticleModel) FindAllSchema(ctx context.Context, id datatype.SafeUint64) ([]*dto.ArticleModelSchemaParams, error) {
@@ -84,18 +67,12 @@ func (s ArticleModel) FindAllSchema(ctx context.Context, id datatype.SafeUint64)
     if err != nil {
         return nil, err
     }
-    result := make([]*dto.ArticleModelSchemaParams, 0, len(allSchema))
-    
-    err = copier.Copy(&result, &allSchema)
-    if err != nil {
-        return nil, err
-    }
-    
-    return result, nil
+    return artmodelAssembler.BuildArticleModelSchemaList(allSchema), nil
 }
 
 func (s ArticleModel) DeleteSchema(ctx context.Context, schemaId datatype.SafeUint64) error {
-    return repo.NewArticleModel(s.persist).DeleteSchema(ctx, schemaId)
+    _, err := repo.NewArticleModel(s.persist).DeleteSchema(ctx, schemaId)
+    return err
 }
 
 func (s ArticleModel) DeleteModel(ctx context.Context, modelId datatype.SafeUint64) error {
@@ -111,4 +88,17 @@ func (s ArticleModel) DeleteModel(ctx context.Context, modelId datatype.SafeUint
         }
         return nil
     })
+}
+
+func (s ArticleModel) List(ctx context.Context, params dto.ArticleModelListParams) (*dto.PaginatedResult[*dto.ArticleModel], error) {
+    data, total, err := repo.NewArticleModel(s.persist).List(ctx, params)
+    if err != nil {
+        return nil, err
+    }
+    return &dto.PaginatedResult[*dto.ArticleModel]{
+        Total:    total,
+        PageSize: params.PageSize,
+        PageNo:   params.PageNo,
+        List:     artmodelAssembler.BuildArticleModelListDTO(data),
+    }, nil
 }

@@ -4,7 +4,7 @@ import (
     `time`
     
     `dpcms/internal/app/domain/article`
-    `dpcms/internal/infra/persistence/customvalue`
+    `dpcms/internal/infra/persistence/datatype`
     
     `github.com/shopspring/decimal`
 )
@@ -21,11 +21,11 @@ func (t TimeValue) Match(_ string) (bool, error) {
     return true, nil
 }
 
-func (t TimeValue) IsValidLen(_ int, _ int) bool {
+func (t TimeValue) IsValidLen(_ uint64, _ uint64) bool {
     return true
 }
 
-func (t TimeValue) IsEnumValue(_ customvalue.EnumValues) bool {
+func (t TimeValue) IsEnumValue(_ datatype.EnumValues) bool {
     return true
 }
 

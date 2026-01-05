@@ -331,7 +331,7 @@ func (u userDo) CreateInBatches(values []*model.User, batchSize int) error {
 }
 
 // Save : !!! underlying implementation is different with GORM
-// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
+// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).CreateModel(values)
 func (u userDo) Save(values ...*model.User) error {
 	if len(values) == 0 {
 		return nil
