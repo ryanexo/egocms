@@ -12,12 +12,11 @@ import (
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
+    `dpcms/internal/infra/persistence/repo`
     
     `github.com/golang-jwt/jwt/v5`
     `github.com/google/uuid`
-    `gorm.io/gen/field`
     `gorm.io/gorm`
-    `gorm.io/gorm/clause`
 )
 
 type Token struct {
@@ -30,66 +29,55 @@ func NewTokenService(config *config.Config, i *infra.Infra) *Token {
 }
 
 func (srv Token) Create(userId datatype.SafeUint64) (string, error) {
-    uuid, err := uuid.NewV7()
+    uuidValue, err := uuid.NewV7()
     if err != nil {
         return "", err
     }
     expires := srv.config.Token.Expires
     tokenKey := []byte(srv.config.GlobalKey)
-    return jwt.NewWithClaims(jwt.SigningMethodHS512, token.UserToken{
-        RegisteredClaims: jwt.RegisteredClaims{
-            ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(expires))),
-            ID:        uuid.String(),
-        },
-        UserID: userId,
-    }).SignedString(tokenKey)
+    return jwt.NewWithClaims(
+        jwt.SigningMethodHS512,
+        token.UserToken{
+            RegisteredClaims: jwt.RegisteredClaims{
+                ExpiresAt: jwt.NewNumericDate(
+                    time.Now().Add(time.Duration(expires)),
+                ),
+                ID: uuidValue.String(),
+            },
+            UserID: userId,
+        }).SignedString(tokenKey)
 }
 
-func (srv Token) isRevoked(ctx context.Context, userId datatype.SafeUint64, uuid string, expires int) (bool, error) {
-    isRevoked := true
-    err := srv.persist.Transaction(func(tx *query.Query) error {
-        queryCtx := tx.WithContext(ctx)
-        dao := tx.TokenBlacklist
-        _, err := queryCtx.TokenBlacklist.Clauses(clause.Locking{Strength: "UPDATE"}).Where(dao.UserId.Eq(userId.Raw())).Select(field.NewUnsafeFieldRaw("1")).Find()
-        if err != nil {
-            return err
-        }
-        token, err := queryCtx.TokenBlacklist.Where(dao.UserId.Eq(userId.Raw()), dao.UUID.Eq(uuid)).First()
-        if err != nil {
-            if errors.Is(err, gorm.ErrRecordNotFound) {
-                isRevoked = false
-                return nil
-            }
-            return err
-        }
-        exp := token.CreatedAt.Add(time.Duration(expires) * time.Second)
-        if exp.Before(time.Now()) {
-            return nil
-        }
-        _, err = queryCtx.TokenBlacklist.Delete(token)
-        if err == nil {
-            isRevoked = false
-        }
-        return err
-    })
+func (srv Token) isRevoked(ctx context.Context, uuid string, expires int) (bool, error) {
+    tbRepo := repo.NewTokenBlacklistRepo(srv.persist)
+    data, err := tbRepo.FindByUUID(ctx, uuid)
     if err != nil {
-        return isRevoked, err
+        if errors.Is(err, gorm.ErrRecordNotFound) {
+            return false, nil
+        }
+        return false, err
     }
-    return isRevoked, nil
+    
+    expiresTime := data.CreatedAt.Add(time.Duration(expires) * time.Second)
+    if expiresTime.Before(time.Now()) {
+        return true, nil
+    }
+    _, err = tbRepo.Remove(ctx, data.ID)
+    return true, err
 }
 
 func (srv Token) Parse(ctx context.Context, tokenString string) (*token.UserToken, error) {
     claims := &token.UserToken{}
-    token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+    jwtData, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
         return srv.config.GlobalKey, nil
     })
-    if err != nil || !token.Valid {
+    if err != nil || !jwtData.Valid {
         if errors.Is(err, jwt.ErrTokenExpired) {
             return nil, erroz.AuthorizationExpired.ToError()
         }
-        return nil, erroz.Unauthorized.ToError()
+        return nil, erroz.Unauthorized.Wrap(err).ToError()
     }
-    isRevoked, err := srv.isRevoked(ctx, claims.UserID, claims.ID, srv.config.Token.Expires)
+    isRevoked, err := srv.isRevoked(ctx, claims.ID, srv.config.Token.Expires)
     if err != nil {
         return nil, err
     }
@@ -104,8 +92,7 @@ func (srv Token) GetUserFromToken(ctx context.Context, tokenString string) (*mod
     if err != nil {
         return nil, err
     }
-    uo := srv.persist.User
-    return uo.WithContext(ctx).Preload(uo.Profile).Where(uo.ID.Eq(claims.UserID.Raw())).First()
+    return repo.NewUserRepo(srv.persist).FindByID(ctx, claims.UserID)
 }
 
 func (srv Token) Revoke(ctx context.Context, tokenString string) error {

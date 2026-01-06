@@ -58,7 +58,7 @@ definitions:
   dto.ArticleCreateParams:
     properties:
       categoryId:
-        type: integer
+        type: string
       content:
         maxLength: 65535
         type: string
@@ -424,6 +424,67 @@ definitions:
     required:
     - id
     type: object
+  dto.Role:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  dto.RoleCreateParams:
+    properties:
+      description:
+        maxLength: 255
+        type: string
+      inheritList:
+        items:
+          type: string
+        maxItems: 10
+        type: array
+      name:
+        maxLength: 255
+        type: string
+    required:
+    - description
+    - name
+    type: object
+  dto.RoleListParams:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+    type: object
+  dto.RoleUpdateParams:
+    properties:
+      description:
+        maxLength: 255
+        type: string
+      id:
+        type: string
+      inheritList:
+        items:
+          type: string
+        maxItems: 10
+        type: array
+      name:
+        maxLength: 255
+        type: string
+    required:
+    - description
+    - id
+    - name
+    type: object
   dto.User:
     properties:
       createdAt:
@@ -672,6 +733,26 @@ definitions:
       data:
         items:
           $ref: '#/definitions/dto.Menu'
+        type: array
+      msg:
+        type: string
+    type: object
+  swaggertype.Role:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dto.Role'
+      msg:
+        type: string
+    type: object
+  swaggertype.RoleList:
+    properties:
+      code:
+        type: string
+      data:
+        items:
+          $ref: '#/definitions/dto.Role'
         type: array
       msg:
         type: string
@@ -1212,6 +1293,116 @@ paths:
       tags:
       - 菜单
       x-apifox-folder: 菜单
+  /role/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RoleCreateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.CreateResult'
+      summary: 创建角色
+      tags:
+      - 角色
+      x-apifox-folder: 角色
+  /role/delete:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.EmptyResult'
+      summary: 删除角色
+      tags:
+      - 角色
+      x-apifox-folder: 角色
+  /role/detail:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.Role'
+      summary: 查看角色信息
+      tags:
+      - 角色
+      x-apifox-folder: 角色
+  /role/list:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RoleListParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.RoleList'
+      summary: 角色列表
+      tags:
+      - 角色
+      x-apifox-folder: 角色
+  /role/update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RoleUpdateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.EmptyResult'
+      summary: 更新角色
+      tags:
+      - 角色
+      x-apifox-folder: 角色
   /user/change-password:
     post:
       consumes:

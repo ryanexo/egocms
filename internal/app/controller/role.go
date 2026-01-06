@@ -37,32 +37,77 @@ func (c RoleController) setup(server *gin.Engine) {
     )
 }
 
+// Create
+// @x-apifox-folder "角色"
+// @Summary 创建角色
+// @Tags 角色
+// @Accept json
+// @Produce json
+// @Param body body dto.RoleCreateParams true "请求参数"
+// @Success 200 {object} swaggertype.CreateResult
+// @Router /role/create [post]
 func (c RoleController) Create(ctx *gin.Context) {
     httpbinding.BindJSON[dto.RoleCreateParams](ctx, func(params dto.RoleCreateParams) (any, error) {
         return c.srv.Role.Create(ctx, params)
     })
 }
 
+// Update
+// @x-apifox-folder "角色"
+// @Summary 更新角色
+// @Tags 角色
+// @Accept json
+// @Produce json
+// @Param body body dto.RoleUpdateParams true "请求参数"
+// @Success 200 {object} swaggertype.EmptyResult
+// @Router /role/update [post]
 func (c RoleController) Update(ctx *gin.Context) {
     httpbinding.BindJSON[dto.RoleUpdateParams](ctx, func(params dto.RoleUpdateParams) (any, error) {
         return nil, c.srv.Role.Update(ctx, params)
     })
 }
 
+// Delete
+// @x-apifox-folder "角色"
+// @Summary 删除角色
+// @Tags 角色
+// @Accept json
+// @Produce json
+// @Param body body dto.ResourceID true "请求参数"
+// @Success 200 {object} swaggertype.EmptyResult
+// @Router /role/delete [post]
 func (c RoleController) Delete(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ResourceID](ctx, func(params dto.ResourceID) (any, error) {
         return nil, c.srv.Role.Delete(ctx, params.ID)
     })
 }
 
+// List
+// @x-apifox-folder "角色"
+// @Summary 角色列表
+// @Tags 角色
+// @Accept json
+// @Produce json
+// @Param body body dto.RoleListParams true "请求参数"
+// @Success 200 {object} swaggertype.RoleList
+// @Router /role/list [post]
 func (c RoleController) List(ctx *gin.Context) {
     httpbinding.BindJSON[dto.RoleListParams](ctx, func(params dto.RoleListParams) (any, error) {
         return c.srv.Role.List(ctx, params)
     })
 }
 
+// Detail
+// @x-apifox-folder "角色"
+// @Summary 查看角色信息
+// @Tags 角色
+// @Accept json
+// @Produce json
+// @Param body body dto.ResourceID true "请求参数"
+// @Success 200 {object} swaggertype.Role
+// @Router /role/detail [post]
 func (c RoleController) Detail(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ResourceID](ctx, func(params dto.ResourceID) (any, error) {
-        return c.srv.Role.FindRoleByID(ctx, params.ID)
+        return c.srv.Role.FindByID(ctx, params.ID)
     })
 }

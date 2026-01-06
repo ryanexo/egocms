@@ -33,6 +33,7 @@ func newTokenBlacklist(db *gorm.DB, opts ...gen.DOOption) tokenBlacklist {
 	_tokenBlacklist.DeletedAt = field.NewField(tableName, "deleted_at")
 	_tokenBlacklist.UserId = field.NewUint64(tableName, "user_id")
 	_tokenBlacklist.UUID = field.NewString(tableName, "uuid")
+	_tokenBlacklist.Expires = field.NewTime(tableName, "expires")
 
 	_tokenBlacklist.fillFieldMap()
 
@@ -49,6 +50,7 @@ type tokenBlacklist struct {
 	DeletedAt field.Field
 	UserId    field.Uint64
 	UUID      field.String
+	Expires   field.Time
 
 	fieldMap map[string]field.Expr
 }
@@ -71,6 +73,7 @@ func (t *tokenBlacklist) updateTableName(table string) *tokenBlacklist {
 	t.DeletedAt = field.NewField(table, "deleted_at")
 	t.UserId = field.NewUint64(table, "user_id")
 	t.UUID = field.NewString(table, "uuid")
+	t.Expires = field.NewTime(table, "expires")
 
 	t.fillFieldMap()
 
@@ -99,13 +102,14 @@ func (t *tokenBlacklist) GetFieldByName(fieldName string) (field.OrderExpr, bool
 }
 
 func (t *tokenBlacklist) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 6)
+	t.fieldMap = make(map[string]field.Expr, 7)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["created_at"] = t.CreatedAt
 	t.fieldMap["updated_at"] = t.UpdatedAt
 	t.fieldMap["deleted_at"] = t.DeletedAt
 	t.fieldMap["user_id"] = t.UserId
 	t.fieldMap["uuid"] = t.UUID
+	t.fieldMap["expires"] = t.Expires
 }
 
 func (t tokenBlacklist) clone(db *gorm.DB) tokenBlacklist {
@@ -224,7 +228,7 @@ func (t tokenBlacklistDo) CreateInBatches(values []*model.TokenBlacklist, batchS
 }
 
 // Save : !!! underlying implementation is different with GORM
-// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).CreateModel(values)
+// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
 func (t tokenBlacklistDo) Save(values ...*model.TokenBlacklist) error {
 	if len(values) == 0 {
 		return nil

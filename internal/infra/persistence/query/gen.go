@@ -29,6 +29,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		CategoryContext:      newCategoryContext(db, opts...),
 		CategorySeo:          newCategorySeo(db, opts...),
 		Menu:                 newMenu(db, opts...),
+		MenuAction:           newMenuAction(db, opts...),
 		MenuContext:          newMenuContext(db, opts...),
 		Role:                 newRole(db, opts...),
 		TokenBlacklist:       newTokenBlacklist(db, opts...),
@@ -51,6 +52,7 @@ type Query struct {
 	CategoryContext      categoryContext
 	CategorySeo          categorySeo
 	Menu                 menu
+	MenuAction           menuAction
 	MenuContext          menuContext
 	Role                 role
 	TokenBlacklist       tokenBlacklist
@@ -74,6 +76,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		CategoryContext:      q.CategoryContext.clone(db),
 		CategorySeo:          q.CategorySeo.clone(db),
 		Menu:                 q.Menu.clone(db),
+		MenuAction:           q.MenuAction.clone(db),
 		MenuContext:          q.MenuContext.clone(db),
 		Role:                 q.Role.clone(db),
 		TokenBlacklist:       q.TokenBlacklist.clone(db),
@@ -104,6 +107,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		CategoryContext:      q.CategoryContext.replaceDB(db),
 		CategorySeo:          q.CategorySeo.replaceDB(db),
 		Menu:                 q.Menu.replaceDB(db),
+		MenuAction:           q.MenuAction.replaceDB(db),
 		MenuContext:          q.MenuContext.replaceDB(db),
 		Role:                 q.Role.replaceDB(db),
 		TokenBlacklist:       q.TokenBlacklist.replaceDB(db),
@@ -124,6 +128,7 @@ type queryCtx struct {
 	CategoryContext      *categoryContextDo
 	CategorySeo          *categorySeoDo
 	Menu                 *menuDo
+	MenuAction           *menuActionDo
 	MenuContext          *menuContextDo
 	Role                 *roleDo
 	TokenBlacklist       *tokenBlacklistDo
@@ -144,6 +149,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		CategoryContext:      q.CategoryContext.WithContext(ctx),
 		CategorySeo:          q.CategorySeo.WithContext(ctx),
 		Menu:                 q.Menu.WithContext(ctx),
+		MenuAction:           q.MenuAction.WithContext(ctx),
 		MenuContext:          q.MenuContext.WithContext(ctx),
 		Role:                 q.Role.WithContext(ctx),
 		TokenBlacklist:       q.TokenBlacklist.WithContext(ctx),

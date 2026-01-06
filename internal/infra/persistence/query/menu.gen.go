@@ -38,9 +38,13 @@ func newMenu(db *gorm.DB, opts ...gen.DOOption) menu {
 	_menu.Visible = field.NewInt8(tableName, "visible")
 	_menu.URI = field.NewString(tableName, "uri")
 	_menu.Resource = field.NewString(tableName, "resource")
-	_menu.Permission = field.NewString(tableName, "permission")
 	_menu.Template = field.NewString(tableName, "template")
 	_menu.Remark = field.NewString(tableName, "remark")
+	_menu.Action = menuHasManyAction{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Action", "model.MenuAction"),
+	}
 
 	_menu.fillFieldMap()
 
@@ -50,21 +54,21 @@ func newMenu(db *gorm.DB, opts ...gen.DOOption) menu {
 type menu struct {
 	menuDo menuDo
 
-	ALL        field.Asterisk
-	ID         field.Uint64
-	CreatedAt  field.Time
-	UpdatedAt  field.Time
-	DeletedAt  field.Field
-	ParentID   field.Uint64
-	Type       field.Int8
-	Name       field.String
-	Sequence   field.Int64
-	Visible    field.Int8
-	URI        field.String
-	Resource   field.String
-	Permission field.String
-	Template   field.String
-	Remark     field.String
+	ALL       field.Asterisk
+	ID        field.Uint64
+	CreatedAt field.Time
+	UpdatedAt field.Time
+	DeletedAt field.Field
+	ParentID  field.Uint64
+	Type      field.Int8
+	Name      field.String
+	Sequence  field.Int64
+	Visible   field.Int8
+	URI       field.String
+	Resource  field.String
+	Template  field.String
+	Remark    field.String
+	Action    menuHasManyAction
 
 	fieldMap map[string]field.Expr
 }
@@ -92,7 +96,6 @@ func (m *menu) updateTableName(table string) *menu {
 	m.Visible = field.NewInt8(table, "visible")
 	m.URI = field.NewString(table, "uri")
 	m.Resource = field.NewString(table, "resource")
-	m.Permission = field.NewString(table, "permission")
 	m.Template = field.NewString(table, "template")
 	m.Remark = field.NewString(table, "remark")
 
@@ -131,19 +134,103 @@ func (m *menu) fillFieldMap() {
 	m.fieldMap["visible"] = m.Visible
 	m.fieldMap["uri"] = m.URI
 	m.fieldMap["resource"] = m.Resource
-	m.fieldMap["permission"] = m.Permission
 	m.fieldMap["template"] = m.Template
 	m.fieldMap["remark"] = m.Remark
+
 }
 
 func (m menu) clone(db *gorm.DB) menu {
 	m.menuDo.ReplaceConnPool(db.Statement.ConnPool)
+	m.Action.db = db.Session(&gorm.Session{Initialized: true})
+	m.Action.db.Statement.ConnPool = db.Statement.ConnPool
 	return m
 }
 
 func (m menu) replaceDB(db *gorm.DB) menu {
 	m.menuDo.ReplaceDB(db)
+	m.Action.db = db.Session(&gorm.Session{})
 	return m
+}
+
+type menuHasManyAction struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a menuHasManyAction) Where(conds ...field.Expr) *menuHasManyAction {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a menuHasManyAction) WithContext(ctx context.Context) *menuHasManyAction {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a menuHasManyAction) Session(session *gorm.Session) *menuHasManyAction {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a menuHasManyAction) Model(m *model.Menu) *menuHasManyActionTx {
+	return &menuHasManyActionTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a menuHasManyAction) Unscoped() *menuHasManyAction {
+	a.db = a.db.Unscoped()
+	return &a
+}
+
+type menuHasManyActionTx struct{ tx *gorm.Association }
+
+func (a menuHasManyActionTx) Find() (result []*model.MenuAction, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a menuHasManyActionTx) Append(values ...*model.MenuAction) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a menuHasManyActionTx) Replace(values ...*model.MenuAction) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a menuHasManyActionTx) Delete(values ...*model.MenuAction) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a menuHasManyActionTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a menuHasManyActionTx) Count() int64 {
+	return a.tx.Count()
+}
+
+func (a menuHasManyActionTx) Unscoped() *menuHasManyActionTx {
+	a.tx = a.tx.Unscoped()
+	return &a
 }
 
 type menuDo struct{ gen.DO }
@@ -252,7 +339,7 @@ func (m menuDo) CreateInBatches(values []*model.Menu, batchSize int) error {
 }
 
 // Save : !!! underlying implementation is different with GORM
-// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).CreateModel(values)
+// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
 func (m menuDo) Save(values ...*model.Menu) error {
 	if len(values) == 0 {
 		return nil

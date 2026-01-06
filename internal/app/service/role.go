@@ -3,16 +3,15 @@ package service
 import (
     `context`
     
+    roleAssembler `dpcms/internal/app/assembler/role`
     `dpcms/internal/app/dto`
     `dpcms/internal/app/erroz`
     `dpcms/internal/app/util/rbacutil`
     `dpcms/internal/infra`
     `dpcms/internal/infra/persistence/datatype`
-    `dpcms/internal/infra/persistence/dbscope`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
-    
-    `github.com/jinzhu/copier`
+    `dpcms/internal/infra/persistence/repo`
 )
 
 type Role struct {
@@ -24,15 +23,15 @@ func NewRoleService(i *infra.Infra, rbac *RBAC) (*Role, error) {
     return &Role{rbac: rbac, persist: i.Query}, nil
 }
 
-func (srv Role) Create(ctx context.Context, params dto.RoleCreateParams) (result *dto.Role, err error) {
-    roleModel := model.Role{Name: params.Name, Description: params.Description}
-    
-    err = srv.persist.Transaction(func(tx *query.Query) error {
-        queryCtx := tx.WithContext(ctx)
-        txErr := queryCtx.Role.Create(&roleModel)
+func (srv Role) Create(ctx context.Context, params dto.RoleCreateParams) (datatype.SafeUint64, error) {
+    data := &model.Role{Name: params.Name, Description: params.Description}
+    err := srv.persist.Transaction(func(tx *query.Query) error {
+        roleRepo := repo.NewRoleRepo(srv.persist)
+        txErr := roleRepo.Create(ctx, data)
         if txErr != nil {
             return txErr
         }
+        
         if len(params.InheritList) == 0 {
             return nil
         }
@@ -43,7 +42,7 @@ func (srv Role) Create(ctx context.Context, params dto.RoleCreateParams) (result
         }
         
         enforcer := srv.rbac.GetEnforcer()
-        _, txErr = enforcer.AddRolesForUser(rbacutil.GetRoleSubject(roleModel.ID.Raw()), inheritList)
+        _, txErr = enforcer.AddRolesForUser(rbacutil.GetRoleSubject(data.ID.Raw()), inheritList)
         if txErr != nil {
             return txErr
         }
@@ -55,39 +54,18 @@ func (srv Role) Create(ctx context.Context, params dto.RoleCreateParams) (result
         
         return nil
     })
-    if err != nil {
-        return
-    }
-    
-    inheritList := make([]uint64, 0, len(params.InheritList))
-    for _, inheritId := range params.InheritList {
-        inheritList = append(inheritList, inheritId.Raw())
-    }
-    
-    roles, err := srv.persist.WithContext(ctx).Role.Where(srv.persist.Role.ID.In(inheritList...)).Find()
-    if err != nil {
-        return
-    }
-    err = copier.Copy(&result, &roleModel)
-    if err != nil {
-        return
-    }
-    err = copier.Copy(&result.InheritList, &roles)
-    if err != nil {
-        return
-    }
-    
-    return
+    return data.ID, err
 }
 
 func (srv Role) Update(ctx context.Context, params dto.RoleUpdateParams) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
-        queryCtx := tx.WithContext(ctx)
-        
-        _, err := queryCtx.Role.Where(srv.persist.Role.ID.Eq(params.ID.Raw())).Updates(model.Role{
+        roleRepo := repo.NewRoleRepo(srv.persist)
+        data := &model.Role{
             Name:        params.Name,
             Description: params.Description,
-        })
+        }
+        
+        _, err := roleRepo.Update(ctx, data)
         if err != nil {
             return err
         }
@@ -97,121 +75,69 @@ func (srv Role) Update(ctx context.Context, params dto.RoleUpdateParams) error {
         }
         
         enforcer := srv.rbac.GetEnforcer()
-        currentRoleName := rbacutil.GetRoleSubject(params.ID.Raw())
-        for _, inheritRoleID := range params.InheritList {
-            inheritRoleName := rbacutil.GetRoleSubject(inheritRoleID.Raw())
-            isCircleRelate, err := enforcer.HasRoleForUser(inheritRoleName, currentRoleName)
+        currentRoleID := rbacutil.GetRoleSubject(params.ID.Raw())
+        
+        for _, roleID := range params.InheritList {
+            inheritRoleID := rbacutil.GetRoleSubject(roleID.Raw())
+            isCircular, err := enforcer.HasRoleForUser(inheritRoleID, currentRoleID)
             if err != nil {
                 return err
             }
             
-            if isCircleRelate {
-                childRole, err := tx.Role.WithContext(ctx).Where(tx.Role.ID.Eq(inheritRoleID.Raw())).First()
+            if isCircular {
+                role, err := roleRepo.FindByID(ctx, roleID)
                 if err != nil {
                     return err
                 }
-                return erroz.RoleCircular.Format(childRole.Name).ToError()
+                return erroz.RoleCircular.Format(role.Name).ToError()
             }
             
-            _, err = enforcer.AddRoleForUser(currentRoleName, rbacutil.GetRoleSubject(inheritRoleID.Raw()))
+            _, err = enforcer.AddRoleForUser(currentRoleID, rbacutil.GetRoleSubject(roleID.Raw()))
             if err != nil {
                 return err
             }
         }
         
-        err = enforcer.SavePolicy()
-        if err != nil {
-            return err
-        }
-        
-        return nil
+        return enforcer.SavePolicy()
     })
 }
 
 func (srv Role) Delete(ctx context.Context, id datatype.SafeUint64) error {
     return srv.persist.Transaction(func(tx *query.Query) error {
-        queryCtx := tx.WithContext(ctx)
-        _, err := queryCtx.Role.Where(tx.Role.ID.Eq(id.Raw())).Delete()
+        _, err := repo.NewRoleRepo(tx).Delete(ctx, id)
         if err != nil {
             return err
         }
+        
         enforcer := srv.rbac.GetEnforcer()
-        _, err = enforcer.DeleteRole(rbacutil.GetRoleSubject(id.Raw()))
+        sub := rbacutil.GetRoleSubject(id.Raw())
+        _, err = enforcer.DeleteRole(sub)
         if err != nil {
             return err
         }
-        err = enforcer.SavePolicy()
-        if err != nil {
-            return err
-        }
-        return nil
+        
+        return enforcer.SavePolicy()
     })
 }
 
-func (srv Role) FindRoleByID(ctx context.Context, id datatype.SafeUint64) (result dto.Role, err error) {
-    dao := srv.persist.Role
-    r, err := dao.WithContext(ctx).Where(dao.ID.Eq(id.Raw())).First()
+func (srv Role) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Role, error) {
+    data, err := repo.NewRoleRepo(srv.persist).FindByID(ctx, id)
     if err != nil {
-        return
+        return nil, err
     }
     
-    err = copier.Copy(&result, &r)
-    if err != nil {
-        return
-    }
-    
-    currentRoleName := rbacutil.GetRoleSubject(r.ID.Raw())
-    inheritRoleNames, err := srv.rbac.GetEnforcer().GetRolesForUser(currentRoleName)
-    if err != nil {
-        return
-    }
-    
-    idList, err := rbacutil.ParseRoleSubject(inheritRoleNames...)
-    inheritRoles, err := dao.WithContext(ctx).Where(dao.ID.In(idList...)).Find()
-    if err != nil {
-        return
-    }
-    
-    err = copier.Copy(&result.InheritList, &inheritRoles)
-    return
+    return roleAssembler.BuildRoleDTO(data), nil
 }
 
-func (srv Role) List(ctx context.Context, params dto.RoleListParams) (*dto.PaginatedResult[*model.Role], error) {
-    dao := srv.persist.Role
-    q := dao.WithContext(ctx).Scopes(dbscope.Paginate(params.PageNo, params.PageSize))
-    
-    if params.Name != nil {
-        q = q.Where(dao.Name.Eq(*params.Name))
-    }
-    if params.Description != nil {
-        q = q.Where(dao.Description.Eq(*params.Description))
-    }
-    if params.InheritId != nil {
-        sub := rbacutil.GetRoleSubject(params.InheritId.Raw())
-        inheritSubjects, err := srv.rbac.GetEnforcer().GetUsersForRole(sub)
-        if err != nil {
-            return nil, err
-        }
-        inheritIdList, err := rbacutil.ParseRoleSubject(inheritSubjects...)
-        if err != nil {
-            return nil, err
-        }
-        q = q.Where(dao.ID.In(inheritIdList...))
-    }
-    
-    count, err := q.Count()
+func (srv Role) List(ctx context.Context, params dto.RoleListParams) (*dto.PaginatedResult[*dto.Role], error) {
+    data, total, err := repo.NewRoleRepo(srv.persist).List(ctx, &params)
     if err != nil {
         return nil, err
     }
-    roles, err := q.Find()
-    if err != nil {
-        return nil, err
-    }
-    
-    return &dto.PaginatedResult[*model.Role]{
-        Total:    count,
+    return &dto.PaginatedResult[*dto.Role]{
+        Total:    total,
         PageNo:   params.PageNo,
         PageSize: params.PageSize,
-        List:     roles,
+        List:     roleAssembler.BuildRoleListDTO(data),
     }, nil
 }
