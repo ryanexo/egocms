@@ -252,7 +252,7 @@ func (m menuDo) CreateInBatches(values []*model.Menu, batchSize int) error {
 }
 
 // Save : !!! underlying implementation is different with GORM
-// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).CreateModel(values)
+// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
 func (m menuDo) Save(values ...*model.Menu) error {
 	if len(values) == 0 {
 		return nil

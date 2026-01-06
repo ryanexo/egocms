@@ -220,7 +220,7 @@ func (r roleDo) CreateInBatches(values []*model.Role, batchSize int) error {
 }
 
 // Save : !!! underlying implementation is different with GORM
-// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).CreateModel(values)
+// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
 func (r roleDo) Save(values ...*model.Role) error {
 	if len(values) == 0 {
 		return nil

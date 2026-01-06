@@ -224,7 +224,7 @@ func (t tokenBlacklistDo) CreateInBatches(values []*model.TokenBlacklist, batchS
 }
 
 // Save : !!! underlying implementation is different with GORM
-// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).CreateModel(values)
+// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
 func (t tokenBlacklistDo) Save(values ...*model.TokenBlacklist) error {
 	if len(values) == 0 {
 		return nil

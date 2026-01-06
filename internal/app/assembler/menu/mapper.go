@@ -15,7 +15,6 @@ func BuildMenuCreateCommand(data *dto.MenuCreateParams) *model.Menu {
         Visible:    datatype.BoolInt8(1),
         URI:        data.URI,
         Resource:   data.Resource,
-        Permission: data.Permission,
         Template:   data.Template,
         Remark:     data.Remark,
     }
@@ -31,7 +30,6 @@ func BuildMenuUpdateCommand(data *dto.MenuUpdateParams) *model.Menu {
         Sequence:   data.Sequence,
         URI:        data.URI,
         Resource:   data.Resource,
-        Permission: data.Permission,
         Template:   data.Template,
         Remark:     data.Remark,
     }
@@ -51,7 +49,6 @@ func BuildMenuDTO(data *model.Menu) *dto.Menu {
         Visible:    &data.Visible,
         URI:        data.URI,
         Resource:   data.Resource,
-        Permission: data.Permission,
         Template:   data.Template,
         Remark:     data.Remark,
     }

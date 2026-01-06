@@ -327,7 +327,7 @@ func (c categoryDo) CreateInBatches(values []*model.Category, batchSize int) err
 }
 
 // Save : !!! underlying implementation is different with GORM
-// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).CreateModel(values)
+// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
 func (c categoryDo) Save(values ...*model.Category) error {
 	if len(values) == 0 {
 		return nil

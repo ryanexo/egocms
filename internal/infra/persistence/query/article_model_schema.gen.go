@@ -284,7 +284,7 @@ func (a articleModelSchemaDo) CreateInBatches(values []*model.ArticleModelSchema
 }
 
 // Save : !!! underlying implementation is different with GORM
-// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).CreateModel(values)
+// The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
 func (a articleModelSchemaDo) Save(values ...*model.ArticleModelSchema) error {
 	if len(values) == 0 {
 		return nil

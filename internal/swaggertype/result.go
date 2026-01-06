@@ -9,7 +9,7 @@ type Result[T any] struct {
 type PaginatedResult[T any] = Result[[]T]
 
 type CreateResult struct {
-    Data string `json:"data" example:"123456" description:"数据ID"`
+    Data string `json:"data" example:"123456"` // 数据 ID
     Code string `json:"code"`
     Msg  string `json:"msg"`
 }

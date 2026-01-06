@@ -1,123 +1,123 @@
 package repo
 
 import (
-    `context`
-    
-    `dpcms/internal/app/dto`
-    `dpcms/internal/infra/persistence/datatype`
-    `dpcms/internal/infra/persistence/dbscope`
-    `dpcms/internal/infra/persistence/model`
-    `dpcms/internal/infra/persistence/query`
-    
-    `gorm.io/gen`
+	"context"
+
+	"dpcms/internal/app/dto"
+	"dpcms/internal/infra/persistence/datatype"
+	"dpcms/internal/infra/persistence/dbscope"
+	"dpcms/internal/infra/persistence/model"
+	"dpcms/internal/infra/persistence/query"
+
+	"gorm.io/gen"
 )
 
 type ArticleModel struct {
-    persist *query.Query
+	persist *query.Query
 }
 
 func NewArticleModel(persist *query.Query) ArticleModel {
-    return ArticleModel{persist}
+	return ArticleModel{persist}
 }
 
 func (r ArticleModel) Create(ctx context.Context, data *model.ArticleModel) error {
-    return r.persist.ArticleModel.WithContext(ctx).Create(data)
+	return r.persist.ArticleModel.WithContext(ctx).Create(data)
 }
 func (r ArticleModel) CreateModelJsonData(ctx context.Context, data *model.ArticleModelJsonData) error {
-    return r.persist.ArticleModelJsonData.WithContext(ctx).Create(data)
+	return r.persist.ArticleModelJsonData.WithContext(ctx).Create(data)
 }
 
 func (r ArticleModel) CreateModelTypedData(ctx context.Context, data []*model.ArticleModelData) error {
-    return r.persist.ArticleModelData.WithContext(ctx).Create(data...)
+	return r.persist.ArticleModelData.WithContext(ctx).Create(data...)
 }
 
 func (r ArticleModel) UpdateModel(ctx context.Context, data *model.ArticleModel) error {
-    m := r.persist.ArticleModel
-    _, err := m.WithContext(ctx).Updates(data)
-    return err
+	m := r.persist.ArticleModel
+	_, err := m.WithContext(ctx).Where(m.ID.Eq(data.ID.Raw())).Updates(data)
+	return err
 }
 
 func (r ArticleModel) ReplaceSchema(ctx context.Context, id datatype.SafeUint64, data []*model.ArticleModelSchema) error {
-    _, err := r.DeleteSchema(ctx, id)
-    if err != nil {
-        return err
-    }
-    m := r.persist.ArticleModelSchema
-    return m.WithContext(ctx).CreateInBatches(data, 500)
+	_, err := r.DeleteSchema(ctx, id)
+	if err != nil {
+		return err
+	}
+	m := r.persist.ArticleModelSchema
+	return m.WithContext(ctx).CreateInBatches(data, 500)
 }
 
 func (r ArticleModel) UpdateModelTypedData(ctx context.Context, data []*model.ArticleModelData) error {
-    if len(data) == 0 {
-        return nil
-    }
-    typedModel := r.persist.ArticleModelData
-    for _, item := range data {
-        _, err := typedModel.WithContext(ctx).Where(
-            typedModel.ModelId.Eq(item.ModelId.Raw()),
-            typedModel.ArticleId.Eq(item.ArticleId.Raw()),
-            typedModel.FieldKey.Eq(item.FieldKey),
-        ).Updates(item)
-        
-        if err != nil {
-            return err
-        }
-    }
-    return nil
+	if len(data) == 0 {
+		return nil
+	}
+	typedModel := r.persist.ArticleModelData
+	for _, item := range data {
+		_, err := typedModel.WithContext(ctx).Where(
+			typedModel.ModelId.Eq(item.ModelId.Raw()),
+			typedModel.ArticleId.Eq(item.ArticleId.Raw()),
+			typedModel.FieldKey.Eq(item.FieldKey),
+		).Updates(item)
+
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (r ArticleModel) UpdateModelJsonData(ctx context.Context, data *model.ArticleModelJsonData) error {
-    jsonModel := r.persist.ArticleModelJsonData
-    _, err := jsonModel.WithContext(ctx).Where(
-        jsonModel.ModelId.Eq(data.ModelId.Raw()),
-        jsonModel.ArticleId.Eq(data.ArticleId.Raw()),
-    ).Update(jsonModel.Data, data.Data)
-    return err
+	jsonModel := r.persist.ArticleModelJsonData
+	_, err := jsonModel.WithContext(ctx).Where(
+		jsonModel.ModelId.Eq(data.ModelId.Raw()),
+		jsonModel.ArticleId.Eq(data.ArticleId.Raw()),
+	).Update(jsonModel.Data, data.Data)
+	return err
 }
 
 func (r ArticleModel) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.ArticleModel, error) {
-    return r.persist.ArticleModel.WithContext(ctx).Where(r.persist.ArticleModel.ID.Eq(id.Raw())).First()
+	return r.persist.ArticleModel.WithContext(ctx).Where(r.persist.ArticleModel.ID.Eq(id.Raw())).First()
 }
 
 func (r ArticleModel) FindAllSchema(ctx context.Context, modelId datatype.SafeUint64) ([]*model.ArticleModelSchema, error) {
-    schemaModel := r.persist.ArticleModelSchema
-    return schemaModel.WithContext(ctx).Where(schemaModel.ModelId.Eq(modelId.Raw())).Find()
+	schemaModel := r.persist.ArticleModelSchema
+	return schemaModel.WithContext(ctx).Where(schemaModel.ModelId.Eq(modelId.Raw())).Find()
 }
 
 func (r ArticleModel) DeleteModel(ctx context.Context, modelId datatype.SafeUint64) error {
-    _, err := r.persist.ArticleModel.WithContext(ctx).Unscoped().Where(r.persist.ArticleModel.ID.Eq(modelId.Raw())).Delete()
-    return err
+	_, err := r.persist.ArticleModel.WithContext(ctx).Unscoped().Where(r.persist.ArticleModel.ID.Eq(modelId.Raw())).Delete()
+	return err
 }
 
 func (r ArticleModel) DeleteSchema(ctx context.Context, id datatype.SafeUint64) (gen.ResultInfo, error) {
-    m := r.persist.ArticleModelSchema
-    return m.WithContext(ctx).Unscoped().Where(m.ModelId.Eq(id.Raw())).Delete()
+	m := r.persist.ArticleModelSchema
+	return m.WithContext(ctx).Unscoped().Where(m.ModelId.Eq(id.Raw())).Delete()
 }
 
 func (r ArticleModel) DeleteAllSchema(ctx context.Context, id datatype.SafeUint64) error {
-    m := r.persist.ArticleModelSchema
-    _, err := m.WithContext(ctx).Unscoped().Where(m.ModelId.Eq(id.Raw())).Delete()
-    return err
+	m := r.persist.ArticleModelSchema
+	_, err := m.WithContext(ctx).Unscoped().Where(m.ModelId.Eq(id.Raw())).Delete()
+	return err
 }
 
 func (r ArticleModel) DeleteArticleData(ctx context.Context, articleId datatype.SafeUint64) error {
-    m := r.persist.ArticleModelData
-    _, err := m.WithContext(ctx).Unscoped().Where(m.ArticleId.Eq(articleId.Raw())).Delete()
-    return err
+	m := r.persist.ArticleModelData
+	_, err := m.WithContext(ctx).Unscoped().Where(m.ArticleId.Eq(articleId.Raw())).Delete()
+	return err
 }
 
 func (r ArticleModel) List(ctx context.Context, params dto.ArticleModelListParams) ([]*model.ArticleModel, int64, error) {
-    m := r.persist.ArticleModel
-    q := m.WithContext(ctx).Scopes(dbscope.Paginate(params.PageNo, params.PageSize))
-    if params.Name != nil {
-        q = q.Where(m.Name.Like("%" + *params.Name + "%"))
-    }
-    count, err := q.Count()
-    if err != nil {
-        return nil, 0, err
-    }
-    result, err := q.Find()
-    if err != nil {
-        return nil, 0, err
-    }
-    return result, count, nil
+	m := r.persist.ArticleModel
+	q := m.WithContext(ctx).Scopes(dbscope.Paginate(params.PageNo, params.PageSize))
+	if params.Name != nil {
+		q = q.Where(m.Name.Like("%" + *params.Name + "%"))
+	}
+	count, err := q.Count()
+	if err != nil {
+		return nil, 0, err
+	}
+	result, err := q.Find()
+	if err != nil {
+		return nil, 0, err
+	}
+	return result, count, nil
 }
