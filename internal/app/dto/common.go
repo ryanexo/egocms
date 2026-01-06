@@ -7,7 +7,7 @@ import (
 )
 
 type ResourceID struct {
-    ID datatype.SafeUint64 `validate:"required" json:"id" swaggertype:"string" example:"123456" description:"数据ID"`
+    ID datatype.SafeUint64 `validate:"required" json:"id" swaggertype:"string" example:"123456"`
 }
 
 type Base struct {

@@ -825,6 +825,301 @@ const docTemplate = `{
                 },
                 "x-apifox-folder": "菜单"
             }
+        },
+        "/user/change-password": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "修改密码",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserPasswdUpdateParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                        }
+                    }
+                },
+                "x-apifox-folder": "用户"
+            }
+        },
+        "/user/delete": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "删除用户",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResourceID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                        }
+                    }
+                },
+                "x-apifox-folder": "用户"
+            }
+        },
+        "/user/detail": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "查看用户资料",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResourceID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggertype.User"
+                        }
+                    }
+                },
+                "x-apifox-folder": "用户"
+            }
+        },
+        "/user/list": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "查看用户列表",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserListParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggertype.UserList"
+                        }
+                    }
+                },
+                "x-apifox-folder": "用户"
+            }
+        },
+        "/user/login": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "用户登录",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserCreateParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggertype.CreateResult"
+                        }
+                    }
+                },
+                "x-apifox-folder": "用户"
+            }
+        },
+        "/user/logout": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "注销登录",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                        }
+                    }
+                },
+                "x-apifox-folder": "用户"
+            }
+        },
+        "/user/register": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "用户注册",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserCreateParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggertype.CreateResult"
+                        }
+                    }
+                },
+                "x-apifox-folder": "用户"
+            }
+        },
+        "/user/reset-password": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "重置密码",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserPasswdResetParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                        }
+                    }
+                },
+                "x-apifox-folder": "用户"
+            }
+        },
+        "/user/update-profile": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "更新用户资料",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserProfile"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                        }
+                    }
+                },
+                "x-apifox-folder": "用户"
+            }
         }
     },
     "definitions": {
@@ -919,7 +1214,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "categoryId": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "content": {
                     "type": "string",
@@ -1067,7 +1362,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "maxValue": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "minLen": {
                     "type": "string"
@@ -1076,7 +1371,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "minValue": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "pattern": {
                     "type": "string"
@@ -1085,7 +1380,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "sequence": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "type": {
                     "type": "integer"
@@ -1180,7 +1475,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "parentId": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "path": {
                     "type": "string"
@@ -1189,7 +1484,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/dto.CategorySEO"
                 },
                 "sequence": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "type": {
                     "type": "integer"
@@ -1222,7 +1517,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/dto.CategorySEO"
                 },
                 "sequence": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "type": {
                     "type": "integer"
@@ -1305,7 +1600,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/dto.CategorySEO"
                 },
                 "sequence": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "type": {
                     "type": "integer"
@@ -1328,10 +1623,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "parentId": {
-                    "type": "string"
-                },
-                "permission": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "remark": {
                     "type": "string"
@@ -1340,7 +1632,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "sequence": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "template": {
                     "type": "string"
@@ -1370,9 +1662,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "parentId": {
-                    "type": "string"
-                },
-                "permission": {
                     "type": "string"
                 },
                 "remark": {
@@ -1439,9 +1728,6 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "permission": {
-                    "type": "string"
-                },
                 "remark": {
                     "type": "string"
                 },
@@ -1471,6 +1757,188 @@ const docTemplate = `{
                 "id": {
                     "type": "string",
                     "example": "123456"
+                }
+            }
+        },
+        "dto.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "profile": {
+                    "$ref": "#/definitions/dto.UserProfile"
+                },
+                "roleId": {
+                    "type": "string"
+                },
+                "roleName": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserCreateParams": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "passwordConfirm",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 64
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 6
+                },
+                "passwordConfirm": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 6
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 4
+                }
+            }
+        },
+        "dto.UserListParams": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "integer",
+                    "enum": [
+                        0,
+                        1
+                    ]
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "pageNo": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "province": {
+                    "type": "string"
+                },
+                "roleId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "verifyEndTime": {
+                    "type": "string"
+                },
+                "verifyStartTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserPasswdResetParams": {
+            "type": "object",
+            "required": [
+                "id",
+                "password"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 6
+                }
+            }
+        },
+        "dto.UserPasswdUpdateParams": {
+            "type": "object",
+            "required": [
+                "oldPassword",
+                "password",
+                "passwordConfirm"
+            ],
+            "properties": {
+                "oldPassword": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 6
+                },
+                "passwordConfirm": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 6
+                }
+            }
+        },
+        "dto.UserProfile": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "integer"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "province": {
+                    "type": "string"
                 }
             }
         },
@@ -1616,6 +2084,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "data": {
+                    "description": "数据 ID",
                     "type": "string",
                     "example": "123456"
                 },
@@ -1659,6 +2128,37 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dto.Menu"
+                    }
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "swaggertype.User": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dto.User"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "swaggertype.UserList": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.User"
                     }
                 },
                 "msg": {

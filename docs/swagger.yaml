@@ -58,7 +58,7 @@ definitions:
   dto.ArticleCreateParams:
     properties:
       categoryId:
-        type: string
+        type: integer
       content:
         maxLength: 65535
         type: string
@@ -158,19 +158,19 @@ definitions:
       maxTime:
         type: string
       maxValue:
-        type: string
+        type: integer
       minLen:
         type: string
       minTime:
         type: string
       minValue:
-        type: string
+        type: integer
       pattern:
         type: string
       required:
         type: boolean
       sequence:
-        type: string
+        type: integer
       type:
         type: integer
     required:
@@ -237,13 +237,13 @@ definitions:
       name:
         type: string
       parentId:
-        type: string
+        type: integer
       path:
         type: string
       seo:
         $ref: '#/definitions/dto.CategorySEO'
       sequence:
-        type: string
+        type: integer
       type:
         type: integer
       updatedAt:
@@ -262,7 +262,7 @@ definitions:
       seo:
         $ref: '#/definitions/dto.CategorySEO'
       sequence:
-        type: string
+        type: integer
       type:
         type: integer
       visible:
@@ -317,7 +317,7 @@ definitions:
       seo:
         $ref: '#/definitions/dto.CategorySEO'
       sequence:
-        type: string
+        type: integer
       type:
         type: integer
       visible:
@@ -334,15 +334,13 @@ definitions:
       name:
         type: string
       parentId:
-        type: string
-      permission:
-        type: string
+        type: integer
       remark:
         type: string
       resource:
         type: string
       sequence:
-        type: string
+        type: integer
       template:
         type: string
       type:
@@ -359,8 +357,6 @@ definitions:
       name:
         type: string
       parentId:
-        type: string
-      permission:
         type: string
       remark:
         type: string
@@ -405,8 +401,6 @@ definitions:
         type: string
       name:
         type: string
-      permission:
-        type: string
       remark:
         type: string
       resource:
@@ -429,6 +423,132 @@ definitions:
         type: string
     required:
     - id
+    type: object
+  dto.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      ip:
+        type: string
+      profile:
+        $ref: '#/definitions/dto.UserProfile'
+      roleId:
+        type: string
+      roleName:
+        type: string
+      status:
+        type: integer
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
+  dto.UserCreateParams:
+    properties:
+      email:
+        maxLength: 64
+        type: string
+      password:
+        maxLength: 32
+        minLength: 6
+        type: string
+      passwordConfirm:
+        maxLength: 32
+        minLength: 6
+        type: string
+      username:
+        maxLength: 32
+        minLength: 4
+        type: string
+    required:
+    - email
+    - password
+    - passwordConfirm
+    - username
+    type: object
+  dto.UserListParams:
+    properties:
+      city:
+        type: string
+      country:
+        type: string
+      email:
+        type: string
+      gender:
+        enum:
+        - 0
+        - 1
+        type: integer
+      ip:
+        type: string
+      nickname:
+        type: string
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+      province:
+        type: string
+      roleId:
+        type: string
+      status:
+        type: integer
+      username:
+        type: string
+      verifyEndTime:
+        type: string
+      verifyStartTime:
+        type: string
+    type: object
+  dto.UserPasswdResetParams:
+    properties:
+      id:
+        type: string
+      password:
+        maxLength: 32
+        minLength: 6
+        type: string
+    required:
+    - id
+    - password
+    type: object
+  dto.UserPasswdUpdateParams:
+    properties:
+      oldPassword:
+        type: string
+      password:
+        maxLength: 32
+        minLength: 6
+        type: string
+      passwordConfirm:
+        maxLength: 32
+        minLength: 6
+        type: string
+    required:
+    - oldPassword
+    - password
+    - passwordConfirm
+    type: object
+  dto.UserProfile:
+    properties:
+      avatar:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      description:
+        type: string
+      gender:
+        type: integer
+      nickname:
+        type: string
+      province:
+        type: string
     type: object
   erroz.Result:
     properties:
@@ -523,6 +643,7 @@ definitions:
       code:
         type: string
       data:
+        description: 数据 ID
         example: "123456"
         type: string
       msg:
@@ -551,6 +672,26 @@ definitions:
       data:
         items:
           $ref: '#/definitions/dto.Menu'
+        type: array
+      msg:
+        type: string
+    type: object
+  swaggertype.User:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dto.User'
+      msg:
+        type: string
+    type: object
+  swaggertype.UserList:
+    properties:
+      code:
+        type: string
+      data:
+        items:
+          $ref: '#/definitions/dto.User'
         type: array
       msg:
         type: string
@@ -1071,4 +1212,195 @@ paths:
       tags:
       - 菜单
       x-apifox-folder: 菜单
+  /user/change-password:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserPasswdUpdateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.EmptyResult'
+      summary: 修改密码
+      tags:
+      - 用户
+      x-apifox-folder: 用户
+  /user/delete:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.EmptyResult'
+      summary: 删除用户
+      tags:
+      - 用户
+      x-apifox-folder: 用户
+  /user/detail:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.User'
+      summary: 查看用户资料
+      tags:
+      - 用户
+      x-apifox-folder: 用户
+  /user/list:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserListParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.UserList'
+      summary: 查看用户列表
+      tags:
+      - 用户
+      x-apifox-folder: 用户
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserCreateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.CreateResult'
+      summary: 用户登录
+      tags:
+      - 用户
+      x-apifox-folder: 用户
+  /user/logout:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.EmptyResult'
+      summary: 注销登录
+      tags:
+      - 用户
+      x-apifox-folder: 用户
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserCreateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.CreateResult'
+      summary: 用户注册
+      tags:
+      - 用户
+      x-apifox-folder: 用户
+  /user/reset-password:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserPasswdResetParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.EmptyResult'
+      summary: 重置密码
+      tags:
+      - 用户
+      x-apifox-folder: 用户
+  /user/update-profile:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserProfile'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.EmptyResult'
+      summary: 更新用户资料
+      tags:
+      - 用户
+      x-apifox-folder: 用户
 swagger: "2.0"
