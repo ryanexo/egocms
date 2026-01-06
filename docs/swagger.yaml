@@ -1007,6 +1007,116 @@ paths:
       tags:
       - 文章
       x-apifox-folder: 文章
+  /article/offline:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.EmptyResult'
+      summary: 下线文章
+      tags:
+      - 文章
+      x-apifox-folder: 文章
+  /article/publish:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.EmptyResult'
+      summary: 发布文章
+      tags:
+      - 文章
+      x-apifox-folder: 文章
+  /article/reject:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.EmptyResult'
+      summary: 拒审文章
+      tags:
+      - 文章
+      x-apifox-folder: 文章
+  /article/republish:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.EmptyResult'
+      summary: 重新提交审核文章
+      tags:
+      - 文章
+      x-apifox-folder: 文章
+  /article/submit:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求参数
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggertype.EmptyResult'
+      summary: 提交文章
+      tags:
+      - 文章
+      x-apifox-folder: 文章
   /article/update:
     post:
       consumes:

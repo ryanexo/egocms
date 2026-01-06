@@ -67,7 +67,7 @@ func (srv Menu) Move(ctx context.Context, id datatype.SafeUint64, target datatyp
         menuRepo := repo.NewMenuRepo(tx)
         _, err := menuRepo.FindByIDWithAncestor(ctx, id.Raw(), target.Raw())
         if err == nil {
-            return erroz.CategoryCircular.ToError()
+            return erroz.MenuCircular.ToError()
         } else if !errors.Is(err, gorm.ErrRecordNotFound) {
             return err
         }

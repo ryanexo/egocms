@@ -39,10 +39,6 @@ var (
     ArticleAlreadySubmitted          = New(Code(errmod.Article, errtype.Conflict, 2), "文章已提交，请勿重复提交")
     ArticleAlreadyOffline            = New(Code(errmod.Article, errtype.Conflict, 3), "文章已下线，请勿重复下线")
     ArticleAlreadyReject             = New(Code(errmod.Article, errtype.Conflict, 4), "文章已拒审，请勿重复拒审")
-    ArticleMissingSubmitPerm         = New(Code(errmod.Article, errtype.Auth, 0), "无提交权限")
-    ArticleMissingPublishPerm        = New(Code(errmod.Article, errtype.Auth, 1), "无发布权限")
-    ArticleMissingOfflinePerm        = New(Code(errmod.Article, errtype.Auth, 2), "无下线权限")
-    ArticleMissingRejectPerm         = New(Code(errmod.Article, errtype.Auth, 3), "无审核权限")
     
     ArticleModelDataDisabled         = New(Code(errmod.ArticleModel, errtype.Parameter, 0), "%s参数不可用")
     ArticleModelDataInvalidType      = New(Code(errmod.ArticleModel, errtype.Parameter, 1), "%s数据类型不合法")

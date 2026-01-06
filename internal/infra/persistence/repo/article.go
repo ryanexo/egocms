@@ -6,6 +6,8 @@ import (
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
+    
+    `gorm.io/gen`
 )
 
 type Article struct {
@@ -53,9 +55,19 @@ func (r *Article) FindByIDWithContent(ctx context.Context, id datatype.SafeUint6
     return artData, nil
 }
 
+func (r *Article) FindByIDWithoutPreload(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
+    dao := r.query.Article
+    return dao.WithContext(ctx).Where(dao.ID.Eq(id.Raw())).First()
+}
+
 func (r *Article) Update(ctx context.Context, article *model.Article) error {
     _, err := r.query.Article.WithContext(ctx).Where(r.query.Article.ID.Eq(article.ID.Raw())).Updates(article)
     return err
+}
+
+func (r *Article) UpdateStatus(ctx context.Context, id datatype.SafeUint64, status int8) (gen.ResultInfo, error) {
+    dao := r.query.Article
+    return dao.WithContext(ctx).Where(dao.ID.Eq(id.Raw())).Update(dao.Status, status)
 }
 
 func (r *Article) UpdateContent(ctx context.Context, id datatype.SafeUint64, content string) error {

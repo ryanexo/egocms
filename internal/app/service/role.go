@@ -6,7 +6,6 @@ import (
     roleAssembler `dpcms/internal/app/assembler/role`
     `dpcms/internal/app/dto`
     `dpcms/internal/app/erroz`
-    `dpcms/internal/app/util/rbacutil`
     `dpcms/internal/infra`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
@@ -38,11 +37,11 @@ func (srv Role) Create(ctx context.Context, params dto.RoleCreateParams) (dataty
         inheritList := make([]string, 0, len(params.InheritList))
         
         for _, inheritID := range params.InheritList {
-            inheritList = append(inheritList, rbacutil.GetRoleSubject(inheritID.Raw()))
+            inheritList = append(inheritList, inheritID.String())
         }
         
         enforcer := srv.rbac.GetEnforcer()
-        _, txErr = enforcer.AddRolesForUser(rbacutil.GetRoleSubject(data.ID.Raw()), inheritList)
+        _, txErr = enforcer.AddRolesForUser(data.ID.String(), inheritList)
         if txErr != nil {
             return txErr
         }
@@ -75,11 +74,10 @@ func (srv Role) Update(ctx context.Context, params dto.RoleUpdateParams) error {
         }
         
         enforcer := srv.rbac.GetEnforcer()
-        currentRoleID := rbacutil.GetRoleSubject(params.ID.Raw())
+        currentRoleID := params.ID.String()
         
         for _, roleID := range params.InheritList {
-            inheritRoleID := rbacutil.GetRoleSubject(roleID.Raw())
-            isCircular, err := enforcer.HasRoleForUser(inheritRoleID, currentRoleID)
+            isCircular, err := enforcer.HasRoleForUser(roleID.String(), currentRoleID)
             if err != nil {
                 return err
             }
@@ -92,7 +90,7 @@ func (srv Role) Update(ctx context.Context, params dto.RoleUpdateParams) error {
                 return erroz.RoleCircular.Format(role.Name).ToError()
             }
             
-            _, err = enforcer.AddRoleForUser(currentRoleID, rbacutil.GetRoleSubject(roleID.Raw()))
+            _, err = enforcer.AddRoleForUser(currentRoleID, roleID.String())
             if err != nil {
                 return err
             }
@@ -110,8 +108,7 @@ func (srv Role) Delete(ctx context.Context, id datatype.SafeUint64) error {
         }
         
         enforcer := srv.rbac.GetEnforcer()
-        sub := rbacutil.GetRoleSubject(id.Raw())
-        _, err = enforcer.DeleteRole(sub)
+        _, err = enforcer.DeleteRole(id.String())
         if err != nil {
             return err
         }

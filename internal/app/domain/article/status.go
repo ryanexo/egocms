@@ -1,126 +1,107 @@
 package article
 
 import (
-	"dpcms/internal/app/erroz"
+    "dpcms/internal/app/erroz"
 )
 
 type Status struct {
-	status StatusValue
-	actor  Actor
+    status StatusValue
+    actor  Actor
 }
 
-type StatusValue int8
+type StatusValue = int8
 
 const (
-	// StatusDraft 草稿状态
-	StatusDraft StatusValue = iota
-	// StatusPending 待审核
-	StatusPending
-	// StatusPublished 已发布
-	StatusPublished
-	// StatusOffline 已下线
-	StatusOffline
-	// StatusReject 审核拒绝
-	StatusReject
-	// StatusPendingRepublish 编辑后等待重新审核
-	StatusPendingRepublish
+    // StatusDraft 草稿状态
+    StatusDraft StatusValue = iota
+    // StatusPending 待审核
+    StatusPending
+    // StatusPublished 已发布
+    StatusPublished
+    // StatusOffline 已下线
+    StatusOffline
+    // StatusReject 审核拒绝
+    StatusReject
+    // StatusPendingRepublish 编辑后等待重新审核
+    StatusPendingRepublish
 )
 
-
 type Actor struct {
-	CanSubmit        bool
-	CanPublish       bool
-	CanPublishDirect bool
-	CanOffline       bool
-	CanReject        bool
+    CanPublishDirect bool
 }
 
 func NewStatus(status StatusValue) *Status {
-	return &Status{status: status}
+    return &Status{status: status}
 }
 
-func (s *Status) WithActor(actor Actor) {
-	s.actor = actor
+func (s *Status) WithActor(actor Actor) *Status {
+    s.actor = actor
+    return s
 }
 
 func (s *Status) transitionStatus(expect StatusValue) error {
-	stateMachine := map[StatusValue]struct {
-		From  StatusValue
-		Error error
-	}{
-		StatusPending:          {From: StatusDraft, Error: erroz.ArticleSubmitStatusNotAllowed.ToError()},
-		StatusPublished:        {From: StatusPending, Error: erroz.ArticlePublishStatusNotAllowed.ToError()},
-		StatusOffline:          {From: StatusPublished, Error: erroz.ArticleOfflineStatusNotAllowed.ToError()},
-		StatusReject:           {From: StatusPending, Error: erroz.ArticleRejectStatusNotAllowed.ToError()},
-		StatusPendingRepublish: {From: StatusPublished, Error: erroz.ArticleRepublishStatusNotAllowed.ToError()},
-	}
-
-	nextState := stateMachine[expect]
-	if nextState.From != s.status {
-		return nextState.Error
-	}
-	s.status = expect
-	return nil
+    stateMachine := map[StatusValue]struct {
+        From  StatusValue
+        Error error
+    }{
+        StatusPending:          {From: StatusDraft, Error: erroz.ArticleSubmitStatusNotAllowed.ToError()},
+        StatusPublished:        {From: StatusPending, Error: erroz.ArticlePublishStatusNotAllowed.ToError()},
+        StatusOffline:          {From: StatusPublished, Error: erroz.ArticleOfflineStatusNotAllowed.ToError()},
+        StatusReject:           {From: StatusPending, Error: erroz.ArticleRejectStatusNotAllowed.ToError()},
+        StatusPendingRepublish: {From: StatusPublished, Error: erroz.ArticleRepublishStatusNotAllowed.ToError()},
+    }
+    
+    nextState := stateMachine[expect]
+    if nextState.From != s.status {
+        return nextState.Error
+    }
+    s.status = expect
+    return nil
 }
 
 func (s *Status) Submit() error {
-	if s.actor.CanPublishDirect {
-		s.status = StatusPublished
-		return nil
-	}
-	if !s.actor.CanSubmit {
-		return erroz.ArticleMissingSubmitPerm.ToError()
-	}
-	if s.status == StatusPending {
-		return erroz.ArticleAlreadySubmitted.ToError()
-	}
-	return s.transitionStatus(StatusPending)
+    if s.actor.CanPublishDirect {
+        s.status = StatusPublished
+        return nil
+    }
+    if s.status == StatusPending {
+        return erroz.ArticleAlreadySubmitted.ToError()
+    }
+    return s.transitionStatus(StatusPending)
 }
 
 func (s *Status) Publish() error {
-	if !s.actor.CanPublishDirect {
-		if !s.actor.CanPublish {
-			return erroz.ArticleMissingPublishPerm.ToError()
-		}
-		if s.status == StatusPublished {
-			return erroz.ArticleAlreadyPublished.ToError()
-		}
-	}
-	return s.transitionStatus(StatusPublished)
+    if !s.actor.CanPublishDirect {
+        if s.status == StatusPublished {
+            return erroz.ArticleAlreadyPublished.ToError()
+        }
+    }
+    return s.transitionStatus(StatusPublished)
 }
 
 func (s *Status) Offline() error {
-	if !s.actor.CanOffline {
-		return erroz.ArticleMissingOfflinePerm.ToError()
-	}
-	if s.status == StatusOffline {
-		return erroz.ArticleAlreadyOffline.ToError()
-	}
-	return s.transitionStatus(StatusOffline)
+    if s.status == StatusOffline {
+        return erroz.ArticleAlreadyOffline.ToError()
+    }
+    return s.transitionStatus(StatusOffline)
 }
 
 func (s *Status) Reject() error {
-	if !s.actor.CanReject {
-		return erroz.ArticleMissingRejectPerm.ToError()
-	}
-	if s.status == StatusReject {
-		return erroz.ArticleAlreadyReject.ToError()
-	}
-	return s.transitionStatus(StatusReject)
+    if s.status == StatusReject {
+        return erroz.ArticleAlreadyReject.ToError()
+    }
+    return s.transitionStatus(StatusReject)
 }
 
 func (s *Status) Republish() error {
-	if !s.actor.CanPublishDirect {
-		if !s.actor.CanPublish {
-			return erroz.ArticleMissingPublishPerm.ToError()
-		}
-		if s.status == StatusPendingRepublish {
-			return erroz.ArticleAlreadyRepublish.ToError()
-		}
-	}
-	return s.transitionStatus(StatusPendingRepublish)
+    if !s.actor.CanPublishDirect {
+        if s.status == StatusPendingRepublish {
+            return erroz.ArticleAlreadyRepublish.ToError()
+        }
+    }
+    return s.transitionStatus(StatusPendingRepublish)
 }
 
 func (s *Status) Value() StatusValue {
-	return s.status
+    return s.status
 }
