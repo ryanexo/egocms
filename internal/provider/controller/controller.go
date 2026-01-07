@@ -36,7 +36,7 @@ type Controllers struct {
 }
 
 type IController interface {
-    setup(engine *gin.Engine)
+    Setup(engine *gin.Engine)
 }
 
 var _ httpserver.Routes = (*Controllers)(nil)
@@ -52,7 +52,7 @@ func (c Controllers) SetupRoutes(engine *gin.Engine) {
     SETUP:
         controller, ok := iterateField.Interface().(IController)
         if ok {
-            controller.setup(engine)
+            controller.Setup(engine)
         } else if iterateField.Kind() == reflect.Ptr {
             iterateField = iterateField.Elem()
             goto SETUP

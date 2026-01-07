@@ -17,7 +17,7 @@ import (
 
 type Middleware gin.HandlerFunc
 
-func (fn Middleware) setup(engine *gin.Engine) {
+func (fn Middleware) Setup(engine *gin.Engine) {
     engine.Use(gin.HandlerFunc(fn))
 }
 

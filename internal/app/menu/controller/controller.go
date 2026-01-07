@@ -16,7 +16,7 @@ type MenuController struct {
     Auth    *authz.Builder
 }
 
-func (s MenuController) setup(engine *gin.Engine) {
+func (s MenuController) Setup(engine *gin.Engine) {
     acl := s.Auth.AccessControl("menu")
     
     g := engine.Group("/menu", acl.Middleware())

@@ -17,7 +17,7 @@ type RoleController struct {
     Auth    *authz.Builder
 }
 
-func (s RoleController) setup(server *gin.Engine) {
+func (s RoleController) Setup(server *gin.Engine) {
     acl := s.Auth.AccessControl("role")
     
     g := server.Group("/role", acl.Middleware())

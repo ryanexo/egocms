@@ -17,7 +17,7 @@ type ArticleModelController struct {
     Auth            *authz.Builder
 }
 
-func (s ArticleModelController) setup(engine *gin.Engine) {
+func (s ArticleModelController) Setup(engine *gin.Engine) {
     acl := s.Auth.AccessControl("article-model")
     
     g := engine.Group("/article-model", acl.Middleware())

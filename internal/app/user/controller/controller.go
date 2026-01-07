@@ -24,7 +24,7 @@ type UserController struct {
     Auth     *authz.Builder
 }
 
-func (s UserController) setup(server *gin.Engine) {
+func (s UserController) Setup(server *gin.Engine) {
     acl := s.Auth.AccessControl("user")
     
     g := server.Group("/user", acl.Middleware())

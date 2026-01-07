@@ -1,16 +1,16 @@
 package authz
 
 import (
-    `dpcms/internal/erroz`
-    `dpcms/internal/constant`
+    `context`
     
-    `github.com/gin-gonic/gin`
+    `dpcms/internal/constant`
+    `dpcms/internal/erroz`
 )
 
-func GetCurrentUser[T any](ctx *gin.Context) (T, error) {
+func GetCurrentUser[T any](ctx context.Context) (T, error) {
     var zero T
-    val, ok := ctx.Get(constant.RequestUserKey)
-    if !ok {
+    val := ctx.Value(constant.RequestUserKey)
+    if val == nil {
         return zero, erroz.Unauthorized.ToError()
     }
     user, ok := val.(T)

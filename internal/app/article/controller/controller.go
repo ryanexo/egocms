@@ -24,7 +24,7 @@ type ArticleController struct {
     Casbin     *casbin.Enforcer
 }
 
-func (s ArticleController) setup(engine *gin.Engine) {
+func (s ArticleController) Setup(engine *gin.Engine) {
     acl := s.Auth.AccessControl("article")
     
     g := engine.Group("/article", acl.Middleware())
