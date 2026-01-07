@@ -4,10 +4,10 @@ import (
     "context"
     `errors`
     
+    `dpcms/internal/app/category/errno`
     `dpcms/internal/app/category/internal/assembler`
     `dpcms/internal/app/category/internal/dto`
     `dpcms/internal/app/category/repo`
-    `dpcms/internal/erroz`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/query`
     `dpcms/internal/types`
@@ -65,7 +65,7 @@ func (srv CategoryService) Move(ctx context.Context, id datatype.SafeUint64, tar
         catRepo := repo.NewRepository(tx)
         _, err := catRepo.FindByIDWithAncestor(ctx, id.Raw(), target.Raw())
         if err == nil {
-            return erroz.CategoryCircular.ToError()
+            return errno.CategoryCircular.ToError()
         } else if !errors.Is(err, gorm.ErrRecordNotFound) {
             return err
         }

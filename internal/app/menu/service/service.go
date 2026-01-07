@@ -4,10 +4,10 @@ import (
     `context`
     `errors`
     
+    `dpcms/internal/app/menu/errno`
     `dpcms/internal/app/menu/internal/assembler`
     `dpcms/internal/app/menu/internal/dto`
     `dpcms/internal/app/menu/repo`
-    `dpcms/internal/erroz`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
@@ -66,7 +66,7 @@ func (s MenuService) Move(ctx context.Context, id datatype.SafeUint64, target da
         menuRepo := repo.NewMenuRepo(tx)
         _, err := menuRepo.FindByIDWithAncestor(ctx, id.Raw(), target.Raw())
         if err == nil {
-            return erroz.MenuCircular.ToError()
+            return errno.MenuCircular.ToError()
         } else if !errors.Is(err, gorm.ErrRecordNotFound) {
             return err
         }

@@ -5,11 +5,11 @@ import (
     `errors`
     `time`
     
+    `dpcms/internal/app/token/errno`
     `dpcms/internal/app/token/internal/dto`
     tokenBlacklistRepo `dpcms/internal/app/token/repo`
     userRepo `dpcms/internal/app/user/repo`
     `dpcms/internal/config`
-    `dpcms/internal/erroz`
     `dpcms/internal/infra`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
@@ -74,16 +74,16 @@ func (s TokenService) Parse(ctx context.Context, tokenString string) (*dto.UserT
     })
     if err != nil || !jwtData.Valid {
         if errors.Is(err, jwt.ErrTokenExpired) {
-            return nil, erroz.AuthorizationExpired.ToError()
+            return nil, errno.AuthorizationExpired.ToError()
         }
-        return nil, erroz.Unauthorized.Wrap(err).ToError()
+        return nil, errno.Unauthorized.Wrap(err).ToError()
     }
     isRevoked, err := s.isRevoked(ctx, claims.ID, s.config.Token.Expires)
     if err != nil {
         return nil, err
     }
     if isRevoked {
-        return nil, erroz.Unauthorized.ToError()
+        return nil, errno.Unauthorized.ToError()
     }
     return claims, nil
 }

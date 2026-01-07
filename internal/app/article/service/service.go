@@ -4,12 +4,12 @@ import (
     "context"
     "database/sql"
     
+    `dpcms/internal/app/article/errno`
     `dpcms/internal/app/article/internal/assembler`
     `dpcms/internal/app/article/internal/domain`
     `dpcms/internal/app/article/internal/dto`
     articleRepo `dpcms/internal/app/article/repo`
     articleModelRepo `dpcms/internal/app/articlemodel/repo`
-    "dpcms/internal/erroz"
     "dpcms/internal/infra/persistence/datatype"
     "dpcms/internal/infra/persistence/model"
     "dpcms/internal/infra/persistence/query"
@@ -196,7 +196,7 @@ func (s ArticleService) buildArticleModelData(artId datatype.SafeUint64, modelId
         
         v, err := assembler.NewValue(schema.Type, value)
         if err != nil {
-            return nil, nil, erroz.ArticleModelDataInvalidType.Format(schema.FieldName).ToError()
+            return nil, nil, errno.ArticleModelDataInvalidType.Format(schema.FieldName).ToError()
         }
         
         artModel := domain.NewModelValue(assembler.NewRules(schema), v)

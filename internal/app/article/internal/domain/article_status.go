@@ -1,7 +1,7 @@
 package domain
 
 import (
-    "dpcms/internal/erroz"
+    `dpcms/internal/app/article/errno`
 )
 
 type Status struct {
@@ -44,11 +44,11 @@ func (s *Status) transitionStatus(expect StatusValue) error {
         From  StatusValue
         Error error
     }{
-        StatusPending:          {From: StatusDraft, Error: erroz.ArticleSubmitStatusNotAllowed.ToError()},
-        StatusPublished:        {From: StatusPending, Error: erroz.ArticlePublishStatusNotAllowed.ToError()},
-        StatusOffline:          {From: StatusPublished, Error: erroz.ArticleOfflineStatusNotAllowed.ToError()},
-        StatusReject:           {From: StatusPending, Error: erroz.ArticleRejectStatusNotAllowed.ToError()},
-        StatusPendingRepublish: {From: StatusPublished, Error: erroz.ArticleRepublishStatusNotAllowed.ToError()},
+        StatusPending:          {From: StatusDraft, Error: errno.ArticleSubmitStatusNotAllowed.ToError()},
+        StatusPublished:        {From: StatusPending, Error: errno.ArticlePublishStatusNotAllowed.ToError()},
+        StatusOffline:          {From: StatusPublished, Error: errno.ArticleOfflineStatusNotAllowed.ToError()},
+        StatusReject:           {From: StatusPending, Error: errno.ArticleRejectStatusNotAllowed.ToError()},
+        StatusPendingRepublish: {From: StatusPublished, Error: errno.ArticleRepublishStatusNotAllowed.ToError()},
     }
     
     nextState := stateMachine[expect]
@@ -65,7 +65,7 @@ func (s *Status) Submit() error {
         return nil
     }
     if s.status == StatusPending {
-        return erroz.ArticleAlreadySubmitted.ToError()
+        return errno.ArticleAlreadySubmitted.ToError()
     }
     return s.transitionStatus(StatusPending)
 }
@@ -73,7 +73,7 @@ func (s *Status) Submit() error {
 func (s *Status) Publish() error {
     if !s.actor.CanPublishDirect {
         if s.status == StatusPublished {
-            return erroz.ArticleAlreadyPublished.ToError()
+            return errno.ArticleAlreadyPublished.ToError()
         }
     }
     return s.transitionStatus(StatusPublished)
@@ -81,14 +81,14 @@ func (s *Status) Publish() error {
 
 func (s *Status) Offline() error {
     if s.status == StatusOffline {
-        return erroz.ArticleAlreadyOffline.ToError()
+        return errno.ArticleAlreadyOffline.ToError()
     }
     return s.transitionStatus(StatusOffline)
 }
 
 func (s *Status) Reject() error {
     if s.status == StatusReject {
-        return erroz.ArticleAlreadyReject.ToError()
+        return errno.ArticleAlreadyReject.ToError()
     }
     return s.transitionStatus(StatusReject)
 }
@@ -96,7 +96,7 @@ func (s *Status) Reject() error {
 func (s *Status) Republish() error {
     if !s.actor.CanPublishDirect {
         if s.status == StatusPendingRepublish {
-            return erroz.ArticleAlreadyRepublish.ToError()
+            return errno.ArticleAlreadyRepublish.ToError()
         }
     }
     return s.transitionStatus(StatusPendingRepublish)

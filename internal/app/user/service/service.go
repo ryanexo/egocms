@@ -3,10 +3,10 @@ package service
 import (
     "context"
     
+    `dpcms/internal/app/user/errno`
     `dpcms/internal/app/user/internal/assembler`
     `dpcms/internal/app/user/internal/dto`
     `dpcms/internal/app/user/repo`
-    "dpcms/internal/erroz"
     "dpcms/internal/infra"
     "dpcms/internal/infra/password"
     "dpcms/internal/infra/persistence/datatype"
@@ -30,10 +30,10 @@ func (srv UserService) Create(ctx context.Context, params dto.UserCreateParams) 
         return 0, err
     }
     if user.Username == params.Username {
-        return 0, erroz.UserNameExists.ToError()
+        return 0, errno.UserNameExists.ToError()
     }
     if user.Email == params.Email {
-        return 0, erroz.UserEmailExists.ToError()
+        return 0, errno.UserEmailExists.ToError()
     }
     
     hashedPwd, err := password.Password(params.Password).Generate()
@@ -56,7 +56,7 @@ func (srv UserService) FindByCredential(ctx context.Context, params dto.UserCred
         return nil, err
     }
     if !password.Password(data.Password).Compare(params.Password) {
-        return nil, erroz.UserWrongPasswd.ToError()
+        return nil, errno.UserWrongPasswd.ToError()
     }
     return assembler.BuildUserDTO(data), nil
 }
@@ -88,10 +88,10 @@ func (srv UserService) ResetPassword(ctx context.Context, id datatype.SafeUint64
 
 func (srv UserService) ChangePassword(ctx context.Context, current *model.User, params dto.UserPasswdUpdateParams) error {
     if params.Password != params.PasswordConfirm {
-        return erroz.UserWrongConfirmPasswd.ToError()
+        return errno.UserWrongConfirmPasswd.ToError()
     }
     if params.Password == params.OldPassword {
-        return erroz.UserEqualsOldPasswd.ToError()
+        return errno.UserEqualsOldPasswd.ToError()
     }
     _, err := srv.FindByCredential(ctx, dto.UserCredentialParams{
         Username: current.Username,

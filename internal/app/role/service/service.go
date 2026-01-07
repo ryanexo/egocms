@@ -3,10 +3,10 @@ package service
 import (
     `context`
     
+    `dpcms/internal/app/role/errno`
     roleAssembler `dpcms/internal/app/role/internal/assembler`
     `dpcms/internal/app/role/internal/dto`
     `dpcms/internal/app/role/repo`
-    `dpcms/internal/erroz`
     `dpcms/internal/infra`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
@@ -88,7 +88,7 @@ func (s RoleService) Update(ctx context.Context, params dto.RoleUpdateParams) er
                 if err != nil {
                     return err
                 }
-                return erroz.RoleCircular.Format(role.Name).ToError()
+                return errno.RoleCircular.Format(role.Name).ToError()
             }
             
             _, err = enforcer.AddRoleForUser(currentRoleID, roleID.String())
