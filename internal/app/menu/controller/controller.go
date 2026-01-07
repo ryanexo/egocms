@@ -3,7 +3,6 @@ package controller
 import (
     `dpcms/internal/app/menu/internal/dto`
     `dpcms/internal/app/menu/service`
-    _ `dpcms/internal/app/menu/swagger`
     `dpcms/internal/middleware/authz`
     `dpcms/internal/types`
     `dpcms/internal/util/httpbinding`
@@ -44,7 +43,7 @@ func (s MenuController) Setup(engine *gin.Engine) {
 // @Accept  json
 // @Produce json
 // @Param   body body dto.MenuListQueryParams true "请求参数"
-// @Success 200 {object} swagger.MenuList
+// @Success 200 {object} dto.ApiMenuList
 // @Router  /menu/list [post]
 func (s MenuController) List(ctx *gin.Context) {
     httpbinding.BindJSON[dto.MenuListQueryParams](ctx, func(params dto.MenuListQueryParams) (any, error) {
@@ -59,7 +58,7 @@ func (s MenuController) List(ctx *gin.Context) {
 // @Accept  json
 // @Produce json
 // @Param   body body types.ResourceID true "请求参数"
-// @Success 200 {object} swagger.Menu
+// @Success 200 {object} dto.ApiMenu
 // @Router  /menu/detail [post]
 func (s MenuController) Detail(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {

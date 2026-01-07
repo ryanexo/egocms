@@ -7,7 +7,6 @@ import (
     "dpcms/internal/types"
     "dpcms/internal/util/httpbinding"
     
-    _ "dpcms/internal/app/category/swagger"
     _ "dpcms/internal/util/httpbinding"
     
     "github.com/gin-gonic/gin"
@@ -46,7 +45,7 @@ func (s CategoryController) Setup(engine *gin.Engine) {
 // @Accept  json
 // @Produce json
 // @Param   body body dto.CategoryListParams true "请求参数"
-// @Success 200 {object} swagger.CategoryList
+// @Success 200 {object} dto.ApiCategoryList
 // @Router  /category/list [post]
 func (s CategoryController) List(ctx *gin.Context) {
     httpbinding.BindJSON[dto.CategoryListParams](ctx, func(params dto.CategoryListParams) (any, error) {
@@ -61,7 +60,7 @@ func (s CategoryController) List(ctx *gin.Context) {
 // @Accept  json
 // @Produce json
 // @Param   body body types.ResourceID true "请求参数"
-// @Success 200 {object} swagger.Category
+// @Success 200 {object} dto.ApiCategory
 // @Router  /category/detail [post]
 func (s CategoryController) Detail(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {

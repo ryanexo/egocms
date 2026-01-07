@@ -27,7 +27,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "文章"
+                    "文章模型"
                 ],
                 "summary": "创建文章模型",
                 "parameters": [
@@ -61,7 +61,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "文章"
+                    "文章模型"
                 ],
                 "summary": "删除文章模型",
                 "parameters": [
@@ -95,7 +95,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "文章"
+                    "文章模型"
                 ],
                 "summary": "删除文章模型",
                 "parameters": [
@@ -113,7 +113,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ArticleModel"
+                            "$ref": "#/definitions/dto.ApiArticleModel"
                         }
                     }
                 },
@@ -129,7 +129,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "文章"
+                    "文章模型"
                 ],
                 "summary": "查看文章模型列表",
                 "parameters": [
@@ -147,7 +147,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ArticleModelListResult"
+                            "$ref": "#/definitions/dto.ApiArticleModelList"
                         }
                     }
                 },
@@ -163,7 +163,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "文章"
+                    "文章模型"
                 ],
                 "summary": "更新文章模型",
                 "parameters": [
@@ -197,7 +197,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "文章"
+                    "文章模型"
                 ],
                 "summary": "更新文章模型Schema",
                 "parameters": [
@@ -317,7 +317,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swagger.Article"
+                            "$ref": "#/definitions/dto.ApiArticle"
                         }
                     }
                 },
@@ -623,7 +623,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swagger.Category"
+                            "$ref": "#/definitions/dto.ApiCategory"
                         }
                     }
                 },
@@ -657,7 +657,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swagger.CategoryList"
+                            "$ref": "#/definitions/dto.ApiCategoryList"
                         }
                     }
                 },
@@ -827,7 +827,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swagger.Menu"
+                            "$ref": "#/definitions/dto.ApiMenu"
                         }
                     }
                 },
@@ -861,7 +861,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swagger.MenuList"
+                            "$ref": "#/definitions/dto.ApiMenuList"
                         }
                     }
                 },
@@ -1031,7 +1031,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swagger.Role"
+                            "$ref": "#/definitions/dto.ApiRole"
                         }
                     }
                 },
@@ -1065,7 +1065,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swagger.RoleList"
+                            "$ref": "#/definitions/dto.ApiRoleList"
                         }
                     }
                 },
@@ -1201,7 +1201,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swagger.User"
+                            "$ref": "#/definitions/dto.ApiUser"
                         }
                     }
                 },
@@ -1235,7 +1235,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swagger.UserList"
+                            "$ref": "#/definitions/dto.ApiUserList"
                         }
                     }
                 },
@@ -1414,6 +1414,332 @@ const docTemplate = `{
                 }
             }
         },
+        "dpcms_internal_app_category_internal_dto.ApiPagedData-model_Category": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Category"
+                    }
+                },
+                "pageNo": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dpcms_internal_app_menu_internal_dto.ApiPagedData-dto_Menu": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Menu"
+                    }
+                },
+                "pageNo": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dpcms_internal_app_role_internal_dto.ApiPagedData-dto_Role": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Role"
+                    }
+                },
+                "pageNo": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dpcms_internal_app_user_internal_dto.ApiPagedData-dto_User": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.User"
+                    }
+                },
+                "pageNo": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ApiArticle": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dto.Article"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ApiArticleModel": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dto.ArticleModel"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ApiArticleModelList": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dto.ApiPaginatedData-dto_ArticleModel"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ApiCategory": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dto.Category"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ApiCategoryList": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dpcms_internal_app_category_internal_dto.ApiPagedData-model_Category"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ApiMenu": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dto.Menu"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ApiMenuList": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dpcms_internal_app_menu_internal_dto.ApiPagedData-dto_Menu"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ApiPaginatedData-dto_ArticleModel": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ArticleModel"
+                    }
+                },
+                "pageNo": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ApiRole": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dto.Role"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ApiRoleList": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dpcms_internal_app_role_internal_dto.ApiPagedData-dto_Role"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ApiUser": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dto.User"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ApiUserList": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dpcms_internal_app_user_internal_dto.ApiPagedData-dto_User"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.Article": {
+            "type": "object",
+            "properties": {
+                "authorId": {
+                    "type": "string"
+                },
+                "authorName": {
+                    "type": "string"
+                },
+                "categoryId": {
+                    "type": "string"
+                },
+                "categoryName": {
+                    "type": "string"
+                },
+                "clickCount": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "flag": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "keywords": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "modelData": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "modelId": {
+                    "type": "string"
+                },
+                "modelSchema": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ArticleModelSchema"
+                    }
+                },
+                "publishAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "target": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.ArticleCreateParams": {
             "type": "object",
             "required": [
@@ -1461,6 +1787,26 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ArticleModel": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.ArticleModelCreateParams": {
             "type": "object",
             "required": [
@@ -1487,6 +1833,24 @@ const docTemplate = `{
                 },
                 "pageSize": {
                     "type": "integer"
+                }
+            }
+        },
+        "dto.ArticleModelSchema": {
+            "type": "object",
+            "properties": {
+                "fieldKey": {
+                    "type": "string"
+                },
+                "fieldName": {
+                    "type": "string"
+                },
+                "sequence": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer",
+                    "format": "int32"
                 }
             }
         },
@@ -1632,6 +1996,41 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.Category": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentId": {
+                    "type": "integer"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "seo": {
+                    "$ref": "#/definitions/dto.CategorySEO"
+                },
+                "sequence": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                }
+            }
+        },
         "dto.CategoryCreateParams": {
             "type": "object",
             "required": [
@@ -1745,6 +2144,44 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.Menu": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentId": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "sequence": {
+                    "type": "integer"
+                },
+                "template": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "uri": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                }
+            }
+        },
         "dto.MenuCreateParams": {
             "type": "object",
             "required": [
@@ -1836,6 +2273,26 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.Role": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.RoleCreateParams": {
             "type": "object",
             "required": [
@@ -1902,6 +2359,41 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "maxLength": 255
+                }
+            }
+        },
+        "dto.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "profile": {
+                    "$ref": "#/definitions/dto.UserProfile"
+                },
+                "roleId": {
+                    "type": "string"
+                },
+                "roleName": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },
@@ -2052,38 +2544,66 @@ const docTemplate = `{
                 }
             }
         },
-        "swagger.Article": {
-            "type": "object"
+        "model.Category": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentID": {
+                    "type": "integer"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "seo": {
+                    "$ref": "#/definitions/model.CategorySeo"
+                },
+                "sequence": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "integer"
+                }
+            }
         },
-        "swagger.ArticleModel": {
-            "type": "object"
-        },
-        "swagger.ArticleModelListResult": {
-            "type": "object"
-        },
-        "swagger.Category": {
-            "type": "object"
-        },
-        "swagger.CategoryList": {
-            "type": "object"
-        },
-        "swagger.Menu": {
-            "type": "object"
-        },
-        "swagger.MenuList": {
-            "type": "object"
-        },
-        "swagger.Role": {
-            "type": "object"
-        },
-        "swagger.RoleList": {
-            "type": "object"
-        },
-        "swagger.User": {
-            "type": "object"
-        },
-        "swagger.UserList": {
-            "type": "object"
+        "model.CategorySeo": {
+            "type": "object",
+            "properties": {
+                "categoryID": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "keywords": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
         },
         "types.ApiCreateResult": {
             "type": "object",

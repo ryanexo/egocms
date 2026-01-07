@@ -7,6 +7,218 @@ definitions:
       value:
         type: string
     type: object
+  dpcms_internal_app_category_internal_dto.ApiPagedData-model_Category:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.Category'
+        type: array
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dpcms_internal_app_menu_internal_dto.ApiPagedData-dto_Menu:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/dto.Menu'
+        type: array
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dpcms_internal_app_role_internal_dto.ApiPagedData-dto_Role:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/dto.Role'
+        type: array
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dpcms_internal_app_user_internal_dto.ApiPagedData-dto_User:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/dto.User'
+        type: array
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dto.ApiArticle:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dto.Article'
+      msg:
+        type: string
+    type: object
+  dto.ApiArticleModel:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dto.ArticleModel'
+      msg:
+        type: string
+    type: object
+  dto.ApiArticleModelList:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dto.ApiPaginatedData-dto_ArticleModel'
+      msg:
+        type: string
+    type: object
+  dto.ApiCategory:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dto.Category'
+      msg:
+        type: string
+    type: object
+  dto.ApiCategoryList:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dpcms_internal_app_category_internal_dto.ApiPagedData-model_Category'
+      msg:
+        type: string
+    type: object
+  dto.ApiMenu:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dto.Menu'
+      msg:
+        type: string
+    type: object
+  dto.ApiMenuList:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dpcms_internal_app_menu_internal_dto.ApiPagedData-dto_Menu'
+      msg:
+        type: string
+    type: object
+  dto.ApiPaginatedData-dto_ArticleModel:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/dto.ArticleModel'
+        type: array
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dto.ApiRole:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dto.Role'
+      msg:
+        type: string
+    type: object
+  dto.ApiRoleList:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dpcms_internal_app_role_internal_dto.ApiPagedData-dto_Role'
+      msg:
+        type: string
+    type: object
+  dto.ApiUser:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dto.User'
+      msg:
+        type: string
+    type: object
+  dto.ApiUserList:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dpcms_internal_app_user_internal_dto.ApiPagedData-dto_User'
+      msg:
+        type: string
+    type: object
+  dto.Article:
+    properties:
+      authorId:
+        type: string
+      authorName:
+        type: string
+      categoryId:
+        type: string
+      categoryName:
+        type: string
+      clickCount:
+        type: string
+      content:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      flag:
+        type: integer
+      id:
+        type: string
+      keywords:
+        items:
+          type: string
+        type: array
+      modelData:
+        additionalProperties: {}
+        type: object
+      modelId:
+        type: string
+      modelSchema:
+        items:
+          $ref: '#/definitions/dto.ArticleModelSchema'
+        type: array
+      publishAt:
+        type: string
+      status:
+        type: integer
+      target:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      url:
+        type: string
+    type: object
   dto.ArticleCreateParams:
     properties:
       categoryId:
@@ -40,6 +252,19 @@ definitions:
     - categoryId
     - title
     type: object
+  dto.ArticleModel:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   dto.ArticleModelCreateParams:
     properties:
       description:
@@ -57,6 +282,18 @@ definitions:
       pageNo:
         type: integer
       pageSize:
+        type: integer
+    type: object
+  dto.ArticleModelSchema:
+    properties:
+      fieldKey:
+        type: string
+      fieldName:
+        type: string
+      sequence:
+        type: string
+      type:
+        format: int32
         type: integer
     type: object
   dto.ArticleModelSchemaParams:
@@ -155,6 +392,29 @@ definitions:
       url:
         type: string
     type: object
+  dto.Category:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      parentId:
+        type: integer
+      path:
+        type: string
+      seo:
+        $ref: '#/definitions/dto.CategorySEO'
+      sequence:
+        type: integer
+      type:
+        type: integer
+      updatedAt:
+        type: string
+      visible:
+        type: boolean
+    type: object
   dto.CategoryCreateParams:
     properties:
       name:
@@ -229,6 +489,31 @@ definitions:
     required:
     - id
     type: object
+  dto.Menu:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      parentId:
+        type: integer
+      remark:
+        type: string
+      sequence:
+        type: integer
+      template:
+        type: string
+      type:
+        type: integer
+      updatedAt:
+        type: string
+      uri:
+        type: string
+      visible:
+        type: boolean
+    type: object
   dto.MenuCreateParams:
     properties:
       name:
@@ -289,6 +574,19 @@ definitions:
     required:
     - id
     type: object
+  dto.Role:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   dto.RoleCreateParams:
     properties:
       description:
@@ -336,6 +634,29 @@ definitions:
     - description
     - id
     - name
+    type: object
+  dto.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      ip:
+        type: string
+      profile:
+        $ref: '#/definitions/dto.UserProfile'
+      roleId:
+        type: string
+      roleName:
+        type: string
+      status:
+        type: integer
+      updatedAt:
+        type: string
+      username:
+        type: string
     type: object
   dto.UserCreateParams:
     properties:
@@ -440,27 +761,45 @@ definitions:
       province:
         type: string
     type: object
-  swagger.Article:
+  model.Category:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      parentID:
+        type: integer
+      path:
+        type: string
+      seo:
+        $ref: '#/definitions/model.CategorySeo'
+      sequence:
+        type: integer
+      type:
+        type: integer
+      updatedAt:
+        type: string
+      visible:
+        type: integer
     type: object
-  swagger.ArticleModel:
-    type: object
-  swagger.ArticleModelListResult:
-    type: object
-  swagger.Category:
-    type: object
-  swagger.CategoryList:
-    type: object
-  swagger.Menu:
-    type: object
-  swagger.MenuList:
-    type: object
-  swagger.Role:
-    type: object
-  swagger.RoleList:
-    type: object
-  swagger.User:
-    type: object
-  swagger.UserList:
+  model.CategorySeo:
+    properties:
+      categoryID:
+        type: integer
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      keywords:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
     type: object
   types.ApiCreateResult:
     properties:
@@ -515,7 +854,7 @@ paths:
             $ref: '#/definitions/types.ApiCreateResult'
       summary: 创建文章模型
       tags:
-      - 文章
+      - 文章模型
       x-apifox-folder: 文章模型
   /article-model/delete:
     post:
@@ -537,7 +876,7 @@ paths:
             $ref: '#/definitions/types.ApiEmptyResult'
       summary: 删除文章模型
       tags:
-      - 文章
+      - 文章模型
       x-apifox-folder: 文章模型
   /article-model/detail:
     post:
@@ -556,10 +895,10 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swagger.ArticleModel'
+            $ref: '#/definitions/dto.ApiArticleModel'
       summary: 删除文章模型
       tags:
-      - 文章
+      - 文章模型
       x-apifox-folder: 文章模型
   /article-model/list:
     post:
@@ -578,10 +917,10 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swagger.ArticleModelListResult'
+            $ref: '#/definitions/dto.ApiArticleModelList'
       summary: 查看文章模型列表
       tags:
-      - 文章
+      - 文章模型
       x-apifox-folder: 文章模型
   /article-model/update:
     post:
@@ -603,7 +942,7 @@ paths:
             $ref: '#/definitions/types.ApiEmptyResult'
       summary: 更新文章模型
       tags:
-      - 文章
+      - 文章模型
       x-apifox-folder: 文章模型
   /article-model/update-schema:
     post:
@@ -625,7 +964,7 @@ paths:
             $ref: '#/definitions/types.ApiEmptyResult'
       summary: 更新文章模型Schema
       tags:
-      - 文章
+      - 文章模型
       x-apifox-folder: 文章模型
   /article/create:
     post:
@@ -688,7 +1027,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swagger.Article'
+            $ref: '#/definitions/dto.ApiArticle'
       summary: 查看文章
       tags:
       - 文章
@@ -886,7 +1225,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swagger.Category'
+            $ref: '#/definitions/dto.ApiCategory'
       summary: 查看分类
       tags:
       - 分类
@@ -908,7 +1247,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swagger.CategoryList'
+            $ref: '#/definitions/dto.ApiCategoryList'
       summary: 分类列表
       tags:
       - 分类
@@ -1018,7 +1357,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swagger.Menu'
+            $ref: '#/definitions/dto.ApiMenu'
       summary: 查看菜单
       tags:
       - 菜单
@@ -1040,7 +1379,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swagger.MenuList'
+            $ref: '#/definitions/dto.ApiMenuList'
       summary: 菜单列表
       tags:
       - 菜单
@@ -1150,7 +1489,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swagger.Role'
+            $ref: '#/definitions/dto.ApiRole'
       summary: 查看角色信息
       tags:
       - 角色
@@ -1172,7 +1511,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swagger.RoleList'
+            $ref: '#/definitions/dto.ApiRoleList'
       summary: 角色列表
       tags:
       - 角色
@@ -1260,7 +1599,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swagger.User'
+            $ref: '#/definitions/dto.ApiUser'
       summary: 查看用户资料
       tags:
       - 用户
@@ -1282,7 +1621,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swagger.UserList'
+            $ref: '#/definitions/dto.ApiUserList'
       summary: 查看用户列表
       tags:
       - 用户

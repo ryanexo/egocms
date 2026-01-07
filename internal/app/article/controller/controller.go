@@ -5,7 +5,6 @@ import (
     `dpcms/internal/app/article/internal/dto`
     `dpcms/internal/app/article/service`
     permissionSrv `dpcms/internal/app/permission/service`
-    `dpcms/internal/infra/persistence/model`
     `dpcms/internal/middleware/authz`
     `dpcms/internal/types`
     `dpcms/internal/util/contextutil`
@@ -13,8 +12,6 @@ import (
     
     `github.com/casbin/casbin/v2`
     `github.com/gin-gonic/gin`
-    
-    _ `dpcms/internal/app/article/swagger`
 )
 
 type ArticleController struct {
@@ -84,9 +81,12 @@ func (s ArticleController) Update(ctx *gin.Context) {
     })
 }
 
-func (s ArticleController) createActor(u *model.User) (domain.Actor, error) {
-    enforcer := s.Casbin
-    canPublishDirect, err := enforcer.Enforce(u.RoleID.String(), "article", "publish-direct")
+func (s ArticleController) createActor(ctx *gin.Context) (domain.Actor, error) {
+    u, err := contextutil.GetAuthorizedUser(ctx)
+    if err != nil {
+        return domain.Actor{}, err
+    }
+    canPublishDirect, err := s.Casbin.Enforce(u.RoleID.String(), "article", "publish-direct")
     if err != nil {
         return domain.Actor{}, err
     }
@@ -106,11 +106,7 @@ func (s ArticleController) createActor(u *model.User) (domain.Actor, error) {
 // @Router  /article/submit [post]
 func (s ArticleController) Submit(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
-        u, err := contextutil.GetAuthorizedUser(ctx)
-        if err != nil {
-            return nil, err
-        }
-        actor, err := s.createActor(u)
+        actor, err := s.createActor(ctx)
         if err != nil {
             return nil, err
         }
@@ -131,11 +127,7 @@ func (s ArticleController) Submit(ctx *gin.Context) {
 // @Router  /article/publish [post]
 func (s ArticleController) Publish(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
-        u, err := contextutil.GetAuthorizedUser(ctx)
-        if err != nil {
-            return nil, err
-        }
-        actor, err := s.createActor(u)
+        actor, err := s.createActor(ctx)
         if err != nil {
             return nil, err
         }
@@ -156,11 +148,7 @@ func (s ArticleController) Publish(ctx *gin.Context) {
 // @Router  /article/offline [post]
 func (s ArticleController) Offline(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
-        u, err := contextutil.GetAuthorizedUser(ctx)
-        if err != nil {
-            return nil, err
-        }
-        actor, err := s.createActor(u)
+        actor, err := s.createActor(ctx)
         if err != nil {
             return nil, err
         }
@@ -181,11 +169,7 @@ func (s ArticleController) Offline(ctx *gin.Context) {
 // @Router  /article/reject [post]
 func (s ArticleController) Reject(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
-        u, err := contextutil.GetAuthorizedUser(ctx)
-        if err != nil {
-            return nil, err
-        }
-        actor, err := s.createActor(u)
+        actor, err := s.createActor(ctx)
         if err != nil {
             return nil, err
         }
@@ -206,11 +190,7 @@ func (s ArticleController) Reject(ctx *gin.Context) {
 // @Router  /article/republish [post]
 func (s ArticleController) Republish(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
-        u, err := contextutil.GetAuthorizedUser(ctx)
-        if err != nil {
-            return nil, err
-        }
-        actor, err := s.createActor(u)
+        actor, err := s.createActor(ctx)
         if err != nil {
             return nil, err
         }
@@ -242,7 +222,7 @@ func (s ArticleController) Delete(ctx *gin.Context) {
 // @Accept  json
 // @Produce json
 // @Param   body body types.ResourceID true "请求参数"
-// @Success 200 {object} swagger.Article
+// @Success 200 {object} dto.ApiArticle
 // @Router  /article/detail [post]
 func (s ArticleController) Detail(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {

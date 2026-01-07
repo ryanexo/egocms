@@ -103,9 +103,8 @@ func (srv CategoryService) List(ctx context.Context, params dto.CategoryListPara
         return nil, err
     }
     return &types.PaginatedResult[*dto.Category]{
-        Total:    total,
-        PageSize: params.PageSize,
-        PageNo:   params.PageNo,
-        List:     assembler.ToCategoryListDTO(data),
+        Pagination: params.Pagination,
+        Total:      total,
+        List:       assembler.ToCategoryListDTO(data),
     }, nil
 }

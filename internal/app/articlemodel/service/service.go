@@ -97,9 +97,8 @@ func (s ArticleModelService) List(ctx context.Context, params dto.ArticleModelLi
         return nil, err
     }
     return &types.PaginatedResult[*dto.ArticleModel]{
-        Total:    total,
-        PageSize: params.PageSize,
-        PageNo:   params.PageNo,
-        List:     assembler.BuildArticleModelListDTO(data),
+        Pagination: params.Pagination,
+        Total:      total,
+        List:       assembler.BuildArticleModelListDTO(data),
     }, nil
 }

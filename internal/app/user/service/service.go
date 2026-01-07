@@ -122,9 +122,8 @@ func (srv UserService) List(ctx context.Context, params dto.UserListParams) (*ty
     }
     
     return &types.PaginatedResult[*dto.User]{
-        PageNo:   params.PageNo,
-        PageSize: params.PageSize,
-        Total:    total,
-        List:     assembler.BuildUserListDTO(data),
+        Pagination: params.Pagination,
+        Total:      total,
+        List:       assembler.BuildUserListDTO(data),
     }, nil
 }

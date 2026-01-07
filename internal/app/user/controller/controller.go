@@ -11,8 +11,6 @@ import (
     `dpcms/internal/util/contextutil`
     `dpcms/internal/util/httpbinding`
     
-    _ `dpcms/internal/app/user/swagger`
-    
     "github.com/gin-gonic/gin"
     "go.uber.org/zap"
 )
@@ -149,7 +147,7 @@ func (s UserController) ResetPassword(ctx *gin.Context) {
 // @Accept  json
 // @Produce json
 // @Param	body body dto.UserListParams true "请求参数"
-// @Success 200 {object} swagger.UserList
+// @Success 200 {object} dto.ApiUserList
 // @Router  /user/list [post]
 func (s UserController) List(ctx *gin.Context) {
     httpbinding.BindJSON[dto.UserListParams](ctx, func(params dto.UserListParams) (any, error) {
@@ -164,7 +162,7 @@ func (s UserController) List(ctx *gin.Context) {
 // @Accept  json
 // @Produce json
 // @Param	body body types.ResourceID true "请求参数"
-// @Success 200 {object} swagger.User
+// @Success 200 {object} dto.ApiUser
 // @Router  /user/detail [post]
 func (s UserController) Detail(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {

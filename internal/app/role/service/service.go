@@ -133,9 +133,8 @@ func (s RoleService) List(ctx context.Context, params dto.RoleListParams) (*type
         return nil, err
     }
     return &types.PaginatedResult[*dto.Role]{
-        Total:    total,
-        PageNo:   params.PageNo,
-        PageSize: params.PageSize,
-        List:     roleAssembler.BuildRoleListDTO(data),
+        Pagination: params.Pagination,
+        Total:      total,
+        List:       roleAssembler.BuildRoleListDTO(data),
     }, nil
 }

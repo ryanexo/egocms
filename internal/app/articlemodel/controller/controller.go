@@ -7,8 +7,6 @@ import (
     `dpcms/internal/types`
     `dpcms/internal/util/httpbinding`
     
-    _ `dpcms/internal/app/articlemodel/swagger`
-    
     "github.com/gin-gonic/gin"
 )
 
@@ -40,7 +38,7 @@ func (s ArticleModelController) Setup(engine *gin.Engine) {
 // Create 创建文章模型
 // @x-apifox-folder "文章模型"
 // @Summary 创建文章模型
-// @Tags    文章
+// @Tags    文章模型
 // @Accept  json
 // @Produce json
 // @Param   body body dto.ArticleModelCreateParams true "请求参数"
@@ -55,7 +53,7 @@ func (s ArticleModelController) Create(ctx *gin.Context) {
 // Update 更新文章模型
 // @x-apifox-folder "文章模型"
 // @Summary 更新文章模型
-// @Tags    文章
+// @Tags    文章模型
 // @Accept  json
 // @Produce json
 // @Param   body body dto.ArticleModelUpdateParams true "请求参数"
@@ -70,7 +68,7 @@ func (s ArticleModelController) Update(ctx *gin.Context) {
 // UpdateSchema 更新文章模型schema
 // @x-apifox-folder "文章模型"
 // @Summary 更新文章模型Schema
-// @Tags    文章
+// @Tags    文章模型
 // @Accept  json
 // @Produce json
 // @Param   body body dto.ArticleModelSchemaUpdateParams true "请求参数"
@@ -85,7 +83,7 @@ func (s ArticleModelController) UpdateSchema(ctx *gin.Context) {
 // Delete 删除文章模型
 // @x-apifox-folder "文章模型"
 // @Summary 删除文章模型
-// @Tags    文章
+// @Tags    文章模型
 // @Accept  json
 // @Produce json
 // @Param   body body types.ResourceID true "请求参数"
@@ -100,11 +98,11 @@ func (s ArticleModelController) Delete(ctx *gin.Context) {
 // Detail 查看文章模型
 // @x-apifox-folder "文章模型"
 // @Summary 删除文章模型
-// @Tags    文章
+// @Tags    文章模型
 // @Accept  json
 // @Produce json
 // @Param   body body types.ResourceID true "请求参数"
-// @Success 200 {object} swagger.ArticleModel
+// @Success 200 {object} dto.ApiArticleModel
 // @Router  /article-model/detail [post]
 func (s ArticleModelController) Detail(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
@@ -115,11 +113,11 @@ func (s ArticleModelController) Detail(ctx *gin.Context) {
 // List 文章模型列表
 // @x-apifox-folder "文章模型"
 // @Summary 查看文章模型列表
-// @Tags    文章
+// @Tags    文章模型
 // @Accept  json
 // @Produce json
 // @Param   body body dto.ArticleModelListParams true "请求参数"
-// @Success 200 {object} swagger.ArticleModelListResult
+// @Success 200 {object} dto.ApiArticleModelList
 // @Router  /article-model/list [post]
 func (s ArticleModelController) List(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ArticleModelListParams](ctx, func(params dto.ArticleModelListParams) (any, error) {

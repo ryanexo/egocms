@@ -83,16 +83,14 @@ func (s MenuService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto
     return assembler.BuildMenuDTO(menu), nil
 }
 
-func (s MenuService) List(ctx context.Context, condition dto.MenuListQueryParams) (*types.PaginatedResult[*dto.Menu], error) {
-    data, total, err := repo.NewMenuRepo(s.persist).List(ctx, condition)
+func (s MenuService) List(ctx context.Context, params dto.MenuListQueryParams) (*types.PaginatedResult[*dto.Menu], error) {
+    data, total, err := repo.NewMenuRepo(s.persist).List(ctx, params)
     if err != nil {
         return nil, err
     }
-    result := &types.PaginatedResult[*dto.Menu]{
-        Total:    total,
-        List:     assembler.BuildMenuListDTO(data),
-        PageNo:   condition.PageNo,
-        PageSize: condition.PageSize,
-    }
-    return result, nil
+    return &types.PaginatedResult[*dto.Menu]{
+        Pagination: params.Pagination,
+        Total:      total,
+        List:       assembler.BuildMenuListDTO(data),
+    }, nil
 }

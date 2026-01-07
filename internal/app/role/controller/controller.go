@@ -7,8 +7,6 @@ import (
     `dpcms/internal/types`
     `dpcms/internal/util/httpbinding`
     
-    _ `dpcms/internal/app/role/swagger`
-    
     `github.com/gin-gonic/gin`
 )
 
@@ -89,7 +87,7 @@ func (s RoleController) Delete(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param body body dto.RoleListParams true "请求参数"
-// @Success 200 {object} swagger.RoleList
+// @Success 200 {object} dto.ApiRoleList
 // @Router /role/list [post]
 func (s RoleController) List(ctx *gin.Context) {
     httpbinding.BindJSON[dto.RoleListParams](ctx, func(params dto.RoleListParams) (any, error) {
@@ -104,7 +102,7 @@ func (s RoleController) List(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param body body types.ResourceID true "请求参数"
-// @Success 200 {object} swagger.Role
+// @Success 200 {object} dto.ApiRole
 // @Router /role/detail [post]
 func (s RoleController) Detail(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
