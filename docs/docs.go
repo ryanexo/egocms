@@ -45,19 +45,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/types.ApiCreateResult"
                         }
                     }
                 },
@@ -83,7 +71,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -91,19 +79,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -129,7 +105,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -137,19 +113,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/swagger.ArticleModel"
                         }
                     }
                 },
@@ -183,7 +147,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.ArticleModelListResult"
+                            "$ref": "#/definitions/swagger.ArticleModelListResult"
                         }
                     }
                 },
@@ -217,19 +181,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -263,19 +215,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/erroz.Result"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -309,7 +249,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.CreateResult"
+                            "$ref": "#/definitions/types.ApiCreateResult"
                         }
                     }
                 },
@@ -335,7 +275,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -343,7 +283,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -369,7 +309,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -377,7 +317,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.Article"
+                            "$ref": "#/definitions/swagger.Article"
                         }
                     }
                 },
@@ -403,7 +343,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -411,7 +351,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -437,7 +377,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -445,7 +385,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -471,7 +411,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -479,7 +419,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -505,7 +445,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -513,7 +453,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -539,7 +479,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -547,7 +487,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -581,7 +521,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -615,7 +555,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.CreateResult"
+                            "$ref": "#/definitions/types.ApiCreateResult"
                         }
                     }
                 },
@@ -641,7 +581,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -649,7 +589,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -675,7 +615,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -683,7 +623,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.Category"
+                            "$ref": "#/definitions/swagger.Category"
                         }
                     }
                 },
@@ -717,7 +657,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.CategoryList"
+                            "$ref": "#/definitions/swagger.CategoryList"
                         }
                     }
                 },
@@ -751,7 +691,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -785,7 +725,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -819,7 +759,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -845,7 +785,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -853,7 +793,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -879,7 +819,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -887,7 +827,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.Menu"
+                            "$ref": "#/definitions/swagger.Menu"
                         }
                     }
                 },
@@ -921,7 +861,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.MenuList"
+                            "$ref": "#/definitions/swagger.MenuList"
                         }
                     }
                 },
@@ -955,7 +895,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -989,7 +929,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -1023,7 +963,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.CreateResult"
+                            "$ref": "#/definitions/types.ApiCreateResult"
                         }
                     }
                 },
@@ -1049,7 +989,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -1057,7 +997,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -1083,7 +1023,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -1091,7 +1031,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.Role"
+                            "$ref": "#/definitions/swagger.Role"
                         }
                     }
                 },
@@ -1125,7 +1065,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.RoleList"
+                            "$ref": "#/definitions/swagger.RoleList"
                         }
                     }
                 },
@@ -1159,7 +1099,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -1193,7 +1133,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -1219,7 +1159,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -1227,7 +1167,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -1253,7 +1193,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -1261,7 +1201,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.User"
+                            "$ref": "#/definitions/swagger.User"
                         }
                     }
                 },
@@ -1295,7 +1235,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.UserList"
+                            "$ref": "#/definitions/swagger.UserList"
                         }
                     }
                 },
@@ -1329,7 +1269,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.CreateResult"
+                            "$ref": "#/definitions/types.ApiCreateResult"
                         }
                     }
                 },
@@ -1352,7 +1292,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -1386,7 +1326,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.CreateResult"
+                            "$ref": "#/definitions/types.ApiCreateResult"
                         }
                     }
                 },
@@ -1420,7 +1360,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -1454,7 +1394,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggertype.EmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -1470,78 +1410,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.Article": {
-            "type": "object",
-            "properties": {
-                "authorId": {
-                    "type": "string"
-                },
-                "authorName": {
-                    "type": "string"
-                },
-                "categoryId": {
-                    "type": "string"
-                },
-                "categoryName": {
-                    "type": "string"
-                },
-                "clickCount": {
-                    "type": "string"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "flag": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "keywords": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "modelData": {
-                    "type": "object",
-                    "additionalProperties": {}
-                },
-                "modelId": {
-                    "type": "string"
-                },
-                "modelSchema": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.ArticleModelSchema"
-                    }
-                },
-                "publishAt": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "integer"
-                },
-                "target": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "url": {
                     "type": "string"
                 }
             }
@@ -1593,26 +1461,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.ArticleModel": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
         "dto.ArticleModelCreateParams": {
             "type": "object",
             "required": [
@@ -1639,24 +1487,6 @@ const docTemplate = `{
                 },
                 "pageSize": {
                     "type": "integer"
-                }
-            }
-        },
-        "dto.ArticleModelSchema": {
-            "type": "object",
-            "properties": {
-                "fieldKey": {
-                    "type": "string"
-                },
-                "fieldName": {
-                    "type": "string"
-                },
-                "sequence": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "integer",
-                    "format": "int32"
                 }
             }
         },
@@ -1802,41 +1632,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.Category": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "parentId": {
-                    "type": "integer"
-                },
-                "path": {
-                    "type": "string"
-                },
-                "seo": {
-                    "$ref": "#/definitions/dto.CategorySEO"
-                },
-                "sequence": {
-                    "type": "integer"
-                },
-                "type": {
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "visible": {
-                    "type": "boolean"
-                }
-            }
-        },
         "dto.CategoryCreateParams": {
             "type": "object",
             "required": [
@@ -1950,47 +1745,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.Menu": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "parentId": {
-                    "type": "integer"
-                },
-                "remark": {
-                    "type": "string"
-                },
-                "resource": {
-                    "type": "string"
-                },
-                "sequence": {
-                    "type": "integer"
-                },
-                "template": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "uri": {
-                    "type": "string"
-                },
-                "visible": {
-                    "type": "boolean"
-                }
-            }
-        },
         "dto.MenuCreateParams": {
             "type": "object",
             "required": [
@@ -2005,9 +1759,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "remark": {
-                    "type": "string"
-                },
-                "resource": {
                     "type": "string"
                 },
                 "sequence": {
@@ -2071,9 +1822,6 @@ const docTemplate = `{
                 "remark": {
                     "type": "string"
                 },
-                "resource": {
-                    "type": "string"
-                },
                 "sequence": {
                     "type": "string"
                 },
@@ -2084,38 +1832,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "uri": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.ResourceID": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "example": "123456"
-                }
-            }
-        },
-        "dto.Role": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -2186,41 +1902,6 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "maxLength": 255
-                }
-            }
-        },
-        "dto.User": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "ip": {
-                    "type": "string"
-                },
-                "profile": {
-                    "$ref": "#/definitions/dto.UserProfile"
-                },
-                "roleId": {
-                    "type": "string"
-                },
-                "roleName": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },
@@ -2371,142 +2052,40 @@ const docTemplate = `{
                 }
             }
         },
-        "erroz.Result": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "data": {},
-                "msg": {
-                    "type": "string"
-                }
-            }
+        "swagger.Article": {
+            "type": "object"
         },
-        "model.Category": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "parentID": {
-                    "type": "integer"
-                },
-                "path": {
-                    "type": "string"
-                },
-                "seo": {
-                    "$ref": "#/definitions/model.CategorySeo"
-                },
-                "sequence": {
-                    "type": "integer"
-                },
-                "type": {
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "visible": {
-                    "type": "integer"
-                }
-            }
+        "swagger.ArticleModel": {
+            "type": "object"
         },
-        "model.CategorySeo": {
-            "type": "object",
-            "properties": {
-                "categoryID": {
-                    "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "keywords": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
+        "swagger.ArticleModelListResult": {
+            "type": "object"
         },
-        "swaggertype.Article": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "data": {
-                    "$ref": "#/definitions/dto.Article"
-                },
-                "msg": {
-                    "type": "string"
-                }
-            }
+        "swagger.Category": {
+            "type": "object"
         },
-        "swaggertype.ArticleModelListResult": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.ArticleModel"
-                    }
-                },
-                "msg": {
-                    "type": "string"
-                }
-            }
+        "swagger.CategoryList": {
+            "type": "object"
         },
-        "swaggertype.Category": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "data": {
-                    "$ref": "#/definitions/dto.Category"
-                },
-                "msg": {
-                    "type": "string"
-                }
-            }
+        "swagger.Menu": {
+            "type": "object"
         },
-        "swaggertype.CategoryList": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Category"
-                    }
-                },
-                "msg": {
-                    "type": "string"
-                }
-            }
+        "swagger.MenuList": {
+            "type": "object"
         },
-        "swaggertype.CreateResult": {
+        "swagger.Role": {
+            "type": "object"
+        },
+        "swagger.RoleList": {
+            "type": "object"
+        },
+        "swagger.User": {
+            "type": "object"
+        },
+        "swagger.UserList": {
+            "type": "object"
+        },
+        "types.ApiCreateResult": {
             "type": "object",
             "properties": {
                 "code": {
@@ -2522,7 +2101,7 @@ const docTemplate = `{
                 }
             }
         },
-        "swaggertype.EmptyResult": {
+        "types.ApiEmptyResult": {
             "type": "object",
             "properties": {
                 "code": {
@@ -2533,96 +2112,15 @@ const docTemplate = `{
                 }
             }
         },
-        "swaggertype.Menu": {
+        "types.ResourceID": {
             "type": "object",
+            "required": [
+                "id"
+            ],
             "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "data": {
-                    "$ref": "#/definitions/dto.Menu"
-                },
-                "msg": {
-                    "type": "string"
-                }
-            }
-        },
-        "swaggertype.MenuList": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.Menu"
-                    }
-                },
-                "msg": {
-                    "type": "string"
-                }
-            }
-        },
-        "swaggertype.Role": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "data": {
-                    "$ref": "#/definitions/dto.Role"
-                },
-                "msg": {
-                    "type": "string"
-                }
-            }
-        },
-        "swaggertype.RoleList": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.Role"
-                    }
-                },
-                "msg": {
-                    "type": "string"
-                }
-            }
-        },
-        "swaggertype.User": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "data": {
-                    "$ref": "#/definitions/dto.User"
-                },
-                "msg": {
-                    "type": "string"
-                }
-            }
-        },
-        "swaggertype.UserList": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.User"
-                    }
-                },
-                "msg": {
-                    "type": "string"
+                "id": {
+                    "type": "string",
+                    "example": "123456"
                 }
             }
         }

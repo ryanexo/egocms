@@ -7,13 +7,22 @@
 package main
 
 import (
-	"dpcms/internal/app/controller"
-	"dpcms/internal/app/middleware"
-	"dpcms/internal/app/middleware/cors"
-	"dpcms/internal/app/middleware/log"
-	"dpcms/internal/app/middleware/recovery"
-	"dpcms/internal/app/middleware/reqtrace"
-	"dpcms/internal/app/service"
+	controller5 "dpcms/internal/app/article/controller"
+	service6 "dpcms/internal/app/article/service"
+	controller6 "dpcms/internal/app/articlemodel/controller"
+	service8 "dpcms/internal/app/articlemodel/service"
+	controller3 "dpcms/internal/app/category/controller"
+	service4 "dpcms/internal/app/category/service"
+	controller2 "dpcms/internal/app/menu/controller"
+	service3 "dpcms/internal/app/menu/service"
+	auth2 "dpcms/internal/app/permission/auth"
+	service7 "dpcms/internal/app/permission/service"
+	controller4 "dpcms/internal/app/role/controller"
+	service5 "dpcms/internal/app/role/service"
+	"dpcms/internal/app/token/auth"
+	service2 "dpcms/internal/app/token/service"
+	"dpcms/internal/app/user/controller"
+	"dpcms/internal/app/user/service"
 	"dpcms/internal/config"
 	"dpcms/internal/httpserver"
 	"dpcms/internal/infra"
@@ -21,6 +30,14 @@ import (
 	"dpcms/internal/infra/hashids"
 	"dpcms/internal/infra/logger"
 	"dpcms/internal/infra/persistence"
+	"dpcms/internal/infra/rbac"
+	"dpcms/internal/middleware/authz"
+	"dpcms/internal/middleware/cors"
+	"dpcms/internal/middleware/log"
+	"dpcms/internal/middleware/recovery"
+	"dpcms/internal/middleware/reqtrace"
+	controller7 "dpcms/internal/provider/controller"
+	"dpcms/internal/provider/middleware"
 )
 
 import (
@@ -33,16 +50,16 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	httpserverConfig := config.GetServerConfig(cfg)
 	loggerConfig := config.GetLoggerConfig(cfg)
 	loggerLogger := logger.New(loggerConfig)
-	recoveryRecovery := recovery.New(loggerLogger)
-	reqTrace := reqtrace.New()
-	loggerMiddleware := log.New(loggerLogger)
+	recoveryMiddleware := recovery.New(loggerLogger)
+	reqtraceMiddleware := reqtrace.New()
+	logMiddleware := log.New(loggerLogger)
 	corsConfig := config.GetCORSConfig(cfg)
-	corsCORS := cors.New(corsConfig)
+	corsMiddleware := cors.New(corsConfig)
 	middlewareMiddleware := &middleware.Middleware{
-		Recovery: recoveryRecovery,
-		ReqTrace: reqTrace,
-		Logger:   loggerMiddleware,
-		CORS:     corsCORS,
+		Recovery: recoveryMiddleware,
+		ReqTrace: reqtraceMiddleware,
+		Logger:   logMiddleware,
+		CORS:     corsMiddleware,
 	}
 	httpserverMiddleware := middleware.NewMiddlewareRegistrar(middlewareMiddleware)
 	dbConfig := config.GetDBConfig(cfg)
@@ -56,43 +73,63 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	if err != nil {
 		return nil, err
 	}
+	enforcer, err := rbac.New(gormDB)
+	if err != nil {
+		return nil, err
+	}
 	infraInfra := &infra.Infra{
 		DB:      gormDB,
 		Query:   query,
 		Log:     loggerLogger,
 		HashIds: hashIds,
+		Casbin:  enforcer,
 	}
-	category := service.NewCategoryService(infraInfra)
-	user := service.NewUserService(infraInfra)
-	token := service.NewTokenService(cfg, infraInfra)
-	rbac, err := service.NewRBACService(infraInfra)
+	userService := service.NewUserService(infraInfra)
+	tokenService := service2.NewTokenService(cfg, infraInfra)
+	tokenParser := auth.NewTokenParser(tokenService)
+	permissionChecker := auth2.NewPermissionChecker(enforcer)
+	builder := authz.NewBuilder(tokenParser, permissionChecker)
+	userController := controller.UserController{
+		UserSrv:  userService,
+		TokenSrv: tokenService,
+		Infra:    infraInfra,
+		Auth:     builder,
+	}
+	menuService := service3.NewMenuService(query)
+	menuController := controller2.MenuController{
+		MenuSrv: menuService,
+		Auth:    builder,
+	}
+	categoryService := service4.NewCategoryService(query)
+	categoryController := controller3.CategoryController{
+		CategorySrv: categoryService,
+		Auth:        builder,
+	}
+	roleService, err := service5.NewRoleService(query, infraInfra)
 	if err != nil {
 		return nil, err
 	}
-	role, err := service.NewRoleService(infraInfra, rbac)
+	roleController := controller4.RoleController{
+		RoleSrv: roleService,
+		Auth:    builder,
+	}
+	articleService := service6.NewArticleService(query)
+	permissionService, err := service7.NewService(infraInfra)
 	if err != nil {
 		return nil, err
 	}
-	menu := service.NewMenuService(infraInfra)
-	article := service.NewArticle(query)
-	articleModel := service.NewArticleModel(query)
-	services := &service.Services{
-		Category:     category,
-		User:         user,
-		Token:        token,
-		RBAC:         rbac,
-		Role:         role,
-		Menu:         menu,
-		Article:      article,
-		ArticleModel: articleModel,
+	articleController := controller5.ArticleController{
+		ArticleSrv: articleService,
+		PermSrv:    permissionService,
+		Auth:       builder,
+		Casbin:     enforcer,
 	}
-	userController := controller.NewUserController(services, infraInfra)
-	menuController := controller.NewMenuController(services)
-	categoryController := controller.NewCategoryController(services)
-	roleController := controller.NewRoleController(services)
-	articleController := controller.NewArticleController(services)
-	articleModelController := controller.NewArticleModelController(services)
-	controllers := &controller.Controllers{
+	articleModelService := service8.NewArticleModelService(query)
+	articleModelController := controller6.ArticleModelController{
+		ArticleModelSrv: articleModelService,
+		Auth:            builder,
+	}
+	controllers := &controller7.Controllers{
 		User:         userController,
 		Menu:         menuController,
 		Category:     categoryController,
@@ -100,7 +137,7 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		Article:      articleController,
 		ArticleModel: articleModelController,
 	}
-	routes := controller.NewRouteRegistrar(controllers)
+	routes := controller7.NewRouteRegistrar(controllers)
 	launcher, err := httpserver.New(httpserverConfig, httpserverMiddleware, routes)
 	if err != nil {
 		return nil, err

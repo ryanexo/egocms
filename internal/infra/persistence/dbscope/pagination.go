@@ -4,11 +4,6 @@ import (
     `gorm.io/gen`
 )
 
-type Pagination struct {
-    PageNo   int `json:"pageNo"`
-    PageSize int `json:"pageSize"`
-}
-
 func Paginate(pageNo, pageSize int) func(db gen.Dao) gen.Dao {
     return func(db gen.Dao) gen.Dao {
         if pageNo < 1 {

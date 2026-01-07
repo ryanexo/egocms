@@ -3,11 +3,11 @@ package config
 import (
     "time"
     
-    `dpcms/internal/app/middleware/cors`
     `dpcms/internal/config/internal/token`
     `dpcms/internal/httpserver`
     `dpcms/internal/infra/db`
     `dpcms/internal/infra/logger`
+    `dpcms/internal/middleware/cors`
 )
 
 var defaultConfig = &Config{

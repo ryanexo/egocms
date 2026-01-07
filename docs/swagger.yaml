@@ -7,54 +7,6 @@ definitions:
       value:
         type: string
     type: object
-  dto.Article:
-    properties:
-      authorId:
-        type: string
-      authorName:
-        type: string
-      categoryId:
-        type: string
-      categoryName:
-        type: string
-      clickCount:
-        type: string
-      content:
-        type: string
-      createdAt:
-        type: string
-      description:
-        type: string
-      flag:
-        type: integer
-      id:
-        type: string
-      keywords:
-        items:
-          type: string
-        type: array
-      modelData:
-        additionalProperties: {}
-        type: object
-      modelId:
-        type: string
-      modelSchema:
-        items:
-          $ref: '#/definitions/dto.ArticleModelSchema'
-        type: array
-      publishAt:
-        type: string
-      status:
-        type: integer
-      target:
-        type: string
-      title:
-        type: string
-      updatedAt:
-        type: string
-      url:
-        type: string
-    type: object
   dto.ArticleCreateParams:
     properties:
       categoryId:
@@ -88,19 +40,6 @@ definitions:
     - categoryId
     - title
     type: object
-  dto.ArticleModel:
-    properties:
-      createdAt:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      updatedAt:
-        type: string
-    type: object
   dto.ArticleModelCreateParams:
     properties:
       description:
@@ -118,18 +57,6 @@ definitions:
       pageNo:
         type: integer
       pageSize:
-        type: integer
-    type: object
-  dto.ArticleModelSchema:
-    properties:
-      fieldKey:
-        type: string
-      fieldName:
-        type: string
-      sequence:
-        type: string
-      type:
-        format: int32
         type: integer
     type: object
   dto.ArticleModelSchemaParams:
@@ -228,29 +155,6 @@ definitions:
       url:
         type: string
     type: object
-  dto.Category:
-    properties:
-      createdAt:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      parentId:
-        type: integer
-      path:
-        type: string
-      seo:
-        $ref: '#/definitions/dto.CategorySEO'
-      sequence:
-        type: integer
-      type:
-        type: integer
-      updatedAt:
-        type: string
-      visible:
-        type: boolean
-    type: object
   dto.CategoryCreateParams:
     properties:
       name:
@@ -325,33 +229,6 @@ definitions:
     required:
     - id
     type: object
-  dto.Menu:
-    properties:
-      createdAt:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      parentId:
-        type: integer
-      remark:
-        type: string
-      resource:
-        type: string
-      sequence:
-        type: integer
-      template:
-        type: string
-      type:
-        type: integer
-      updatedAt:
-        type: string
-      uri:
-        type: string
-      visible:
-        type: boolean
-    type: object
   dto.MenuCreateParams:
     properties:
       name:
@@ -359,8 +236,6 @@ definitions:
       parentId:
         type: string
       remark:
-        type: string
-      resource:
         type: string
       sequence:
         type: string
@@ -403,8 +278,6 @@ definitions:
         type: string
       remark:
         type: string
-      resource:
-        type: string
       sequence:
         type: string
       template:
@@ -415,27 +288,6 @@ definitions:
         type: string
     required:
     - id
-    type: object
-  dto.ResourceID:
-    properties:
-      id:
-        example: "123456"
-        type: string
-    required:
-    - id
-    type: object
-  dto.Role:
-    properties:
-      createdAt:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      updatedAt:
-        type: string
     type: object
   dto.RoleCreateParams:
     properties:
@@ -484,29 +336,6 @@ definitions:
     - description
     - id
     - name
-    type: object
-  dto.User:
-    properties:
-      createdAt:
-        type: string
-      email:
-        type: string
-      id:
-        type: string
-      ip:
-        type: string
-      profile:
-        $ref: '#/definitions/dto.UserProfile'
-      roleId:
-        type: string
-      roleName:
-        type: string
-      status:
-        type: integer
-      updatedAt:
-        type: string
-      username:
-        type: string
     type: object
   dto.UserCreateParams:
     properties:
@@ -611,95 +440,29 @@ definitions:
       province:
         type: string
     type: object
-  erroz.Result:
-    properties:
-      code:
-        type: string
-      data: {}
-      msg:
-        type: string
+  swagger.Article:
     type: object
-  model.Category:
-    properties:
-      createdAt:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      parentID:
-        type: integer
-      path:
-        type: string
-      seo:
-        $ref: '#/definitions/model.CategorySeo'
-      sequence:
-        type: integer
-      type:
-        type: integer
-      updatedAt:
-        type: string
-      visible:
-        type: integer
+  swagger.ArticleModel:
     type: object
-  model.CategorySeo:
-    properties:
-      categoryID:
-        type: integer
-      createdAt:
-        type: string
-      description:
-        type: string
-      id:
-        type: integer
-      keywords:
-        type: string
-      title:
-        type: string
-      updatedAt:
-        type: string
+  swagger.ArticleModelListResult:
     type: object
-  swaggertype.Article:
-    properties:
-      code:
-        type: string
-      data:
-        $ref: '#/definitions/dto.Article'
-      msg:
-        type: string
+  swagger.Category:
     type: object
-  swaggertype.ArticleModelListResult:
-    properties:
-      code:
-        type: string
-      data:
-        items:
-          $ref: '#/definitions/dto.ArticleModel'
-        type: array
-      msg:
-        type: string
+  swagger.CategoryList:
     type: object
-  swaggertype.Category:
-    properties:
-      code:
-        type: string
-      data:
-        $ref: '#/definitions/dto.Category'
-      msg:
-        type: string
+  swagger.Menu:
     type: object
-  swaggertype.CategoryList:
-    properties:
-      code:
-        type: string
-      data:
-        items:
-          $ref: '#/definitions/model.Category'
-        type: array
-      msg:
-        type: string
+  swagger.MenuList:
     type: object
-  swaggertype.CreateResult:
+  swagger.Role:
+    type: object
+  swagger.RoleList:
+    type: object
+  swagger.User:
+    type: object
+  swagger.UserList:
+    type: object
+  types.ApiCreateResult:
     properties:
       code:
         type: string
@@ -710,72 +473,20 @@ definitions:
       msg:
         type: string
     type: object
-  swaggertype.EmptyResult:
+  types.ApiEmptyResult:
     properties:
       code:
         type: string
       msg:
         type: string
     type: object
-  swaggertype.Menu:
+  types.ResourceID:
     properties:
-      code:
+      id:
+        example: "123456"
         type: string
-      data:
-        $ref: '#/definitions/dto.Menu'
-      msg:
-        type: string
-    type: object
-  swaggertype.MenuList:
-    properties:
-      code:
-        type: string
-      data:
-        items:
-          $ref: '#/definitions/dto.Menu'
-        type: array
-      msg:
-        type: string
-    type: object
-  swaggertype.Role:
-    properties:
-      code:
-        type: string
-      data:
-        $ref: '#/definitions/dto.Role'
-      msg:
-        type: string
-    type: object
-  swaggertype.RoleList:
-    properties:
-      code:
-        type: string
-      data:
-        items:
-          $ref: '#/definitions/dto.Role'
-        type: array
-      msg:
-        type: string
-    type: object
-  swaggertype.User:
-    properties:
-      code:
-        type: string
-      data:
-        $ref: '#/definitions/dto.User'
-      msg:
-        type: string
-    type: object
-  swaggertype.UserList:
-    properties:
-      code:
-        type: string
-      data:
-        items:
-          $ref: '#/definitions/dto.User'
-        type: array
-      msg:
-        type: string
+    required:
+    - id
     type: object
 info:
   contact: {}
@@ -801,12 +512,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/types.ApiCreateResult'
       summary: 创建文章模型
       tags:
       - 文章
@@ -821,19 +527,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 删除文章模型
       tags:
       - 文章
@@ -848,19 +549,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/swagger.ArticleModel'
       summary: 删除文章模型
       tags:
       - 文章
@@ -882,7 +578,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.ArticleModelListResult'
+            $ref: '#/definitions/swagger.ArticleModelListResult'
       summary: 查看文章模型列表
       tags:
       - 文章
@@ -904,12 +600,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 更新文章模型
       tags:
       - 文章
@@ -931,12 +622,7 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/erroz.Result'
-            - properties:
-                data:
-                  type: object
-              type: object
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 更新文章模型Schema
       tags:
       - 文章
@@ -958,7 +644,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.CreateResult'
+            $ref: '#/definitions/types.ApiCreateResult'
       summary: 创建文章
       tags:
       - 文章
@@ -973,14 +659,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 删除文章
       tags:
       - 文章
@@ -995,14 +681,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.Article'
+            $ref: '#/definitions/swagger.Article'
       summary: 查看文章
       tags:
       - 文章
@@ -1017,14 +703,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 下线文章
       tags:
       - 文章
@@ -1039,14 +725,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 发布文章
       tags:
       - 文章
@@ -1061,14 +747,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 拒审文章
       tags:
       - 文章
@@ -1083,14 +769,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 重新提交审核文章
       tags:
       - 文章
@@ -1105,14 +791,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 提交文章
       tags:
       - 文章
@@ -1134,7 +820,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 更新文章
       tags:
       - 文章
@@ -1156,7 +842,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.CreateResult'
+            $ref: '#/definitions/types.ApiCreateResult'
       summary: 创建分类
       tags:
       - 分类
@@ -1171,14 +857,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 删除分类
       tags:
       - 分类
@@ -1193,14 +879,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.Category'
+            $ref: '#/definitions/swagger.Category'
       summary: 查看分类
       tags:
       - 分类
@@ -1222,7 +908,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.CategoryList'
+            $ref: '#/definitions/swagger.CategoryList'
       summary: 分类列表
       tags:
       - 分类
@@ -1244,7 +930,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 移动分类
       tags:
       - 分类
@@ -1266,7 +952,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 更新分类
       tags:
       - 分类
@@ -1288,7 +974,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 创建菜单
       tags:
       - 菜单
@@ -1303,14 +989,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 删除菜单
       tags:
       - 菜单
@@ -1325,14 +1011,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.Menu'
+            $ref: '#/definitions/swagger.Menu'
       summary: 查看菜单
       tags:
       - 菜单
@@ -1354,7 +1040,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.MenuList'
+            $ref: '#/definitions/swagger.MenuList'
       summary: 菜单列表
       tags:
       - 菜单
@@ -1376,7 +1062,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 移动菜单
       tags:
       - 菜单
@@ -1398,7 +1084,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 更新菜单
       tags:
       - 菜单
@@ -1420,7 +1106,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.CreateResult'
+            $ref: '#/definitions/types.ApiCreateResult'
       summary: 创建角色
       tags:
       - 角色
@@ -1435,14 +1121,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 删除角色
       tags:
       - 角色
@@ -1457,14 +1143,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.Role'
+            $ref: '#/definitions/swagger.Role'
       summary: 查看角色信息
       tags:
       - 角色
@@ -1486,7 +1172,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.RoleList'
+            $ref: '#/definitions/swagger.RoleList'
       summary: 角色列表
       tags:
       - 角色
@@ -1508,7 +1194,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 更新角色
       tags:
       - 角色
@@ -1530,7 +1216,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 修改密码
       tags:
       - 用户
@@ -1545,14 +1231,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 删除用户
       tags:
       - 用户
@@ -1567,14 +1253,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.ResourceID'
+          $ref: '#/definitions/types.ResourceID'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.User'
+            $ref: '#/definitions/swagger.User'
       summary: 查看用户资料
       tags:
       - 用户
@@ -1596,7 +1282,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.UserList'
+            $ref: '#/definitions/swagger.UserList'
       summary: 查看用户列表
       tags:
       - 用户
@@ -1618,7 +1304,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.CreateResult'
+            $ref: '#/definitions/types.ApiCreateResult'
       summary: 用户登录
       tags:
       - 用户
@@ -1633,7 +1319,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 注销登录
       tags:
       - 用户
@@ -1655,7 +1341,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.CreateResult'
+            $ref: '#/definitions/types.ApiCreateResult'
       summary: 用户注册
       tags:
       - 用户
@@ -1677,7 +1363,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 重置密码
       tags:
       - 用户
@@ -1699,7 +1385,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggertype.EmptyResult'
+            $ref: '#/definitions/types.ApiEmptyResult'
       summary: 更新用户资料
       tags:
       - 用户

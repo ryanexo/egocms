@@ -37,13 +37,12 @@ func newMenu(db *gorm.DB, opts ...gen.DOOption) menu {
 	_menu.Sequence = field.NewInt64(tableName, "sequence")
 	_menu.Visible = field.NewInt8(tableName, "visible")
 	_menu.URI = field.NewString(tableName, "uri")
-	_menu.Resource = field.NewString(tableName, "resource")
 	_menu.Template = field.NewString(tableName, "template")
 	_menu.Remark = field.NewString(tableName, "remark")
 	_menu.Action = menuHasManyAction{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("Action", "model.MenuAction"),
+		RelationField: field.NewRelation("Action", "model.Permission"),
 	}
 
 	_menu.fillFieldMap()
@@ -65,7 +64,6 @@ type menu struct {
 	Sequence  field.Int64
 	Visible   field.Int8
 	URI       field.String
-	Resource  field.String
 	Template  field.String
 	Remark    field.String
 	Action    menuHasManyAction
@@ -95,7 +93,6 @@ func (m *menu) updateTableName(table string) *menu {
 	m.Sequence = field.NewInt64(table, "sequence")
 	m.Visible = field.NewInt8(table, "visible")
 	m.URI = field.NewString(table, "uri")
-	m.Resource = field.NewString(table, "resource")
 	m.Template = field.NewString(table, "template")
 	m.Remark = field.NewString(table, "remark")
 
@@ -122,7 +119,7 @@ func (m *menu) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (m *menu) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 14)
+	m.fieldMap = make(map[string]field.Expr, 13)
 	m.fieldMap["id"] = m.ID
 	m.fieldMap["created_at"] = m.CreatedAt
 	m.fieldMap["updated_at"] = m.UpdatedAt
@@ -133,7 +130,6 @@ func (m *menu) fillFieldMap() {
 	m.fieldMap["sequence"] = m.Sequence
 	m.fieldMap["visible"] = m.Visible
 	m.fieldMap["uri"] = m.URI
-	m.fieldMap["resource"] = m.Resource
 	m.fieldMap["template"] = m.Template
 	m.fieldMap["remark"] = m.Remark
 
@@ -192,11 +188,11 @@ func (a menuHasManyAction) Unscoped() *menuHasManyAction {
 
 type menuHasManyActionTx struct{ tx *gorm.Association }
 
-func (a menuHasManyActionTx) Find() (result []*model.MenuAction, err error) {
+func (a menuHasManyActionTx) Find() (result []*model.Permission, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a menuHasManyActionTx) Append(values ...*model.MenuAction) (err error) {
+func (a menuHasManyActionTx) Append(values ...*model.Permission) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -204,7 +200,7 @@ func (a menuHasManyActionTx) Append(values ...*model.MenuAction) (err error) {
 	return a.tx.Append(targetValues...)
 }
 
-func (a menuHasManyActionTx) Replace(values ...*model.MenuAction) (err error) {
+func (a menuHasManyActionTx) Replace(values ...*model.Permission) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -212,7 +208,7 @@ func (a menuHasManyActionTx) Replace(values ...*model.MenuAction) (err error) {
 	return a.tx.Replace(targetValues...)
 }
 
-func (a menuHasManyActionTx) Delete(values ...*model.MenuAction) (err error) {
+func (a menuHasManyActionTx) Delete(values ...*model.Permission) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v

@@ -36,7 +36,7 @@ func main() {
 		model.Category{},
 		model.CategorySeo{},
 		model.Menu{},
-		model.MenuAction{},
+		model.Permission{},
 		model.Role{},
 		model.TokenBlacklist{},
 		model.Article{},

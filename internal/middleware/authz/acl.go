@@ -1,0 +1,88 @@
+package authz
+
+import (
+    `fmt`
+    `strings`
+    
+    `dpcms/internal/erroz`
+    `dpcms/internal/constant`
+    
+    `github.com/armon/go-radix`
+    `github.com/gin-gonic/gin`
+)
+
+type acl struct {
+    token         TokenParser
+    perm          PermissionChecker
+    object        string
+    whitelistTree *radix.Tree
+    permTree      *radix.Tree
+}
+
+func (s acl) WithOption(opts ...Option) AccessControl {
+    for _, opt := range opts {
+        opt(&s)
+    }
+    return s
+}
+
+func (s acl) WithRouterOption(rg *gin.RouterGroup, opts ...RouterOption) AccessControl {
+    for _, opt := range opts {
+        opt(rg, &s)
+    }
+    return s
+}
+
+func (s acl) Middleware() gin.HandlerFunc {
+    return func(ctx *gin.Context) {
+        if _, ok := s.whitelistTree.Get(ctx.Request.URL.Path); ok {
+            ctx.Next()
+            return
+        }
+        
+        credential := ctx.GetHeader("Authorization")
+        if credential == "" {
+            erroz.Unauthorized.WriteWithAbort(ctx)
+            return
+        }
+        
+        token, found := strings.CutPrefix(credential, "Bearer ")
+        if !found {
+            erroz.Unauthorized.WriteWithAbort(ctx)
+            return
+        }
+        
+        user, err := s.token.Parse(ctx, token)
+        if err != nil {
+            erroz.ResolveWithAbort(ctx, err)
+            return
+        }
+        ctx.Set(constant.RequestUserKey, user)
+        
+        if s.object == "" {
+            ctx.Next()
+            return
+        }
+        
+        path := ctx.FullPath()
+        _, perm, found := s.permTree.LongestPrefix(path)
+        if found {
+            permStr, ok := perm.(string)
+            if !ok {
+                err = fmt.Errorf("permission not found for %s", permStr)
+                erroz.Unauthorized.Wrap(err).WriteWithAbort(ctx)
+                return
+            }
+            
+            if pass, err := s.perm.Check(ctx, user.Role(), s.object, permStr); err != nil {
+                erroz.ResolveWithAbort(ctx, err)
+                return
+            } else if !pass {
+                erroz.Unauthorized.WriteWithAbort(ctx)
+                return
+            }
+        }
+        
+        ctx.Next()
+    }
+}

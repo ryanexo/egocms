@@ -29,8 +29,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		CategoryContext:      newCategoryContext(db, opts...),
 		CategorySeo:          newCategorySeo(db, opts...),
 		Menu:                 newMenu(db, opts...),
-		MenuAction:           newMenuAction(db, opts...),
 		MenuContext:          newMenuContext(db, opts...),
+		Permission:           newPermission(db, opts...),
 		Role:                 newRole(db, opts...),
 		TokenBlacklist:       newTokenBlacklist(db, opts...),
 		User:                 newUser(db, opts...),
@@ -52,8 +52,8 @@ type Query struct {
 	CategoryContext      categoryContext
 	CategorySeo          categorySeo
 	Menu                 menu
-	MenuAction           menuAction
 	MenuContext          menuContext
+	Permission           permission
 	Role                 role
 	TokenBlacklist       tokenBlacklist
 	User                 user
@@ -76,8 +76,8 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		CategoryContext:      q.CategoryContext.clone(db),
 		CategorySeo:          q.CategorySeo.clone(db),
 		Menu:                 q.Menu.clone(db),
-		MenuAction:           q.MenuAction.clone(db),
 		MenuContext:          q.MenuContext.clone(db),
+		Permission:           q.Permission.clone(db),
 		Role:                 q.Role.clone(db),
 		TokenBlacklist:       q.TokenBlacklist.clone(db),
 		User:                 q.User.clone(db),
@@ -107,8 +107,8 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		CategoryContext:      q.CategoryContext.replaceDB(db),
 		CategorySeo:          q.CategorySeo.replaceDB(db),
 		Menu:                 q.Menu.replaceDB(db),
-		MenuAction:           q.MenuAction.replaceDB(db),
 		MenuContext:          q.MenuContext.replaceDB(db),
+		Permission:           q.Permission.replaceDB(db),
 		Role:                 q.Role.replaceDB(db),
 		TokenBlacklist:       q.TokenBlacklist.replaceDB(db),
 		User:                 q.User.replaceDB(db),
@@ -128,8 +128,8 @@ type queryCtx struct {
 	CategoryContext      *categoryContextDo
 	CategorySeo          *categorySeoDo
 	Menu                 *menuDo
-	MenuAction           *menuActionDo
 	MenuContext          *menuContextDo
+	Permission           *permissionDo
 	Role                 *roleDo
 	TokenBlacklist       *tokenBlacklistDo
 	User                 *userDo
@@ -149,8 +149,8 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		CategoryContext:      q.CategoryContext.WithContext(ctx),
 		CategorySeo:          q.CategorySeo.WithContext(ctx),
 		Menu:                 q.Menu.WithContext(ctx),
-		MenuAction:           q.MenuAction.WithContext(ctx),
 		MenuContext:          q.MenuContext.WithContext(ctx),
+		Permission:           q.Permission.WithContext(ctx),
 		Role:                 q.Role.WithContext(ctx),
 		TokenBlacklist:       q.TokenBlacklist.WithContext(ctx),
 		User:                 q.User.WithContext(ctx),

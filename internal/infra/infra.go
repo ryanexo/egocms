@@ -6,7 +6,9 @@ import (
     `dpcms/internal/infra/logger`
     `dpcms/internal/infra/persistence`
     `dpcms/internal/infra/persistence/query`
+    `dpcms/internal/infra/rbac`
     
+    `github.com/casbin/casbin/v2`
     "github.com/google/wire"
     "gorm.io/gorm"
 )
@@ -17,6 +19,7 @@ var InfraProvider = wire.NewSet(
     db.NewDB,
     hashids.New,
     persistence.New,
+    rbac.New,
 )
 
 type Infra struct {
@@ -24,4 +27,5 @@ type Infra struct {
     Query   *query.Query
     Log     *logger.Logger
     HashIds *hashids.HashIds
+    Casbin  *casbin.Enforcer
 }
