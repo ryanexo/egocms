@@ -7,11 +7,6 @@ import (
     
     "github.com/gin-gonic/gin"
     "github.com/gin-gonic/gin/binding"
-    "github.com/google/wire"
-)
-
-var ProviderSet = wire.NewSet(
-    New,
 )
 
 func New(cfg Config, middleware Middleware, routes Routes) (*Launcher, error) {

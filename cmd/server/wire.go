@@ -3,12 +3,12 @@
 package main
 
 import (
+    `dpcms/internal/bootstrap`
+    `dpcms/internal/bootstrap/controller`
+    `dpcms/internal/bootstrap/middleware`
+    `dpcms/internal/bootstrap/service`
     `dpcms/internal/config`
     `dpcms/internal/httpserver`
-    `dpcms/internal/infra`
-    `dpcms/internal/provider/controller`
-    `dpcms/internal/provider/middleware`
-    `dpcms/internal/provider/service`
     
     "github.com/google/wire"
 )
@@ -16,10 +16,9 @@ import (
 func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
     panic(wire.Build(
         config.ConfigProvider,
-        infra.InfraProvider,
+        bootstrap.BootstrapProvider,
+        middleware.MiddlewareProvider,
         controller.ControllerProvider,
         service.ServiceProvider,
-        middleware.MiddlewareProvider,
-        httpserver.ProviderSet,
     ))
 }

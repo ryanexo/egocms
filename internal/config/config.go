@@ -6,7 +6,7 @@ import (
     `dpcms/internal/config/internal/token`
     `dpcms/internal/httpserver`
     `dpcms/internal/infra/db`
-    `dpcms/internal/infra/hashids`
+    `dpcms/internal/infra/encodedid`
     `dpcms/internal/infra/logger`
     `dpcms/internal/middleware/cors`
     
@@ -20,7 +20,7 @@ var ConfigProvider = wire.NewSet(
     GetDBConfig,
     GetLoggerConfig,
     GetServerConfig,
-    GetHashIdsConfig,
+    GetEncodedIDConfig,
 )
 
 type Config struct {
@@ -28,7 +28,7 @@ type Config struct {
     Token     token.Config      `json:"token" yaml:"token"`
     CORS      cors.Config       `json:"cors" yaml:"cors"`
     DB        db.DBConfig       `json:"db" yaml:"db"`
-    HashIds   hashids.Config    `json:"hashids" yaml:"hashids"`
+    EncodedID encodedid.Config  `json:"encodedId" yaml:"encodedId"`
     Log       logger.Config     `json:"log" yaml:"log"`
     Server    httpserver.Config `json:"httpserver" yaml:"httpserver"`
 }

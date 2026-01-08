@@ -97,7 +97,7 @@ func (s ArticleModelController) Delete(ctx *gin.Context) {
 
 // Detail 查看文章模型
 // @x-apifox-folder "文章模型"
-// @Summary 删除文章模型
+// @Summary 查看文章模型
 // @Tags    文章模型
 // @Accept  json
 // @Produce json

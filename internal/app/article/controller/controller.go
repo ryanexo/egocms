@@ -5,12 +5,12 @@ import (
     `dpcms/internal/app/article/internal/dto`
     `dpcms/internal/app/article/service`
     permissionSrv `dpcms/internal/app/permission/service`
+    `dpcms/internal/infra/rbac`
     `dpcms/internal/middleware/authz`
     `dpcms/internal/types`
     `dpcms/internal/util/contextutil`
     `dpcms/internal/util/httpbinding`
     
-    `github.com/casbin/casbin/v2`
     `github.com/gin-gonic/gin`
 )
 
@@ -18,7 +18,7 @@ type ArticleController struct {
     ArticleSrv *service.ArticleService
     PermSrv    *permissionSrv.PermissionService
     Auth       *authz.Builder
-    Casbin     *casbin.Enforcer
+    Casbin     *rbac.RoleCasbin
 }
 
 func (s ArticleController) Setup(engine *gin.Engine) {

@@ -13,16 +13,12 @@ import (
 )
 
 type ArticleModelService struct {
-    persist *query.Query
-}
-
-func NewArticleModelService(persist *query.Query) *ArticleModelService {
-    return &ArticleModelService{persist}
+    Query *query.Query
 }
 
 func (s ArticleModelService) CreateModel(ctx context.Context, params dto.ArticleModelCreateParams) (datatype.SafeUint64, error) {
     data := assembler.BuildArticleModelCreateCommand(&params)
-    err := repo.NewArticleModelRepo(s.persist).Create(ctx, data)
+    err := repo.NewArticleModelRepo(s.Query).Create(ctx, data)
     if err != nil {
         return 0, err
     }
@@ -31,11 +27,11 @@ func (s ArticleModelService) CreateModel(ctx context.Context, params dto.Article
 
 func (s ArticleModelService) UpdateModel(ctx context.Context, params dto.ArticleModelUpdateParams) error {
     data := assembler.BuildArticleModelUpdateCommand(&params)
-    return repo.NewArticleModelRepo(s.persist).UpdateModel(ctx, data)
+    return repo.NewArticleModelRepo(s.Query).UpdateModel(ctx, data)
 }
 
 func (s ArticleModelService) ReplaceSchema(ctx context.Context, params dto.ArticleModelSchemaUpdateParams) error {
-    _, err := repo.NewArticleModelRepo(s.persist).FindByID(ctx, params.ID)
+    _, err := repo.NewArticleModelRepo(s.Query).FindByID(ctx, params.ID)
     if err != nil {
         return err
     }
@@ -50,13 +46,13 @@ func (s ArticleModelService) ReplaceSchema(ctx context.Context, params dto.Artic
         schema = append(schema, tmpSchema)
     }
     
-    return s.persist.Transaction(func(tx *query.Query) error {
+    return s.Query.Transaction(func(tx *query.Query) error {
         return repo.NewArticleModelRepo(tx).ReplaceSchema(ctx, params.ID, schema)
     })
 }
 
 func (s ArticleModelService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.ArticleModel, error) {
-    data, err := repo.NewArticleModelRepo(s.persist).FindByID(ctx, id)
+    data, err := repo.NewArticleModelRepo(s.Query).FindByID(ctx, id)
     if err != nil {
         return nil, err
     }
@@ -64,7 +60,7 @@ func (s ArticleModelService) FindByID(ctx context.Context, id datatype.SafeUint6
 }
 
 func (s ArticleModelService) FindAllSchema(ctx context.Context, id datatype.SafeUint64) ([]*dto.ArticleModelSchemaParams, error) {
-    allSchema, err := repo.NewArticleModelRepo(s.persist).FindAllSchema(ctx, id)
+    allSchema, err := repo.NewArticleModelRepo(s.Query).FindAllSchema(ctx, id)
     if err != nil {
         return nil, err
     }
@@ -72,13 +68,13 @@ func (s ArticleModelService) FindAllSchema(ctx context.Context, id datatype.Safe
 }
 
 func (s ArticleModelService) DeleteSchema(ctx context.Context, schemaId datatype.SafeUint64) error {
-    _, err := repo.NewArticleModelRepo(s.persist).DeleteSchema(ctx, schemaId)
+    _, err := repo.NewArticleModelRepo(s.Query).DeleteSchema(ctx, schemaId)
     return err
 }
 
 func (s ArticleModelService) DeleteModel(ctx context.Context, modelId datatype.SafeUint64) error {
-    return s.persist.Transaction(func(tx *query.Query) error {
-        modelRepo := repo.NewArticleModelRepo(s.persist)
+    return s.Query.Transaction(func(tx *query.Query) error {
+        modelRepo := repo.NewArticleModelRepo(s.Query)
         txErr := modelRepo.DeleteModel(ctx, modelId)
         if txErr != nil {
             return txErr
@@ -92,7 +88,7 @@ func (s ArticleModelService) DeleteModel(ctx context.Context, modelId datatype.S
 }
 
 func (s ArticleModelService) List(ctx context.Context, params dto.ArticleModelListParams) (*types.PaginatedResult[*dto.ArticleModel], error) {
-    data, total, err := repo.NewArticleModelRepo(s.persist).List(ctx, params)
+    data, total, err := repo.NewArticleModelRepo(s.Query).List(ctx, params)
     if err != nil {
         return nil, err
     }

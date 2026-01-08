@@ -5,7 +5,7 @@ import (
     `dpcms/internal/app/user/internal/dto`
     user `dpcms/internal/app/user/service`
     "dpcms/internal/erroz"
-    "dpcms/internal/infra"
+    `dpcms/internal/infra/logger`
     `dpcms/internal/middleware/authz`
     `dpcms/internal/types`
     `dpcms/internal/util/contextutil`
@@ -18,7 +18,7 @@ import (
 type UserController struct {
     UserSrv  *user.UserService
     TokenSrv *token.TokenService
-    Infra    *infra.Infra
+    Logger   *logger.Logger
     Auth     *authz.Builder
 }
 
@@ -96,7 +96,7 @@ func (s UserController) Logout(ctx *gin.Context) {
     if tokenString != "" {
         err := s.TokenSrv.Revoke(ctx, tokenString)
         if err != nil {
-            s.Infra.Log.App.Warn("Token注销失败", zap.Error(err))
+            s.Logger.App.Warn("Token注销失败", zap.Error(err))
         }
     }
     erroz.OK.Write(ctx)

@@ -10,7 +10,6 @@ import (
     tokenBlacklistRepo `dpcms/internal/app/token/repo`
     userRepo `dpcms/internal/app/user/repo`
     `dpcms/internal/config`
-    `dpcms/internal/infra`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
@@ -21,12 +20,8 @@ import (
 )
 
 type TokenService struct {
-    config  *config.Config
-    persist *query.Query
-}
-
-func NewTokenService(config *config.Config, i *infra.Infra) *TokenService {
-    return &TokenService{persist: i.Query, config: config}
+    Config *config.Config
+    Query  *query.Query
 }
 
 func (s TokenService) Create(userId datatype.SafeUint64) (string, error) {
@@ -34,8 +29,8 @@ func (s TokenService) Create(userId datatype.SafeUint64) (string, error) {
     if err != nil {
         return "", err
     }
-    expires := s.config.Token.Expires
-    tokenKey := []byte(s.config.GlobalKey)
+    expires := s.Config.Token.Expires
+    tokenKey := []byte(s.Config.GlobalKey)
     return jwt.NewWithClaims(
         jwt.SigningMethodHS512,
         dto.UserToken{
@@ -50,7 +45,7 @@ func (s TokenService) Create(userId datatype.SafeUint64) (string, error) {
 }
 
 func (s TokenService) isRevoked(ctx context.Context, uuid string, expires int) (bool, error) {
-    tbRepo := tokenBlacklistRepo.NewTokenBlacklistRepository(s.persist)
+    tbRepo := tokenBlacklistRepo.NewTokenBlacklistRepository(s.Query)
     data, err := tbRepo.FindByUUID(ctx, uuid)
     if err != nil {
         if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -70,7 +65,7 @@ func (s TokenService) isRevoked(ctx context.Context, uuid string, expires int) (
 func (s TokenService) Parse(ctx context.Context, tokenString string) (*dto.UserToken, error) {
     claims := &dto.UserToken{}
     jwtData, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-        return s.config.GlobalKey, nil
+        return s.Config.GlobalKey, nil
     })
     if err != nil || !jwtData.Valid {
         if errors.Is(err, jwt.ErrTokenExpired) {
@@ -78,7 +73,7 @@ func (s TokenService) Parse(ctx context.Context, tokenString string) (*dto.UserT
         }
         return nil, errno.Unauthorized.Wrap(err).ToError()
     }
-    isRevoked, err := s.isRevoked(ctx, claims.ID, s.config.Token.Expires)
+    isRevoked, err := s.isRevoked(ctx, claims.ID, s.Config.Token.Expires)
     if err != nil {
         return nil, err
     }
@@ -93,7 +88,7 @@ func (s TokenService) GetUserFromToken(ctx context.Context, tokenString string) 
     if err != nil {
         return nil, err
     }
-    return userRepo.NewUserRepo(s.persist).FindByID(ctx, claims.UserID)
+    return userRepo.NewUserRepo(s.Query).FindByID(ctx, claims.UserID)
 }
 
 func (s TokenService) Revoke(ctx context.Context, tokenString string) error {
@@ -101,7 +96,7 @@ func (s TokenService) Revoke(ctx context.Context, tokenString string) error {
     if err != nil {
         return err
     }
-    return s.persist.WithContext(ctx).TokenBlacklist.Create(&model.TokenBlacklist{
+    return s.Query.WithContext(ctx).TokenBlacklist.Create(&model.TokenBlacklist{
         UserId: claims.UserID,
         UUID:   claims.ID,
     })

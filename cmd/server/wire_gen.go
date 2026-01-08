@@ -23,11 +23,11 @@ import (
 	service2 "dpcms/internal/app/token/service"
 	"dpcms/internal/app/user/controller"
 	"dpcms/internal/app/user/service"
+	controller7 "dpcms/internal/bootstrap/controller"
+	"dpcms/internal/bootstrap/middleware"
 	"dpcms/internal/config"
 	"dpcms/internal/httpserver"
-	"dpcms/internal/infra"
 	"dpcms/internal/infra/db"
-	"dpcms/internal/infra/hashids"
 	"dpcms/internal/infra/logger"
 	"dpcms/internal/infra/persistence"
 	"dpcms/internal/infra/rbac"
@@ -36,8 +36,6 @@ import (
 	"dpcms/internal/middleware/log"
 	"dpcms/internal/middleware/recovery"
 	"dpcms/internal/middleware/reqtrace"
-	controller7 "dpcms/internal/provider/controller"
-	"dpcms/internal/provider/middleware"
 )
 
 import (
@@ -68,63 +66,63 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		return nil, err
 	}
 	query := persistence.New(gormDB)
-	hashidsConfig := config.GetHashIdsConfig(cfg)
-	hashIds, err := hashids.New(hashidsConfig)
-	if err != nil {
-		return nil, err
+	userService := &service.UserService{
+		Query: query,
 	}
-	enforcer, err := rbac.New(gormDB)
-	if err != nil {
-		return nil, err
+	tokenService := &service2.TokenService{
+		Config: cfg,
+		Query:  query,
 	}
-	infraInfra := &infra.Infra{
-		DB:      gormDB,
-		Query:   query,
-		Log:     loggerLogger,
-		HashIds: hashIds,
-		Casbin:  enforcer,
-	}
-	userService := service.NewUserService(infraInfra)
-	tokenService := service2.NewTokenService(cfg, infraInfra)
 	tokenParser := auth.NewTokenParser(tokenService)
-	permissionChecker := auth2.NewPermissionChecker(enforcer)
+	roleCasbin, err := rbac.NewRoleCasbin(gormDB)
+	if err != nil {
+		return nil, err
+	}
+	permissionChecker := auth2.NewPermissionChecker(roleCasbin)
 	builder := authz.NewBuilder(tokenParser, permissionChecker)
 	userController := controller.UserController{
 		UserSrv:  userService,
 		TokenSrv: tokenService,
-		Infra:    infraInfra,
+		Logger:   loggerLogger,
 		Auth:     builder,
 	}
-	menuService := service3.NewMenuService(query)
+	menuService := &service3.MenuService{
+		Query: query,
+	}
 	menuController := controller2.MenuController{
 		MenuSrv: menuService,
 		Auth:    builder,
 	}
-	categoryService := service4.NewCategoryService(query)
+	categoryService := &service4.CategoryService{
+		Query: query,
+	}
 	categoryController := controller3.CategoryController{
 		CategorySrv: categoryService,
 		Auth:        builder,
 	}
-	roleService, err := service5.NewRoleService(query, infraInfra)
-	if err != nil {
-		return nil, err
+	roleService := &service5.RoleService{
+		Query:  query,
+		Casbin: roleCasbin,
 	}
 	roleController := controller4.RoleController{
 		RoleSrv: roleService,
 		Auth:    builder,
 	}
-	articleService := service6.NewArticleService(query)
-	permissionService, err := service7.NewService(infraInfra)
-	if err != nil {
-		return nil, err
+	articleService := &service6.ArticleService{
+		Query: query,
+	}
+	permissionService := &service7.PermissionService{
+		Query: query,
 	}
 	articleController := controller5.ArticleController{
 		ArticleSrv: articleService,
 		PermSrv:    permissionService,
 		Auth:       builder,
-		Casbin:     enforcer,
+		Casbin:     roleCasbin,
 	}
-	articleModelService := service8.NewArticleModelService(query)
+	articleModelService := &service8.ArticleModelService{
+		Query: query,
+	}
 	articleModelController := controller6.ArticleModelController{
 		ArticleModelSrv: articleModelService,
 		Auth:            builder,

@@ -14,12 +14,12 @@ import (
 )
 
 var ServiceProvider = wire.NewSet(
-    user.NewUserService,
-    category.NewCategoryService,
-    token.NewTokenService,
-    permission.NewService,
-    role.NewRoleService,
-    menu.NewMenuService,
-    service.NewArticleService,
-    articlemodel.NewArticleModelService,
+    wire.Struct(new(user.UserService), "*"),
+    wire.Struct(new(category.CategoryService), "*"),
+    wire.Struct(new(token.TokenService), "*"),
+    wire.Struct(new(permission.PermissionService), "*"),
+    wire.Struct(new(role.RoleService), "*"),
+    wire.Struct(new(menu.MenuService), "*"),
+    wire.Struct(new(service.ArticleService), "*"),
+    wire.Struct(new(articlemodel.ArticleModelService), "*"),
 )

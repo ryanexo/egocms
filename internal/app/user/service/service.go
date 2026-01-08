@@ -7,7 +7,6 @@ import (
     `dpcms/internal/app/user/internal/assembler`
     `dpcms/internal/app/user/internal/dto`
     `dpcms/internal/app/user/repo`
-    "dpcms/internal/infra"
     "dpcms/internal/infra/password"
     "dpcms/internal/infra/persistence/datatype"
     "dpcms/internal/infra/persistence/model"
@@ -16,15 +15,11 @@ import (
 )
 
 type UserService struct {
-    persist *query.Query
+    Query *query.Query
 }
 
-func NewUserService(i *infra.Infra) *UserService {
-    return &UserService{persist: i.Query}
-}
-
-func (srv UserService) Create(ctx context.Context, params dto.UserCreateParams) (datatype.SafeUint64, error) {
-    usrRepo := repo.NewUserRepo(srv.persist)
+func (s UserService) Create(ctx context.Context, params dto.UserCreateParams) (datatype.SafeUint64, error) {
+    usrRepo := repo.NewUserRepo(s.Query)
     user, err := usrRepo.FirstByUsernameOrEmail(ctx, params.Username, params.Email)
     if err != nil {
         return 0, err
@@ -50,8 +45,8 @@ func (srv UserService) Create(ctx context.Context, params dto.UserCreateParams) 
     return data.ID, nil
 }
 
-func (srv UserService) FindByCredential(ctx context.Context, params dto.UserCredentialParams) (*dto.User, error) {
-    data, err := repo.NewUserRepo(srv.persist).FindByUsername(ctx, params.Username)
+func (s UserService) FindByCredential(ctx context.Context, params dto.UserCredentialParams) (*dto.User, error) {
+    data, err := repo.NewUserRepo(s.Query).FindByUsername(ctx, params.Username)
     if err != nil {
         return nil, err
     }
@@ -61,62 +56,62 @@ func (srv UserService) FindByCredential(ctx context.Context, params dto.UserCred
     return assembler.BuildUserDTO(data), nil
 }
 
-func (srv UserService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.User, error) {
-    data, err := repo.NewUserRepo(srv.persist).FindByID(ctx, id)
+func (s UserService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.User, error) {
+    data, err := repo.NewUserRepo(s.Query).FindByID(ctx, id)
     if err != nil {
         return nil, err
     }
     return assembler.BuildUserDTO(data), nil
 }
 
-func (srv UserService) FindByName(ctx context.Context, name string) (*dto.User, error) {
-    data, err := repo.NewUserRepo(srv.persist).FindByUsername(ctx, name)
+func (s UserService) FindByName(ctx context.Context, name string) (*dto.User, error) {
+    data, err := repo.NewUserRepo(s.Query).FindByUsername(ctx, name)
     if err != nil {
         return nil, err
     }
     return assembler.BuildUserDTO(data), nil
 }
 
-func (srv UserService) ResetPassword(ctx context.Context, id datatype.SafeUint64, pwd string) error {
+func (s UserService) ResetPassword(ctx context.Context, id datatype.SafeUint64, pwd string) error {
     hashedPwd, err := password.Password(pwd).Generate()
     if err != nil {
         return err
     }
-    _, err = repo.NewUserRepo(srv.persist).UpdatePassword(ctx, id, hashedPwd)
+    _, err = repo.NewUserRepo(s.Query).UpdatePassword(ctx, id, hashedPwd)
     return err
 }
 
-func (srv UserService) ChangePassword(ctx context.Context, current *model.User, params dto.UserPasswdUpdateParams) error {
+func (s UserService) ChangePassword(ctx context.Context, current *model.User, params dto.UserPasswdUpdateParams) error {
     if params.Password != params.PasswordConfirm {
         return errno.UserWrongConfirmPasswd.ToError()
     }
     if params.Password == params.OldPassword {
         return errno.UserEqualsOldPasswd.ToError()
     }
-    _, err := srv.FindByCredential(ctx, dto.UserCredentialParams{
+    _, err := s.FindByCredential(ctx, dto.UserCredentialParams{
         Username: current.Username,
         Password: params.OldPassword,
     })
     if err != nil {
         return err
     }
-    return srv.ResetPassword(ctx, current.ID, params.Password)
+    return s.ResetPassword(ctx, current.ID, params.Password)
 }
 
-func (srv UserService) Delete(ctx context.Context, id datatype.SafeUint64) error {
-    return srv.persist.Transaction(func(tx *query.Query) error {
+func (s UserService) Delete(ctx context.Context, id datatype.SafeUint64) error {
+    return s.Query.Transaction(func(tx *query.Query) error {
         return repo.NewUserRepo(tx).Delete(ctx, id)
     })
 }
 
-func (srv UserService) UpdateProfile(ctx context.Context, params dto.UserProfile) error {
+func (s UserService) UpdateProfile(ctx context.Context, params dto.UserProfile) error {
     data := assembler.BuildUserProfileModel(&params)
-    _, err := repo.NewUserRepo(srv.persist).UpdateProfile(ctx, data)
+    _, err := repo.NewUserRepo(s.Query).UpdateProfile(ctx, data)
     return err
 }
 
-func (srv UserService) List(ctx context.Context, params dto.UserListParams) (*types.PaginatedResult[*dto.User], error) {
-    data, total, err := repo.NewUserRepo(srv.persist).List(ctx, &params)
+func (s UserService) List(ctx context.Context, params dto.UserListParams) (*types.PaginatedResult[*dto.User], error) {
+    data, total, err := repo.NewUserRepo(s.Query).List(ctx, &params)
     if err != nil {
         return nil, err
     }

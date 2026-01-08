@@ -7,26 +7,22 @@ import (
     roleAssembler `dpcms/internal/app/role/internal/assembler`
     `dpcms/internal/app/role/internal/dto`
     `dpcms/internal/app/role/repo`
-    `dpcms/internal/infra`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
+    `dpcms/internal/infra/rbac`
     `dpcms/internal/types`
 )
 
 type RoleService struct {
-    persist *query.Query
-    infra   *infra.Infra
-}
-
-func NewRoleService(persist *query.Query, infra *infra.Infra) (*RoleService, error) {
-    return &RoleService{persist, infra}, nil
+    Query  *query.Query
+    Casbin *rbac.RoleCasbin
 }
 
 func (s RoleService) Create(ctx context.Context, params dto.RoleCreateParams) (datatype.SafeUint64, error) {
     data := &model.Role{Name: params.Name, Description: params.Description}
-    err := s.persist.Transaction(func(tx *query.Query) error {
-        roleRepo := repo.NewRoleRepo(s.persist)
+    err := s.Query.Transaction(func(tx *query.Query) error {
+        roleRepo := repo.NewRoleRepo(s.Query)
         txErr := roleRepo.Create(ctx, data)
         if txErr != nil {
             return txErr
@@ -41,7 +37,7 @@ func (s RoleService) Create(ctx context.Context, params dto.RoleCreateParams) (d
             inheritList = append(inheritList, inheritID.String())
         }
         
-        enforcer := s.infra.Casbin
+        enforcer := s.Casbin
         _, txErr = enforcer.AddRolesForUser(data.ID.String(), inheritList)
         if txErr != nil {
             return txErr
@@ -58,8 +54,8 @@ func (s RoleService) Create(ctx context.Context, params dto.RoleCreateParams) (d
 }
 
 func (s RoleService) Update(ctx context.Context, params dto.RoleUpdateParams) error {
-    return s.persist.Transaction(func(tx *query.Query) error {
-        roleRepo := repo.NewRoleRepo(s.persist)
+    return s.Query.Transaction(func(tx *query.Query) error {
+        roleRepo := repo.NewRoleRepo(s.Query)
         data := &model.Role{
             Name:        params.Name,
             Description: params.Description,
@@ -74,7 +70,7 @@ func (s RoleService) Update(ctx context.Context, params dto.RoleUpdateParams) er
             return nil
         }
         
-        enforcer := s.infra.Casbin
+        enforcer := s.Casbin
         currentRoleID := params.ID.String()
         
         for _, roleID := range params.InheritList {
@@ -102,13 +98,13 @@ func (s RoleService) Update(ctx context.Context, params dto.RoleUpdateParams) er
 }
 
 func (s RoleService) Delete(ctx context.Context, id datatype.SafeUint64) error {
-    return s.persist.Transaction(func(tx *query.Query) error {
+    return s.Query.Transaction(func(tx *query.Query) error {
         _, err := repo.NewRoleRepo(tx).Delete(ctx, id)
         if err != nil {
             return err
         }
         
-        enforcer := s.infra.Casbin
+        enforcer := s.Casbin
         _, err = enforcer.DeleteRole(id.String())
         if err != nil {
             return err
@@ -119,7 +115,7 @@ func (s RoleService) Delete(ctx context.Context, id datatype.SafeUint64) error {
 }
 
 func (s RoleService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Role, error) {
-    data, err := repo.NewRoleRepo(s.persist).FindByID(ctx, id)
+    data, err := repo.NewRoleRepo(s.Query).FindByID(ctx, id)
     if err != nil {
         return nil, err
     }
@@ -128,7 +124,7 @@ func (s RoleService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto
 }
 
 func (s RoleService) List(ctx context.Context, params dto.RoleListParams) (*types.PaginatedResult[*dto.Role], error) {
-    data, total, err := repo.NewRoleRepo(s.persist).List(ctx, &params)
+    data, total, err := repo.NewRoleRepo(s.Query).List(ctx, &params)
     if err != nil {
         return nil, err
     }

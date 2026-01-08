@@ -3,13 +3,14 @@ package auth
 import (
     `context`
     
+    `dpcms/internal/infra/rbac`
     `dpcms/internal/middleware/authz`
     
     `github.com/casbin/casbin/v2`
 )
 
 type permissionChecker struct {
-    casbin *casbin.Enforcer
+    casbin *rbac.RoleCasbin
 }
 
 var _ authz.PermissionChecker = (*permissionChecker)(nil)
@@ -18,6 +19,6 @@ func (s permissionChecker) Check(_ context.Context, subject string, object strin
     return s.casbin.Enforce(subject, object, action)
 }
 
-func NewPermissionChecker(casbin *casbin.Enforcer) authz.PermissionChecker {
+func NewPermissionChecker(casbin *rbac.RoleCasbin) authz.PermissionChecker {
     return &permissionChecker{casbin: casbin}
 }

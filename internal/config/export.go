@@ -4,7 +4,7 @@ import (
     `dpcms/internal/config/internal/token`
     `dpcms/internal/httpserver`
     `dpcms/internal/infra/db`
-    `dpcms/internal/infra/hashids`
+    `dpcms/internal/infra/encodedid`
     `dpcms/internal/infra/logger`
     `dpcms/internal/middleware/cors`
 )
@@ -33,6 +33,6 @@ func GetServerConfig(cfg *Config) httpserver.Config {
     return cfg.Server
 }
 
-func GetHashIdsConfig(cfg *Config) hashids.Config {
-    return cfg.HashIds
+func GetEncodedIDConfig(cfg *Config) encodedid.Config {
+    return cfg.EncodedID
 }

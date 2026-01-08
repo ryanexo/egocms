@@ -16,11 +16,7 @@ import (
 )
 
 type ArticleService struct {
-    persist *query.Query
-}
-
-func NewArticleService(query *query.Query) *ArticleService {
-    return &ArticleService{query}
+    Query *query.Query
 }
 
 func (s ArticleService) Create(ctx context.Context, user *model.User, params dto.ArticleCreateParams) (datatype.SafeUint64, error) {
@@ -30,7 +26,7 @@ func (s ArticleService) Create(ctx context.Context, user *model.User, params dto
     artData.Description = content.Description()
     artData.Content.Content = content.Content()
     
-    err := s.persist.Transaction(func(tx *query.Query) error {
+    err := s.Query.Transaction(func(tx *query.Query) error {
         err := articleRepo.NewArticleRepo(tx).Create(ctx, artData)
         if err != nil {
             return err
@@ -69,7 +65,7 @@ func (s ArticleService) Create(ctx context.Context, user *model.User, params dto
 }
 
 func (s ArticleService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Article, error) {
-    artData, err := articleRepo.NewArticleRepo(s.persist).FindByID(ctx, id)
+    artData, err := articleRepo.NewArticleRepo(s.Query).FindByID(ctx, id)
     if err != nil {
         return nil, err
     }
@@ -77,7 +73,7 @@ func (s ArticleService) FindByID(ctx context.Context, id datatype.SafeUint64) (*
 }
 
 func (s ArticleService) FindByIDWithContent(ctx context.Context, id datatype.SafeUint64) (*dto.Article, error) {
-    artData, err := articleRepo.NewArticleRepo(s.persist).FindByIDWithContent(ctx, id)
+    artData, err := articleRepo.NewArticleRepo(s.Query).FindByIDWithContent(ctx, id)
     if err != nil {
         return nil, err
     }
@@ -85,7 +81,7 @@ func (s ArticleService) FindByIDWithContent(ctx context.Context, id datatype.Saf
 }
 
 func (s ArticleService) Update(ctx context.Context, params dto.ArticleUpdateParams) error {
-    artData, err := articleRepo.NewArticleRepo(s.persist).FindByID(ctx, params.ID)
+    artData, err := articleRepo.NewArticleRepo(s.Query).FindByID(ctx, params.ID)
     if err != nil {
         return err
     }
@@ -102,7 +98,7 @@ func (s ArticleService) Update(ctx context.Context, params dto.ArticleUpdatePara
         Target:      sql.NullString{String: params.Target, Valid: true},
     }
     
-    return s.persist.Transaction(func(tx *query.Query) error {
+    return s.Query.Transaction(func(tx *query.Query) error {
         artRepo := articleRepo.NewArticleRepo(tx)
         txErr := artRepo.Update(ctx, artUpdateData)
         if txErr != nil {
@@ -147,8 +143,8 @@ func (s ArticleService) Update(ctx context.Context, params dto.ArticleUpdatePara
 }
 
 func (s ArticleService) Delete(ctx context.Context, id datatype.SafeUint64) error {
-    return s.persist.Transaction(func(tx *query.Query) error {
-        artRepo := articleRepo.NewArticleRepo(s.persist)
+    return s.Query.Transaction(func(tx *query.Query) error {
+        artRepo := articleRepo.NewArticleRepo(s.Query)
         err := artRepo.DeleteArticle(ctx, id)
         if err != nil {
             return err
@@ -161,7 +157,7 @@ func (s ArticleService) Delete(ctx context.Context, id datatype.SafeUint64) erro
         if err != nil {
             return err
         }
-        err = articleModelRepo.NewArticleModelRepo(s.persist).DeleteArticleData(ctx, id)
+        err = articleModelRepo.NewArticleModelRepo(s.Query).DeleteArticleData(ctx, id)
         if err != nil {
             return err
         }
@@ -170,7 +166,7 @@ func (s ArticleService) Delete(ctx context.Context, id datatype.SafeUint64) erro
 }
 
 func (s ArticleService) ChangeStatus(ctx context.Context, id datatype.SafeUint64, action func(status *domain.Status) error) error {
-    artRepo := articleRepo.NewArticleRepo(s.persist)
+    artRepo := articleRepo.NewArticleRepo(s.Query)
     data, err := artRepo.FindByIDWithoutPreload(ctx, id)
     if err != nil {
         return err
@@ -179,7 +175,7 @@ func (s ArticleService) ChangeStatus(ctx context.Context, id datatype.SafeUint64
     if err = action(status); err != nil {
         return err
     }
-    _, err = articleRepo.NewArticleRepo(s.persist).UpdateStatus(ctx, id, status.Value())
+    _, err = articleRepo.NewArticleRepo(s.Query).UpdateStatus(ctx, id, status.Value())
     return err
 }
 

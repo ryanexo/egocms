@@ -7,29 +7,26 @@ import (
     `gorm.io/gorm`
 )
 
-func New(db *gorm.DB) (*casbin.Enforcer, error) {
-    var modelString = `
-    [request_definition]
-    r = sub, obj, act
-    
-    [policy_definition]
-    p = sub, obj, act
-    
-    [role_definition]
-    g = _, _
-    
-    [policy_effect]
-    e = some(where (p.eft == allow))
-    
-    [matchers]
-    m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
-    `
-    m, err := model.NewModelFromString(modelString)
+type Options struct {
+    DB        *gorm.DB
+    Prefix    string
+    TableName string
+    Model     string
+}
+
+func New(opt Options) (*casbin.Enforcer, error) {
+    m, err := model.NewModelFromString(opt.Model)
     if err != nil {
         return nil, err
     }
     
-    adapter, err := gormadapter.NewAdapterByDB(db)
+    var adapter *gormadapter.Adapter
+    
+    if opt.TableName == "" {
+        adapter, err = gormadapter.NewAdapterByDB(opt.DB)
+    } else {
+        adapter, err = gormadapter.NewAdapterByDBUseTableName(opt.DB, opt.Prefix, opt.TableName)
+    }
     if err != nil {
         return nil, err
     }

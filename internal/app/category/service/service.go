@@ -16,16 +16,12 @@ import (
 )
 
 type CategoryService struct {
-    persist *query.Query
+    Query *query.Query
 }
 
-func NewCategoryService(persist *query.Query) *CategoryService {
-    return &CategoryService{persist}
-}
-
-func (srv CategoryService) Create(ctx context.Context, params dto.CategoryCreateParams) (datatype.SafeUint64, error) {
+func (s CategoryService) Create(ctx context.Context, params dto.CategoryCreateParams) (datatype.SafeUint64, error) {
     data := assembler.ToCategoryCreateCommand(&params)
-    err := srv.persist.Transaction(func(tx *query.Query) error {
+    err := s.Query.Transaction(func(tx *query.Query) error {
         catRepo := repo.NewRepository(tx)
         txErr := catRepo.Create(ctx, data)
         if txErr != nil {
@@ -43,8 +39,8 @@ func (srv CategoryService) Create(ctx context.Context, params dto.CategoryCreate
     return data.ID, nil
 }
 
-func (srv CategoryService) Update(ctx context.Context, params dto.CategoryUpdateParams) error {
-    catRepo := repo.NewRepository(srv.persist)
+func (s CategoryService) Update(ctx context.Context, params dto.CategoryUpdateParams) error {
+    catRepo := repo.NewRepository(s.Query)
     _, err := catRepo.FindByID(ctx, params.ID.Raw())
     if err != nil {
         return err
@@ -54,14 +50,14 @@ func (srv CategoryService) Update(ctx context.Context, params dto.CategoryUpdate
     return err
 }
 
-func (srv CategoryService) Delete(ctx context.Context, id datatype.SafeUint64) error {
-    return srv.persist.Transaction(func(tx *query.Query) error {
+func (s CategoryService) Delete(ctx context.Context, id datatype.SafeUint64) error {
+    return s.Query.Transaction(func(tx *query.Query) error {
         return repo.NewRepository(tx).Delete(ctx, id.Raw())
     })
 }
 
-func (srv CategoryService) Move(ctx context.Context, id datatype.SafeUint64, target datatype.SafeUint64) error {
-    return srv.persist.Transaction(func(tx *query.Query) error {
+func (s CategoryService) Move(ctx context.Context, id datatype.SafeUint64, target datatype.SafeUint64) error {
+    return s.Query.Transaction(func(tx *query.Query) error {
         catRepo := repo.NewRepository(tx)
         _, err := catRepo.FindByIDWithAncestor(ctx, id.Raw(), target.Raw())
         if err == nil {
@@ -74,31 +70,31 @@ func (srv CategoryService) Move(ctx context.Context, id datatype.SafeUint64, tar
     })
 }
 
-func (srv CategoryService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Category, error) {
-    data, err := repo.NewRepository(srv.persist).FindByID(ctx, id.Raw())
+func (s CategoryService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Category, error) {
+    data, err := repo.NewRepository(s.Query).FindByID(ctx, id.Raw())
     if err != nil {
         return nil, err
     }
     return assembler.ToCategoryDTO(data), nil
 }
 
-func (srv CategoryService) ListRootNodes(ctx context.Context, pageNo int, pageSize int) (*types.PaginatedResult[*dto.Category], error) {
+func (s CategoryService) ListRootNodes(ctx context.Context, pageNo int, pageSize int) (*types.PaginatedResult[*dto.Category], error) {
     pid := datatype.SafeUint64(0)
-    return srv.List(ctx, dto.CategoryListParams{
+    return s.List(ctx, dto.CategoryListParams{
         ParentID:   &pid,
         Pagination: types.Pagination{PageNo: pageNo, PageSize: pageSize},
     })
 }
 
-func (srv CategoryService) ListNodesByParentID(ctx context.Context, id datatype.SafeUint64, pageSize int, pageNo int) (*types.PaginatedResult[*dto.Category], error) {
-    return srv.List(ctx, dto.CategoryListParams{
+func (s CategoryService) ListNodesByParentID(ctx context.Context, id datatype.SafeUint64, pageSize int, pageNo int) (*types.PaginatedResult[*dto.Category], error) {
+    return s.List(ctx, dto.CategoryListParams{
         ParentID:   &id,
         Pagination: types.Pagination{PageNo: pageNo, PageSize: pageSize},
     })
 }
 
-func (srv CategoryService) List(ctx context.Context, params dto.CategoryListParams) (*types.PaginatedResult[*dto.Category], error) {
-    data, total, err := repo.NewRepository(srv.persist).List(ctx, params)
+func (s CategoryService) List(ctx context.Context, params dto.CategoryListParams) (*types.PaginatedResult[*dto.Category], error) {
+    data, total, err := repo.NewRepository(s.Query).List(ctx, params)
     if err != nil {
         return nil, err
     }

@@ -5,16 +5,12 @@ import (
     
     `dpcms/internal/app/permission/internal/assembler`
     `dpcms/internal/app/permission/internal/dto`
-    `dpcms/internal/infra`
     `dpcms/internal/infra/persistence/datatype`
+    `dpcms/internal/infra/persistence/query`
 )
 
 type PermissionService struct {
-    Infra *infra.Infra
-}
-
-func NewService(infra *infra.Infra) (*PermissionService, error) {
-    return &PermissionService{infra}, nil
+    Query *query.Query
 }
 
 func (s *PermissionService) Create(ctx context.Context, params dto.PermissionCreateParams) (datatype.SafeUint64, error) {
