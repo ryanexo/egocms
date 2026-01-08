@@ -43,9 +43,6 @@ func registerCommand(appConfig *config.Config) error {
         }
         
         f, err := os.OpenFile("./runtime/config.json", os.O_WRONLY|os.O_CREATE, 0644)
-        defer func(f *os.File) {
-            _ = f.Close()
-        }(f)
         
         if err != nil {
             return err
@@ -59,7 +56,9 @@ func registerCommand(appConfig *config.Config) error {
         if err != nil {
             return err
         }
-        
+        if err = f.Close(); err != nil {
+            return err
+        }
         fmt.Println("示例文件config.json已创建")
         
         os.Exit(0)
