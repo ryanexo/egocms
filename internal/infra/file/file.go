@@ -1,28 +1,29 @@
 package file
 
 import (
+    `context`
     `io`
     `time`
 )
 
 type Driver interface {
-    Read(path string) ([]byte, error)
-    ReadStream(path string) (io.ReadCloser, error)
-    Save(path string, data []byte) error
-    SaveStream(path string, data io.Reader) error
-    Delete(path string) error
-    Exists(path string) (bool, error)
-    URL() (string, error)
-    List(dir string) ([]string, error)
-    Stat(path string) (FileInfo, error)
+    Read(ctx context.Context, path string) ([]byte, error)
+    ReadSteam(ctx context.Context, path string) (io.ReadCloser, error)
+    
+    Write(ctx context.Context, path string, data []byte) error
+    WriteStream(ctx context.Context, path string) (io.WriteCloser, error)
+    
+    Delete(ctx context.Context, path string) error
+    
+    Exists(ctx context.Context, path string) (bool, error)
+    URL(ctx context.Context, path string) (string, error)
+    Stat(ctx context.Context, path string) (FileInfo, error)
 }
 
-type FileInfo struct {
-    OriginName string
-    Name       string
-    Path       string
-    Size       uint64
-    CreatedAt  time.Time
-    ModifiedAt time.Time
-    IsDir      bool
+type FileInfo interface {
+    Name() string
+    Path() string
+    Size() int64
+    ModTime() time.Time
+    IsDir() bool
 }
