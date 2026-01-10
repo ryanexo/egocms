@@ -7,7 +7,7 @@ import (
     `dpcms/internal/app/menu/errno`
     `dpcms/internal/app/menu/internal/assembler`
     `dpcms/internal/app/menu/internal/dto`
-    `dpcms/internal/app/menu/repo`
+    `dpcms/internal/infra/persistence/contract`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
@@ -17,13 +17,14 @@ import (
 )
 
 type MenuService struct {
-    Query *query.Query
+    TxManager contract.TxManager
+    Repo      MenuRepo
 }
 
 func (s MenuService) Create(ctx context.Context, params dto.MenuCreateParams) (*model.Menu, error) {
     menu := assembler.BuildMenuCreateCommand(&params)
-    err := s.Query.Transaction(func(tx *query.Query) error {
-        menuRepo := repo.NewMenuRepo(s.Query)
+    err := s.TxManager.Transaction(func(tx *query.Query) error {
+        menuRepo := s.Repo.CloneWithQuery(tx)
         txErr := menuRepo.Create(ctx, menu)
         if txErr != nil {
             return txErr
@@ -41,25 +42,24 @@ func (s MenuService) Create(ctx context.Context, params dto.MenuCreateParams) (*
 }
 
 func (s MenuService) Update(ctx context.Context, params dto.MenuUpdateParams) error {
-    menuRepo := repo.NewMenuRepo(s.Query)
-    _, err := menuRepo.FindByID(ctx, params.ID.Raw())
+    _, err := s.Repo.FindByID(ctx, params.ID.Raw())
     if err != nil {
         return err
     }
     menu := assembler.BuildMenuUpdateCommand(&params)
-    _, err = menuRepo.Update(ctx, menu)
+    _, err = s.Repo.Update(ctx, menu)
     return err
 }
 
 func (s MenuService) Delete(ctx context.Context, id datatype.SafeUint64) error {
-    return s.Query.Transaction(func(tx *query.Query) error {
-        return repo.NewMenuRepo(s.Query).Delete(ctx, id.Raw())
+    return s.TxManager.Transaction(func(tx *query.Query) error {
+        return s.Repo.CloneWithQuery(tx).Delete(ctx, id.Raw())
     })
 }
 
 func (s MenuService) Move(ctx context.Context, id datatype.SafeUint64, target datatype.SafeUint64) error {
-    return s.Query.Transaction(func(tx *query.Query) error {
-        menuRepo := repo.NewMenuRepo(tx)
+    return s.TxManager.Transaction(func(tx *query.Query) error {
+        menuRepo := s.Repo.CloneWithQuery(tx)
         _, err := menuRepo.FindByIDWithAncestor(ctx, id.Raw(), target.Raw())
         if err == nil {
             return errno.MenuCircular.ToError()
@@ -72,7 +72,7 @@ func (s MenuService) Move(ctx context.Context, id datatype.SafeUint64, target da
 }
 
 func (s MenuService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Menu, error) {
-    menu, err := repo.NewMenuRepo(s.Query).FindByID(ctx, id.Raw())
+    menu, err := s.Repo.FindByID(ctx, id.Raw())
     if err != nil {
         return nil, err
     }
@@ -80,7 +80,7 @@ func (s MenuService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto
 }
 
 func (s MenuService) List(ctx context.Context, params dto.MenuListQueryParams) (*types.PaginatedResult[*dto.Menu], error) {
-    data, total, err := repo.NewMenuRepo(s.Query).List(ctx, params)
+    data, total, err := s.Repo.List(ctx, params)
     if err != nil {
         return nil, err
     }

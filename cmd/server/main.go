@@ -11,9 +11,8 @@ import (
 
 // @BasePath        /
 func main() {
-    appConfig := config.NewWithBasicConfig()
-    err := registerCommand(appConfig)
-    if err != nil {
+    appConfig := &config.Config{}
+    if err := registerCommand(appConfig); err != nil {
         panic(err)
     }
     launcher, err := createHttpServer(appConfig)

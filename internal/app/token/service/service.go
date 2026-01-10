@@ -8,7 +8,7 @@ import (
     `dpcms/internal/app/token/errno`
     `dpcms/internal/app/token/internal/dto`
     tokenBlacklistRepo `dpcms/internal/app/token/repo`
-    userRepo `dpcms/internal/app/user/repo`
+    userRepo `dpcms/internal/app/user/adapter`
     `dpcms/internal/config`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`

@@ -6,6 +6,7 @@ type SSLConfig struct {
 }
 
 type Config struct {
+    MaxMemory uint64     `json:"maxMemory,omitempty" yaml:"maxMemory,omitempty"`
     Debug     bool       `json:"debug,omitempty" yaml:"debug,omitempty"`
     Host      string     `json:"host,omitempty" yaml:"host,omitempty"`
     Port      uint16     `json:"port,omitempty" yaml:"port,omitempty"`

@@ -32,23 +32,29 @@ func registerCommand(appConfig *config.Config) error {
     if doCreateExFile {
         configPath = path.Clean(configPath)
         
-        err := os.MkdirAll(path.Dir(configPath), 0755)
-        if err != nil {
+        dir := path.Dir(configPath)
+        mode := os.FileMode(0o755)
+        if err := os.MkdirAll(dir, mode); err != nil {
             return err
         }
-        
-        _, err = os.Lstat(configPath)
-        if err == nil {
+        if err := os.Chmod(dir, mode); err != nil {
+            return err
+        }
+        if _, err := os.Lstat(configPath); err == nil {
             return fmt.Errorf("配置文件 %s 已存在", configPath)
         }
         
         f, err := os.OpenFile("./runtime/config.json", os.O_WRONLY|os.O_CREATE, 0644)
-        
         if err != nil {
             return err
         }
+        defer f.Close()
         
-        json, err := sonic.MarshalIndent(config.NewWithBasicConfig(), "", "  ")
+        cfg, err := config.NewWithBasicConfig()
+        if err != nil {
+            return err
+        }
+        json, err := sonic.MarshalIndent(cfg, "", "  ")
         if err != nil {
             return err
         }
@@ -56,15 +62,18 @@ func registerCommand(appConfig *config.Config) error {
         if err != nil {
             return err
         }
-        if err = f.Close(); err != nil {
-            return err
-        }
         fmt.Println("示例文件config.json已创建")
         
         os.Exit(0)
     }
     
-    if configPath != "" {
+    if configPath == "" {
+        cfg, err := config.NewWithBasicConfig()
+        if err != nil {
+            return err
+        }
+        *appConfig = *cfg
+    } else {
         cfg, err := config.New(configPath)
         if err != nil {
             panic(err)

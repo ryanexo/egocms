@@ -1,10 +1,11 @@
-package repo
+package adapter
 
 import (
     "context"
     "database/sql"
     
     `dpcms/internal/app/user/internal/dto`
+    `dpcms/internal/app/user/service`
     "dpcms/internal/infra/persistence/datatype"
     "dpcms/internal/infra/persistence/dbscope"
     "dpcms/internal/infra/persistence/model"
@@ -13,39 +14,43 @@ import (
     "gorm.io/gen"
 )
 
-type UserRepo struct {
+type userRepo struct {
     query *query.Query
 }
 
-func NewUserRepo(persist *query.Query) *UserRepo {
-    return &UserRepo{persist}
+func NewUserRepo(persist *query.Query) service.UserRepo {
+    return &userRepo{persist}
 }
 
-func (r *UserRepo) Create(ctx context.Context, data *model.User) error {
+func (r *userRepo) CloneWithQuery(q *query.Query) service.UserRepo {
+    return NewUserRepo(q)
+}
+
+func (r *userRepo) Create(ctx context.Context, data *model.User) error {
     return r.query.User.WithContext(ctx).Create(data)
 }
 
-func (r *UserRepo) FindByUsername(ctx context.Context, username string) (*model.User, error) {
+func (r *userRepo) FindByUsername(ctx context.Context, username string) (*model.User, error) {
     dao := r.query.User
     return dao.WithContext(ctx).Where(dao.Username.Eq(username)).Preload(dao.Profile, dao.Role.Select(r.query.Role.Name)).First()
 }
 
-func (r *UserRepo) FirstByUsernameOrEmail(ctx context.Context, username, email string) (*model.User, error) {
+func (r *userRepo) FirstByUsernameOrEmail(ctx context.Context, username, email string) (*model.User, error) {
     dao := r.query.User
     return dao.WithContext(ctx).Where(dao.Username.Eq(username)).Or(dao.Email.Eq(email)).First()
 }
 
-func (r *UserRepo) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.User, error) {
+func (r *userRepo) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.User, error) {
     dao := r.query.User
     return dao.WithContext(ctx).Where(dao.ID.Eq(id.Raw())).First()
 }
 
-func (r *UserRepo) UpdatePassword(ctx context.Context, id datatype.SafeUint64, passwd string) (gen.ResultInfo, error) {
+func (r *userRepo) UpdatePassword(ctx context.Context, id datatype.SafeUint64, passwd string) (gen.ResultInfo, error) {
     dao := r.query.User
     return dao.WithContext(ctx).Where(dao.ID.Eq(id.Raw())).Update(dao.Password, passwd)
 }
 
-func (r *UserRepo) Delete(ctx context.Context, id datatype.SafeUint64) error {
+func (r *userRepo) Delete(ctx context.Context, id datatype.SafeUint64) error {
     ud := r.query.User
     _, err := ud.WithContext(ctx).Where(ud.ID.Eq(id.Raw())).Delete()
     if err != nil {
@@ -56,12 +61,12 @@ func (r *UserRepo) Delete(ctx context.Context, id datatype.SafeUint64) error {
     return err
 }
 
-func (r *UserRepo) UpdateProfile(ctx context.Context, data *model.UserProfile) (gen.ResultInfo, error) {
+func (r *userRepo) UpdateProfile(ctx context.Context, data *model.UserProfile) (gen.ResultInfo, error) {
     dao := r.query.UserProfile
     return dao.WithContext(ctx).Where(dao.UserID.Eq(data.UserID.Raw())).Updates(data)
 }
 
-func (r *UserRepo) List(ctx context.Context, params *dto.UserListParams) ([]*model.User, int64, error) {
+func (r *userRepo) List(ctx context.Context, params *dto.UserListParams) ([]*model.User, int64, error) {
     uo := r.query.User
     po := r.query.UserProfile
     q := uo.WithContext(ctx).LeftJoin(po, po.UserID.EqCol(uo.ID))

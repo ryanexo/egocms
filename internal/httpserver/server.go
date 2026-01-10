@@ -26,6 +26,9 @@ func New(cfg Config, middleware Middleware, routes Routes) (*Launcher, error) {
             return nil, err
         }
     }
+    if cfg.MaxMemory == 0 {
+        engine.MaxMultipartMemory = 8 << 20
+    }
     
     launcher := &Launcher{config: cfg, engine: engine}
     launcher.addMiddleware(middleware)

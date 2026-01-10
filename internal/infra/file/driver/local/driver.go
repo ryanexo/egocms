@@ -13,7 +13,7 @@ type localDriver struct{}
 var _ file.Driver = (*localDriver)(nil)
 
 func (l localDriver) Read(_ context.Context, path string) (data []byte, err error) {
-    err = operateFile(path, os.O_RDONLY, 0644, func(obj *os.File) (err error) {
+    err = operateFile(path, os.O_RDONLY, 0o644, func(obj *os.File) (err error) {
         data, err = io.ReadAll(obj)
         return err
     })
@@ -22,7 +22,7 @@ func (l localDriver) Read(_ context.Context, path string) (data []byte, err erro
 }
 
 func (l localDriver) ReadSteam(_ context.Context, path string) (io.ReadCloser, error) {
-    f, err := os.OpenFile(path, os.O_RDONLY, 0644)
+    f, err := os.OpenFile(path, os.O_RDONLY, 0o644)
     if err != nil {
         return nil, err
     }

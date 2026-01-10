@@ -1,4 +1,4 @@
-package controller
+package bootstrap
 
 import (
     "reflect"

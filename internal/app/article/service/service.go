@@ -8,15 +8,17 @@ import (
     `dpcms/internal/app/article/internal/assembler`
     `dpcms/internal/app/article/internal/domain`
     `dpcms/internal/app/article/internal/dto`
-    articleRepo `dpcms/internal/app/article/repo`
-    articleModelRepo `dpcms/internal/app/articlemodel/repo`
+    `dpcms/internal/app/articlemodel/service`
+    `dpcms/internal/infra/persistence/contract`
     "dpcms/internal/infra/persistence/datatype"
     "dpcms/internal/infra/persistence/model"
     "dpcms/internal/infra/persistence/query"
 )
 
 type ArticleService struct {
-    Query *query.Query
+    TxManager        contract.TxManager
+    ArticleRepo      ArticleRepo
+    ArticleModelRepo service.ArticleModelRepo
 }
 
 func (s ArticleService) Create(ctx context.Context, user *model.User, params dto.ArticleCreateParams) (datatype.SafeUint64, error) {
@@ -26,13 +28,13 @@ func (s ArticleService) Create(ctx context.Context, user *model.User, params dto
     artData.Description = content.Description()
     artData.Content.Content = content.Content()
     
-    err := s.Query.Transaction(func(tx *query.Query) error {
-        err := articleRepo.NewArticleRepo(tx).Create(ctx, artData)
+    err := s.TxManager.Transaction(func(tx *query.Query) error {
+        err := s.ArticleRepo.CloneWithQuery(tx).Create(ctx, artData)
         if err != nil {
             return err
         }
         
-        artModelRepo := articleModelRepo.NewArticleModelRepo(tx)
+        artModelRepo := s.ArticleModelRepo.CloneWithQuery(tx)
         
         if artData.ModelID != nil {
             schema, err := artModelRepo.FindAllSchema(ctx, *artData.ModelID)
@@ -65,7 +67,7 @@ func (s ArticleService) Create(ctx context.Context, user *model.User, params dto
 }
 
 func (s ArticleService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Article, error) {
-    artData, err := articleRepo.NewArticleRepo(s.Query).FindByID(ctx, id)
+    artData, err := s.ArticleRepo.FindByID(ctx, id)
     if err != nil {
         return nil, err
     }
@@ -73,7 +75,7 @@ func (s ArticleService) FindByID(ctx context.Context, id datatype.SafeUint64) (*
 }
 
 func (s ArticleService) FindByIDWithContent(ctx context.Context, id datatype.SafeUint64) (*dto.Article, error) {
-    artData, err := articleRepo.NewArticleRepo(s.Query).FindByIDWithContent(ctx, id)
+    artData, err := s.ArticleRepo.FindByIDWithContent(ctx, id)
     if err != nil {
         return nil, err
     }
@@ -81,7 +83,7 @@ func (s ArticleService) FindByIDWithContent(ctx context.Context, id datatype.Saf
 }
 
 func (s ArticleService) Update(ctx context.Context, params dto.ArticleUpdateParams) error {
-    artData, err := articleRepo.NewArticleRepo(s.Query).FindByID(ctx, params.ID)
+    artData, err := s.ArticleRepo.FindByID(ctx, params.ID)
     if err != nil {
         return err
     }
@@ -98,8 +100,8 @@ func (s ArticleService) Update(ctx context.Context, params dto.ArticleUpdatePara
         Target:      sql.NullString{String: params.Target, Valid: true},
     }
     
-    return s.Query.Transaction(func(tx *query.Query) error {
-        artRepo := articleRepo.NewArticleRepo(tx)
+    return s.TxManager.Transaction(func(tx *query.Query) error {
+        artRepo := s.ArticleRepo.CloneWithQuery(tx)
         txErr := artRepo.Update(ctx, artUpdateData)
         if txErr != nil {
             return txErr
@@ -116,7 +118,7 @@ func (s ArticleService) Update(ctx context.Context, params dto.ArticleUpdatePara
         }
         
         if artData.ModelID != nil {
-            artModelRepo := articleModelRepo.NewArticleModelRepo(tx)
+            artModelRepo := s.ArticleModelRepo.CloneWithQuery(tx)
             schema, txErr := artModelRepo.FindAllSchema(ctx, *artData.ModelID)
             if txErr != nil {
                 return txErr
@@ -143,8 +145,8 @@ func (s ArticleService) Update(ctx context.Context, params dto.ArticleUpdatePara
 }
 
 func (s ArticleService) Delete(ctx context.Context, id datatype.SafeUint64) error {
-    return s.Query.Transaction(func(tx *query.Query) error {
-        artRepo := articleRepo.NewArticleRepo(s.Query)
+    return s.TxManager.Transaction(func(tx *query.Query) error {
+        artRepo := s.ArticleRepo.CloneWithQuery(tx)
         err := artRepo.DeleteArticle(ctx, id)
         if err != nil {
             return err
@@ -157,7 +159,7 @@ func (s ArticleService) Delete(ctx context.Context, id datatype.SafeUint64) erro
         if err != nil {
             return err
         }
-        err = articleModelRepo.NewArticleModelRepo(s.Query).DeleteArticleData(ctx, id)
+        err = s.ArticleModelRepo.CloneWithQuery(tx).DeleteArticleData(ctx, id)
         if err != nil {
             return err
         }
@@ -166,8 +168,7 @@ func (s ArticleService) Delete(ctx context.Context, id datatype.SafeUint64) erro
 }
 
 func (s ArticleService) ChangeStatus(ctx context.Context, id datatype.SafeUint64, action func(status *domain.Status) error) error {
-    artRepo := articleRepo.NewArticleRepo(s.Query)
-    data, err := artRepo.FindByIDWithoutPreload(ctx, id)
+    data, err := s.ArticleRepo.FindByIDWithoutPreload(ctx, id)
     if err != nil {
         return err
     }
@@ -175,7 +176,7 @@ func (s ArticleService) ChangeStatus(ctx context.Context, id datatype.SafeUint64
     if err = action(status); err != nil {
         return err
     }
-    _, err = articleRepo.NewArticleRepo(s.Query).UpdateStatus(ctx, id, status.Value())
+    _, err = s.ArticleRepo.UpdateStatus(ctx, id, status.Value())
     return err
 }
 

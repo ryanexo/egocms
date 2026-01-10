@@ -1,10 +1,11 @@
-package repo
+package adapter
 
 import (
     "context"
     "fmt"
     
     `dpcms/internal/app/category/internal/dto`
+    `dpcms/internal/app/category/service`
     "dpcms/internal/infra/persistence/dbscope"
     "dpcms/internal/infra/persistence/model"
     "dpcms/internal/infra/persistence/query"
@@ -12,27 +13,31 @@ import (
     "gorm.io/gen"
 )
 
-type Repository struct {
+type categoryRepo struct {
     query *query.Query
 }
 
-func NewRepository(persist *query.Query) *Repository {
-    return &Repository{persist}
+func NewCategoryRepo(persist *query.Query) service.CategoryRepo {
+    return &categoryRepo{persist}
 }
 
-func (s *Repository) Create(ctx context.Context, category *model.Category) error {
+func (s *categoryRepo) CloneWithQuery(q *query.Query) service.CategoryRepo {
+    return NewCategoryRepo(q)
+}
+
+func (s *categoryRepo) Create(ctx context.Context, category *model.Category) error {
     return s.query.Category.WithContext(ctx).Create(category)
 }
 
-func (s *Repository) CreateSubtree(ctx context.Context, id uint64, parentId uint64) error {
+func (s *categoryRepo) CreateSubtree(ctx context.Context, id uint64, parentId uint64) error {
     return s.query.CategoryContext.WithContext(ctx).CreateSubtree(id, parentId)
 }
 
-func (s *Repository) Update(ctx context.Context, data *model.Category) (gen.ResultInfo, error) {
+func (s *categoryRepo) Update(ctx context.Context, data *model.Category) (gen.ResultInfo, error) {
     return s.query.Category.WithContext(ctx).Where(s.query.Category.ID.Eq(data.ID.Raw())).Updates(data)
 }
 
-func (s *Repository) Move(ctx context.Context, fromNode uint64, toNode uint64) error {
+func (s *categoryRepo) Move(ctx context.Context, fromNode uint64, toNode uint64) error {
     ctxDao := s.query.CategoryContext
     catDao := s.query.Category
     err := ctxDao.WithContext(ctx).UnbindRelationships(fromNode)
@@ -47,7 +52,7 @@ func (s *Repository) Move(ctx context.Context, fromNode uint64, toNode uint64) e
     return err
 }
 
-func (s *Repository) Delete(ctx context.Context, id uint64) error {
+func (s *categoryRepo) Delete(ctx context.Context, id uint64) error {
     ctxDao := s.query.CategoryContext
     catDao := s.query.Category
     seoDao := s.query.CategorySeo
@@ -85,16 +90,16 @@ func (s *Repository) Delete(ctx context.Context, id uint64) error {
     return nil
 }
 
-func (s *Repository) FindByID(ctx context.Context, id uint64) (*model.Category, error) {
+func (s *categoryRepo) FindByID(ctx context.Context, id uint64) (*model.Category, error) {
     return s.query.Category.WithContext(ctx).Preload(s.query.Category.SEO).Where(s.query.Category.ID.Eq(id)).First()
 }
 
-func (s *Repository) FindByIDWithAncestor(ctx context.Context, ancestor uint64, descendant uint64) (*model.CategoryContext, error) {
+func (s *categoryRepo) FindByIDWithAncestor(ctx context.Context, ancestor uint64, descendant uint64) (*model.CategoryContext, error) {
     ctxDao := s.query.CategoryContext
     return ctxDao.WithContext(ctx).Where(ctxDao.Ancestor.Eq(ancestor), ctxDao.Descendant.Eq(descendant)).First()
 }
 
-func (s *Repository) List(ctx context.Context, params dto.CategoryListParams) ([]*model.Category, int64, error) {
+func (s *categoryRepo) List(ctx context.Context, params dto.CategoryListParams) ([]*model.Category, int64, error) {
     dao := s.query.Category
     q := dao.WithContext(ctx).Scopes(dbscope.Paginate(params.PageNo, params.PageSize))
     if params.ID != nil {

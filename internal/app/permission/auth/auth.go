@@ -5,8 +5,6 @@ import (
     
     `dpcms/internal/infra/rbac`
     `dpcms/internal/middleware/authz`
-    
-    `github.com/casbin/casbin/v2`
 )
 
 type permissionChecker struct {

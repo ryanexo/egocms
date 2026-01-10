@@ -7,7 +7,7 @@ import (
     `dpcms/internal/app/category/errno`
     `dpcms/internal/app/category/internal/assembler`
     `dpcms/internal/app/category/internal/dto`
-    `dpcms/internal/app/category/repo`
+    `dpcms/internal/infra/persistence/contract`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/query`
     `dpcms/internal/types`
@@ -16,13 +16,14 @@ import (
 )
 
 type CategoryService struct {
-    Query *query.Query
+    TxManager contract.TxManager
+    Repo      CategoryRepo
 }
 
 func (s CategoryService) Create(ctx context.Context, params dto.CategoryCreateParams) (datatype.SafeUint64, error) {
     data := assembler.ToCategoryCreateCommand(&params)
-    err := s.Query.Transaction(func(tx *query.Query) error {
-        catRepo := repo.NewRepository(tx)
+    err := s.TxManager.Transaction(func(tx *query.Query) error {
+        catRepo := s.Repo.CloneWithQuery(tx)
         txErr := catRepo.Create(ctx, data)
         if txErr != nil {
             return txErr
@@ -40,25 +41,24 @@ func (s CategoryService) Create(ctx context.Context, params dto.CategoryCreatePa
 }
 
 func (s CategoryService) Update(ctx context.Context, params dto.CategoryUpdateParams) error {
-    catRepo := repo.NewRepository(s.Query)
-    _, err := catRepo.FindByID(ctx, params.ID.Raw())
+    _, err := s.Repo.FindByID(ctx, params.ID.Raw())
     if err != nil {
         return err
     }
     data := assembler.ToCategoryUpdateCommand(&params)
-    _, err = catRepo.Update(ctx, data)
+    _, err = s.Repo.Update(ctx, data)
     return err
 }
 
 func (s CategoryService) Delete(ctx context.Context, id datatype.SafeUint64) error {
-    return s.Query.Transaction(func(tx *query.Query) error {
-        return repo.NewRepository(tx).Delete(ctx, id.Raw())
+    return s.TxManager.Transaction(func(tx *query.Query) error {
+        return s.Repo.CloneWithQuery(tx).Delete(ctx, id.Raw())
     })
 }
 
 func (s CategoryService) Move(ctx context.Context, id datatype.SafeUint64, target datatype.SafeUint64) error {
-    return s.Query.Transaction(func(tx *query.Query) error {
-        catRepo := repo.NewRepository(tx)
+    return s.TxManager.Transaction(func(tx *query.Query) error {
+        catRepo := s.Repo.CloneWithQuery(tx)
         _, err := catRepo.FindByIDWithAncestor(ctx, id.Raw(), target.Raw())
         if err == nil {
             return errno.CategoryCircular.ToError()
@@ -71,7 +71,7 @@ func (s CategoryService) Move(ctx context.Context, id datatype.SafeUint64, targe
 }
 
 func (s CategoryService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Category, error) {
-    data, err := repo.NewRepository(s.Query).FindByID(ctx, id.Raw())
+    data, err := s.Repo.FindByID(ctx, id.Raw())
     if err != nil {
         return nil, err
     }
@@ -94,7 +94,7 @@ func (s CategoryService) ListNodesByParentID(ctx context.Context, id datatype.Sa
 }
 
 func (s CategoryService) List(ctx context.Context, params dto.CategoryListParams) (*types.PaginatedResult[*dto.Category], error) {
-    data, total, err := repo.NewRepository(s.Query).List(ctx, params)
+    data, total, err := s.Repo.List(ctx, params)
     if err != nil {
         return nil, err
     }

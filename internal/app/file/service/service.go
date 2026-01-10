@@ -1,9 +1,13 @@
 package service
 
-import `dpcms/internal/infra/persistence/query`
+import (
+    `context`
+    
+    `dpcms/internal/infra/persistence/query`
+)
 
 type FileService struct {
     Query *query.Query
 }
 
-func (s FileService) Upload() {}
+func (s FileService) Save(ctx context.Context, path string) {}

@@ -48,9 +48,13 @@ func New(filepath string) (*Config, error) {
     return cfg, nil
 }
 
-func NewWithBasicConfig() *Config {
-    setCurrentConfig(defaultConfig)
-    return defaultConfig
+func NewWithBasicConfig() (*Config, error) {
+    cfg, err := defaultConfig()
+    if err != nil {
+        return nil, err
+    }
+    setCurrentConfig(cfg)
+    return cfg, nil
 }
 
 func setCurrentConfig(cfg *Config) {

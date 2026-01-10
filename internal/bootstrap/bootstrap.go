@@ -18,5 +18,6 @@ var BootstrapProvider = wire.NewSet(
     logger.New,
     db.NewDB,
     encodedid.New,
-    persistence.New,
+    persistence.NewQuery,
+    persistence.NewTxManager,
 )

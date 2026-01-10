@@ -7,24 +7,29 @@
 package main
 
 import (
+	adapter5 "dpcms/internal/app/article/adapter"
 	controller5 "dpcms/internal/app/article/controller"
 	service6 "dpcms/internal/app/article/service"
+	adapter6 "dpcms/internal/app/articlemodel/adapter"
 	controller6 "dpcms/internal/app/articlemodel/controller"
 	service8 "dpcms/internal/app/articlemodel/service"
+	adapter3 "dpcms/internal/app/category/adapter"
 	controller3 "dpcms/internal/app/category/controller"
 	service4 "dpcms/internal/app/category/service"
+	adapter2 "dpcms/internal/app/menu/adapter"
 	controller2 "dpcms/internal/app/menu/controller"
 	service3 "dpcms/internal/app/menu/service"
 	auth2 "dpcms/internal/app/permission/auth"
 	service7 "dpcms/internal/app/permission/service"
+	adapter4 "dpcms/internal/app/role/adapter"
 	controller4 "dpcms/internal/app/role/controller"
 	service5 "dpcms/internal/app/role/service"
 	"dpcms/internal/app/token/auth"
 	service2 "dpcms/internal/app/token/service"
+	"dpcms/internal/app/user/adapter"
 	"dpcms/internal/app/user/controller"
 	"dpcms/internal/app/user/service"
-	controller7 "dpcms/internal/bootstrap/controller"
-	"dpcms/internal/bootstrap/middleware"
+	"dpcms/internal/bootstrap"
 	"dpcms/internal/config"
 	"dpcms/internal/httpserver"
 	"dpcms/internal/infra/db"
@@ -48,26 +53,29 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	httpserverConfig := config.GetServerConfig(cfg)
 	loggerConfig := config.GetLoggerConfig(cfg)
 	loggerLogger := logger.New(loggerConfig)
-	recoveryMiddleware := recovery.New(loggerLogger)
+	middleware := recovery.New(loggerLogger)
 	reqtraceMiddleware := reqtrace.New()
 	logMiddleware := log.New(loggerLogger)
 	corsConfig := config.GetCORSConfig(cfg)
 	corsMiddleware := cors.New(corsConfig)
-	middlewareMiddleware := &middleware.Middleware{
-		Recovery: recoveryMiddleware,
+	bootstrapMiddleware := &bootstrap.Middleware{
+		Recovery: middleware,
 		ReqTrace: reqtraceMiddleware,
 		Logger:   logMiddleware,
 		CORS:     corsMiddleware,
 	}
-	httpserverMiddleware := middleware.NewMiddlewareRegistrar(middlewareMiddleware)
+	httpserverMiddleware := bootstrap.NewMiddlewareRegistrar(bootstrapMiddleware)
 	dbConfig := config.GetDBConfig(cfg)
 	gormDB, err := db.NewDB(dbConfig)
 	if err != nil {
 		return nil, err
 	}
-	query := persistence.New(gormDB)
+	query := persistence.NewQuery(gormDB)
+	txManager := persistence.NewTxManager(query)
+	userRepo := adapter.NewUserRepo(query)
 	userService := &service.UserService{
-		Query: query,
+		TxManager: txManager,
+		Repo:      userRepo,
 	}
 	tokenService := &service2.TokenService{
 		Config: cfg,
@@ -86,30 +94,40 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		Logger:   loggerLogger,
 		Auth:     builder,
 	}
+	menuRepo := adapter2.NewMenuRepo(query)
 	menuService := &service3.MenuService{
-		Query: query,
+		TxManager: txManager,
+		Repo:      menuRepo,
 	}
 	menuController := controller2.MenuController{
 		MenuSrv: menuService,
 		Auth:    builder,
 	}
+	categoryRepo := adapter3.NewCategoryRepo(query)
 	categoryService := &service4.CategoryService{
-		Query: query,
+		TxManager: txManager,
+		Repo:      categoryRepo,
 	}
 	categoryController := controller3.CategoryController{
 		CategorySrv: categoryService,
 		Auth:        builder,
 	}
+	roleRepo := adapter4.NewRoleRepo(query)
 	roleService := &service5.RoleService{
-		Query:  query,
-		Casbin: roleCasbin,
+		TxManager: txManager,
+		Casbin:    roleCasbin,
+		Repo:      roleRepo,
 	}
 	roleController := controller4.RoleController{
 		RoleSrv: roleService,
 		Auth:    builder,
 	}
+	articleRepo := adapter5.NewArticleRepo(query)
+	articleModelRepo := adapter6.NewArticleModelRepo(query)
 	articleService := &service6.ArticleService{
-		Query: query,
+		TxManager:        txManager,
+		ArticleRepo:      articleRepo,
+		ArticleModelRepo: articleModelRepo,
 	}
 	permissionService := &service7.PermissionService{
 		Query: query,
@@ -121,13 +139,14 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		Casbin:     roleCasbin,
 	}
 	articleModelService := &service8.ArticleModelService{
-		Query: query,
+		TxManager: txManager,
+		Repo:      articleModelRepo,
 	}
 	articleModelController := controller6.ArticleModelController{
 		ArticleModelSrv: articleModelService,
 		Auth:            builder,
 	}
-	controllers := &controller7.Controllers{
+	controllers := &bootstrap.Controllers{
 		User:         userController,
 		Menu:         menuController,
 		Category:     categoryController,
@@ -135,7 +154,7 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		Article:      articleController,
 		ArticleModel: articleModelController,
 	}
-	routes := controller7.NewRouteRegistrar(controllers)
+	routes := bootstrap.NewRouteRegistrar(controllers)
 	launcher, err := httpserver.New(httpserverConfig, httpserverMiddleware, routes)
 	if err != nil {
 		return nil, err

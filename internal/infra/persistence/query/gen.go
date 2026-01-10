@@ -28,11 +28,14 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		Category:             newCategory(db, opts...),
 		CategoryContext:      newCategoryContext(db, opts...),
 		CategorySeo:          newCategorySeo(db, opts...),
+		Config:               newConfig(db, opts...),
+		File:                 newFile(db, opts...),
 		Menu:                 newMenu(db, opts...),
 		MenuContext:          newMenuContext(db, opts...),
 		Permission:           newPermission(db, opts...),
 		Role:                 newRole(db, opts...),
 		TokenBlacklist:       newTokenBlacklist(db, opts...),
+		UploadRecords:        newUploadRecords(db, opts...),
 		User:                 newUser(db, opts...),
 		UserProfile:          newUserProfile(db, opts...),
 	}
@@ -51,11 +54,14 @@ type Query struct {
 	Category             category
 	CategoryContext      categoryContext
 	CategorySeo          categorySeo
+	Config               config
+	File                 file
 	Menu                 menu
 	MenuContext          menuContext
 	Permission           permission
 	Role                 role
 	TokenBlacklist       tokenBlacklist
+	UploadRecords        uploadRecords
 	User                 user
 	UserProfile          userProfile
 }
@@ -75,11 +81,14 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		Category:             q.Category.clone(db),
 		CategoryContext:      q.CategoryContext.clone(db),
 		CategorySeo:          q.CategorySeo.clone(db),
+		Config:               q.Config.clone(db),
+		File:                 q.File.clone(db),
 		Menu:                 q.Menu.clone(db),
 		MenuContext:          q.MenuContext.clone(db),
 		Permission:           q.Permission.clone(db),
 		Role:                 q.Role.clone(db),
 		TokenBlacklist:       q.TokenBlacklist.clone(db),
+		UploadRecords:        q.UploadRecords.clone(db),
 		User:                 q.User.clone(db),
 		UserProfile:          q.UserProfile.clone(db),
 	}
@@ -106,11 +115,14 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		Category:             q.Category.replaceDB(db),
 		CategoryContext:      q.CategoryContext.replaceDB(db),
 		CategorySeo:          q.CategorySeo.replaceDB(db),
+		Config:               q.Config.replaceDB(db),
+		File:                 q.File.replaceDB(db),
 		Menu:                 q.Menu.replaceDB(db),
 		MenuContext:          q.MenuContext.replaceDB(db),
 		Permission:           q.Permission.replaceDB(db),
 		Role:                 q.Role.replaceDB(db),
 		TokenBlacklist:       q.TokenBlacklist.replaceDB(db),
+		UploadRecords:        q.UploadRecords.replaceDB(db),
 		User:                 q.User.replaceDB(db),
 		UserProfile:          q.UserProfile.replaceDB(db),
 	}
@@ -127,11 +139,14 @@ type queryCtx struct {
 	Category             *categoryDo
 	CategoryContext      *categoryContextDo
 	CategorySeo          *categorySeoDo
+	Config               *configDo
+	File                 *fileDo
 	Menu                 *menuDo
 	MenuContext          *menuContextDo
 	Permission           *permissionDo
 	Role                 *roleDo
 	TokenBlacklist       *tokenBlacklistDo
+	UploadRecords        *uploadRecordsDo
 	User                 *userDo
 	UserProfile          *userProfileDo
 }
@@ -148,11 +163,14 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		Category:             q.Category.WithContext(ctx),
 		CategoryContext:      q.CategoryContext.WithContext(ctx),
 		CategorySeo:          q.CategorySeo.WithContext(ctx),
+		Config:               q.Config.WithContext(ctx),
+		File:                 q.File.WithContext(ctx),
 		Menu:                 q.Menu.WithContext(ctx),
 		MenuContext:          q.MenuContext.WithContext(ctx),
 		Permission:           q.Permission.WithContext(ctx),
 		Role:                 q.Role.WithContext(ctx),
 		TokenBlacklist:       q.TokenBlacklist.WithContext(ctx),
+		UploadRecords:        q.UploadRecords.WithContext(ctx),
 		User:                 q.User.WithContext(ctx),
 		UserProfile:          q.UserProfile.WithContext(ctx),
 	}

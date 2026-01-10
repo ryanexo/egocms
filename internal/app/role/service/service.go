@@ -6,7 +6,7 @@ import (
     `dpcms/internal/app/role/errno`
     roleAssembler `dpcms/internal/app/role/internal/assembler`
     `dpcms/internal/app/role/internal/dto`
-    `dpcms/internal/app/role/repo`
+    `dpcms/internal/infra/persistence/contract`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
@@ -15,14 +15,15 @@ import (
 )
 
 type RoleService struct {
-    Query  *query.Query
-    Casbin *rbac.RoleCasbin
+    TxManager contract.TxManager
+    Casbin    *rbac.RoleCasbin
+    Repo      RoleRepo
 }
 
 func (s RoleService) Create(ctx context.Context, params dto.RoleCreateParams) (datatype.SafeUint64, error) {
     data := &model.Role{Name: params.Name, Description: params.Description}
-    err := s.Query.Transaction(func(tx *query.Query) error {
-        roleRepo := repo.NewRoleRepo(s.Query)
+    err := s.TxManager.Transaction(func(tx *query.Query) error {
+        roleRepo := s.Repo.CloneWithQuery(tx)
         txErr := roleRepo.Create(ctx, data)
         if txErr != nil {
             return txErr
@@ -54,8 +55,8 @@ func (s RoleService) Create(ctx context.Context, params dto.RoleCreateParams) (d
 }
 
 func (s RoleService) Update(ctx context.Context, params dto.RoleUpdateParams) error {
-    return s.Query.Transaction(func(tx *query.Query) error {
-        roleRepo := repo.NewRoleRepo(s.Query)
+    return s.TxManager.Transaction(func(tx *query.Query) error {
+        roleRepo := s.Repo.CloneWithQuery(tx)
         data := &model.Role{
             Name:        params.Name,
             Description: params.Description,
@@ -98,8 +99,8 @@ func (s RoleService) Update(ctx context.Context, params dto.RoleUpdateParams) er
 }
 
 func (s RoleService) Delete(ctx context.Context, id datatype.SafeUint64) error {
-    return s.Query.Transaction(func(tx *query.Query) error {
-        _, err := repo.NewRoleRepo(tx).Delete(ctx, id)
+    return s.TxManager.Transaction(func(tx *query.Query) error {
+        _, err := s.Repo.CloneWithQuery(tx).Delete(ctx, id)
         if err != nil {
             return err
         }
@@ -115,7 +116,7 @@ func (s RoleService) Delete(ctx context.Context, id datatype.SafeUint64) error {
 }
 
 func (s RoleService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Role, error) {
-    data, err := repo.NewRoleRepo(s.Query).FindByID(ctx, id)
+    data, err := s.Repo.FindByID(ctx, id)
     if err != nil {
         return nil, err
     }
@@ -124,7 +125,7 @@ func (s RoleService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto
 }
 
 func (s RoleService) List(ctx context.Context, params dto.RoleListParams) (*types.PaginatedResult[*dto.Role], error) {
-    data, total, err := repo.NewRoleRepo(s.Query).List(ctx, &params)
+    data, total, err := s.Repo.List(ctx, &params)
     if err != nil {
         return nil, err
     }

@@ -1,9 +1,10 @@
-package service
+package bootstrap
 
 import (
-    `dpcms/internal/app/article/service`
+    article `dpcms/internal/app/article/service`
     articlemodel `dpcms/internal/app/articlemodel/service`
     category `dpcms/internal/app/category/service`
+    config `dpcms/internal/app/config/service`
     menu `dpcms/internal/app/menu/service`
     permission `dpcms/internal/app/permission/service`
     role `dpcms/internal/app/role/service`
@@ -20,6 +21,7 @@ var ServiceProvider = wire.NewSet(
     wire.Struct(new(permission.PermissionService), "*"),
     wire.Struct(new(role.RoleService), "*"),
     wire.Struct(new(menu.MenuService), "*"),
-    wire.Struct(new(service.ArticleService), "*"),
+    wire.Struct(new(article.ArticleService), "*"),
     wire.Struct(new(articlemodel.ArticleModelService), "*"),
+    wire.Struct(new(config.ConfigService), "*"),
 )
