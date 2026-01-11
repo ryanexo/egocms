@@ -4,6 +4,7 @@ import (
     `context`
     `time`
     
+    `dpcms/internal/app/token/service`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
     `dpcms/internal/infra/persistence/query`
@@ -15,8 +16,12 @@ type TokenBlacklistRepo struct {
     query *query.Query
 }
 
-func NewTokenBlacklistRepository(persist *query.Query) *TokenBlacklistRepo {
+func NewTokenBlacklistRepository(persist *query.Query) service.TokenBlacklistRepo {
     return &TokenBlacklistRepo{persist}
+}
+
+func (r *TokenBlacklistRepo) CloneWithQuery(q *query.Query) service.TokenBlacklistRepo {
+    return NewTokenBlacklistRepository(q)
 }
 
 func (r *TokenBlacklistRepo) Add(ctx context.Context, userId datatype.SafeUint64, uuid string, expires time.Time) error {

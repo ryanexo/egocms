@@ -7,23 +7,24 @@
 package main
 
 import (
-	adapter5 "dpcms/internal/app/article/adapter"
+	adapter6 "dpcms/internal/app/article/adapter"
 	controller5 "dpcms/internal/app/article/controller"
 	service6 "dpcms/internal/app/article/service"
-	adapter6 "dpcms/internal/app/articlemodel/adapter"
+	adapter7 "dpcms/internal/app/articlemodel/adapter"
 	controller6 "dpcms/internal/app/articlemodel/controller"
 	service8 "dpcms/internal/app/articlemodel/service"
-	adapter3 "dpcms/internal/app/category/adapter"
+	adapter4 "dpcms/internal/app/category/adapter"
 	controller3 "dpcms/internal/app/category/controller"
 	service4 "dpcms/internal/app/category/service"
-	adapter2 "dpcms/internal/app/menu/adapter"
+	adapter3 "dpcms/internal/app/menu/adapter"
 	controller2 "dpcms/internal/app/menu/controller"
 	service3 "dpcms/internal/app/menu/service"
 	auth2 "dpcms/internal/app/permission/auth"
 	service7 "dpcms/internal/app/permission/service"
-	adapter4 "dpcms/internal/app/role/adapter"
+	adapter5 "dpcms/internal/app/role/adapter"
 	controller4 "dpcms/internal/app/role/controller"
 	service5 "dpcms/internal/app/role/service"
+	adapter2 "dpcms/internal/app/token/adapter"
 	"dpcms/internal/app/token/auth"
 	service2 "dpcms/internal/app/token/service"
 	"dpcms/internal/app/user/adapter"
@@ -73,14 +74,9 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	query := persistence.NewQuery(gormDB)
 	txManager := persistence.NewTxManager(query)
 	userRepo := adapter.NewUserRepo(query)
-	userService := &service.UserService{
-		TxManager: txManager,
-		Repo:      userRepo,
-	}
-	tokenService := &service2.TokenService{
-		Config: cfg,
-		Query:  query,
-	}
+	userService := service.NewUserService(txManager, userRepo)
+	tokenBlacklistRepo := adapter2.NewTokenBlacklistRepo(query)
+	tokenService := service2.NewTokenService(cfg, tokenBlacklistRepo, userRepo)
 	tokenParser := auth.NewTokenParser(tokenService)
 	roleCasbin, err := rbac.NewRoleCasbin(gormDB)
 	if err != nil {
@@ -94,41 +90,27 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		Logger:   loggerLogger,
 		Auth:     builder,
 	}
-	menuRepo := adapter2.NewMenuRepo(query)
-	menuService := &service3.MenuService{
-		TxManager: txManager,
-		Repo:      menuRepo,
-	}
+	menuRepo := adapter3.NewMenuRepo(query)
+	menuService := service3.NewMenuService(txManager, menuRepo)
 	menuController := controller2.MenuController{
 		MenuSrv: menuService,
 		Auth:    builder,
 	}
-	categoryRepo := adapter3.NewCategoryRepo(query)
-	categoryService := &service4.CategoryService{
-		TxManager: txManager,
-		Repo:      categoryRepo,
-	}
+	categoryRepo := adapter4.NewCategoryRepo(query)
+	categoryService := service4.NewCategoryService(txManager, categoryRepo)
 	categoryController := controller3.CategoryController{
 		CategorySrv: categoryService,
 		Auth:        builder,
 	}
-	roleRepo := adapter4.NewRoleRepo(query)
-	roleService := &service5.RoleService{
-		TxManager: txManager,
-		Casbin:    roleCasbin,
-		Repo:      roleRepo,
-	}
+	roleRepo := adapter5.NewRoleRepo(query)
+	roleService := service5.NewRoleService(txManager, roleCasbin, roleRepo)
 	roleController := controller4.RoleController{
 		RoleSrv: roleService,
 		Auth:    builder,
 	}
-	articleRepo := adapter5.NewArticleRepo(query)
-	articleModelRepo := adapter6.NewArticleModelRepo(query)
-	articleService := &service6.ArticleService{
-		TxManager:        txManager,
-		ArticleRepo:      articleRepo,
-		ArticleModelRepo: articleModelRepo,
-	}
+	articleRepo := adapter6.NewArticleRepo(query)
+	articleModelRepo := adapter7.NewArticleModelRepo(query)
+	articleService := service6.NewArticleService(txManager, articleRepo, articleModelRepo)
 	permissionService := &service7.PermissionService{
 		Query: query,
 	}
@@ -138,10 +120,7 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		Auth:       builder,
 		Casbin:     roleCasbin,
 	}
-	articleModelService := &service8.ArticleModelService{
-		TxManager: txManager,
-		Repo:      articleModelRepo,
-	}
+	articleModelService := service8.NewArticleModelService(txManager, articleModelRepo)
 	articleModelController := controller6.ArticleModelController{
 		ArticleModelSrv: articleModelService,
 		Auth:            builder,
