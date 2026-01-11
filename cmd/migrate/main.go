@@ -11,7 +11,10 @@ import (
 )
 
 func main() {
-    cfg := config.NewWithBasicConfig()
+    cfg, err := config.NewWithBasicConfig()
+    if err != nil {
+        panic(err)
+    }
     db, err := initDB(cfg.DB)
     if err != nil {
         panic(err)
@@ -30,11 +33,14 @@ func main() {
         &model.Category{},
         &model.CategorySeo{},
         &model.CategoryContext{},
+        &model.Config{},
         &model.Menu{},
         &model.MenuContext{},
         &model.User{},
         &model.Role{},
         &model.TokenBlacklist{},
+        &model.File{},
+        &model.Permission{},
     )
     if err != nil {
         panic(err)

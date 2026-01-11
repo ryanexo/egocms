@@ -16,9 +16,17 @@ import (
 )
 
 type ArticleService struct {
-    TxManager        contract.TxManager
-    ArticleRepo      ArticleRepo
-    ArticleModelRepo service.ArticleModelRepo
+    txManager        contract.TxManager
+    articleRepo      ArticleRepo
+    articleModelRepo service.ArticleModelRepo
+}
+
+func NewArticleService(txManager contract.TxManager, articleRepo ArticleRepo, articleModelRepo service.ArticleModelRepo) *ArticleService {
+    return &ArticleService{
+        txManager:        txManager,
+        articleRepo:      articleRepo,
+        articleModelRepo: articleModelRepo,
+    }
 }
 
 func (s ArticleService) Create(ctx context.Context, user *model.User, params dto.ArticleCreateParams) (datatype.SafeUint64, error) {
@@ -28,13 +36,13 @@ func (s ArticleService) Create(ctx context.Context, user *model.User, params dto
     artData.Description = content.Description()
     artData.Content.Content = content.Content()
     
-    err := s.TxManager.Transaction(func(tx *query.Query) error {
-        err := s.ArticleRepo.CloneWithQuery(tx).Create(ctx, artData)
+    err := s.txManager.Transaction(func(tx *query.Query) error {
+        err := s.articleRepo.CloneWithQuery(tx).Create(ctx, artData)
         if err != nil {
             return err
         }
         
-        artModelRepo := s.ArticleModelRepo.CloneWithQuery(tx)
+        artModelRepo := s.articleModelRepo.CloneWithQuery(tx)
         
         if artData.ModelID != nil {
             schema, err := artModelRepo.FindAllSchema(ctx, *artData.ModelID)
@@ -67,7 +75,7 @@ func (s ArticleService) Create(ctx context.Context, user *model.User, params dto
 }
 
 func (s ArticleService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Article, error) {
-    artData, err := s.ArticleRepo.FindByID(ctx, id)
+    artData, err := s.articleRepo.FindByID(ctx, id)
     if err != nil {
         return nil, err
     }
@@ -75,7 +83,7 @@ func (s ArticleService) FindByID(ctx context.Context, id datatype.SafeUint64) (*
 }
 
 func (s ArticleService) FindByIDWithContent(ctx context.Context, id datatype.SafeUint64) (*dto.Article, error) {
-    artData, err := s.ArticleRepo.FindByIDWithContent(ctx, id)
+    artData, err := s.articleRepo.FindByIDWithContent(ctx, id)
     if err != nil {
         return nil, err
     }
@@ -83,7 +91,7 @@ func (s ArticleService) FindByIDWithContent(ctx context.Context, id datatype.Saf
 }
 
 func (s ArticleService) Update(ctx context.Context, params dto.ArticleUpdateParams) error {
-    artData, err := s.ArticleRepo.FindByID(ctx, params.ID)
+    artData, err := s.articleRepo.FindByID(ctx, params.ID)
     if err != nil {
         return err
     }
@@ -93,15 +101,15 @@ func (s ArticleService) Update(ctx context.Context, params dto.ArticleUpdatePara
     artUpdateData := &model.Article{
         Base:        model.Base{ID: params.ID},
         Url:         params.Url,
-        CategoryID:  params.CategoryId,
+        CategoryID:  params.CategoryID,
         Flag:        params.Flag,
         Title:       params.Title,
         Description: content.Description(),
         Target:      sql.NullString{String: params.Target, Valid: true},
     }
     
-    return s.TxManager.Transaction(func(tx *query.Query) error {
-        artRepo := s.ArticleRepo.CloneWithQuery(tx)
+    return s.txManager.Transaction(func(tx *query.Query) error {
+        artRepo := s.articleRepo.CloneWithQuery(tx)
         txErr := artRepo.Update(ctx, artUpdateData)
         if txErr != nil {
             return txErr
@@ -118,7 +126,7 @@ func (s ArticleService) Update(ctx context.Context, params dto.ArticleUpdatePara
         }
         
         if artData.ModelID != nil {
-            artModelRepo := s.ArticleModelRepo.CloneWithQuery(tx)
+            artModelRepo := s.articleModelRepo.CloneWithQuery(tx)
             schema, txErr := artModelRepo.FindAllSchema(ctx, *artData.ModelID)
             if txErr != nil {
                 return txErr
@@ -145,8 +153,8 @@ func (s ArticleService) Update(ctx context.Context, params dto.ArticleUpdatePara
 }
 
 func (s ArticleService) Delete(ctx context.Context, id datatype.SafeUint64) error {
-    return s.TxManager.Transaction(func(tx *query.Query) error {
-        artRepo := s.ArticleRepo.CloneWithQuery(tx)
+    return s.txManager.Transaction(func(tx *query.Query) error {
+        artRepo := s.articleRepo.CloneWithQuery(tx)
         err := artRepo.DeleteArticle(ctx, id)
         if err != nil {
             return err
@@ -159,7 +167,7 @@ func (s ArticleService) Delete(ctx context.Context, id datatype.SafeUint64) erro
         if err != nil {
             return err
         }
-        err = s.ArticleModelRepo.CloneWithQuery(tx).DeleteArticleData(ctx, id)
+        err = s.articleModelRepo.CloneWithQuery(tx).DeleteArticleData(ctx, id)
         if err != nil {
             return err
         }
@@ -168,7 +176,7 @@ func (s ArticleService) Delete(ctx context.Context, id datatype.SafeUint64) erro
 }
 
 func (s ArticleService) ChangeStatus(ctx context.Context, id datatype.SafeUint64, action func(status *domain.Status) error) error {
-    data, err := s.ArticleRepo.FindByIDWithoutPreload(ctx, id)
+    data, err := s.articleRepo.FindByIDWithoutPreload(ctx, id)
     if err != nil {
         return err
     }
@@ -176,14 +184,14 @@ func (s ArticleService) ChangeStatus(ctx context.Context, id datatype.SafeUint64
     if err = action(status); err != nil {
         return err
     }
-    _, err = s.ArticleRepo.UpdateStatus(ctx, id, status.Value())
+    _, err = s.articleRepo.UpdateStatus(ctx, id, status.Value())
     return err
 }
 
-func (s ArticleService) buildArticleModelData(artId datatype.SafeUint64, modelId datatype.SafeUint64, allSchema []*model.ArticleModelSchema, data map[string]any) (*model.ArticleModelJsonData, []*model.ArticleModelData, error) {
+func (s ArticleService) buildArticleModelData(artID datatype.SafeUint64, modelID datatype.SafeUint64, allSchema []*model.ArticleModelSchema, data map[string]any) (*model.ArticleModelJsonData, []*model.ArticleModelData, error) {
     jsonResult := &model.ArticleModelJsonData{
-        ArticleId: artId,
-        ModelId:   modelId,
+        ArticleID: artID,
+        ModelID:   modelID,
         Data:      make(map[string]any),
     }
     modelResult := make([]*model.ArticleModelData, 0, len(allSchema))
@@ -202,8 +210,8 @@ func (s ArticleService) buildArticleModelData(artId datatype.SafeUint64, modelId
         }
         
         modelData := assembler.NewModelData(&model.ArticleModelData{
-            ModelId:   modelId,
-            ArticleId: artId,
+            ModelID:   modelID,
+            ArticleID: artID,
             FieldKey:  schema.FieldKey,
             FieldName: schema.FieldName,
             Type:      schema.Type,

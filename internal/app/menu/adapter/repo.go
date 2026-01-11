@@ -29,8 +29,8 @@ func (s *menuRepo) Create(ctx context.Context, menu *model.Menu) error {
     return s.query.Menu.WithContext(ctx).Create(menu)
 }
 
-func (s *menuRepo) CreateSubtree(ctx context.Context, id uint64, parentId uint64) error {
-    return s.query.MenuContext.WithContext(ctx).CreateSubtree(id, parentId)
+func (s *menuRepo) CreateSubtree(ctx context.Context, id uint64, parentID uint64) error {
+    return s.query.MenuContext.WithContext(ctx).CreateSubtree(id, parentID)
 }
 
 func (s *menuRepo) Update(ctx context.Context, data *model.Menu) (gen.ResultInfo, error) {

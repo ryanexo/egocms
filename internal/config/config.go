@@ -3,7 +3,8 @@ package config
 import (
     "os"
     
-    `dpcms/internal/config/internal/token`
+    `dpcms/internal/config/file`
+    `dpcms/internal/config/token`
     `dpcms/internal/httpserver`
     `dpcms/internal/infra/db`
     `dpcms/internal/infra/encodedid`
@@ -21,6 +22,7 @@ var ConfigProvider = wire.NewSet(
     GetLoggerConfig,
     GetServerConfig,
     GetEncodedIDConfig,
+    GetFileConfig,
 )
 
 type Config struct {
@@ -29,6 +31,7 @@ type Config struct {
     CORS      cors.Config       `json:"cors" yaml:"cors"`
     DB        db.DBConfig       `json:"db" yaml:"db"`
     EncodedID encodedid.Config  `json:"encodedId" yaml:"encodedId"`
+    File      file.Config       `json:"file" yaml:"file"`
     Log       logger.Config     `json:"log" yaml:"log"`
     Server    httpserver.Config `json:"httpserver" yaml:"httpserver"`
 }

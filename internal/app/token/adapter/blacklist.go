@@ -1,4 +1,4 @@
-package repo
+package adapter
 
 import (
     `context`
@@ -16,17 +16,17 @@ type TokenBlacklistRepo struct {
     query *query.Query
 }
 
-func NewTokenBlacklistRepository(persist *query.Query) service.TokenBlacklistRepo {
+func NewTokenBlacklistRepo(persist *query.Query) service.TokenBlacklistRepo {
     return &TokenBlacklistRepo{persist}
 }
 
 func (r *TokenBlacklistRepo) CloneWithQuery(q *query.Query) service.TokenBlacklistRepo {
-    return NewTokenBlacklistRepository(q)
+    return NewTokenBlacklistRepo(q)
 }
 
-func (r *TokenBlacklistRepo) Add(ctx context.Context, userId datatype.SafeUint64, uuid string, expires time.Time) error {
+func (r *TokenBlacklistRepo) Add(ctx context.Context, userID datatype.SafeUint64, uuid string, expires time.Time) error {
     return r.query.TokenBlacklist.WithContext(ctx).Create(&model.TokenBlacklist{
-        UserId:  userId,
+        UserID:  userID,
         UUID:    uuid,
         Expires: expires,
     })

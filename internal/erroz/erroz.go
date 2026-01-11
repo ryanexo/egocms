@@ -108,8 +108,16 @@ func ResolveWithWrite(ctx *gin.Context, err error) {
         notResolved = true
     }
     
-    if gin.Mode() == gin.DebugMode && notResolved {
-        returnValue.Debug = append(returnValue.Debug, err.Error())
+    if gin.Mode() == gin.DebugMode && (notResolved || returnValue.cause != nil) {
+        var unResolvedErr error = returnValue
+        for {
+            e := errors.Unwrap(unResolvedErr)
+            if e == nil {
+                break
+            }
+            returnValue.Debug = append(returnValue.Debug, e.Error())
+            unResolvedErr = e
+        }
     }
     returnValue.Write(ctx)
 }

@@ -45,7 +45,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiCreateResult"
+                            "$ref": "#/definitions/types.ApiCreateResult"
                         }
                     }
                 },
@@ -71,7 +71,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -79,7 +79,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -97,7 +97,7 @@ const docTemplate = `{
                 "tags": [
                     "文章模型"
                 ],
-                "summary": "删除文章模型",
+                "summary": "查看文章模型",
                 "parameters": [
                     {
                         "description": "请求参数",
@@ -105,7 +105,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -181,7 +181,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -215,7 +215,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -249,7 +249,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiCreateResult"
+                            "$ref": "#/definitions/types.ApiCreateResult"
                         }
                     }
                 },
@@ -275,7 +275,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -283,7 +283,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -309,7 +309,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -343,7 +343,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -351,7 +351,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -377,7 +377,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -385,7 +385,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -411,7 +411,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -419,7 +419,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -445,7 +445,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -453,7 +453,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -479,7 +479,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -487,7 +487,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -521,7 +521,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -555,7 +555,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiCreateResult"
+                            "$ref": "#/definitions/types.ApiCreateResult"
                         }
                     }
                 },
@@ -581,7 +581,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -589,7 +589,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -615,7 +615,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -691,7 +691,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -725,11 +725,55 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
                 "x-apifox-folder": "文章分类"
+            }
+        },
+        "/file/upload": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "文件"
+                ],
+                "summary": "文件上传",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "请求参数",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/erroz.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.FileInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                "x-apifox-folder": "文件"
             }
         },
         "/menu/create": {
@@ -759,7 +803,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -785,7 +829,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -793,7 +837,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -819,7 +863,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -895,7 +939,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -929,7 +973,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -963,7 +1007,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiCreateResult"
+                            "$ref": "#/definitions/types.ApiCreateResult"
                         }
                     }
                 },
@@ -989,7 +1033,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -997,7 +1041,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -1023,7 +1067,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -1099,7 +1143,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -1133,7 +1177,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -1159,7 +1203,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -1167,7 +1211,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -1193,7 +1237,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/contract.ResourceID"
+                            "$ref": "#/definitions/types.ResourceID"
                         }
                     }
                 ],
@@ -1269,7 +1313,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiCreateResult"
+                            "$ref": "#/definitions/types.ApiCreateResult"
                         }
                     }
                 },
@@ -1292,7 +1336,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -1326,7 +1370,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiCreateResult"
+                            "$ref": "#/definitions/types.ApiCreateResult"
                         }
                     }
                 },
@@ -1360,7 +1404,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -1394,7 +1438,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/contract.ApiEmptyResult"
+                            "$ref": "#/definitions/types.ApiEmptyResult"
                         }
                     }
                 },
@@ -1772,7 +1816,7 @@ const docTemplate = `{
                     "type": "object",
                     "additionalProperties": {}
                 },
-                "modelId": {
+                "modelID": {
                     "type": "string"
                 },
                 "target": {
@@ -2144,6 +2188,29 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.FileInfo": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.Menu": {
             "type": "object",
             "properties": {
@@ -2380,7 +2447,7 @@ const docTemplate = `{
                 "profile": {
                     "$ref": "#/definitions/dto.UserProfile"
                 },
-                "roleId": {
+                "roleID": {
                     "type": "string"
                 },
                 "roleName": {
@@ -2544,6 +2611,18 @@ const docTemplate = `{
                 }
             }
         },
+        "erroz.Result": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {},
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Category": {
             "type": "object",
             "properties": {
@@ -2605,7 +2684,7 @@ const docTemplate = `{
                 }
             }
         },
-        "contract.ApiCreateResult": {
+        "types.ApiCreateResult": {
             "type": "object",
             "properties": {
                 "code": {
@@ -2621,7 +2700,7 @@ const docTemplate = `{
                 }
             }
         },
-        "contract.ApiEmptyResult": {
+        "types.ApiEmptyResult": {
             "type": "object",
             "properties": {
                 "code": {
@@ -2632,7 +2711,7 @@ const docTemplate = `{
                 }
             }
         },
-        "contract.ResourceID": {
+        "types.ResourceID": {
             "type": "object",
             "required": [
                 "id"
@@ -2649,18 +2728,18 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-    Version:          "1.0",
-    Host:             "",
-    BasePath:         "/",
-    Schemes:          []string{},
-    Title:            "EgoCms Api",
-    Description:      "",
-    InfoInstanceName: "swagger",
-    SwaggerTemplate:  docTemplate,
-    LeftDelim:        "{{",
-    RightDelim:       "}}",
+	Version:          "1.0",
+	Host:             "",
+	BasePath:         "/",
+	Schemes:          []string{},
+	Title:            "EgoCms Api",
+	Description:      "",
+	InfoInstanceName: "swagger",
+	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {
-    swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
+	swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
 }

@@ -23,8 +23,8 @@ func BuildArticleCreateCommand(user *model.User, data *dto2.ArticleCreateParams)
     result := &model.Article{
         AuthorID:    user.ID,
         Url:         data.Url,
-        CategoryID:  data.CategoryId,
-        ModelID:     data.ModelId,
+        CategoryID:  data.CategoryID,
+        ModelID:     data.ModelID,
         Flag:        data.Flag,
         Title:       data.Title,
         Description: data.Description,

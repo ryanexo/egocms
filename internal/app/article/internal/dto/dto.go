@@ -9,22 +9,22 @@ import (
 
 type ArticleCreateParams struct {
     Url         string               `json:"url"`
-    CategoryId  datatype.SafeUint64  `validate:"required" json:"categoryId" swaggertype:"string"`
-    AuthorId    datatype.SafeUint64  `json:"-" swaggerignore:"true"`
+    CategoryID  datatype.SafeUint64  `validate:"required" json:"categoryId" swaggertype:"string"`
+    AuthorID    datatype.SafeUint64  `json:"-" swaggerignore:"true"`
     Flag        int16                `json:"flag"`
     Title       string               `validate:"required,max=255" json:"title"`
     Description string               `validate:"max=255" json:"description"`
     Content     string               `validate:"max=65535" json:"content"`
     Target      string               `validate:"omitempty,http_url" json:"target"`
     Keywords    []string             `validate:"max=10" json:"keywords"`
-    ModelId     *datatype.SafeUint64 `json:"modelId" swaggertype:"string"`
+    ModelID     *datatype.SafeUint64 `json:"modelID" swaggertype:"string"`
     ModelData   map[string]any       `json:"modelData"`
 }
 
 type ArticleUpdateParams struct {
     ID          datatype.SafeUint64 `json:"id" swaggertype:"string"`
     Url         string              `json:"url"`
-    CategoryId  datatype.SafeUint64 `json:"categoryId" swaggertype:"string"`
+    CategoryID  datatype.SafeUint64 `json:"categoryId" swaggertype:"string"`
     Flag        int16               `json:"flag"`
     Title       string              `json:"title"`
     Description string              `json:"description"`

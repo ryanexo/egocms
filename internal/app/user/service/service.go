@@ -15,12 +15,19 @@ import (
 )
 
 type UserService struct {
-    TxManager contract.TxManager
-    Repo      UserRepo
+    txManager contract.TxManager
+    repo      UserRepo
+}
+
+func NewUserService(txManager contract.TxManager, repo UserRepo) *UserService {
+    return &UserService{
+        txManager: txManager,
+        repo:      repo,
+    }
 }
 
 func (s UserService) Create(ctx context.Context, params dto.UserCreateParams) (datatype.SafeUint64, error) {
-    user, err := s.Repo.FirstByUsernameOrEmail(ctx, params.Username, params.Email)
+    user, err := s.repo.FirstByUsernameOrEmail(ctx, params.Username, params.Email)
     if err != nil {
         return 0, err
     }
@@ -38,8 +45,8 @@ func (s UserService) Create(ctx context.Context, params dto.UserCreateParams) (d
     data := assembler.BuildUserCreateCommand(&params)
     data.Password = hashedPwd
     
-    err = s.TxManager.Transaction(func(tx *query.Query) error {
-        return s.Repo.CloneWithQuery(tx).Create(ctx, data)
+    err = s.txManager.Transaction(func(tx *query.Query) error {
+        return s.repo.CloneWithQuery(tx).Create(ctx, data)
     })
     if err != nil {
         return 0, err
@@ -49,7 +56,7 @@ func (s UserService) Create(ctx context.Context, params dto.UserCreateParams) (d
 }
 
 func (s UserService) FindByCredential(ctx context.Context, params dto.UserCredentialParams) (*dto.User, error) {
-    data, err := s.Repo.FindByUsername(ctx, params.Username)
+    data, err := s.repo.FindByUsername(ctx, params.Username)
     if err != nil {
         return nil, err
     }
@@ -60,7 +67,7 @@ func (s UserService) FindByCredential(ctx context.Context, params dto.UserCreden
 }
 
 func (s UserService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.User, error) {
-    data, err := s.Repo.FindByID(ctx, id)
+    data, err := s.repo.FindByID(ctx, id)
     if err != nil {
         return nil, err
     }
@@ -68,7 +75,7 @@ func (s UserService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto
 }
 
 func (s UserService) FindByName(ctx context.Context, name string) (*dto.User, error) {
-    data, err := s.Repo.FindByUsername(ctx, name)
+    data, err := s.repo.FindByUsername(ctx, name)
     if err != nil {
         return nil, err
     }
@@ -80,7 +87,7 @@ func (s UserService) ResetPassword(ctx context.Context, id datatype.SafeUint64, 
     if err != nil {
         return err
     }
-    _, err = s.Repo.UpdatePassword(ctx, id, hashedPwd)
+    _, err = s.repo.UpdatePassword(ctx, id, hashedPwd)
     return err
 }
 
@@ -102,19 +109,19 @@ func (s UserService) ChangePassword(ctx context.Context, current *model.User, pa
 }
 
 func (s UserService) Delete(ctx context.Context, id datatype.SafeUint64) error {
-    return s.TxManager.Transaction(func(tx *query.Query) error {
-        return s.Repo.CloneWithQuery(tx).Delete(ctx, id)
+    return s.txManager.Transaction(func(tx *query.Query) error {
+        return s.repo.CloneWithQuery(tx).Delete(ctx, id)
     })
 }
 
 func (s UserService) UpdateProfile(ctx context.Context, params dto.UserProfile) error {
     data := assembler.BuildUserProfileModel(&params)
-    _, err := s.Repo.UpdateProfile(ctx, data)
+    _, err := s.repo.UpdateProfile(ctx, data)
     return err
 }
 
 func (s UserService) List(ctx context.Context, params dto.UserListParams) (*types.PaginatedResult[*dto.User], error) {
-    data, total, err := s.Repo.List(ctx, &params)
+    data, total, err := s.repo.List(ctx, &params)
     if err != nil {
         return nil, err
     }

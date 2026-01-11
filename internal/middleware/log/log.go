@@ -28,9 +28,9 @@ func New(log *logger.Logger) Middleware {
             zap.Duration("cost", cost),
         }
         
-        traceId, ok := context.Get(constant.RequestTraceIdKey)
+        traceID, ok := context.Get(constant.RequestTraceIdKey)
         if ok {
-            fields = append(fields, zap.Any("trace-id", traceId))
+            fields = append(fields, zap.Any("trace-id", traceID))
         }
         
         if len(context.Errors) > 0 {

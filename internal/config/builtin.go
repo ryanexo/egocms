@@ -5,7 +5,8 @@ import (
     `encoding/hex`
     `time`
     
-    `dpcms/internal/config/internal/token`
+    `dpcms/internal/config/file`
+    `dpcms/internal/config/token`
     `dpcms/internal/httpserver`
     `dpcms/internal/infra/db`
     `dpcms/internal/infra/logger`
@@ -59,6 +60,9 @@ func defaultConfig() (*Config, error) {
             Trust:     nil,
             SSL:       nil,
             StaticDir: "static/",
+        },
+        File: file.Config{
+            "savePath": "./uploads/",
         },
     }, nil
 }

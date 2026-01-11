@@ -13,7 +13,7 @@ import (
 type MenuRepo interface {
     contract.Repository[MenuRepo]
     Create(ctx context.Context, menu *model.Menu) error
-    CreateSubtree(ctx context.Context, id uint64, parentId uint64) error
+    CreateSubtree(ctx context.Context, id uint64, parentID uint64) error
     Update(ctx context.Context, data *model.Menu) (gen.ResultInfo, error)
     Move(ctx context.Context, fromNode uint64, toNode uint64) error
     Delete(ctx context.Context, id uint64) error

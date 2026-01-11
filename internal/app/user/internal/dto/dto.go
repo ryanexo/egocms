@@ -78,7 +78,7 @@ type User struct {
     Email    string              `json:"email"`
     IP       string              `json:"ip"`
     Status   int8                `json:"status"`
-    RoleID   datatype.SafeUint64 `json:"roleId" swaggertype:"string"`
+    RoleID   datatype.SafeUint64 `json:"roleID" swaggertype:"string"`
     RoleName string              `json:"roleName"`
     Profile  *UserProfile        `json:"profile"`
 }

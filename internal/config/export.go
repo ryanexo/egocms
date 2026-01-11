@@ -1,7 +1,8 @@
 package config
 
 import (
-    `dpcms/internal/config/internal/token`
+    `dpcms/internal/config/file`
+    `dpcms/internal/config/token`
     `dpcms/internal/httpserver`
     `dpcms/internal/infra/db`
     `dpcms/internal/infra/encodedid`
@@ -35,4 +36,8 @@ func GetServerConfig(cfg *Config) httpserver.Config {
 
 func GetEncodedIDConfig(cfg *Config) encodedid.Config {
     return cfg.EncodedID
+}
+
+func GetFileConfig(cfg *Config) file.Config {
+    return cfg.File
 }

@@ -23,12 +23,15 @@ func main() {
         FieldNullable:  true,
         FieldCoverable: true,
     })
-    cfg := config.NewWithBasicConfig()
-    db, err := db.NewDB(cfg.DB)
+    cfg, err := config.NewWithBasicConfig()
     if err != nil {
         panic(err)
     }
-    g.UseDB(db)
+    gormDB, err := db.NewDB(cfg.DB)
+    if err != nil {
+        panic(err)
+    }
+    g.UseDB(gormDB)
     
     g.ApplyBasic(
         model.User{},
@@ -47,7 +50,6 @@ func main() {
         model.ArticleModelSchema{},
         model.ArticleModelData{},
         model.File{},
-        model.UploadRecords{},
         model.Config{},
     )
     

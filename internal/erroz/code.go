@@ -9,49 +9,53 @@ import (
 )
 
 const (
-    oK = iota
-    unknown
-    auth
-    notFound
-    invalidState
-    parameter
-    conflict
+    typeOK = iota
+    typeUnknown
+    typeAuth
+    typeNotFound
+    typeInvalidState
+    typeParameter
+    typeConflict
 )
 
 const (
-    server = iota
-    client
-    user
-    role
-    category
-    menu
-    article
-    articleModel
-    token
-    permission
+    modServer = iota
+    modClient
+    modUser
+    modRole
+    modToken
+    modPermission
+    modCategory
+    modMenu
+    modArticle
+    modArticleModel
+    modConfig
+    modFile
 )
 
 var (
-    ModuleServer       = mod.Module{Code: server}
-    ModuleClient       = mod.Module{Code: client}
-    ModuleUser         = mod.Module{Code: user}
-    ModuleRole         = mod.Module{Code: role}
-    ModuleCategory     = mod.Module{Code: category}
-    ModuleMenu         = mod.Module{Code: menu}
-    ModuleArticle      = mod.Module{Code: article}
-    ModuleArticleModel = mod.Module{Code: articleModel}
-    ModuleToken        = mod.Module{Code: token}
-    ModulePermission   = mod.Module{Code: permission}
+    ModuleServer       = mod.Module{Code: modServer}
+    ModuleClient       = mod.Module{Code: modClient}
+    ModuleUser         = mod.Module{Code: modUser}
+    ModuleRole         = mod.Module{Code: modRole}
+    ModuleCategory     = mod.Module{Code: modCategory}
+    ModuleMenu         = mod.Module{Code: modMenu}
+    ModuleConfig       = mod.Module{Code: modConfig}
+    ModuleFile         = mod.Module{Code: modFile}
+    ModuleArticle      = mod.Module{Code: modArticle}
+    ModuleArticleModel = mod.Module{Code: modArticleModel}
+    ModuleToken        = mod.Module{Code: modToken}
+    ModulePermission   = mod.Module{Code: modPermission}
 )
 
 var (
-    TypOK           = typ.Typ{Code: oK}
-    TypUnknown      = typ.Typ{Code: unknown}
-    TypAuth         = typ.Typ{Code: auth}
-    TypNotFound     = typ.Typ{Code: notFound}
-    TypInvalidState = typ.Typ{Code: invalidState}
-    TypParameter    = typ.Typ{Code: parameter}
-    TypConflict     = typ.Typ{Code: conflict}
+    TypOK           = typ.Typ{Code: typeOK}
+    TypUnknown      = typ.Typ{Code: typeUnknown}
+    TypAuth         = typ.Typ{Code: typeAuth}
+    TypNotFound     = typ.Typ{Code: typeNotFound}
+    TypInvalidState = typ.Typ{Code: typeInvalidState}
+    TypParameter    = typ.Typ{Code: typeParameter}
+    TypConflict     = typ.Typ{Code: typeConflict}
 )
 
 func Code(modCode mod.Module, typCode typ.Typ, code int64) string {

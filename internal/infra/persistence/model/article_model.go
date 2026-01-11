@@ -17,14 +17,14 @@ type ArticleModel struct {
 
 type ArticleModelJsonData struct {
     Base
-    ArticleId datatype.SafeUint64 `gorm:"index:idx_artid_modelid,priority:1"`
-    ModelId   datatype.SafeUint64 `gorm:"index:idx_artid_modelid,priority:2"`
+    ArticleID datatype.SafeUint64 `gorm:"index:idx_artid_modelid,priority:1"`
+    ModelID   datatype.SafeUint64 `gorm:"index:idx_artid_modelid,priority:2"`
     Data      datatype.JSONMap    `gorm:"type:text;"`
 }
 
 type ArticleModelSchema struct {
     Base
-    ModelId     datatype.SafeUint64 `gorm:"uniqueIndex:idx_field_key,priority:1;"`
+    ModelID     datatype.SafeUint64 `gorm:"uniqueIndex:idx_field_key,priority:1;"`
     FieldKey    string              `gorm:"type:varchar(255);not null;uniqueIndex:idx_field_key,priority:2"`
     FieldName   string              `gorm:"type:varchar(255);not null;"`
     Description string              `gorm:"type:varchar(255);not null;default:''"`
@@ -45,8 +45,8 @@ type ArticleModelSchema struct {
 
 type ArticleModelData struct {
     Base
-    ModelId     datatype.SafeUint64 `gorm:"index:idx_artid_modelid_fieldkey,priority:1"`
-    ArticleId   datatype.SafeUint64 `gorm:"index:idx_artid_modelid_fieldkey,priority:2"`
+    ModelID     datatype.SafeUint64 `gorm:"index:idx_artid_modelid_fieldkey,priority:1"`
+    ArticleID   datatype.SafeUint64 `gorm:"index:idx_artid_modelid_fieldkey,priority:2"`
     FieldName   string              `gorm:"type:varchar(255)"`
     FieldKey    string              `gorm:"type:varchar(255);index:idx_artid_modelid_fieldkey,priority:3"`
     Type        int16               `gorm:"type:smallint;not null"`

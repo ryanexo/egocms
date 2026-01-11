@@ -1,5 +1,5 @@
 package constant
 
 const (
-    RequestTraceIdKey = "Trace-Id"
+    RequestTraceIdKey = "x-trace-id"
 )

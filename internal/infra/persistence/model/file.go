@@ -4,17 +4,12 @@ import `dpcms/internal/infra/persistence/datatype`
 
 type File struct {
     Base
-    Filename      string              `gorm:"type:varchar(255);not null"`
-    Path          string              `gorm:"type:varchar(255);not null"`
-    Size          datatype.SafeUint64 `gorm:"not null"`
-    Driver        string              `gorm:"type:varchar(32);index:idx_file_driver;default:local"`
-    Sha256        string              `gorm:"type:char(64);index:idx_file_hash;not null"`
-    UploadRecords []*UploadRecords    `gorm:"foreignKey:FileID;referenceKey:ID"`
-}
-
-type UploadRecords struct {
-    Base
-    UserID      datatype.SafeUint64 `gorm:"not null"`
-    FileID      datatype.SafeUint64 `gorm:"not null"`
-    Description string              `gorm:"type:varchar(255);default:''"`
+    UserID  datatype.SafeUint64 `gorm:"index:idx_file_user_id;not null"`
+    Name    string              `gorm:"type:varchar(255);not null"`
+    Ext     string              `gorm:"type:varchar(32);not null"`
+    Path    string              `gorm:"type:varchar(255);not null"`
+    Size    datatype.SafeInt64  `gorm:"not null"`
+    IsImage datatype.BoolInt8   `gorm:"type:tinyint(1);default:0"`
+    SHA256  string              `gorm:"type:varchar(64);not null"`
+    Driver  string              `gorm:"type:varchar(32);index:idx_file_driver;default:local"`
 }

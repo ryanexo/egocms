@@ -239,7 +239,7 @@ definitions:
       modelData:
         additionalProperties: {}
         type: object
-      modelId:
+      modelID:
         type: string
       target:
         type: string
@@ -489,6 +489,21 @@ definitions:
     required:
     - id
     type: object
+  dto.FileInfo:
+    properties:
+      createdAt:
+        type: string
+      filename:
+        type: string
+      id:
+        type: string
+      size:
+        type: integer
+      updatedAt:
+        type: string
+      url:
+        type: string
+    type: object
   dto.Menu:
     properties:
       createdAt:
@@ -647,7 +662,7 @@ definitions:
         type: string
       profile:
         $ref: '#/definitions/dto.UserProfile'
-      roleId:
+      roleID:
         type: string
       roleName:
         type: string
@@ -759,6 +774,14 @@ definitions:
       nickname:
         type: string
       province:
+        type: string
+    type: object
+  erroz.Result:
+    properties:
+      code:
+        type: string
+      data: {}
+      msg:
         type: string
     type: object
   model.Category:
@@ -896,7 +919,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiArticleModel'
-      summary: 删除文章模型
+      summary: 查看文章模型
       tags:
       - 文章模型
       x-apifox-folder: 文章模型
@@ -1296,6 +1319,32 @@ paths:
       tags:
       - 分类
       x-apifox-folder: 文章分类
+  /file/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 请求参数
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/erroz.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.FileInfo'
+              type: object
+      summary: 文件上传
+      tags:
+      - 文件
+      x-apifox-folder: 文件
   /menu/create:
     post:
       consumes:

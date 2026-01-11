@@ -29,8 +29,8 @@ func (s *categoryRepo) Create(ctx context.Context, category *model.Category) err
     return s.query.Category.WithContext(ctx).Create(category)
 }
 
-func (s *categoryRepo) CreateSubtree(ctx context.Context, id uint64, parentId uint64) error {
-    return s.query.CategoryContext.WithContext(ctx).CreateSubtree(id, parentId)
+func (s *categoryRepo) CreateSubtree(ctx context.Context, id uint64, parentID uint64) error {
+    return s.query.CategoryContext.WithContext(ctx).CreateSubtree(id, parentID)
 }
 
 func (s *categoryRepo) Update(ctx context.Context, data *model.Category) (gen.ResultInfo, error) {

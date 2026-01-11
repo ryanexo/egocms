@@ -15,15 +15,23 @@ import (
 )
 
 type RoleService struct {
-    TxManager contract.TxManager
-    Casbin    *rbac.RoleCasbin
-    Repo      RoleRepo
+    txManager contract.TxManager
+    casbin    *rbac.RoleCasbin
+    repo      RoleRepo
+}
+
+func NewRoleService(txManager contract.TxManager, casbin *rbac.RoleCasbin, repo RoleRepo) *RoleService {
+    return &RoleService{
+        txManager: txManager,
+        casbin:    casbin,
+        repo:      repo,
+    }
 }
 
 func (s RoleService) Create(ctx context.Context, params dto.RoleCreateParams) (datatype.SafeUint64, error) {
     data := &model.Role{Name: params.Name, Description: params.Description}
-    err := s.TxManager.Transaction(func(tx *query.Query) error {
-        roleRepo := s.Repo.CloneWithQuery(tx)
+    err := s.txManager.Transaction(func(tx *query.Query) error {
+        roleRepo := s.repo.CloneWithQuery(tx)
         txErr := roleRepo.Create(ctx, data)
         if txErr != nil {
             return txErr
@@ -38,7 +46,7 @@ func (s RoleService) Create(ctx context.Context, params dto.RoleCreateParams) (d
             inheritList = append(inheritList, inheritID.String())
         }
         
-        enforcer := s.Casbin
+        enforcer := s.casbin
         _, txErr = enforcer.AddRolesForUser(data.ID.String(), inheritList)
         if txErr != nil {
             return txErr
@@ -55,8 +63,8 @@ func (s RoleService) Create(ctx context.Context, params dto.RoleCreateParams) (d
 }
 
 func (s RoleService) Update(ctx context.Context, params dto.RoleUpdateParams) error {
-    return s.TxManager.Transaction(func(tx *query.Query) error {
-        roleRepo := s.Repo.CloneWithQuery(tx)
+    return s.txManager.Transaction(func(tx *query.Query) error {
+        roleRepo := s.repo.CloneWithQuery(tx)
         data := &model.Role{
             Name:        params.Name,
             Description: params.Description,
@@ -71,7 +79,7 @@ func (s RoleService) Update(ctx context.Context, params dto.RoleUpdateParams) er
             return nil
         }
         
-        enforcer := s.Casbin
+        enforcer := s.casbin
         currentRoleID := params.ID.String()
         
         for _, roleID := range params.InheritList {
@@ -99,13 +107,13 @@ func (s RoleService) Update(ctx context.Context, params dto.RoleUpdateParams) er
 }
 
 func (s RoleService) Delete(ctx context.Context, id datatype.SafeUint64) error {
-    return s.TxManager.Transaction(func(tx *query.Query) error {
-        _, err := s.Repo.CloneWithQuery(tx).Delete(ctx, id)
+    return s.txManager.Transaction(func(tx *query.Query) error {
+        _, err := s.repo.CloneWithQuery(tx).Delete(ctx, id)
         if err != nil {
             return err
         }
         
-        enforcer := s.Casbin
+        enforcer := s.casbin
         _, err = enforcer.DeleteRole(id.String())
         if err != nil {
             return err
@@ -116,7 +124,7 @@ func (s RoleService) Delete(ctx context.Context, id datatype.SafeUint64) error {
 }
 
 func (s RoleService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Role, error) {
-    data, err := s.Repo.FindByID(ctx, id)
+    data, err := s.repo.FindByID(ctx, id)
     if err != nil {
         return nil, err
     }
@@ -125,7 +133,7 @@ func (s RoleService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto
 }
 
 func (s RoleService) List(ctx context.Context, params dto.RoleListParams) (*types.PaginatedResult[*dto.Role], error) {
-    data, total, err := s.Repo.List(ctx, &params)
+    data, total, err := s.repo.List(ctx, &params)
     if err != nil {
         return nil, err
     }

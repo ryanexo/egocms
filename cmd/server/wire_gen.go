@@ -16,6 +16,11 @@ import (
 	adapter4 "dpcms/internal/app/category/adapter"
 	controller3 "dpcms/internal/app/category/controller"
 	service4 "dpcms/internal/app/category/service"
+	adapter9 "dpcms/internal/app/config/adapter"
+	service9 "dpcms/internal/app/config/service"
+	adapter8 "dpcms/internal/app/file/adapter"
+	controller7 "dpcms/internal/app/file/controller"
+	service10 "dpcms/internal/app/file/service"
 	adapter3 "dpcms/internal/app/menu/adapter"
 	controller2 "dpcms/internal/app/menu/controller"
 	service3 "dpcms/internal/app/menu/service"
@@ -33,7 +38,9 @@ import (
 	"dpcms/internal/bootstrap"
 	"dpcms/internal/config"
 	"dpcms/internal/httpserver"
+	"dpcms/internal/infra/cache"
 	"dpcms/internal/infra/db"
+	"dpcms/internal/infra/file/driver/local"
 	"dpcms/internal/infra/logger"
 	"dpcms/internal/infra/persistence"
 	"dpcms/internal/infra/rbac"
@@ -84,7 +91,7 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	}
 	permissionChecker := auth2.NewPermissionChecker(roleCasbin)
 	builder := authz.NewBuilder(tokenParser, permissionChecker)
-	userController := controller.UserController{
+	userController := &controller.UserController{
 		UserSrv:  userService,
 		TokenSrv: tokenService,
 		Logger:   loggerLogger,
@@ -92,19 +99,19 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	}
 	menuRepo := adapter3.NewMenuRepo(query)
 	menuService := service3.NewMenuService(txManager, menuRepo)
-	menuController := controller2.MenuController{
+	menuController := &controller2.MenuController{
 		MenuSrv: menuService,
 		Auth:    builder,
 	}
 	categoryRepo := adapter4.NewCategoryRepo(query)
 	categoryService := service4.NewCategoryService(txManager, categoryRepo)
-	categoryController := controller3.CategoryController{
+	categoryController := &controller3.CategoryController{
 		CategorySrv: categoryService,
 		Auth:        builder,
 	}
 	roleRepo := adapter5.NewRoleRepo(query)
 	roleService := service5.NewRoleService(txManager, roleCasbin, roleRepo)
-	roleController := controller4.RoleController{
+	roleController := &controller4.RoleController{
 		RoleSrv: roleService,
 		Auth:    builder,
 	}
@@ -114,17 +121,35 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	permissionService := &service7.PermissionService{
 		Query: query,
 	}
-	articleController := controller5.ArticleController{
+	articleController := &controller5.ArticleController{
 		ArticleSrv: articleService,
 		PermSrv:    permissionService,
 		Auth:       builder,
 		Casbin:     roleCasbin,
 	}
 	articleModelService := service8.NewArticleModelService(txManager, articleModelRepo)
-	articleModelController := controller6.ArticleModelController{
+	articleModelController := &controller6.ArticleModelController{
 		ArticleModelSrv: articleModelService,
 		Auth:            builder,
 	}
+	fileRepo := adapter8.NewFileRepo(query)
+	fileConfig := config.GetFileConfig(cfg)
+	factory := local.Factory{}
+	fileDrivers := bootstrap.FileDrivers{
+		Local: factory,
+	}
+	driverRegistry, err := bootstrap.NewFileRegistry(fileConfig, fileDrivers)
+	if err != nil {
+		return nil, err
+	}
+	configRepo := adapter9.NewConfigRepo(query)
+	configCache, err := cache.NewConfigCache()
+	if err != nil {
+		return nil, err
+	}
+	configService := service9.NewConfigService(txManager, configRepo, configCache, loggerLogger)
+	fileService := service10.NewFileService(txManager, fileRepo, driverRegistry, configService, loggerLogger)
+	fileController := controller7.NewFileController(fileService)
 	controllers := &bootstrap.Controllers{
 		User:         userController,
 		Menu:         menuController,
@@ -132,6 +157,7 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		Role:         roleController,
 		Article:      articleController,
 		ArticleModel: articleModelController,
+		File:         fileController,
 	}
 	routes := bootstrap.NewRouteRegistrar(controllers)
 	launcher, err := httpserver.New(httpserverConfig, httpserverMiddleware, routes)

@@ -6,6 +6,7 @@ import (
     article `dpcms/internal/app/article/controller`
     articleModel `dpcms/internal/app/articlemodel/controller`
     category `dpcms/internal/app/category/controller`
+    file `dpcms/internal/app/file/controller`
     menu `dpcms/internal/app/menu/controller`
     role `dpcms/internal/app/role/controller`
     user `dpcms/internal/app/user/controller`
@@ -24,15 +25,17 @@ var ControllerProvider = wire.NewSet(
     wire.Struct(new(role.RoleController), "*"),
     wire.Struct(new(user.UserController), "*"),
     NewRouteRegistrar,
+    file.NewFileController,
 )
 
 type Controllers struct {
-    User         user.UserController
-    Menu         menu.MenuController
-    Category     category.CategoryController
-    Role         role.RoleController
-    Article      article.ArticleController
-    ArticleModel articleModel.ArticleModelController
+    User         *user.UserController
+    Menu         *menu.MenuController
+    Category     *category.CategoryController
+    Role         *role.RoleController
+    Article      *article.ArticleController
+    ArticleModel *articleModel.ArticleModelController
+    File         *file.FileController
 }
 
 type IController interface {

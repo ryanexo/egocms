@@ -18,5 +18,6 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
         bootstrap.RepoProvider,
         bootstrap.ServiceProvider,
         bootstrap.ControllerProvider,
+        bootstrap.FileDriverProvider,
     ))
 }

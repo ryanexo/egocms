@@ -7,11 +7,17 @@ import (
 )
 
 type Driver interface {
-    Read(ctx context.Context, path string) ([]byte, error)
-    ReadSteam(ctx context.Context, path string) (io.ReadCloser, error)
+    Name() string
     
+    Read(ctx context.Context, path string) ([]byte, error)
+    OpenReader(ctx context.Context, path string) (io.ReadCloser, error)
+    
+    // Write
+    // 文件已存在时返回fs.ErrExist
     Write(ctx context.Context, path string, data []byte) error
-    WriteStream(ctx context.Context, path string) (io.WriteCloser, error)
+    // OpenWriter
+    // 文件已存在时返回fs.ErrExist
+    OpenWriter(ctx context.Context, path string) (io.WriteCloser, error)
     
     Delete(ctx context.Context, path string) error
     
@@ -26,4 +32,8 @@ type FileInfo interface {
     Size() int64
     ModTime() time.Time
     IsDir() bool
+}
+
+type DriverFactory interface {
+    Setup(config map[string]any) (Driver, error)
 }

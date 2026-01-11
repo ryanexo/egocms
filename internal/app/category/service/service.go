@@ -16,14 +16,21 @@ import (
 )
 
 type CategoryService struct {
-    TxManager contract.TxManager
-    Repo      CategoryRepo
+    txManager contract.TxManager
+    repo      CategoryRepo
+}
+
+func NewCategoryService(txManager contract.TxManager, repo CategoryRepo) *CategoryService {
+    return &CategoryService{
+        txManager: txManager,
+        repo:      repo,
+    }
 }
 
 func (s CategoryService) Create(ctx context.Context, params dto.CategoryCreateParams) (datatype.SafeUint64, error) {
     data := assembler.ToCategoryCreateCommand(&params)
-    err := s.TxManager.Transaction(func(tx *query.Query) error {
-        catRepo := s.Repo.CloneWithQuery(tx)
+    err := s.txManager.Transaction(func(tx *query.Query) error {
+        catRepo := s.repo.CloneWithQuery(tx)
         txErr := catRepo.Create(ctx, data)
         if txErr != nil {
             return txErr
@@ -41,24 +48,24 @@ func (s CategoryService) Create(ctx context.Context, params dto.CategoryCreatePa
 }
 
 func (s CategoryService) Update(ctx context.Context, params dto.CategoryUpdateParams) error {
-    _, err := s.Repo.FindByID(ctx, params.ID.Raw())
+    _, err := s.repo.FindByID(ctx, params.ID.Raw())
     if err != nil {
         return err
     }
     data := assembler.ToCategoryUpdateCommand(&params)
-    _, err = s.Repo.Update(ctx, data)
+    _, err = s.repo.Update(ctx, data)
     return err
 }
 
 func (s CategoryService) Delete(ctx context.Context, id datatype.SafeUint64) error {
-    return s.TxManager.Transaction(func(tx *query.Query) error {
-        return s.Repo.CloneWithQuery(tx).Delete(ctx, id.Raw())
+    return s.txManager.Transaction(func(tx *query.Query) error {
+        return s.repo.CloneWithQuery(tx).Delete(ctx, id.Raw())
     })
 }
 
 func (s CategoryService) Move(ctx context.Context, id datatype.SafeUint64, target datatype.SafeUint64) error {
-    return s.TxManager.Transaction(func(tx *query.Query) error {
-        catRepo := s.Repo.CloneWithQuery(tx)
+    return s.txManager.Transaction(func(tx *query.Query) error {
+        catRepo := s.repo.CloneWithQuery(tx)
         _, err := catRepo.FindByIDWithAncestor(ctx, id.Raw(), target.Raw())
         if err == nil {
             return errno.CategoryCircular.ToError()
@@ -71,7 +78,7 @@ func (s CategoryService) Move(ctx context.Context, id datatype.SafeUint64, targe
 }
 
 func (s CategoryService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Category, error) {
-    data, err := s.Repo.FindByID(ctx, id.Raw())
+    data, err := s.repo.FindByID(ctx, id.Raw())
     if err != nil {
         return nil, err
     }
@@ -94,7 +101,7 @@ func (s CategoryService) ListNodesByParentID(ctx context.Context, id datatype.Sa
 }
 
 func (s CategoryService) List(ctx context.Context, params dto.CategoryListParams) (*types.PaginatedResult[*dto.Category], error) {
-    data, total, err := s.Repo.List(ctx, params)
+    data, total, err := s.repo.List(ctx, params)
     if err != nil {
         return nil, err
     }

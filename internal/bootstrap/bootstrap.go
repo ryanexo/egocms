@@ -2,6 +2,7 @@ package bootstrap
 
 import (
     `dpcms/internal/httpserver`
+    `dpcms/internal/infra/cache`
     `dpcms/internal/infra/db`
     `dpcms/internal/infra/encodedid`
     `dpcms/internal/infra/logger`
@@ -20,4 +21,5 @@ var BootstrapProvider = wire.NewSet(
     encodedid.New,
     persistence.NewQuery,
     persistence.NewTxManager,
+    cache.NewConfigCache,
 )
