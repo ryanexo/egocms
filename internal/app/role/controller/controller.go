@@ -37,6 +37,7 @@ func (s RoleController) Setup(server *gin.Engine) {
 
 // Create
 // @x-apifox-folder "角色"
+// @Security ApiKeyAuth
 // @Summary 创建角色
 // @Tags 角色
 // @Accept json
@@ -52,6 +53,7 @@ func (s RoleController) Create(ctx *gin.Context) {
 
 // Update
 // @x-apifox-folder "角色"
+// @Security ApiKeyAuth
 // @Summary 更新角色
 // @Tags 角色
 // @Accept json
@@ -67,6 +69,7 @@ func (s RoleController) Update(ctx *gin.Context) {
 
 // Delete
 // @x-apifox-folder "角色"
+// @Security ApiKeyAuth
 // @Summary 删除角色
 // @Tags 角色
 // @Accept json
@@ -82,6 +85,7 @@ func (s RoleController) Delete(ctx *gin.Context) {
 
 // List
 // @x-apifox-folder "角色"
+// @Security ApiKeyAuth
 // @Summary 角色列表
 // @Tags 角色
 // @Accept json
@@ -97,6 +101,7 @@ func (s RoleController) List(ctx *gin.Context) {
 
 // Detail
 // @x-apifox-folder "角色"
+// @Security ApiKeyAuth
 // @Summary 查看角色信息
 // @Tags 角色
 // @Accept json

@@ -37,6 +37,7 @@ func (s ArticleModelController) Setup(engine *gin.Engine) {
 
 // Create 创建文章模型
 // @x-apifox-folder "文章模型"
+// @Security ApiKeyAuth
 // @Summary 创建文章模型
 // @Tags    文章模型
 // @Accept  json
@@ -52,6 +53,7 @@ func (s ArticleModelController) Create(ctx *gin.Context) {
 
 // Update 更新文章模型
 // @x-apifox-folder "文章模型"
+// @Security ApiKeyAuth
 // @Summary 更新文章模型
 // @Tags    文章模型
 // @Accept  json
@@ -67,6 +69,7 @@ func (s ArticleModelController) Update(ctx *gin.Context) {
 
 // UpdateSchema 更新文章模型schema
 // @x-apifox-folder "文章模型"
+// @Security ApiKeyAuth
 // @Summary 更新文章模型Schema
 // @Tags    文章模型
 // @Accept  json
@@ -82,6 +85,7 @@ func (s ArticleModelController) UpdateSchema(ctx *gin.Context) {
 
 // Delete 删除文章模型
 // @x-apifox-folder "文章模型"
+// @Security ApiKeyAuth
 // @Summary 删除文章模型
 // @Tags    文章模型
 // @Accept  json
@@ -97,6 +101,7 @@ func (s ArticleModelController) Delete(ctx *gin.Context) {
 
 // Detail 查看文章模型
 // @x-apifox-folder "文章模型"
+// @Security ApiKeyAuth
 // @Summary 查看文章模型
 // @Tags    文章模型
 // @Accept  json
@@ -112,6 +117,7 @@ func (s ArticleModelController) Detail(ctx *gin.Context) {
 
 // List 文章模型列表
 // @x-apifox-folder "文章模型"
+// @Security ApiKeyAuth
 // @Summary 查看文章模型列表
 // @Tags    文章模型
 // @Accept  json

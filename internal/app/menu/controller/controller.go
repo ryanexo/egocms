@@ -38,6 +38,7 @@ func (s MenuController) Setup(engine *gin.Engine) {
 
 // List 菜单列表
 // @x-apifox-folder "菜单"
+// @Security ApiKeyAuth
 // @Summary 菜单列表
 // @Tags    菜单
 // @Accept  json
@@ -53,6 +54,7 @@ func (s MenuController) List(ctx *gin.Context) {
 
 // Detail 查看菜单
 // @x-apifox-folder "菜单"
+// @Security ApiKeyAuth
 // @Summary 查看菜单
 // @Tags    菜单
 // @Accept  json
@@ -68,6 +70,7 @@ func (s MenuController) Detail(ctx *gin.Context) {
 
 // Create 创建菜单
 // @x-apifox-folder "菜单"
+// @Security ApiKeyAuth
 // @Summary 创建菜单
 // @Tags    菜单
 // @Accept  json
@@ -83,6 +86,7 @@ func (s MenuController) Create(ctx *gin.Context) {
 
 // Move 移动菜单
 // @x-apifox-folder "菜单"
+// @Security ApiKeyAuth
 // @Summary 移动菜单
 // @Tags    菜单
 // @Accept  json
@@ -98,6 +102,7 @@ func (s MenuController) Move(ctx *gin.Context) {
 
 // Update 更新菜单
 // @x-apifox-folder "菜单"
+// @Security ApiKeyAuth
 // @Summary 更新菜单
 // @Tags    菜单
 // @Accept  json
@@ -114,6 +119,7 @@ func (s MenuController) Update(ctx *gin.Context) {
 
 // Delete 删除菜单
 // @x-apifox-folder "菜单"
+// @Security ApiKeyAuth
 // @Summary 删除菜单
 // @Tags    菜单
 // @Accept  json

@@ -24,6 +24,7 @@ func (s FileController) Setup(engine *gin.Engine) {
 
 // Upload
 // @x-apifox-folder "文件"
+// @Security ApiKeyAuth
 // @Summary 文件上传
 // @Tags 文件
 // @Accept mpfd

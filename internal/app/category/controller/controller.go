@@ -40,6 +40,7 @@ func (s CategoryController) Setup(engine *gin.Engine) {
 
 // List 分类列表
 // @x-apifox-folder "文章分类"
+// @Security ApiKeyAuth
 // @Summary 分类列表
 // @Tags    分类
 // @Accept  json
@@ -55,6 +56,7 @@ func (s CategoryController) List(ctx *gin.Context) {
 
 // Detail 查看分类
 // @x-apifox-folder "文章分类"
+// @Security ApiKeyAuth
 // @Summary 查看分类
 // @Tags    分类
 // @Accept  json
@@ -70,6 +72,7 @@ func (s CategoryController) Detail(ctx *gin.Context) {
 
 // Create 创建分类
 // @x-apifox-folder "文章分类"
+// @Security ApiKeyAuth
 // @Summary 创建分类
 // @Tags    分类
 // @Accept  json
@@ -85,6 +88,7 @@ func (s CategoryController) Create(ctx *gin.Context) {
 
 // Move 移动分类
 // @x-apifox-folder "文章分类"
+// @Security ApiKeyAuth
 // @Summary 移动分类
 // @Tags    分类
 // @Accept  json
@@ -100,6 +104,7 @@ func (s CategoryController) Move(ctx *gin.Context) {
 
 // Update 更新分类
 // @x-apifox-folder "文章分类"
+// @Security ApiKeyAuth
 // @Summary 更新分类
 // @Tags    分类
 // @Accept  json
@@ -116,6 +121,7 @@ func (s CategoryController) Update(ctx *gin.Context) {
 
 // Delete 删除分类
 // @x-apifox-folder "文章分类"
+// @Security ApiKeyAuth
 // @Summary 删除分类
 // @Tags    分类
 // @Accept  json

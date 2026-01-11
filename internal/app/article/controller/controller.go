@@ -49,6 +49,7 @@ func (s ArticleController) Setup(engine *gin.Engine) {
 
 // Create
 // @x-apifox-folder "文章"
+// @Security ApiKeyAuth
 // @Summary 创建文章
 // @Tags    文章
 // @Accept  json
@@ -68,6 +69,7 @@ func (s ArticleController) Create(ctx *gin.Context) {
 
 // Update
 // @x-apifox-folder "文章"
+// @Security ApiKeyAuth
 // @Summary 更新文章
 // @Tags    文章
 // @Accept  json
@@ -97,6 +99,7 @@ func (s ArticleController) createActor(ctx *gin.Context) (domain.Actor, error) {
 
 // Submit
 // @x-apifox-folder "文章"
+// @Security ApiKeyAuth
 // @Summary 提交文章
 // @Tags    文章
 // @Accept  json
@@ -118,6 +121,7 @@ func (s ArticleController) Submit(ctx *gin.Context) {
 
 // Publish
 // @x-apifox-folder "文章"
+// @Security ApiKeyAuth
 // @Summary 发布文章
 // @Tags    文章
 // @Accept  json
@@ -139,6 +143,7 @@ func (s ArticleController) Publish(ctx *gin.Context) {
 
 // Offline
 // @x-apifox-folder "文章"
+// @Security ApiKeyAuth
 // @Summary 下线文章
 // @Tags    文章
 // @Accept  json
@@ -160,6 +165,7 @@ func (s ArticleController) Offline(ctx *gin.Context) {
 
 // Reject
 // @x-apifox-folder "文章"
+// @Security ApiKeyAuth
 // @Summary 拒审文章
 // @Tags    文章
 // @Accept  json
@@ -181,6 +187,7 @@ func (s ArticleController) Reject(ctx *gin.Context) {
 
 // Republish
 // @x-apifox-folder "文章"
+// @Security ApiKeyAuth
 // @Summary 重新提交审核文章
 // @Tags    文章
 // @Accept  json
@@ -202,6 +209,7 @@ func (s ArticleController) Republish(ctx *gin.Context) {
 
 // Delete
 // @x-apifox-folder "文章"
+// @Security ApiKeyAuth
 // @Summary 删除文章
 // @Tags    文章
 // @Accept  json
@@ -217,6 +225,7 @@ func (s ArticleController) Delete(ctx *gin.Context) {
 
 // Detail
 // @x-apifox-folder "文章"
+// @Security ApiKeyAuth
 // @Summary 查看文章
 // @Tags    文章
 // @Accept  json

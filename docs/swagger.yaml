@@ -1,4 +1,3 @@
-basePath: /
 definitions:
   datatype.EnumValue:
     properties:
@@ -855,7 +854,7 @@ info:
   license:
     name: Apache 2.0
   title: EgoCms Api
-  version: "1.0"
+  version: "0.1"
 paths:
   /article-model/create:
     post:
@@ -875,6 +874,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiCreateResult'
+      security:
+      - ApiKeyAuth: []
       summary: 创建文章模型
       tags:
       - 文章模型
@@ -897,6 +898,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 删除文章模型
       tags:
       - 文章模型
@@ -919,6 +922,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiArticleModel'
+      security:
+      - ApiKeyAuth: []
       summary: 查看文章模型
       tags:
       - 文章模型
@@ -941,6 +946,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiArticleModelList'
+      security:
+      - ApiKeyAuth: []
       summary: 查看文章模型列表
       tags:
       - 文章模型
@@ -963,6 +970,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 更新文章模型
       tags:
       - 文章模型
@@ -985,6 +994,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 更新文章模型Schema
       tags:
       - 文章模型
@@ -1007,6 +1018,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiCreateResult'
+      security:
+      - ApiKeyAuth: []
       summary: 创建文章
       tags:
       - 文章
@@ -1029,6 +1042,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 删除文章
       tags:
       - 文章
@@ -1051,6 +1066,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiArticle'
+      security:
+      - ApiKeyAuth: []
       summary: 查看文章
       tags:
       - 文章
@@ -1073,6 +1090,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 下线文章
       tags:
       - 文章
@@ -1095,6 +1114,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 发布文章
       tags:
       - 文章
@@ -1117,6 +1138,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 拒审文章
       tags:
       - 文章
@@ -1139,6 +1162,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 重新提交审核文章
       tags:
       - 文章
@@ -1161,6 +1186,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 提交文章
       tags:
       - 文章
@@ -1183,6 +1210,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 更新文章
       tags:
       - 文章
@@ -1205,6 +1234,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiCreateResult'
+      security:
+      - ApiKeyAuth: []
       summary: 创建分类
       tags:
       - 分类
@@ -1227,6 +1258,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 删除分类
       tags:
       - 分类
@@ -1249,6 +1282,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiCategory'
+      security:
+      - ApiKeyAuth: []
       summary: 查看分类
       tags:
       - 分类
@@ -1271,6 +1306,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiCategoryList'
+      security:
+      - ApiKeyAuth: []
       summary: 分类列表
       tags:
       - 分类
@@ -1293,6 +1330,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 移动分类
       tags:
       - 分类
@@ -1315,6 +1354,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 更新分类
       tags:
       - 分类
@@ -1341,6 +1382,8 @@ paths:
                 data:
                   $ref: '#/definitions/dto.FileInfo'
               type: object
+      security:
+      - ApiKeyAuth: []
       summary: 文件上传
       tags:
       - 文件
@@ -1363,6 +1406,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 创建菜单
       tags:
       - 菜单
@@ -1385,6 +1430,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 删除菜单
       tags:
       - 菜单
@@ -1407,6 +1454,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiMenu'
+      security:
+      - ApiKeyAuth: []
       summary: 查看菜单
       tags:
       - 菜单
@@ -1429,6 +1478,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiMenuList'
+      security:
+      - ApiKeyAuth: []
       summary: 菜单列表
       tags:
       - 菜单
@@ -1451,6 +1502,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 移动菜单
       tags:
       - 菜单
@@ -1473,6 +1526,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 更新菜单
       tags:
       - 菜单
@@ -1495,6 +1550,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiCreateResult'
+      security:
+      - ApiKeyAuth: []
       summary: 创建角色
       tags:
       - 角色
@@ -1517,6 +1574,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 删除角色
       tags:
       - 角色
@@ -1539,6 +1598,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiRole'
+      security:
+      - ApiKeyAuth: []
       summary: 查看角色信息
       tags:
       - 角色
@@ -1561,6 +1622,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiRoleList'
+      security:
+      - ApiKeyAuth: []
       summary: 角色列表
       tags:
       - 角色
@@ -1583,6 +1646,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 更新角色
       tags:
       - 角色
@@ -1605,6 +1670,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 修改密码
       tags:
       - 用户
@@ -1627,6 +1694,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 删除用户
       tags:
       - 用户
@@ -1649,6 +1718,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiUser'
+      security:
+      - ApiKeyAuth: []
       summary: 查看用户资料
       tags:
       - 用户
@@ -1671,6 +1742,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiUserList'
+      security:
+      - ApiKeyAuth: []
       summary: 查看用户列表
       tags:
       - 用户
@@ -1693,6 +1766,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiCreateResult'
+      security:
+      - ApiKeyAuth: []
       summary: 用户登录
       tags:
       - 用户
@@ -1708,6 +1783,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 注销登录
       tags:
       - 用户
@@ -1730,6 +1807,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiCreateResult'
+      security:
+      - ApiKeyAuth: []
       summary: 用户注册
       tags:
       - 用户
@@ -1752,6 +1831,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 重置密码
       tags:
       - 用户
@@ -1774,8 +1855,15 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.ApiEmptyResult'
+      security:
+      - ApiKeyAuth: []
       summary: 更新用户资料
       tags:
       - 用户
       x-apifox-folder: 用户
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

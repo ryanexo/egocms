@@ -6,9 +6,11 @@ import (
 )
 
 // @title           EgoCms Api
-// @version         1.0
+// @version         0.1
 // @license.name    Apache 2.0
-
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 // @BasePath        /
 func main() {
     appConfig := &config.Config{}

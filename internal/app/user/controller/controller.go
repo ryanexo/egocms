@@ -85,6 +85,7 @@ func (s UserController) Login(ctx *gin.Context) {
 
 // Logout
 // @x-apifox-folder "用户"
+// @Security ApiKeyAuth
 // @Summary 注销登录
 // @Tags    用户
 // @Accept  json
@@ -104,6 +105,7 @@ func (s UserController) Logout(ctx *gin.Context) {
 
 // ChangePassword
 // @x-apifox-folder "用户"
+// @Security ApiKeyAuth
 // @Summary 修改密码
 // @Tags    用户
 // @Accept  json
@@ -123,6 +125,7 @@ func (s UserController) ChangePassword(ctx *gin.Context) {
 
 // ResetPassword
 // @x-apifox-folder "用户"
+// @Security ApiKeyAuth
 // @Summary 重置密码
 // @Tags    用户
 // @Accept  json
@@ -142,6 +145,7 @@ func (s UserController) ResetPassword(ctx *gin.Context) {
 
 // List
 // @x-apifox-folder "用户"
+// @Security ApiKeyAuth
 // @Summary 查看用户列表
 // @Tags    用户
 // @Accept  json
@@ -157,6 +161,7 @@ func (s UserController) List(ctx *gin.Context) {
 
 // Detail
 // @x-apifox-folder "用户"
+// @Security ApiKeyAuth
 // @Summary 查看用户资料
 // @Tags    用户
 // @Accept  json
@@ -172,6 +177,7 @@ func (s UserController) Detail(ctx *gin.Context) {
 
 // Delete
 // @x-apifox-folder "用户"
+// @Security ApiKeyAuth
 // @Summary 删除用户
 // @Tags    用户
 // @Accept  json
@@ -187,6 +193,7 @@ func (s UserController) Delete(ctx *gin.Context) {
 
 // UpdateProfile
 // @x-apifox-folder "用户"
+// @Security ApiKeyAuth
 // @Summary 更新用户资料
 // @Tags    用户
 // @Accept  json
