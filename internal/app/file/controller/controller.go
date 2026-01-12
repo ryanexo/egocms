@@ -18,11 +18,11 @@ import (
 
 type FileController struct {
     fileSrv *service.FileService
-    auth    *authz.Builder
+    auth    *authz.Factory
     hashID  *encodedid.HashID
 }
 
-func NewFileController(fileSrv *service.FileService, auth *authz.Builder, hashID *encodedid.HashID) *FileController {
+func NewFileController(fileSrv *service.FileService, auth *authz.Factory, hashID *encodedid.HashID) *FileController {
     return &FileController{fileSrv: fileSrv, auth: auth, hashID: hashID}
 }
 

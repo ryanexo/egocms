@@ -91,30 +91,30 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		return nil, err
 	}
 	permissionChecker := auth2.NewPermissionChecker(roleCasbin)
-	builder := authz.NewBuilder(tokenParser, permissionChecker)
+	factory := authz.NewFactory(tokenParser, permissionChecker)
 	userController := &controller.UserController{
 		UserSrv:  userService,
 		TokenSrv: tokenService,
 		Logger:   loggerLogger,
-		Auth:     builder,
+		Auth:     factory,
 	}
 	menuRepo := adapter3.NewMenuRepo(query)
 	menuService := service3.NewMenuService(txManager, menuRepo)
 	menuController := &controller2.MenuController{
 		MenuSrv: menuService,
-		Auth:    builder,
+		Auth:    factory,
 	}
 	categoryRepo := adapter4.NewCategoryRepo(query)
 	categoryService := service4.NewCategoryService(txManager, categoryRepo)
 	categoryController := &controller3.CategoryController{
 		CategorySrv: categoryService,
-		Auth:        builder,
+		Auth:        factory,
 	}
 	roleRepo := adapter5.NewRoleRepo(query)
 	roleService := service5.NewRoleService(txManager, roleCasbin, roleRepo)
 	roleController := &controller4.RoleController{
 		RoleSrv: roleService,
-		Auth:    builder,
+		Auth:    factory,
 	}
 	articleRepo := adapter6.NewArticleRepo(query)
 	articleModelRepo := adapter7.NewArticleModelRepo(query)
@@ -125,19 +125,19 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	articleController := &controller5.ArticleController{
 		ArticleSrv: articleService,
 		PermSrv:    permissionService,
-		Auth:       builder,
+		Auth:       factory,
 		Casbin:     roleCasbin,
 	}
 	articleModelService := service8.NewArticleModelService(txManager, articleModelRepo)
 	articleModelController := &controller6.ArticleModelController{
 		ArticleModelSrv: articleModelService,
-		Auth:            builder,
+		Auth:            factory,
 	}
 	fileRepo := adapter8.NewFileRepo(query)
 	fileConfig := config.GetFileConfig(cfg)
-	factory := local.Factory{}
+	localFactory := local.Factory{}
 	fileDrivers := bootstrap.FileDrivers{
-		Local: factory,
+		Local: localFactory,
 	}
 	driverRegistry, err := bootstrap.NewFileRegistry(fileConfig, fileDrivers)
 	if err != nil {
@@ -156,7 +156,7 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	if err != nil {
 		return nil, err
 	}
-	fileController := controller7.NewFileController(fileService, builder, hashID)
+	fileController := controller7.NewFileController(fileService, factory, hashID)
 	controllers := &bootstrap.Controllers{
 		User:         userController,
 		Menu:         menuController,

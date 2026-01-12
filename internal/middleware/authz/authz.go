@@ -7,7 +7,7 @@ type Factory struct {
     perm  PermissionChecker
 }
 
-func NewBuilder(tokenParser TokenParser, permChecker PermissionChecker) *Factory {
+func NewFactory(tokenParser TokenParser, permChecker PermissionChecker) *Factory {
     return &Factory{token: tokenParser, perm: permChecker}
 }
 

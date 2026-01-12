@@ -23,7 +23,7 @@ var MiddlewareProvider = wire.NewSet(
     log.New,
     cors.New,
     reqtrace.New,
-    authz.NewBuilder,
+    authz.NewFactory,
     tokenParser.NewTokenParser,
     permChecker.NewPermissionChecker,
 )
