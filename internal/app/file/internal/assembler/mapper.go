@@ -13,8 +13,16 @@ func ToFileInfoDTO(data *model.File, url string) *dto.FileInfo {
             CreatedAt: data.CreatedAt,
             UpdatedAt: data.UpdatedAt,
         },
-        Filename: data.Name,
-        URL:      url,
-        Size:     data.Size,
+        Name: data.OriginalName,
+        URL:  url,
+        Size: data.Size,
+    }
+}
+
+func ToFileMetaDTO(data *model.File) *dto.FileMeta {
+    return &dto.FileMeta{
+        Name:    data.OriginalName,
+        Size:    data.Size,
+        IsImage: data.IsImage,
     }
 }

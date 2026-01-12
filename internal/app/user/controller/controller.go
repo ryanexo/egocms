@@ -75,11 +75,11 @@ func (s UserController) Login(ctx *gin.Context) {
         if err != nil {
             return nil, err
         }
-        token, err := s.TokenSrv.Create(u.ID)
+        tokenStr, err := s.TokenSrv.Create(u.ID)
         if err != nil {
             return nil, err
         }
-        return dto.UserAuthnResult{User: u, Token: token}, nil
+        return dto.UserAuthnResult{User: u, Token: tokenStr}, nil
     })
 }
 

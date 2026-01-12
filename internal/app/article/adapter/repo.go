@@ -18,43 +18,43 @@ type articleRepo struct {
 var _ service.ArticleRepo = (*articleRepo)(nil)
 
 func NewArticleRepo(persist *query.Query) service.ArticleRepo {
-    return &articleRepo{persist}
+    return articleRepo{persist}
 }
 
-func (r *articleRepo) CloneWithQuery(q *query.Query) service.ArticleRepo {
+func (s articleRepo) CloneWithQuery(q *query.Query) service.ArticleRepo {
     return NewArticleRepo(q)
 }
 
-func (r *articleRepo) Create(ctx context.Context, article *model.Article) error {
-    return r.query.Article.WithContext(ctx).Create(article)
+func (s articleRepo) Create(ctx context.Context, article *model.Article) error {
+    return s.query.Article.WithContext(ctx).Create(article)
 }
 
-func (r *articleRepo) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
-    artModel := r.query.Article
-    schemaModel := r.query.ArticleModelSchema
+func (s articleRepo) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
+    artModel := s.query.Article
+    schemaModel := s.query.ArticleModelSchema
     return artModel.WithContext(ctx).
         Preload(
-            artModel.Keywords.Select(r.query.ArticleKeywords.Keyword),
-            artModel.ModelData.Select(r.query.ArticleModelJsonData.Data),
+            artModel.Keywords.Select(s.query.ArticleKeywords.Keyword),
+            artModel.ModelData.Select(s.query.ArticleModelJsonData.Data),
             artModel.ModelSchema.Select(
                 schemaModel.Type,
                 schemaModel.FieldName,
                 schemaModel.FieldKey,
                 schemaModel.Description,
             ),
-            artModel.Author.Select(r.query.UserProfile.Nickname),
-            artModel.Category.Select(r.query.Category.Name),
+            artModel.Author.Select(s.query.UserProfile.Nickname),
+            artModel.Category.Select(s.query.Category.Name),
         ).
         Where(artModel.ID.Eq(id.Raw())).
         First()
 }
 
-func (r *articleRepo) FindByIDWithContent(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
-    artData, err := r.FindByID(ctx, id)
+func (s articleRepo) FindByIDWithContent(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
+    artData, err := s.FindByID(ctx, id)
     if err != nil {
         return nil, err
     }
-    content, err := r.query.ArticleContent.WithContext(ctx).Where(r.query.ArticleContent.ArticleID.Eq(id.Raw())).First()
+    content, err := s.query.ArticleContent.WithContext(ctx).Where(s.query.ArticleContent.ArticleID.Eq(id.Raw())).First()
     if err != nil {
         return nil, err
     }
@@ -62,29 +62,29 @@ func (r *articleRepo) FindByIDWithContent(ctx context.Context, id datatype.SafeU
     return artData, nil
 }
 
-func (r *articleRepo) FindByIDWithoutPreload(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
-    dao := r.query.Article
+func (s articleRepo) FindByIDWithoutPreload(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
+    dao := s.query.Article
     return dao.WithContext(ctx).Where(dao.ID.Eq(id.Raw())).First()
 }
 
-func (r *articleRepo) Update(ctx context.Context, article *model.Article) error {
-    _, err := r.query.Article.WithContext(ctx).Where(r.query.Article.ID.Eq(article.ID.Raw())).Updates(article)
+func (s articleRepo) Update(ctx context.Context, article *model.Article) error {
+    _, err := s.query.Article.WithContext(ctx).Where(s.query.Article.ID.Eq(article.ID.Raw())).Updates(article)
     return err
 }
 
-func (r *articleRepo) UpdateStatus(ctx context.Context, id datatype.SafeUint64, status int8) (gen.ResultInfo, error) {
-    dao := r.query.Article
+func (s articleRepo) UpdateStatus(ctx context.Context, id datatype.SafeUint64, status int8) (gen.ResultInfo, error) {
+    dao := s.query.Article
     return dao.WithContext(ctx).Where(dao.ID.Eq(id.Raw())).Update(dao.Status, status)
 }
 
-func (r *articleRepo) UpdateContent(ctx context.Context, id datatype.SafeUint64, content string) error {
-    contentModel := r.query.ArticleContent
+func (s articleRepo) UpdateContent(ctx context.Context, id datatype.SafeUint64, content string) error {
+    contentModel := s.query.ArticleContent
     _, err := contentModel.WithContext(ctx).Where(contentModel.ArticleID.Eq(id.Raw())).Update(contentModel.Content, content)
     return err
 }
 
-func (r *articleRepo) ReplaceKeywords(ctx context.Context, id datatype.SafeUint64, keywords []string) error {
-    err := r.DeleteKeywords(ctx, id)
+func (s articleRepo) ReplaceKeywords(ctx context.Context, id datatype.SafeUint64, keywords []string) error {
+    err := s.DeleteKeywords(ctx, id)
     if err != nil {
         return err
     }
@@ -94,23 +94,23 @@ func (r *articleRepo) ReplaceKeywords(ctx context.Context, id datatype.SafeUint6
         for i := range keywords {
             keywordSlice[i] = &model.ArticleKeywords{ArticleID: id, Keyword: keywords[i]}
         }
-        return r.query.ArticleKeywords.WithContext(ctx).Create(keywordSlice...)
+        return s.query.ArticleKeywords.WithContext(ctx).Create(keywordSlice...)
     }
     
     return nil
 }
 
-func (r *articleRepo) DeleteArticle(ctx context.Context, id datatype.SafeUint64) error {
-    _, err := r.query.Article.WithContext(ctx).Where(r.query.Article.ID.Eq(id.Raw())).Delete()
+func (s articleRepo) DeleteArticle(ctx context.Context, id datatype.SafeUint64) error {
+    _, err := s.query.Article.WithContext(ctx).Where(s.query.Article.ID.Eq(id.Raw())).Delete()
     return err
 }
 
-func (r *articleRepo) DeleteContent(ctx context.Context, id datatype.SafeUint64) error {
-    _, err := r.query.ArticleContent.WithContext(ctx).Where(r.query.ArticleContent.ArticleID.Eq(id.Raw())).Delete()
+func (s articleRepo) DeleteContent(ctx context.Context, id datatype.SafeUint64) error {
+    _, err := s.query.ArticleContent.WithContext(ctx).Where(s.query.ArticleContent.ArticleID.Eq(id.Raw())).Delete()
     return err
 }
 
-func (r *articleRepo) DeleteKeywords(ctx context.Context, id datatype.SafeUint64) error {
-    _, err := r.query.ArticleKeywords.WithContext(ctx).Unscoped().Where(r.query.ArticleKeywords.ArticleID.Eq(id.Raw())).Delete()
+func (s articleRepo) DeleteKeywords(ctx context.Context, id datatype.SafeUint64) error {
+    _, err := s.query.ArticleKeywords.WithContext(ctx).Unscoped().Where(s.query.ArticleKeywords.ArticleID.Eq(id.Raw())).Delete()
     return err
 }

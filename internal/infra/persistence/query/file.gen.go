@@ -32,7 +32,7 @@ func newFile(db *gorm.DB, opts ...gen.DOOption) file {
 	_file.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_file.DeletedAt = field.NewField(tableName, "deleted_at")
 	_file.UserID = field.NewUint64(tableName, "user_id")
-	_file.Name = field.NewString(tableName, "name")
+	_file.OriginalName = field.NewString(tableName, "original_name")
 	_file.Ext = field.NewString(tableName, "ext")
 	_file.Path = field.NewString(tableName, "path")
 	_file.Size = field.NewInt64(tableName, "size")
@@ -48,19 +48,19 @@ func newFile(db *gorm.DB, opts ...gen.DOOption) file {
 type file struct {
 	fileDo fileDo
 
-	ALL       field.Asterisk
-	ID        field.Uint64
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	DeletedAt field.Field
-	UserID    field.Uint64
-	Name      field.String
-	Ext       field.String
-	Path      field.String
-	Size      field.Int64
-	IsImage   field.Int8
-	SHA256    field.String
-	Driver    field.String
+	ALL          field.Asterisk
+	ID           field.Uint64
+	CreatedAt    field.Time
+	UpdatedAt    field.Time
+	DeletedAt    field.Field
+	UserID       field.Uint64
+	OriginalName field.String
+	Ext          field.String
+	Path         field.String
+	Size         field.Int64
+	IsImage      field.Int8
+	SHA256       field.String
+	Driver       field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -82,7 +82,7 @@ func (f *file) updateTableName(table string) *file {
 	f.UpdatedAt = field.NewTime(table, "updated_at")
 	f.DeletedAt = field.NewField(table, "deleted_at")
 	f.UserID = field.NewUint64(table, "user_id")
-	f.Name = field.NewString(table, "name")
+	f.OriginalName = field.NewString(table, "original_name")
 	f.Ext = field.NewString(table, "ext")
 	f.Path = field.NewString(table, "path")
 	f.Size = field.NewInt64(table, "size")
@@ -119,7 +119,7 @@ func (f *file) fillFieldMap() {
 	f.fieldMap["updated_at"] = f.UpdatedAt
 	f.fieldMap["deleted_at"] = f.DeletedAt
 	f.fieldMap["user_id"] = f.UserID
-	f.fieldMap["name"] = f.Name
+	f.fieldMap["original_name"] = f.OriginalName
 	f.fieldMap["ext"] = f.Ext
 	f.fieldMap["path"] = f.Path
 	f.fieldMap["size"] = f.Size

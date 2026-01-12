@@ -2,7 +2,7 @@ package encodedid
 
 import `github.com/speps/go-hashids`
 
-type EncodedID struct {
+type HashID struct {
     hd *hashids.HashID
 }
 
@@ -10,7 +10,7 @@ type Config struct {
     Salt string `json:"salt" yaml:"salt"`
 }
 
-func New(config Config) (*EncodedID, error) {
+func New(config Config) (*HashID, error) {
     hashData := hashids.NewData()
     hashData.Salt = config.Salt
     hashData.MinLength = 16
@@ -18,12 +18,12 @@ func New(config Config) (*EncodedID, error) {
     if err != nil {
         return nil, err
     }
-    return &EncodedID{
+    return &HashID{
         hd: hd,
     }, nil
 }
 
-func (h *EncodedID) EncodeUint64(numbers []uint64) (string, error) {
+func (h *HashID) EncodeUint64(numbers []uint64) (string, error) {
     ints := make([]int64, 0, len(numbers)*2)
     for _, number := range numbers {
         ints = append(ints, int64(number>>32), int64(number&0xffffffff))
@@ -31,7 +31,7 @@ func (h *EncodedID) EncodeUint64(numbers []uint64) (string, error) {
     return h.hd.EncodeInt64(ints)
 }
 
-func (h *EncodedID) DecodeUint64(hash string) ([]uint64, error) {
+func (h *HashID) DecodeUint64(hash string) ([]uint64, error) {
     decResult, err := h.hd.DecodeInt64WithError(hash)
     if err != nil {
         return nil, err

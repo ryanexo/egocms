@@ -26,3 +26,11 @@ func (i *BoolInt8) UnmarshalJSON(s []byte) error {
 func (i BoolInt8) Raw() int8 {
     return int8(i)
 }
+
+func (i *BoolInt8) FromBool(b bool) {
+    if b {
+        *i = 1
+    } else {
+        *i = 0
+    }
+}

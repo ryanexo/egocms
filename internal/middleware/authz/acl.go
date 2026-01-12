@@ -4,8 +4,8 @@ import (
     `fmt`
     `strings`
     
-    `dpcms/internal/erroz`
     `dpcms/internal/constant`
+    `dpcms/internal/erroz`
     
     `github.com/armon/go-radix`
     `github.com/gin-gonic/gin`
@@ -42,13 +42,13 @@ func (s acl) Middleware() gin.HandlerFunc {
         
         credential := ctx.GetHeader("Authorization")
         if credential == "" {
-            erroz.Unauthorized.WriteWithAbort(ctx)
+            ErrAuthorized.WriteWithAbort(ctx)
             return
         }
         
         token, found := strings.CutPrefix(credential, "Bearer ")
         if !found {
-            erroz.Unauthorized.WriteWithAbort(ctx)
+            ErrAuthorized.WriteWithAbort(ctx)
             return
         }
         
@@ -70,15 +70,15 @@ func (s acl) Middleware() gin.HandlerFunc {
             permStr, ok := perm.(string)
             if !ok {
                 err = fmt.Errorf("permission not found for %s", permStr)
-                erroz.Unauthorized.Wrap(err).WriteWithAbort(ctx)
+                ErrAccessDenied.Wrap(err).WriteWithAbort(ctx)
                 return
             }
             
             if pass, err := s.perm.Check(ctx, user.Role(), s.object, permStr); err != nil {
-                erroz.ResolveWithAbort(ctx, err)
+                ErrAccessDenied.Wrap(err).WriteWithAbort(ctx)
                 return
             } else if !pass {
-                erroz.Unauthorized.WriteWithAbort(ctx)
+                ErrAccessDenied.WriteWithAbort(ctx)
                 return
             }
         }

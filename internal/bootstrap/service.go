@@ -25,5 +25,6 @@ var ServiceProvider = wire.NewSet(
     token.NewTokenService,
     config.NewConfigService,
     fileService.NewFileService,
+    fileService.NewFileDriverService,
     wire.Struct(new(permission.PermissionService), "*"),
 )

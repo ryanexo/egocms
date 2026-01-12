@@ -837,6 +837,84 @@ const docTemplate = `{
                 "x-apifox-folder": "文章分类"
             }
         },
+        "/file/delete": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "文件"
+                ],
+                "summary": "文件删除",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ResourceID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.ApiEmptyResult"
+                        }
+                    }
+                },
+                "x-apifox-folder": "文件"
+            }
+        },
+        "/file/download": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "文件"
+                ],
+                "summary": "文件下载",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ResourceID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    }
+                },
+                "x-apifox-folder": "文件"
+            }
+        },
         "/file/upload": {
             "post": {
                 "security": [
@@ -1473,11 +1551,6 @@ const docTemplate = `{
         },
         "/user/login": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1540,11 +1613,6 @@ const docTemplate = `{
         },
         "/user/register": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -2404,10 +2472,10 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
-                "filename": {
+                "id": {
                     "type": "string"
                 },
-                "id": {
+                "name": {
                     "type": "string"
                 },
                 "size": {

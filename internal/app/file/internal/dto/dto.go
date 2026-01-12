@@ -8,13 +8,19 @@ import (
 )
 
 type FileSaveCommand struct {
-    Filename string
-    Data     io.Reader
+    Name string
+    Data io.Reader
 }
 
 type FileInfo struct {
     types.Base
-    Filename string             `json:"filename"`
-    URL      string             `json:"url"`
-    Size     datatype.SafeInt64 `json:"size"`
+    Name string             `json:"name"`
+    URL  string             `json:"url"`
+    Size datatype.SafeInt64 `json:"size"`
+}
+
+type FileMeta struct {
+    Name    string
+    Size    datatype.SafeInt64
+    IsImage datatype.BoolInt8
 }
