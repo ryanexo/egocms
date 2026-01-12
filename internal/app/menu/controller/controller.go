@@ -12,7 +12,7 @@ import (
 
 type MenuController struct {
     MenuSrv *service.MenuService
-    Auth    *authz.Builder
+    Auth    *authz.Factory
 }
 
 func (s MenuController) Setup(engine *gin.Engine) {

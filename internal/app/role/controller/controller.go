@@ -12,7 +12,7 @@ import (
 
 type RoleController struct {
     RoleSrv *service.RoleService
-    Auth    *authz.Builder
+    Auth    *authz.Factory
 }
 
 func (s RoleController) Setup(server *gin.Engine) {

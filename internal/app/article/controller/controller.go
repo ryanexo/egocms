@@ -17,7 +17,7 @@ import (
 type ArticleController struct {
     ArticleSrv *service.ArticleService
     PermSrv    *permissionSrv.PermissionService
-    Auth       *authz.Builder
+    Auth       *authz.Factory
     Casbin     *rbac.RoleCasbin
 }
 

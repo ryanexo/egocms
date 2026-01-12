@@ -1,7 +1,7 @@
 package domain
 
 import (
-    `dpcms/internal/app/article/errno`
+    `dpcms/internal/app/article/internal/errno`
 )
 
 type Status struct {

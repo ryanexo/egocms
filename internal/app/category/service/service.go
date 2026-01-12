@@ -4,9 +4,9 @@ import (
     "context"
     `errors`
     
-    `dpcms/internal/app/category/errno`
     `dpcms/internal/app/category/internal/assembler`
     `dpcms/internal/app/category/internal/dto`
+    `dpcms/internal/app/category/internal/errno`
     `dpcms/internal/infra/persistence/contract`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/query`

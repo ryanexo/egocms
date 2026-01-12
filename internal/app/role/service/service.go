@@ -3,9 +3,9 @@ package service
 import (
     `context`
     
-    `dpcms/internal/app/role/errno`
     roleAssembler `dpcms/internal/app/role/internal/assembler`
     `dpcms/internal/app/role/internal/dto`
+    `dpcms/internal/app/role/internal/errno`
     `dpcms/internal/infra/persistence/contract`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/infra/persistence/model`
