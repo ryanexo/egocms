@@ -3,9 +3,9 @@ package service
 import (
     "context"
     
-    `dpcms/internal/app/user/errno`
     `dpcms/internal/app/user/internal/assembler`
     `dpcms/internal/app/user/internal/dto`
+    `dpcms/internal/app/user/internal/errno`
     "dpcms/internal/infra/password"
     `dpcms/internal/infra/persistence/contract`
     "dpcms/internal/infra/persistence/datatype"

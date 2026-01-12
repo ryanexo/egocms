@@ -5,8 +5,8 @@ import (
     `errors`
     `time`
     
-    `dpcms/internal/app/token/errno`
     `dpcms/internal/app/token/internal/dto`
+    `dpcms/internal/app/token/internal/errno`
     user `dpcms/internal/app/user/service`
     `dpcms/internal/config`
     `dpcms/internal/infra/persistence/datatype`
