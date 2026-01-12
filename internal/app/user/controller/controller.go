@@ -19,7 +19,7 @@ type UserController struct {
     UserSrv  *user.UserService
     TokenSrv *token.TokenService
     Logger   *logger.Logger
-    Auth     *authz.Builder
+    Auth     *authz.Factory
 }
 
 func (s UserController) Setup(server *gin.Engine) {

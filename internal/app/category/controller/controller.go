@@ -14,7 +14,7 @@ import (
 
 type CategoryController struct {
     CategorySrv *service.CategoryService
-    Auth        *authz.Builder
+    Auth        *authz.Factory
 }
 
 func (s CategoryController) Setup(engine *gin.Engine) {

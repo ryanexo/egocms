@@ -12,7 +12,7 @@ import (
 
 type ArticleModelController struct {
     ArticleModelSrv *articleModelSrv.ArticleModelService
-    Auth            *authz.Builder
+    Auth            *authz.Factory
 }
 
 func (s ArticleModelController) Setup(engine *gin.Engine) {
