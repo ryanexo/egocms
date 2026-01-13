@@ -41,7 +41,7 @@ func (s localStorage) OpenReader(_ context.Context, path string) (io.ReadCloser,
 }
 
 func (s localStorage) Write(_ context.Context, path string, data []byte) error {
-    return s.operateFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644, func(obj *os.File) error {
+    return s.operateFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o644, func(obj *os.File) error {
         _, err := obj.Write(data)
         return err
     })
@@ -52,7 +52,7 @@ func (s localStorage) OpenWriter(_ context.Context, path string) (io.WriteCloser
     if err != nil {
         return nil, err
     }
-    f, err := os.OpenFile(fullPath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+    f, err := os.OpenFile(fullPath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o644)
     if err != nil {
         return nil, err
     }
@@ -83,11 +83,11 @@ func (s localStorage) Stat(_ context.Context, path string) (file.FileInfo, error
 func (s localStorage) getFullPath(targetPath string) (string, error) {
     fullPath := path.Join(s.savePath, "./", targetPath)
     dir := path.Dir(fullPath)
-    err := os.MkdirAll(dir, 0755)
+    err := os.MkdirAll(dir, 0o755)
     if err != nil {
         return "", err
     }
-    err = os.Chmod(dir, 0755)
+    err = os.Chmod(dir, 0o755)
     if err != nil {
         return "", err
     }

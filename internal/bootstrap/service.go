@@ -4,11 +4,11 @@ import (
     article `dpcms/internal/app/article/service`
     articlemodel `dpcms/internal/app/articlemodel/service`
     category `dpcms/internal/app/category/service`
-    config `dpcms/internal/app/config/service`
     fileService `dpcms/internal/app/file/service`
     menu `dpcms/internal/app/menu/service`
     permission `dpcms/internal/app/permission/service`
     role `dpcms/internal/app/role/service`
+    config `dpcms/internal/app/setting/service`
     token `dpcms/internal/app/token/service`
     user `dpcms/internal/app/user/service`
     
@@ -23,8 +23,8 @@ var ServiceProvider = wire.NewSet(
     user.NewUserService,
     role.NewRoleService,
     token.NewTokenService,
-    config.NewConfigService,
+    config.NewSettingService,
     fileService.NewFileService,
     fileService.NewFileDriverService,
-    wire.Struct(new(permission.PermissionService), "*"),
+    permission.NewPermissionService,
 )

@@ -1,4 +1,4 @@
-package auth
+package adapter
 
 import (
     `dpcms/internal/infra/persistence/model`

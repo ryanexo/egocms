@@ -30,7 +30,7 @@ func NewArticleService(txManager contract.TxManager, articleRepo ArticleRepo, ar
 }
 
 func (s ArticleService) Create(ctx context.Context, user *model.User, params dto.ArticleCreateParams) (datatype.SafeUint64, error) {
-    artData := assembler.BuildArticleCreateCommand(user, &params)
+    artData := assembler.ToArticleCreateCommand(user, &params)
     
     content := domain.NewContent(artData.Description, artData.Content.Content)
     artData.Description = content.Description()
@@ -50,7 +50,7 @@ func (s ArticleService) Create(ctx context.Context, user *model.User, params dto
                 return err
             }
             
-            jsonData, modelData, err := s.buildArticleModelData(artData.ID, *artData.ModelID, schema, params.ModelData)
+            jsonData, modelData, err := s.ToArticleModelData(artData.ID, *artData.ModelID, schema, params.ModelData)
             if err != nil {
                 return err
             }
@@ -79,7 +79,7 @@ func (s ArticleService) FindByID(ctx context.Context, id datatype.SafeUint64) (*
     if err != nil {
         return nil, err
     }
-    return assembler.BuildArticleDTO(artData), nil
+    return assembler.ToArticleDTO(artData), nil
 }
 
 func (s ArticleService) FindByIDWithContent(ctx context.Context, id datatype.SafeUint64) (*dto.Article, error) {
@@ -87,7 +87,7 @@ func (s ArticleService) FindByIDWithContent(ctx context.Context, id datatype.Saf
     if err != nil {
         return nil, err
     }
-    return assembler.BuildArticleDTO(artData), nil
+    return assembler.ToArticleDTO(artData), nil
 }
 
 func (s ArticleService) Update(ctx context.Context, params dto.ArticleUpdateParams) error {
@@ -132,7 +132,7 @@ func (s ArticleService) Update(ctx context.Context, params dto.ArticleUpdatePara
                 return txErr
             }
             
-            artJsonData, artTypedData, txErr := s.buildArticleModelData(artData.ID, *artData.ModelID, schema, params.ModelData)
+            artJsonData, artTypedData, txErr := s.ToArticleModelData(artData.ID, *artData.ModelID, schema, params.ModelData)
             if txErr != nil {
                 return txErr
             }
@@ -188,7 +188,7 @@ func (s ArticleService) ChangeStatus(ctx context.Context, id datatype.SafeUint64
     return err
 }
 
-func (s ArticleService) buildArticleModelData(artID datatype.SafeUint64, modelID datatype.SafeUint64, allSchema []*model.ArticleModelSchema, data map[string]any) (*model.ArticleModelJsonData, []*model.ArticleModelData, error) {
+func (s ArticleService) ToArticleModelData(artID datatype.SafeUint64, modelID datatype.SafeUint64, allSchema []*model.ArticleModelSchema, data map[string]any) (*model.ArticleModelJsonData, []*model.ArticleModelData, error) {
     jsonResult := &model.ArticleModelJsonData{
         ArticleID: artID,
         ModelID:   modelID,

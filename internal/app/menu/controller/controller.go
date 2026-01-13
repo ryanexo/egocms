@@ -11,12 +11,19 @@ import (
 )
 
 type MenuController struct {
-    MenuSrv *service.MenuService
-    Auth    *authz.Factory
+    menuSrv *service.MenuService
+    auth    *authz.Factory
+}
+
+func NewMenuController(
+    menuSrv *service.MenuService,
+    auth *authz.Factory,
+) *MenuController {
+    return &MenuController{menuSrv: menuSrv, auth: auth}
 }
 
 func (s MenuController) Setup(engine *gin.Engine) {
-    acl := s.Auth.AccessControl("menu")
+    acl := s.auth.AccessControl("menu")
     
     g := engine.Group("/menu", acl.Middleware())
     g.POST("/list", s.List)
@@ -48,7 +55,7 @@ func (s MenuController) Setup(engine *gin.Engine) {
 // @Router  /menu/list [post]
 func (s MenuController) List(ctx *gin.Context) {
     httpbinding.BindJSON[dto.MenuListQueryParams](ctx, func(params dto.MenuListQueryParams) (any, error) {
-        return s.MenuSrv.List(ctx, params)
+        return s.menuSrv.List(ctx, params)
     })
 }
 
@@ -64,7 +71,7 @@ func (s MenuController) List(ctx *gin.Context) {
 // @Router  /menu/detail [post]
 func (s MenuController) Detail(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
-        return s.MenuSrv.FindByID(ctx, params.ID)
+        return s.menuSrv.FindByID(ctx, params.ID)
     })
 }
 
@@ -80,7 +87,7 @@ func (s MenuController) Detail(ctx *gin.Context) {
 // @Router  /menu/create [post]
 func (s MenuController) Create(ctx *gin.Context) {
     httpbinding.BindJSON[dto.MenuCreateParams](ctx, func(params dto.MenuCreateParams) (any, error) {
-        return s.MenuSrv.Create(ctx, params)
+        return s.menuSrv.Create(ctx, params)
     })
 }
 
@@ -96,7 +103,7 @@ func (s MenuController) Create(ctx *gin.Context) {
 // @Router  /menu/move [post]
 func (s MenuController) Move(ctx *gin.Context) {
     httpbinding.BindJSON[dto.MenuMoveParams](ctx, func(params dto.MenuMoveParams) (any, error) {
-        return nil, s.MenuSrv.Move(ctx, params.ID, params.TargetID)
+        return nil, s.menuSrv.Move(ctx, params.ID, params.TargetID)
     })
 }
 
@@ -112,7 +119,7 @@ func (s MenuController) Move(ctx *gin.Context) {
 // @Router  /menu/update [post]
 func (s MenuController) Update(ctx *gin.Context) {
     httpbinding.BindJSON[dto.MenuUpdateParams](ctx, func(params dto.MenuUpdateParams) (any, error) {
-        err := s.MenuSrv.Update(ctx, params)
+        err := s.menuSrv.Update(ctx, params)
         return nil, err
     })
 }
@@ -129,7 +136,7 @@ func (s MenuController) Update(ctx *gin.Context) {
 // @Router  /menu/delete [post]
 func (s MenuController) Delete(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
-        err := s.MenuSrv.Delete(ctx, params.ID)
+        err := s.menuSrv.Delete(ctx, params.ID)
         return nil, err
     })
 }

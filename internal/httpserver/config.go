@@ -1,16 +1,16 @@
 package httpserver
 
 type SSLConfig struct {
-    KeyFile  string `json:"key_file,omitempty"`
-    CertFile string `json:"cert_file,omitempty"`
+    KeyFile  string `json:"key_file"`
+    CertFile string `json:"cert_file"`
 }
 
 type Config struct {
-    MaxMemory uint64     `json:"maxMemory,omitempty" yaml:"maxMemory,omitempty"`
-    Debug     bool       `json:"debug,omitempty" yaml:"debug,omitempty"`
-    Host      string     `json:"host,omitempty" yaml:"host,omitempty"`
-    Port      uint16     `json:"port,omitempty" yaml:"port,omitempty"`
-    Trust     []string   `json:"trust,omitempty"  yaml:"trust,omitempty"`
-    SSL       *SSLConfig `json:"ssl"  yaml:"ssl,omitempty"`
-    StaticDir string     `json:"staticDir,omitempty"  yaml:"staticDir,omitempty"`
+    MaxMemory uint64     `json:"maxMemory" yaml:"maxMemory"`
+    Debug     bool       `json:"debug" yaml:"debug"`
+    Host      string     `json:"host" yaml:"host"`
+    Port      uint16     `json:"port" yaml:"port"`
+    Trust     []string   `json:"trust"  yaml:"trust"`
+    SSL       *SSLConfig `json:"ssl"  yaml:"ssl"`
+    StaticDir string     `json:"staticDir"  yaml:"staticDir"`
 }

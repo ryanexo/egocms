@@ -11,12 +11,19 @@ import (
 )
 
 type RoleController struct {
-    RoleSrv *service.RoleService
-    Auth    *authz.Factory
+    roleSrv *service.RoleService
+    auth    *authz.Factory
+}
+
+func NewRoleController(
+    roleSrv *service.RoleService,
+    auth *authz.Factory,
+) *RoleController {
+    return &RoleController{roleSrv: roleSrv, auth: auth}
 }
 
 func (s RoleController) Setup(server *gin.Engine) {
-    acl := s.Auth.AccessControl("role")
+    acl := s.auth.AccessControl("role")
     
     g := server.Group("/role", acl.Middleware())
     g.POST("/create", s.Create)
@@ -47,7 +54,7 @@ func (s RoleController) Setup(server *gin.Engine) {
 // @Router /role/create [post]
 func (s RoleController) Create(ctx *gin.Context) {
     httpbinding.BindJSON[dto.RoleCreateParams](ctx, func(params dto.RoleCreateParams) (any, error) {
-        return s.RoleSrv.Create(ctx, params)
+        return s.roleSrv.Create(ctx, params)
     })
 }
 
@@ -63,7 +70,7 @@ func (s RoleController) Create(ctx *gin.Context) {
 // @Router /role/update [post]
 func (s RoleController) Update(ctx *gin.Context) {
     httpbinding.BindJSON[dto.RoleUpdateParams](ctx, func(params dto.RoleUpdateParams) (any, error) {
-        return nil, s.RoleSrv.Update(ctx, params)
+        return nil, s.roleSrv.Update(ctx, params)
     })
 }
 
@@ -79,7 +86,7 @@ func (s RoleController) Update(ctx *gin.Context) {
 // @Router /role/delete [post]
 func (s RoleController) Delete(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
-        return nil, s.RoleSrv.Delete(ctx, params.ID)
+        return nil, s.roleSrv.Delete(ctx, params.ID)
     })
 }
 
@@ -95,7 +102,7 @@ func (s RoleController) Delete(ctx *gin.Context) {
 // @Router /role/list [post]
 func (s RoleController) List(ctx *gin.Context) {
     httpbinding.BindJSON[dto.RoleListParams](ctx, func(params dto.RoleListParams) (any, error) {
-        return s.RoleSrv.List(ctx, params)
+        return s.roleSrv.List(ctx, params)
     })
 }
 
@@ -111,6 +118,6 @@ func (s RoleController) List(ctx *gin.Context) {
 // @Router /role/detail [post]
 func (s RoleController) Detail(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
-        return s.RoleSrv.FindByID(ctx, params.ID)
+        return s.roleSrv.FindByID(ctx, params.ID)
     })
 }

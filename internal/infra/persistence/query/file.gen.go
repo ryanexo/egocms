@@ -36,9 +36,9 @@ func newFile(db *gorm.DB, opts ...gen.DOOption) file {
 	_file.Ext = field.NewString(tableName, "ext")
 	_file.Path = field.NewString(tableName, "path")
 	_file.Size = field.NewInt64(tableName, "size")
-	_file.IsImage = field.NewInt8(tableName, "is_image")
-	_file.SHA256 = field.NewString(tableName, "sha256")
 	_file.Driver = field.NewString(tableName, "driver")
+	_file.SHA256 = field.NewString(tableName, "sha256")
+	_file.IsImage = field.NewInt8(tableName, "is_image")
 
 	_file.fillFieldMap()
 
@@ -58,9 +58,9 @@ type file struct {
 	Ext          field.String
 	Path         field.String
 	Size         field.Int64
-	IsImage      field.Int8
-	SHA256       field.String
 	Driver       field.String
+	SHA256       field.String
+	IsImage      field.Int8
 
 	fieldMap map[string]field.Expr
 }
@@ -86,9 +86,9 @@ func (f *file) updateTableName(table string) *file {
 	f.Ext = field.NewString(table, "ext")
 	f.Path = field.NewString(table, "path")
 	f.Size = field.NewInt64(table, "size")
-	f.IsImage = field.NewInt8(table, "is_image")
-	f.SHA256 = field.NewString(table, "sha256")
 	f.Driver = field.NewString(table, "driver")
+	f.SHA256 = field.NewString(table, "sha256")
+	f.IsImage = field.NewInt8(table, "is_image")
 
 	f.fillFieldMap()
 
@@ -123,9 +123,9 @@ func (f *file) fillFieldMap() {
 	f.fieldMap["ext"] = f.Ext
 	f.fieldMap["path"] = f.Path
 	f.fieldMap["size"] = f.Size
-	f.fieldMap["is_image"] = f.IsImage
-	f.fieldMap["sha256"] = f.SHA256
 	f.fieldMap["driver"] = f.Driver
+	f.fieldMap["sha256"] = f.SHA256
+	f.fieldMap["is_image"] = f.IsImage
 }
 
 func (f file) clone(db *gorm.DB) file {

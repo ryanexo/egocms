@@ -11,14 +11,14 @@ import (
     `github.com/shopspring/decimal`
 )
 
-func BuildArticleModelCreateCommand(data *dto.ArticleModelCreateParams) *model.ArticleModel {
+func ToArticleModelCreateCommand(data *dto.ArticleModelCreateParams) *model.ArticleModel {
     return &model.ArticleModel{
         Name:        data.Name,
         Description: data.Description,
     }
 }
 
-func BuildArticleModelUpdateCommand(data *dto.ArticleModelUpdateParams) *model.ArticleModel {
+func ToArticleModelUpdateCommand(data *dto.ArticleModelUpdateParams) *model.ArticleModel {
     return &model.ArticleModel{
         Base: model.Base{
             ID: data.ID,
@@ -28,7 +28,7 @@ func BuildArticleModelUpdateCommand(data *dto.ArticleModelUpdateParams) *model.A
     }
 }
 
-func BuildArticleModelDTO(data *model.ArticleModel) *dto.ArticleModel {
+func ToArticleModelDTO(data *model.ArticleModel) *dto.ArticleModel {
     return &dto.ArticleModel{
         Base: types.Base{
             ID:        data.ID,
@@ -40,15 +40,15 @@ func BuildArticleModelDTO(data *model.ArticleModel) *dto.ArticleModel {
     }
 }
 
-func BuildArticleModelListDTO(data []*model.ArticleModel) []*dto.ArticleModel {
+func ToArticleModelListDTO(data []*model.ArticleModel) []*dto.ArticleModel {
     result := make([]*dto.ArticleModel, 0, len(data))
     for _, item := range data {
-        result = append(result, BuildArticleModelDTO(item))
+        result = append(result, ToArticleModelDTO(item))
     }
     return result
 }
 
-func BuildArticleModelSchemaDTO(data *model.ArticleModelSchema) *dto.ArticleModelSchemaParams {
+func ToArticleModelSchemaDTO(data *model.ArticleModelSchema) *dto.ArticleModelSchemaParams {
     return &dto.ArticleModelSchemaParams{
         ID:          &data.ID,
         FieldKey:    data.FieldKey,
@@ -70,15 +70,15 @@ func BuildArticleModelSchemaDTO(data *model.ArticleModelSchema) *dto.ArticleMode
     }
 }
 
-func BuildArticleModelSchemaList(data []*model.ArticleModelSchema) []*dto.ArticleModelSchemaParams {
+func ToArticleModelSchemaList(data []*model.ArticleModelSchema) []*dto.ArticleModelSchemaParams {
     result := make([]*dto.ArticleModelSchemaParams, 0, len(data))
     for _, item := range data {
-        result = append(result, BuildArticleModelSchemaDTO(item))
+        result = append(result, ToArticleModelSchemaDTO(item))
     }
     return result
 }
 
-func BuildArticleModelSchemaModel(data *dto.ArticleModelSchemaParams) *model.ArticleModelSchema {
+func ToArticleModelSchemaModel(data *dto.ArticleModelSchemaParams) *model.ArticleModelSchema {
     return &model.ArticleModelSchema{
         FieldKey:  data.FieldKey,
         FieldName: data.FieldName,

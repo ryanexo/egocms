@@ -6,7 +6,7 @@ import (
     `dpcms/internal/types`
 )
 
-func BuildRoleDTO(data *model.Role) *dto.Role {
+func ToRoleDTO(data *model.Role) *dto.Role {
     return &dto.Role{
         Base: types.Base{
             ID:        data.ID,
@@ -18,10 +18,10 @@ func BuildRoleDTO(data *model.Role) *dto.Role {
     }
 }
 
-func BuildRoleListDTO(data []*model.Role) []*dto.Role {
+func ToRoleListDTO(data []*model.Role) []*dto.Role {
     result := make([]*dto.Role, 0, len(data))
     for _, item := range data {
-        result = append(result, BuildRoleDTO(item))
+        result = append(result, ToRoleDTO(item))
     }
     return result
 }

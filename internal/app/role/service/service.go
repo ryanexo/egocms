@@ -129,7 +129,7 @@ func (s RoleService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto
         return nil, err
     }
     
-    return roleAssembler.BuildRoleDTO(data), nil
+    return roleAssembler.ToRoleDTO(data), nil
 }
 
 func (s RoleService) List(ctx context.Context, params dto.RoleListParams) (*types.PaginatedResult[*dto.Role], error) {
@@ -140,6 +140,6 @@ func (s RoleService) List(ctx context.Context, params dto.RoleListParams) (*type
     return &types.PaginatedResult[*dto.Role]{
         Pagination: params.Pagination,
         Total:      total,
-        List:       roleAssembler.BuildRoleListDTO(data),
+        List:       roleAssembler.ToRoleListDTO(data),
     }, nil
 }

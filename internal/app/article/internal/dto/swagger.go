@@ -1,7 +1,7 @@
 package dto
 
 type ApiResult[T any] struct {
-    Data T      `json:"data,omitempty"`
+    Data T      `json:"data"`
     Code string `json:"code"`
     Msg  string `json:"msg"`
 }

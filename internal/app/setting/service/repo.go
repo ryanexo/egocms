@@ -9,8 +9,8 @@ import (
     `gorm.io/gen`
 )
 
-type ConfigRepo interface {
-    contract.Repository[ConfigRepo]
+type SettingRepo interface {
+    contract.Repository[SettingRepo]
     Add(ctx context.Context, data *model.Config) error
     AddInBatches(ctx context.Context, data []*model.Config) error
     Update(ctx context.Context, data *model.Config) (gen.ResultInfo, error)

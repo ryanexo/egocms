@@ -19,7 +19,7 @@ func extractKeywords(data []*model.ArticleKeywords) []string {
     return keywords
 }
 
-func BuildArticleCreateCommand(user *model.User, data *dto2.ArticleCreateParams) *model.Article {
+func ToArticleCreateCommand(user *model.User, data *dto2.ArticleCreateParams) *model.Article {
     result := &model.Article{
         AuthorID:    user.ID,
         Url:         data.Url,
@@ -45,7 +45,7 @@ func BuildArticleCreateCommand(user *model.User, data *dto2.ArticleCreateParams)
     return result
 }
 
-func BuildArticleDTO(data *model.Article) *dto2.Article {
+func ToArticleDTO(data *model.Article) *dto2.Article {
     result := &dto2.Article{
         Base: types.Base{
             ID:        data.ID,

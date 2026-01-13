@@ -13,12 +13,22 @@ import (
 )
 
 type CategoryController struct {
-    CategorySrv *service.CategoryService
-    Auth        *authz.Factory
+    categorySrv *service.CategoryService
+    auth        *authz.Factory
+}
+
+func NewCategoryController(
+    categorySrv *service.CategoryService,
+    auth *authz.Factory,
+) *CategoryController {
+    return &CategoryController{
+        categorySrv: categorySrv,
+        auth:        auth,
+    }
 }
 
 func (s CategoryController) Setup(engine *gin.Engine) {
-    acl := s.Auth.AccessControl("category")
+    acl := s.auth.AccessControl("category")
     
     g := engine.Group("/category", acl.Middleware())
     g.POST("/list", s.List)
@@ -50,7 +60,7 @@ func (s CategoryController) Setup(engine *gin.Engine) {
 // @Router  /category/list [post]
 func (s CategoryController) List(ctx *gin.Context) {
     httpbinding.BindJSON[dto.CategoryListParams](ctx, func(params dto.CategoryListParams) (any, error) {
-        return s.CategorySrv.List(ctx, params)
+        return s.categorySrv.List(ctx, params)
     })
 }
 
@@ -66,7 +76,7 @@ func (s CategoryController) List(ctx *gin.Context) {
 // @Router  /category/detail [post]
 func (s CategoryController) Detail(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
-        return s.CategorySrv.FindByID(ctx, params.ID)
+        return s.categorySrv.FindByID(ctx, params.ID)
     })
 }
 
@@ -82,7 +92,7 @@ func (s CategoryController) Detail(ctx *gin.Context) {
 // @Router  /category/create [post]
 func (s CategoryController) Create(ctx *gin.Context) {
     httpbinding.BindJSON[dto.CategoryCreateParams](ctx, func(params dto.CategoryCreateParams) (any, error) {
-        return s.CategorySrv.Create(ctx, params)
+        return s.categorySrv.Create(ctx, params)
     })
 }
 
@@ -98,7 +108,7 @@ func (s CategoryController) Create(ctx *gin.Context) {
 // @Router  /category/move [post]
 func (s CategoryController) Move(ctx *gin.Context) {
     httpbinding.BindJSON[dto.CategoryMoveParams](ctx, func(params dto.CategoryMoveParams) (any, error) {
-        return nil, s.CategorySrv.Move(ctx, params.ID, params.TargetID)
+        return nil, s.categorySrv.Move(ctx, params.ID, params.TargetID)
     })
 }
 
@@ -114,7 +124,7 @@ func (s CategoryController) Move(ctx *gin.Context) {
 // @Router  /category/update [post]
 func (s CategoryController) Update(ctx *gin.Context) {
     httpbinding.BindJSON[dto.CategoryUpdateParams](ctx, func(params dto.CategoryUpdateParams) (any, error) {
-        err := s.CategorySrv.Update(ctx, params)
+        err := s.categorySrv.Update(ctx, params)
         return nil, err
     })
 }
@@ -131,7 +141,7 @@ func (s CategoryController) Update(ctx *gin.Context) {
 // @Router  /category/delete [post]
 func (s CategoryController) Delete(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
-        err := s.CategorySrv.Delete(ctx, params.ID)
+        err := s.categorySrv.Delete(ctx, params.ID)
         return nil, err
     })
 }

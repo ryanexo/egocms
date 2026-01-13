@@ -42,7 +42,7 @@ func (s UserService) Create(ctx context.Context, params dto.UserCreateParams) (d
     if err != nil {
         return 0, err
     }
-    data := assembler.BuildUserCreateCommand(&params)
+    data := assembler.ToUserCreateCommand(&params)
     data.Password = hashedPwd
     
     err = s.txManager.Transaction(func(tx *query.Query) error {
@@ -63,7 +63,7 @@ func (s UserService) FindByCredential(ctx context.Context, params dto.UserCreden
     if !password.Password(data.Password).Compare(params.Password) {
         return nil, errno.UserWrongPasswd.ToError()
     }
-    return assembler.BuildUserDTO(data), nil
+    return assembler.ToUserDTO(data), nil
 }
 
 func (s UserService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.User, error) {
@@ -71,7 +71,7 @@ func (s UserService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto
     if err != nil {
         return nil, err
     }
-    return assembler.BuildUserDTO(data), nil
+    return assembler.ToUserDTO(data), nil
 }
 
 func (s UserService) FindByName(ctx context.Context, name string) (*dto.User, error) {
@@ -79,7 +79,7 @@ func (s UserService) FindByName(ctx context.Context, name string) (*dto.User, er
     if err != nil {
         return nil, err
     }
-    return assembler.BuildUserDTO(data), nil
+    return assembler.ToUserDTO(data), nil
 }
 
 func (s UserService) ResetPassword(ctx context.Context, id datatype.SafeUint64, pwd string) error {
@@ -115,7 +115,7 @@ func (s UserService) Delete(ctx context.Context, id datatype.SafeUint64) error {
 }
 
 func (s UserService) UpdateProfile(ctx context.Context, params dto.UserProfile) error {
-    data := assembler.BuildUserProfileModel(&params)
+    data := assembler.ToUserProfileModel(&params)
     _, err := s.repo.UpdateProfile(ctx, data)
     return err
 }
@@ -129,6 +129,6 @@ func (s UserService) List(ctx context.Context, params dto.UserListParams) (*type
     return &types.PaginatedResult[*dto.User]{
         Pagination: params.Pagination,
         Total:      total,
-        List:       assembler.BuildUserListDTO(data),
+        List:       assembler.ToUserListDTO(data),
     }, nil
 }

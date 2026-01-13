@@ -44,7 +44,7 @@ func registerCommand(appConfig *config.Config) error {
             return fmt.Errorf("配置文件 %s 已存在", configPath)
         }
         
-        f, err := os.OpenFile("./runtime/config.json", os.O_WRONLY|os.O_CREATE, 0644)
+        f, err := os.OpenFile(configPath, os.O_WRONLY|os.O_CREATE, 0644)
         if err != nil {
             return err
         }

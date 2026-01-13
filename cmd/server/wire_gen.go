@@ -7,30 +7,27 @@
 package main
 
 import (
-	adapter6 "dpcms/internal/app/article/adapter"
+	adapter7 "dpcms/internal/app/article/adapter"
 	controller5 "dpcms/internal/app/article/controller"
 	service6 "dpcms/internal/app/article/service"
-	adapter7 "dpcms/internal/app/articlemodel/adapter"
+	adapter8 "dpcms/internal/app/articlemodel/adapter"
 	controller6 "dpcms/internal/app/articlemodel/controller"
 	service8 "dpcms/internal/app/articlemodel/service"
-	adapter4 "dpcms/internal/app/category/adapter"
+	adapter5 "dpcms/internal/app/category/adapter"
 	controller3 "dpcms/internal/app/category/controller"
 	service4 "dpcms/internal/app/category/service"
-	adapter9 "dpcms/internal/app/config/adapter"
-	service9 "dpcms/internal/app/config/service"
-	adapter8 "dpcms/internal/app/file/adapter"
+	adapter9 "dpcms/internal/app/file/adapter"
 	controller7 "dpcms/internal/app/file/controller"
-	service10 "dpcms/internal/app/file/service"
-	adapter3 "dpcms/internal/app/menu/adapter"
+	service9 "dpcms/internal/app/file/service"
+	adapter4 "dpcms/internal/app/menu/adapter"
 	controller2 "dpcms/internal/app/menu/controller"
 	service3 "dpcms/internal/app/menu/service"
-	auth2 "dpcms/internal/app/permission/auth"
+	adapter3 "dpcms/internal/app/permission/adapter"
 	service7 "dpcms/internal/app/permission/service"
-	adapter5 "dpcms/internal/app/role/adapter"
+	adapter6 "dpcms/internal/app/role/adapter"
 	controller4 "dpcms/internal/app/role/controller"
 	service5 "dpcms/internal/app/role/service"
 	adapter2 "dpcms/internal/app/token/adapter"
-	"dpcms/internal/app/token/auth"
 	service2 "dpcms/internal/app/token/service"
 	"dpcms/internal/app/user/adapter"
 	"dpcms/internal/app/user/controller"
@@ -38,7 +35,6 @@ import (
 	"dpcms/internal/bootstrap"
 	"dpcms/internal/config"
 	"dpcms/internal/httpserver"
-	"dpcms/internal/infra/cache"
 	"dpcms/internal/infra/db"
 	"dpcms/internal/infra/file/driver/local"
 	"dpcms/internal/infra/logger"
@@ -84,55 +80,32 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	userService := service.NewUserService(txManager, userRepo)
 	tokenBlacklistRepo := adapter2.NewTokenBlacklistRepo(query)
 	tokenService := service2.NewTokenService(cfg, tokenBlacklistRepo, userRepo)
-	tokenParser := auth.NewTokenParser(tokenService)
+	tokenParser := adapter2.NewTokenParser(tokenService)
 	roleCasbin, err := rbac.NewRoleCasbin(gormDB)
 	if err != nil {
 		return nil, err
 	}
-	permissionChecker := auth2.NewPermissionChecker(roleCasbin)
+	permissionChecker := adapter3.NewPermissionChecker(roleCasbin)
 	factory := authz.NewFactory(tokenParser, permissionChecker)
-	userController := &controller.UserController{
-		UserSrv:  userService,
-		TokenSrv: tokenService,
-		Logger:   loggerLogger,
-		Auth:     factory,
-	}
-	menuRepo := adapter3.NewMenuRepo(query)
+	userController := controller.NewUserController(userService, tokenService, loggerLogger, factory)
+	menuRepo := adapter4.NewMenuRepo(query)
 	menuService := service3.NewMenuService(txManager, menuRepo)
-	menuController := &controller2.MenuController{
-		MenuSrv: menuService,
-		Auth:    factory,
-	}
-	categoryRepo := adapter4.NewCategoryRepo(query)
+	menuController := controller2.NewMenuController(menuService, factory)
+	categoryRepo := adapter5.NewCategoryRepo(query)
 	categoryService := service4.NewCategoryService(txManager, categoryRepo)
-	categoryController := &controller3.CategoryController{
-		CategorySrv: categoryService,
-		Auth:        factory,
-	}
-	roleRepo := adapter5.NewRoleRepo(query)
+	categoryController := controller3.NewCategoryController(categoryService, factory)
+	roleRepo := adapter6.NewRoleRepo(query)
 	roleService := service5.NewRoleService(txManager, roleCasbin, roleRepo)
-	roleController := &controller4.RoleController{
-		RoleSrv: roleService,
-		Auth:    factory,
-	}
-	articleRepo := adapter6.NewArticleRepo(query)
-	articleModelRepo := adapter7.NewArticleModelRepo(query)
+	roleController := controller4.NewRoleController(roleService, factory)
+	articleRepo := adapter7.NewArticleRepo(query)
+	articleModelRepo := adapter8.NewArticleModelRepo(query)
 	articleService := service6.NewArticleService(txManager, articleRepo, articleModelRepo)
-	permissionService := &service7.PermissionService{
-		Query: query,
-	}
-	articleController := &controller5.ArticleController{
-		ArticleSrv: articleService,
-		PermSrv:    permissionService,
-		Auth:       factory,
-		Casbin:     roleCasbin,
-	}
+	permissionRepo := adapter3.NewPermissionRepo(query)
+	permissionService := service7.NewPermissionService(permissionRepo)
+	articleController := controller5.NewArticleController(articleService, permissionService, factory, roleCasbin)
 	articleModelService := service8.NewArticleModelService(txManager, articleModelRepo)
-	articleModelController := &controller6.ArticleModelController{
-		ArticleModelSrv: articleModelService,
-		Auth:            factory,
-	}
-	fileRepo := adapter8.NewFileRepo(query)
+	articleModelController := controller6.NewArticleModelController(articleModelService, factory)
+	fileRepo := adapter9.NewFileRepo(query)
 	fileConfig := config.GetFileConfig(cfg)
 	localFactory := local.Factory{}
 	fileDrivers := bootstrap.FileDrivers{
@@ -142,14 +115,8 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	if err != nil {
 		return nil, err
 	}
-	configRepo := adapter9.NewConfigRepo(query)
-	configCache, err := cache.NewConfigCache()
-	if err != nil {
-		return nil, err
-	}
-	configService := service9.NewConfigService(txManager, configRepo, configCache, loggerLogger)
-	fileDriverService := service10.NewFileDriverService(driverRegistry, configService)
-	fileService := service10.NewFileService(txManager, fileRepo, fileDriverService, loggerLogger)
+	fileDriverService := service9.NewFileDriverService(driverRegistry, cfg)
+	fileService := service9.NewFileService(txManager, fileRepo, fileDriverService, loggerLogger)
 	hashID, err := bootstrap.NewXHashIds(cfg)
 	if err != nil {
 		return nil, err

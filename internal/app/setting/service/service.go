@@ -2,35 +2,42 @@ package service
 
 import (
     `context`
-    `time`
     
-    configkeys `dpcms/internal/app/config/constant`
+    configkeys `dpcms/internal/app/setting/constant`
+    `dpcms/internal/config`
     `dpcms/internal/infra/cache`
     `dpcms/internal/infra/logger`
     `dpcms/internal/infra/persistence/contract`
     `dpcms/internal/infra/persistence/model`
 )
 
-type ConfigService struct {
+type SettingService struct {
     txManager contract.TxManager
-    repo      ConfigRepo
+    repo      SettingRepo
     cache     *cache.ConfigCache
     logger    *logger.Logger
+    cfg       *config.Config
 }
 
-func NewConfigService(txManager contract.TxManager, repo ConfigRepo, cache *cache.ConfigCache, logger *logger.Logger) *ConfigService {
-    srv := &ConfigService{
+func NewSettingService(
+    txManager contract.TxManager,
+    repo SettingRepo, cache *cache.ConfigCache,
+    logger *logger.Logger,
+    cfg *config.Config,
+) *SettingService {
+    srv := &SettingService{
         txManager: txManager,
         repo:      repo,
         cache:     cache,
         logger:    logger,
+        cfg:       cfg,
     }
-    go srv.backgroundRefresh()
+    srv.preload()
     
     return srv
 }
 
-func (s ConfigService) Add(ctx context.Context, key string, value string) error {
+func (s SettingService) Add(ctx context.Context, key string, value string) error {
     err := s.repo.Add(ctx, &model.Config{Key: key, Value: value})
     if err != nil {
         return err
@@ -39,7 +46,7 @@ func (s ConfigService) Add(ctx context.Context, key string, value string) error 
     return nil
 }
 
-func (s ConfigService) Update(ctx context.Context, key string, value string) error {
+func (s SettingService) Update(ctx context.Context, key string, value string) error {
     _, err := s.repo.Update(ctx, &model.Config{Key: key, Value: value})
     if err != nil {
         return err
@@ -48,7 +55,7 @@ func (s ConfigService) Update(ctx context.Context, key string, value string) err
     return err
 }
 
-func (s ConfigService) Remove(ctx context.Context, key string) error {
+func (s SettingService) Remove(ctx context.Context, key string) error {
     _, err := s.repo.Remove(ctx, key)
     if err != nil {
         return err
@@ -57,11 +64,11 @@ func (s ConfigService) Remove(ctx context.Context, key string) error {
     return err
 }
 
-func (s ConfigService) Get(key string) (string, bool) {
+func (s SettingService) Get(key string) (string, bool) {
     return s.cache.Get(key)
 }
 
-func (s ConfigService) refresh() {
+func (s SettingService) preload() {
     data, err := s.repo.GetAll(context.Background())
     if err != nil {
         s.logger.App.Error(err.Error())
@@ -70,14 +77,5 @@ func (s ConfigService) refresh() {
     for _, v := range data {
         s.cache.Set(v.Key, v.Value, 0)
     }
-    s.cache.Set(configkeys.FileDriver, "local", 0)
-}
-
-func (s ConfigService) backgroundRefresh() {
-    s.refresh()
-    t := time.NewTicker(time.Minute * 10)
-    
-    for range t.C {
-        s.refresh()
-    }
+    s.cache.Set(configkeys.FileDriver, s.cfg.File.Default, 0)
 }

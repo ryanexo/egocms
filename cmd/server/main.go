@@ -20,6 +20,10 @@ func main() {
     if err := registerCommand(appConfig); err != nil {
         panic(fmt.Sprintf("%+v\n%s", err, debug.Stack()))
     }
+    err := appConfig.Validate()
+    if err != nil {
+        panic(fmt.Sprintf("%+v\n%s", err, debug.Stack()))
+    }
     launcher, err := createHttpServer(appConfig)
     if err != nil {
         panic(fmt.Sprintf("%+v\n%s", err, debug.Stack()))

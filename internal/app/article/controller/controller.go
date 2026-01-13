@@ -15,14 +15,28 @@ import (
 )
 
 type ArticleController struct {
-    ArticleSrv *service.ArticleService
-    PermSrv    *permissionSrv.PermissionService
-    Auth       *authz.Factory
-    Casbin     *rbac.RoleCasbin
+    articleSrv *service.ArticleService
+    permSrv    *permissionSrv.PermissionService
+    auth       *authz.Factory
+    casbin     *rbac.RoleCasbin
+}
+
+func NewArticleController(
+    articleSrv *service.ArticleService,
+    permSrv *permissionSrv.PermissionService,
+    auth *authz.Factory,
+    casbin *rbac.RoleCasbin,
+) *ArticleController {
+    return &ArticleController{
+        articleSrv: articleSrv,
+        permSrv:    permSrv,
+        auth:       auth,
+        casbin:     casbin,
+    }
 }
 
 func (s ArticleController) Setup(engine *gin.Engine) {
-    acl := s.Auth.AccessControl("article")
+    acl := s.auth.AccessControl("article")
     
     g := engine.Group("/article", acl.Middleware())
     g.POST("/create", s.Create)
@@ -63,7 +77,7 @@ func (s ArticleController) Create(ctx *gin.Context) {
         if err != nil {
             return nil, err
         }
-        return s.ArticleSrv.Create(ctx, u, params)
+        return s.articleSrv.Create(ctx, u, params)
     })
 }
 
@@ -79,7 +93,7 @@ func (s ArticleController) Create(ctx *gin.Context) {
 // @Router  /article/update [post]
 func (s ArticleController) Update(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ArticleUpdateParams](ctx, func(params dto.ArticleUpdateParams) (any, error) {
-        return nil, s.ArticleSrv.Update(ctx, params)
+        return nil, s.articleSrv.Update(ctx, params)
     })
 }
 
@@ -88,7 +102,7 @@ func (s ArticleController) createActor(ctx *gin.Context) (domain.Actor, error) {
     if err != nil {
         return domain.Actor{}, err
     }
-    canPublishDirect, err := s.Casbin.Enforce(u.RoleID.String(), "article", "publish-direct")
+    canPublishDirect, err := s.casbin.Enforce(u.RoleID.String(), "article", "publish-direct")
     if err != nil {
         return domain.Actor{}, err
     }
@@ -113,7 +127,7 @@ func (s ArticleController) Submit(ctx *gin.Context) {
         if err != nil {
             return nil, err
         }
-        return nil, s.ArticleSrv.ChangeStatus(ctx, params.ID, func(status *domain.Status) error {
+        return nil, s.articleSrv.ChangeStatus(ctx, params.ID, func(status *domain.Status) error {
             return status.WithActor(actor).Submit()
         })
     })
@@ -135,7 +149,7 @@ func (s ArticleController) Publish(ctx *gin.Context) {
         if err != nil {
             return nil, err
         }
-        return nil, s.ArticleSrv.ChangeStatus(ctx, params.ID, func(status *domain.Status) error {
+        return nil, s.articleSrv.ChangeStatus(ctx, params.ID, func(status *domain.Status) error {
             return status.WithActor(actor).Publish()
         })
     })
@@ -157,7 +171,7 @@ func (s ArticleController) Offline(ctx *gin.Context) {
         if err != nil {
             return nil, err
         }
-        return nil, s.ArticleSrv.ChangeStatus(ctx, params.ID, func(status *domain.Status) error {
+        return nil, s.articleSrv.ChangeStatus(ctx, params.ID, func(status *domain.Status) error {
             return status.WithActor(actor).Offline()
         })
     })
@@ -179,7 +193,7 @@ func (s ArticleController) Reject(ctx *gin.Context) {
         if err != nil {
             return nil, err
         }
-        return nil, s.ArticleSrv.ChangeStatus(ctx, params.ID, func(status *domain.Status) error {
+        return nil, s.articleSrv.ChangeStatus(ctx, params.ID, func(status *domain.Status) error {
             return status.WithActor(actor).Reject()
         })
     })
@@ -201,7 +215,7 @@ func (s ArticleController) Republish(ctx *gin.Context) {
         if err != nil {
             return nil, err
         }
-        return nil, s.ArticleSrv.ChangeStatus(ctx, params.ID, func(status *domain.Status) error {
+        return nil, s.articleSrv.ChangeStatus(ctx, params.ID, func(status *domain.Status) error {
             return status.WithActor(actor).Republish()
         })
     })
@@ -219,7 +233,7 @@ func (s ArticleController) Republish(ctx *gin.Context) {
 // @Router  /article/delete [post]
 func (s ArticleController) Delete(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
-        return nil, s.ArticleSrv.Delete(ctx, params.ID)
+        return nil, s.articleSrv.Delete(ctx, params.ID)
     })
 }
 
@@ -235,6 +249,6 @@ func (s ArticleController) Delete(ctx *gin.Context) {
 // @Router  /article/detail [post]
 func (s ArticleController) Detail(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
-        return s.ArticleSrv.FindByID(ctx, params.ID)
+        return s.articleSrv.FindByID(ctx, params.ID)
     })
 }

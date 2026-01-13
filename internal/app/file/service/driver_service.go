@@ -1,43 +1,32 @@
 package service
 
 import (
-    configkeys `dpcms/internal/app/config/constant`
-    config `dpcms/internal/app/config/service`
-    `dpcms/internal/app/file/internal/errno`
+    `dpcms/internal/config`
     `dpcms/internal/erroz`
     `dpcms/internal/infra/file`
 )
 
 type FileDriverService struct {
-    registry  *file.DriverRegistry
-    configSrv *config.ConfigService
+    registry *file.DriverRegistry
+    config   *config.Config
 }
 
-func NewFileDriverService(registry *file.DriverRegistry, configSrv *config.ConfigService) *FileDriverService {
-    return &FileDriverService{registry: registry, configSrv: configSrv}
+func NewFileDriverService(registry *file.DriverRegistry, cfg *config.Config) *FileDriverService {
+    return &FileDriverService{registry: registry, config: cfg}
 }
 
 func (s FileDriverService) GetDriver(name string) (file.Driver, error) {
-    driver, exists := s.registry.Get(name)
-    if !exists {
-        return nil, erroz.Unknown.Wrap(
-            errno.FileDriverNotExists.ToError(),
-        ).ToError()
+    driver, err := s.registry.Get(name)
+    if err != nil {
+        return nil, erroz.Unknown.Wrap(err).ToError()
     }
-    
     return driver, nil
 }
 
 func (s FileDriverService) GetCurrentDriver() (string, file.Driver, error) {
-    driverName, exists := s.configSrv.Get(configkeys.FileDriver)
-    if !exists {
-        return "", nil, erroz.Unknown.Wrap(
-            errno.FileDriverConfigNotExists.ToError(),
-        ).ToError()
-    }
-    driver, err := s.GetDriver(driverName)
+    driver, err := s.GetDriver(s.config.File.Default)
     if err != nil {
         return "", nil, err
     }
-    return driverName, driver, nil
+    return s.config.File.Default, driver, nil
 }

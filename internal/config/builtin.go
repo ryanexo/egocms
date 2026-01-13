@@ -62,8 +62,11 @@ func defaultConfig() (*Config, error) {
             StaticDir: "static/",
         },
         File: file.Config{
-            "local": map[string]any{
-                "savePath": "./uploads/",
+            Default: "local",
+            Drivers: map[string]map[string]any{
+                "local": {
+                    "savePath": "./uploads/",
+                },
             },
         },
     }, nil

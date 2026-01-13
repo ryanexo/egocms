@@ -25,7 +25,7 @@ func NewArticleModelService(txManager contract.TxManager, repo ArticleModelRepo)
 }
 
 func (s ArticleModelService) CreateModel(ctx context.Context, params dto.ArticleModelCreateParams) (datatype.SafeUint64, error) {
-    data := assembler.BuildArticleModelCreateCommand(&params)
+    data := assembler.ToArticleModelCreateCommand(&params)
     err := s.repo.Create(ctx, data)
     if err != nil {
         return 0, err
@@ -34,7 +34,7 @@ func (s ArticleModelService) CreateModel(ctx context.Context, params dto.Article
 }
 
 func (s ArticleModelService) UpdateModel(ctx context.Context, params dto.ArticleModelUpdateParams) error {
-    data := assembler.BuildArticleModelUpdateCommand(&params)
+    data := assembler.ToArticleModelUpdateCommand(&params)
     return s.repo.UpdateModel(ctx, data)
 }
 
@@ -47,7 +47,7 @@ func (s ArticleModelService) ReplaceSchema(ctx context.Context, params dto.Artic
     schema := make([]*model.ArticleModelSchema, 0, len(params.Data))
     
     for _, item := range params.Data {
-        tmpSchema := assembler.BuildArticleModelSchemaModel(item)
+        tmpSchema := assembler.ToArticleModelSchemaModel(item)
         if item.ID != nil {
             tmpSchema.ModelID = params.ID
         }
@@ -64,7 +64,7 @@ func (s ArticleModelService) FindByID(ctx context.Context, id datatype.SafeUint6
     if err != nil {
         return nil, err
     }
-    return assembler.BuildArticleModelDTO(data), nil
+    return assembler.ToArticleModelDTO(data), nil
 }
 
 func (s ArticleModelService) FindAllSchema(ctx context.Context, id datatype.SafeUint64) ([]*dto.ArticleModelSchemaParams, error) {
@@ -72,7 +72,7 @@ func (s ArticleModelService) FindAllSchema(ctx context.Context, id datatype.Safe
     if err != nil {
         return nil, err
     }
-    return assembler.BuildArticleModelSchemaList(allSchema), nil
+    return assembler.ToArticleModelSchemaList(allSchema), nil
 }
 
 func (s ArticleModelService) DeleteSchema(ctx context.Context, schemaID datatype.SafeUint64) error {
@@ -103,6 +103,6 @@ func (s ArticleModelService) List(ctx context.Context, params dto.ArticleModelLi
     return &types.PaginatedResult[*dto.ArticleModel]{
         Pagination: params.Pagination,
         Total:      total,
-        List:       assembler.BuildArticleModelListDTO(data),
+        List:       assembler.ToArticleModelListDTO(data),
     }, nil
 }

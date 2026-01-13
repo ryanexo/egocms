@@ -3,8 +3,8 @@ package bootstrap
 import (
     `reflect`
     
-    permChecker `dpcms/internal/app/permission/auth`
-    tokenParser `dpcms/internal/app/token/auth`
+    permChecker `dpcms/internal/app/permission/adapter`
+    tokenParser `dpcms/internal/app/token/adapter`
     `dpcms/internal/httpserver`
     `dpcms/internal/middleware/authz`
     `dpcms/internal/middleware/cors`

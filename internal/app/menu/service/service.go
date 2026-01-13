@@ -29,7 +29,7 @@ func NewMenuService(txManager contract.TxManager, repo MenuRepo) *MenuService {
 }
 
 func (s MenuService) Create(ctx context.Context, params dto.MenuCreateParams) (*model.Menu, error) {
-    menu := assembler.BuildMenuCreateCommand(&params)
+    menu := assembler.ToMenuCreateCommand(&params)
     err := s.txManager.Transaction(func(tx *query.Query) error {
         menuRepo := s.repo.CloneWithQuery(tx)
         txErr := menuRepo.Create(ctx, menu)
@@ -53,7 +53,7 @@ func (s MenuService) Update(ctx context.Context, params dto.MenuUpdateParams) er
     if err != nil {
         return err
     }
-    menu := assembler.BuildMenuUpdateCommand(&params)
+    menu := assembler.ToMenuUpdateCommand(&params)
     _, err = s.repo.Update(ctx, menu)
     return err
 }
@@ -83,7 +83,7 @@ func (s MenuService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto
     if err != nil {
         return nil, err
     }
-    return assembler.BuildMenuDTO(menu), nil
+    return assembler.ToMenuDTO(menu), nil
 }
 
 func (s MenuService) List(ctx context.Context, params dto.MenuListQueryParams) (*types.PaginatedResult[*dto.Menu], error) {
@@ -94,6 +94,6 @@ func (s MenuService) List(ctx context.Context, params dto.MenuListQueryParams) (
     return &types.PaginatedResult[*dto.Menu]{
         Pagination: params.Pagination,
         Total:      total,
-        List:       assembler.BuildMenuListDTO(data),
+        List:       assembler.ToMenuListDTO(data),
     }, nil
 }

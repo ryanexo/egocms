@@ -3,7 +3,7 @@ package db
 import (
     "fmt"
     
-    mysql2 "github.com/go-sql-driver/mysql"
+    mysqlDriver "github.com/go-sql-driver/mysql"
     "gorm.io/driver/mysql"
     "gorm.io/driver/sqlite"
     "gorm.io/gorm"
@@ -24,7 +24,7 @@ func GetDriver(dbConfig DBConfig) (gorm.Dialector, error) {
 
 func mysqlDriverBuilder(dbConfig DBConfig) (gorm.Dialector, error) {
     return mysql.New(mysql.Config{
-        DSNConfig: &mysql2.Config{
+        DSNConfig: &mysqlDriver.Config{
             User:      dbConfig.User,
             Passwd:    dbConfig.Pass,
             Addr:      dbConfig.Host,

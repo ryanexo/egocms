@@ -4,7 +4,6 @@ import (
     `dpcms/internal/config/token`
     `dpcms/internal/httpserver`
     `dpcms/internal/infra/db`
-    `dpcms/internal/infra/xhashids`
     `dpcms/internal/infra/file`
     `dpcms/internal/infra/logger`
     `dpcms/internal/middleware/cors`
@@ -32,10 +31,6 @@ func GetLoggerConfig(cfg *Config) logger.Config {
 
 func GetServerConfig(cfg *Config) httpserver.Config {
     return cfg.Server
-}
-
-func GetEncodedIDConfig(cfg *Config) xhashids.Config {
-    return cfg.EncodedID
 }
 
 func GetFileConfig(cfg *Config) file.Config {

@@ -8,6 +8,7 @@ import (
     category `dpcms/internal/app/category/controller`
     file `dpcms/internal/app/file/controller`
     menu `dpcms/internal/app/menu/controller`
+    permission `dpcms/internal/app/permission/controller`
     role `dpcms/internal/app/role/controller`
     user `dpcms/internal/app/user/controller`
     `dpcms/internal/httpserver`
@@ -18,14 +19,15 @@ import (
 
 var ControllerProvider = wire.NewSet(
     wire.Struct(new(Controllers), "*"),
-    wire.Struct(new(article.ArticleController), "*"),
-    wire.Struct(new(articleModel.ArticleModelController), "*"),
-    wire.Struct(new(category.CategoryController), "*"),
-    wire.Struct(new(menu.MenuController), "*"),
-    wire.Struct(new(role.RoleController), "*"),
-    wire.Struct(new(user.UserController), "*"),
-    NewRouteRegistrar,
+    article.NewArticleController,
+    articleModel.NewArticleModelController,
+    category.NewCategoryController,
+    menu.NewMenuController,
+    role.NewRoleController,
+    user.NewUserController,
     file.NewFileController,
+    permission.NewPermissionController,
+    NewRouteRegistrar,
 )
 
 type Controllers struct {
@@ -36,10 +38,6 @@ type Controllers struct {
     Article      *article.ArticleController
     ArticleModel *articleModel.ArticleModelController
     File         *file.FileController
-}
-
-type IController interface {
-    Setup(engine *gin.Engine)
 }
 
 var _ httpserver.Routes = (*Controllers)(nil)
@@ -53,7 +51,7 @@ func (c Controllers) SetupRoutes(engine *gin.Engine) {
             continue
         }
     SETUP:
-        controller, ok := iterateField.Interface().(IController)
+        controller, ok := iterateField.Interface().(interface{ Setup(engine *gin.Engine) })
         if ok {
             controller.Setup(engine)
         } else if iterateField.Kind() == reflect.Ptr {

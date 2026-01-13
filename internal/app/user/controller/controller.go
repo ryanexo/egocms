@@ -16,14 +16,28 @@ import (
 )
 
 type UserController struct {
-    UserSrv  *user.UserService
-    TokenSrv *token.TokenService
-    Logger   *logger.Logger
-    Auth     *authz.Factory
+    userSrv  *user.UserService
+    tokenSrv *token.TokenService
+    logger   *logger.Logger
+    auth     *authz.Factory
+}
+
+func NewUserController(
+    userSrv *user.UserService,
+    tokenSrv *token.TokenService,
+    logger *logger.Logger,
+    auth *authz.Factory,
+) *UserController {
+    return &UserController{
+        userSrv:  userSrv,
+        tokenSrv: tokenSrv,
+        logger:   logger,
+        auth:     auth,
+    }
 }
 
 func (s UserController) Setup(server *gin.Engine) {
-    acl := s.Auth.AccessControl("user")
+    acl := s.auth.AccessControl("user")
     
     g := server.Group("/user", acl.Middleware())
     g.POST("/register", s.Register)
@@ -56,7 +70,7 @@ func (s UserController) Setup(server *gin.Engine) {
 func (s UserController) Register(ctx *gin.Context) {
     httpbinding.BindJSON[dto.UserCreateParams](ctx, func(params dto.UserCreateParams) (any, error) {
         params.IP = ctx.ClientIP()
-        return s.UserSrv.Create(ctx, params)
+        return s.userSrv.Create(ctx, params)
     })
 }
 
@@ -71,11 +85,11 @@ func (s UserController) Register(ctx *gin.Context) {
 // @Router  /user/login [post]
 func (s UserController) Login(ctx *gin.Context) {
     httpbinding.BindJSON[dto.UserCredentialParams](ctx, func(params dto.UserCredentialParams) (any, error) {
-        u, err := s.UserSrv.FindByCredential(ctx, params)
+        u, err := s.userSrv.FindByCredential(ctx, params)
         if err != nil {
             return nil, err
         }
-        tokenStr, err := s.TokenSrv.Create(u.ID)
+        tokenStr, err := s.tokenSrv.Create(u.ID)
         if err != nil {
             return nil, err
         }
@@ -95,9 +109,9 @@ func (s UserController) Login(ctx *gin.Context) {
 func (s UserController) Logout(ctx *gin.Context) {
     tokenString := ctx.GetHeader("Authorization")
     if tokenString != "" {
-        err := s.TokenSrv.Revoke(ctx, tokenString)
+        err := s.tokenSrv.Revoke(ctx, tokenString)
         if err != nil {
-            s.Logger.App.Warn("Token注销失败", zap.Error(err))
+            s.logger.App.Warn("Token注销失败", zap.Error(err))
         }
     }
     erroz.OK.Write(ctx)
@@ -119,7 +133,7 @@ func (s UserController) ChangePassword(ctx *gin.Context) {
         if err != nil {
             return nil, err
         }
-        return nil, s.UserSrv.ChangePassword(ctx, u, params)
+        return nil, s.userSrv.ChangePassword(ctx, u, params)
     })
 }
 
@@ -135,11 +149,11 @@ func (s UserController) ChangePassword(ctx *gin.Context) {
 // @Router  /user/reset-password [post]
 func (s UserController) ResetPassword(ctx *gin.Context) {
     httpbinding.BindJSON[dto.UserPasswdResetParams](ctx, func(params dto.UserPasswdResetParams) (any, error) {
-        userInfo, err := s.UserSrv.FindByID(ctx, params.ID)
+        userInfo, err := s.userSrv.FindByID(ctx, params.ID)
         if err != nil {
             return nil, err
         }
-        return nil, s.UserSrv.ResetPassword(ctx, userInfo.ID, params.Password)
+        return nil, s.userSrv.ResetPassword(ctx, userInfo.ID, params.Password)
     })
 }
 
@@ -155,7 +169,7 @@ func (s UserController) ResetPassword(ctx *gin.Context) {
 // @Router  /user/list [post]
 func (s UserController) List(ctx *gin.Context) {
     httpbinding.BindJSON[dto.UserListParams](ctx, func(params dto.UserListParams) (any, error) {
-        return s.UserSrv.List(ctx, params)
+        return s.userSrv.List(ctx, params)
     })
 }
 
@@ -171,7 +185,7 @@ func (s UserController) List(ctx *gin.Context) {
 // @Router  /user/detail [post]
 func (s UserController) Detail(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
-        return s.UserSrv.FindByID(ctx, params.ID)
+        return s.userSrv.FindByID(ctx, params.ID)
     })
 }
 
@@ -187,7 +201,7 @@ func (s UserController) Detail(ctx *gin.Context) {
 // @Router  /user/delete [post]
 func (s UserController) Delete(ctx *gin.Context) {
     httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
-        return nil, s.UserSrv.Delete(ctx, params.ID)
+        return nil, s.userSrv.Delete(ctx, params.ID)
     })
 }
 
@@ -208,6 +222,6 @@ func (s UserController) UpdateProfile(ctx *gin.Context) {
             return nil, err
         }
         params.UserID = u.ID
-        return nil, s.UserSrv.UpdateProfile(ctx, params)
+        return nil, s.userSrv.UpdateProfile(ctx, params)
     })
 }

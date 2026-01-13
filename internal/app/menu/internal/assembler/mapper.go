@@ -7,7 +7,7 @@ import (
     `dpcms/internal/types`
 )
 
-func BuildMenuCreateCommand(data *dto.MenuCreateParams) *model.Menu {
+func ToMenuCreateCommand(data *dto.MenuCreateParams) *model.Menu {
     return &model.Menu{
         ParentID: data.ParentID,
         Type:     data.Type,
@@ -20,7 +20,7 @@ func BuildMenuCreateCommand(data *dto.MenuCreateParams) *model.Menu {
     }
 }
 
-func BuildMenuUpdateCommand(data *dto.MenuUpdateParams) *model.Menu {
+func ToMenuUpdateCommand(data *dto.MenuUpdateParams) *model.Menu {
     return &model.Menu{
         Base: model.Base{
             ID: data.ID,
@@ -34,7 +34,7 @@ func BuildMenuUpdateCommand(data *dto.MenuUpdateParams) *model.Menu {
     }
 }
 
-func BuildMenuDTO(data *model.Menu) *dto.Menu {
+func ToMenuDTO(data *model.Menu) *dto.Menu {
     return &dto.Menu{
         Base: types.Base{
             ID:        data.ID,
@@ -52,10 +52,10 @@ func BuildMenuDTO(data *model.Menu) *dto.Menu {
     }
 }
 
-func BuildMenuListDTO(data []*model.Menu) []*dto.Menu {
+func ToMenuListDTO(data []*model.Menu) []*dto.Menu {
     result := make([]*dto.Menu, 0, len(data))
     for _, item := range data {
-        result = append(result, BuildMenuDTO(item))
+        result = append(result, ToMenuDTO(item))
     }
     return result
 }

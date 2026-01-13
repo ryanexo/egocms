@@ -6,7 +6,7 @@ import (
     `dpcms/internal/types`
 )
 
-func BuildPermissionCreateCommand(data *dto.PermissionCreateParams) *model.Permission {
+func ToPermissionCreateCommand(data *dto.PermissionCreateParams) *model.Permission {
     return &model.Permission{
         MenuID:      data.MenuID,
         Name:        data.Name,
@@ -16,13 +16,13 @@ func BuildPermissionCreateCommand(data *dto.PermissionCreateParams) *model.Permi
     }
 }
 
-func BuildPermissionUpdateCommand(data *dto.PermissionUpdateParams) *model.Permission {
-    result := BuildPermissionCreateCommand(&data.PermissionCreateParams)
+func ToPermissionUpdateCommand(data *dto.PermissionUpdateParams) *model.Permission {
+    result := ToPermissionCreateCommand(&data.PermissionCreateParams)
     result.ID = data.ID
     return result
 }
 
-func BuildPermissionDTO(data *model.Permission) *dto.Permission {
+func ToPermissionDTO(data *model.Permission) *dto.Permission {
     return &dto.Permission{
         Base: types.Base{
             ID:        data.ID,
@@ -37,10 +37,10 @@ func BuildPermissionDTO(data *model.Permission) *dto.Permission {
     }
 }
 
-func BuildPermissionListDTO(data []*model.Permission) []*dto.Permission {
+func ToPermissionListDTO(data []*model.Permission) []*dto.Permission {
     result := make([]*dto.Permission, 0, len(data))
     for _, item := range data {
-        result = append(result, BuildPermissionDTO(item))
+        result = append(result, ToPermissionDTO(item))
     }
     return result
 }

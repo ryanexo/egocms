@@ -6,7 +6,7 @@ import (
     `dpcms/internal/types`
 )
 
-func BuildUserCreateCommand(data *dto.UserCreateParams) *model.User {
+func ToUserCreateCommand(data *dto.UserCreateParams) *model.User {
     return &model.User{
         Username: data.Username,
         Password: data.Password,
@@ -16,7 +16,7 @@ func BuildUserCreateCommand(data *dto.UserCreateParams) *model.User {
     }
 }
 
-func BuildUserDTO(data *model.User) *dto.User {
+func ToUserDTO(data *model.User) *dto.User {
     return &dto.User{
         Base: types.Base{
             ID:        data.ID,
@@ -41,15 +41,15 @@ func BuildUserDTO(data *model.User) *dto.User {
     }
 }
 
-func BuildUserListDTO(data []*model.User) []*dto.User {
+func ToUserListDTO(data []*model.User) []*dto.User {
     users := make([]*dto.User, 0, len(data))
     for _, user := range data {
-        users = append(users, BuildUserDTO(user))
+        users = append(users, ToUserDTO(user))
     }
     return users
 }
 
-func BuildUserProfileModel(data *dto.UserProfile) *model.UserProfile {
+func ToUserProfileModel(data *dto.UserProfile) *model.UserProfile {
     return &model.UserProfile{
         UserID:      data.UserID,
         Avatar:      data.Avatar,

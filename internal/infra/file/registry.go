@@ -1,5 +1,7 @@
 package file
 
+import `fmt`
+
 type DriverRegistry struct {
     drivers map[string]Driver
     config  Config
@@ -19,9 +21,12 @@ func (r *DriverRegistry) Register(factory DriverFactory) error {
     return nil
 }
 
-func (r *DriverRegistry) Get(name string) (Driver, bool) {
+func (r *DriverRegistry) Get(name string) (Driver, error) {
     driver, found := r.drivers[name]
-    return driver, found
+    if !found {
+        return nil, fmt.Errorf("%w: %s", ErrDriverNotExists, name)
+    }
+    return driver, nil
 }
 
 func NewRegistry(config Config) *DriverRegistry {

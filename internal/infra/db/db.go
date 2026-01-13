@@ -12,12 +12,12 @@ import (
 )
 
 type DBConfig struct {
-    Type    string `json:"type,omitempty" yaml:"type,omitempty"`
-    Host    string `json:"host,omitempty" yaml:"host,omitempty"`
-    Name    string `json:"name,omitempty" yaml:"name,omitempty"`
-    User    string `json:"user,omitempty" yaml:"user,omitempty"`
-    Pass    string `json:"pass,omitempty" yaml:"pass,omitempty"`
-    Charset string `json:"charset,omitempty" yaml:"charset,omitempty"`
+    Type    string `json:"type" yaml:"type"`
+    Host    string `json:"host" yaml:"host"`
+    Name    string `json:"name" yaml:"name"`
+    User    string `json:"user" yaml:"user"`
+    Pass    string `json:"pass" yaml:"pass"`
+    Charset string `json:"charset" yaml:"charset"`
 }
 
 func DefaultConfig() *gorm.Config {

@@ -21,7 +21,6 @@ type FileDrivers struct {
 
 func NewFileRegistry(config file.Config, drivers FileDrivers) (*file.DriverRegistry, error) {
     registry := file.NewRegistry(config)
-    
     ref := reflect.ValueOf(drivers)
     
     for i := 0; i < ref.NumField(); i++ {
