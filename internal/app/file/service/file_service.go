@@ -10,9 +10,9 @@ import (
     `path`
     `time`
     
-    `dpcms/internal/app/file/errno`
     `dpcms/internal/app/file/internal/assembler`
     `dpcms/internal/app/file/internal/dto`
+    `dpcms/internal/app/file/internal/errno`
     `dpcms/internal/app/file/internal/fileutil`
     `dpcms/internal/infra/logger`
     `dpcms/internal/infra/persistence/contract`
@@ -39,7 +39,7 @@ func NewFileService(txManager contract.TxManager, repo FileRepo, driverSrv *File
 }
 
 func (s FileService) Save(ctx context.Context, user *model.User, params dto.FileSaveCommand) (*dto.FileInfo, error) {
-    driver, err := s.driverSrv.GetCurrentDriver()
+    driverName, driver, err := s.driverSrv.GetCurrentDriver()
     if err != nil {
         return nil, err
     }
@@ -103,7 +103,7 @@ func (s FileService) Save(ctx context.Context, user *model.User, params dto.File
         Path:         savingKey,
         Size:         datatype.SafeInt64(fileSize),
         SHA256:       hex.EncodeToString(hash.Sum(nil)),
-        Driver:       driver.Name(),
+        Driver:       driverName,
     }
     fileRecord.IsImage.FromBool(fileutil.IsImage(fileExt))
     

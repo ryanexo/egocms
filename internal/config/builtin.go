@@ -5,10 +5,10 @@ import (
     `encoding/hex`
     `time`
     
-    `dpcms/internal/config/file`
     `dpcms/internal/config/token`
     `dpcms/internal/httpserver`
     `dpcms/internal/infra/db`
+    `dpcms/internal/infra/file`
     `dpcms/internal/infra/logger`
     `dpcms/internal/middleware/cors`
     
@@ -62,7 +62,9 @@ func defaultConfig() (*Config, error) {
             StaticDir: "static/",
         },
         File: file.Config{
-            "savePath": "./uploads/",
+            "local": map[string]any{
+                "savePath": "./uploads/",
+            },
         },
     }, nil
 }

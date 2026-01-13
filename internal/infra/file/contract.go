@@ -7,8 +7,6 @@ import (
 )
 
 type Driver interface {
-    Name() string
-    
     Read(ctx context.Context, path string) ([]byte, error)
     OpenReader(ctx context.Context, path string) (io.ReadCloser, error)
     
@@ -35,5 +33,6 @@ type FileInfo interface {
 }
 
 type DriverFactory interface {
+    Name() string
     Setup(config map[string]any) (Driver, error)
 }

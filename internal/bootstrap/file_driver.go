@@ -3,7 +3,6 @@ package bootstrap
 import (
     `reflect`
     
-    fileConfig `dpcms/internal/config/file`
     `dpcms/internal/infra/file`
     `dpcms/internal/infra/file/driver/local`
     
@@ -20,8 +19,8 @@ type FileDrivers struct {
     Local local.Factory
 }
 
-func NewFileRegistry(config fileConfig.Config, drivers FileDrivers) (*file.DriverRegistry, error) {
-    registry := file.NewRegistry()
+func NewFileRegistry(config file.Config, drivers FileDrivers) (*file.DriverRegistry, error) {
+    registry := file.NewRegistry(config)
     
     ref := reflect.ValueOf(drivers)
     
@@ -32,13 +31,12 @@ func NewFileRegistry(config fileConfig.Config, drivers FileDrivers) (*file.Drive
         }
     
     SETUP:
-        controller, ok := iterateField.Interface().(file.DriverFactory)
+        factory, ok := iterateField.Interface().(file.DriverFactory)
         if ok {
-            driver, err := controller.Setup(config)
+            err := registry.Register(factory)
             if err != nil {
                 return nil, err
             }
-            registry.Register(driver)
         } else if iterateField.Kind() == reflect.Ptr {
             iterateField = iterateField.Elem()
             goto SETUP

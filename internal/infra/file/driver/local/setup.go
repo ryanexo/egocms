@@ -10,6 +10,10 @@ type Factory struct{}
 
 var _ file.DriverFactory = (*Factory)(nil)
 
+func (s Factory) Name() string {
+    return "local"
+}
+
 func (s Factory) Setup(config map[string]any) (file.Driver, error) {
     val, ok := config["savePath"]
     if !ok {
@@ -17,7 +21,7 @@ func (s Factory) Setup(config map[string]any) (file.Driver, error) {
     }
     savePath, ok := val.(string)
     if !ok {
-        return nil, errors.New("file.savePath配置格式错误")
+        return nil, errors.New("file.savePath 配置格式错误")
     }
     
     return localStorage{savePath}, nil

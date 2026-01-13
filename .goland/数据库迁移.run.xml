@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="数据库迁移" type="GoApplicationRunConfiguration" factoryName="Go Application">
-    <module name="golang" />
+    <module name="egocms" />
     <working_directory value="$PROJECT_DIR$" />
     <kind value="PACKAGE" />
     <package value="dpcms/cmd/migrate" />

@@ -1,11 +1,11 @@
 package config
 
 import (
-    `dpcms/internal/config/file`
     `dpcms/internal/config/token`
     `dpcms/internal/httpserver`
     `dpcms/internal/infra/db`
     `dpcms/internal/infra/encodedid`
+    `dpcms/internal/infra/file`
     `dpcms/internal/infra/logger`
     `dpcms/internal/middleware/cors`
 )

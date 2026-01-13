@@ -3,7 +3,7 @@ package service
 import (
     configkeys `dpcms/internal/app/config/constant`
     config `dpcms/internal/app/config/service`
-    `dpcms/internal/app/file/errno`
+    `dpcms/internal/app/file/internal/errno`
     `dpcms/internal/erroz`
     `dpcms/internal/infra/file`
 )
@@ -28,12 +28,16 @@ func (s FileDriverService) GetDriver(name string) (file.Driver, error) {
     return driver, nil
 }
 
-func (s FileDriverService) GetCurrentDriver() (file.Driver, error) {
+func (s FileDriverService) GetCurrentDriver() (string, file.Driver, error) {
     driverName, exists := s.configSrv.Get(configkeys.FileDriver)
     if !exists {
-        return nil, erroz.Unknown.Wrap(
+        return "", nil, erroz.Unknown.Wrap(
             errno.FileDriverConfigNotExists.ToError(),
         ).ToError()
     }
-    return s.GetDriver(driverName)
+    driver, err := s.GetDriver(driverName)
+    if err != nil {
+        return "", nil, err
+    }
+    return driverName, driver, nil
 }
