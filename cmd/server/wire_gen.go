@@ -40,7 +40,6 @@ import (
 	"dpcms/internal/httpserver"
 	"dpcms/internal/infra/cache"
 	"dpcms/internal/infra/db"
-	"dpcms/internal/infra/encodedid"
 	"dpcms/internal/infra/file/driver/local"
 	"dpcms/internal/infra/logger"
 	"dpcms/internal/infra/persistence"
@@ -151,8 +150,7 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	configService := service9.NewConfigService(txManager, configRepo, configCache, loggerLogger)
 	fileDriverService := service10.NewFileDriverService(driverRegistry, configService)
 	fileService := service10.NewFileService(txManager, fileRepo, fileDriverService, loggerLogger)
-	encodedidConfig := config.GetEncodedIDConfig(cfg)
-	hashID, err := encodedid.New(encodedidConfig)
+	hashID, err := bootstrap.NewXHashIds(cfg)
 	if err != nil {
 		return nil, err
 	}

@@ -1,9 +1,9 @@
-package encodedid
+package xhashids
 
 import `github.com/speps/go-hashids`
 
 type HashID struct {
-    hd *hashids.HashID
+    *hashids.HashID
 }
 
 type Config struct {
@@ -19,7 +19,7 @@ func New(config Config) (*HashID, error) {
         return nil, err
     }
     return &HashID{
-        hd: hd,
+        HashID: hd,
     }, nil
 }
 
@@ -28,11 +28,11 @@ func (h *HashID) EncodeUint64(numbers []uint64) (string, error) {
     for _, number := range numbers {
         ints = append(ints, int64(number>>32), int64(number&0xffffffff))
     }
-    return h.hd.EncodeInt64(ints)
+    return h.HashID.EncodeInt64(ints)
 }
 
 func (h *HashID) DecodeUint64(hash string) ([]uint64, error) {
-    decResult, err := h.hd.DecodeInt64WithError(hash)
+    decResult, err := h.HashID.DecodeInt64WithError(hash)
     if err != nil {
         return nil, err
     }

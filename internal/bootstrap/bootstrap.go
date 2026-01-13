@@ -4,7 +4,6 @@ import (
     `dpcms/internal/httpserver`
     `dpcms/internal/infra/cache`
     `dpcms/internal/infra/db`
-    `dpcms/internal/infra/encodedid`
     `dpcms/internal/infra/logger`
     `dpcms/internal/infra/persistence`
     `dpcms/internal/infra/rbac`
@@ -18,8 +17,8 @@ var BootstrapProvider = wire.NewSet(
     rbac.NewMenuCasbin,
     logger.New,
     db.NewDB,
-    encodedid.New,
     persistence.NewQuery,
     persistence.NewTxManager,
     cache.NewConfigCache,
+    NewXHashIds,
 )

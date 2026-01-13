@@ -6,9 +6,9 @@ import (
     `dpcms/internal/config/token`
     `dpcms/internal/httpserver`
     `dpcms/internal/infra/db`
-    `dpcms/internal/infra/encodedid`
     `dpcms/internal/infra/file`
     `dpcms/internal/infra/logger`
+    `dpcms/internal/infra/xhashids`
     `dpcms/internal/middleware/cors`
     
     "github.com/bytedance/sonic"
@@ -29,9 +29,9 @@ type Config struct {
     GlobalKey string            `json:"globalKey" yaml:"globalKey"`
     Token     token.Config      `json:"token" yaml:"token"`
     CORS      cors.Config       `json:"cors" yaml:"cors"`
-    DB        db.DBConfig       `json:"db" yaml:"db"`
-    EncodedID encodedid.Config  `json:"encodedId" yaml:"encodedId"`
-    File      file.Config       `json:"file" yaml:"file"`
+    DB        db.DBConfig     `json:"db" yaml:"db"`
+    EncodedID xhashids.Config `json:"encodedId" yaml:"encodedId"`
+    File      file.Config     `json:"file" yaml:"file"`
     Log       logger.Config     `json:"log" yaml:"log"`
     Server    httpserver.Config `json:"httpserver" yaml:"httpserver"`
 }

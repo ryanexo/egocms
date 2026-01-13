@@ -6,7 +6,7 @@ import (
     `dpcms/internal/app/file/internal/dto`
     `dpcms/internal/app/file/service`
     `dpcms/internal/erroz`
-    `dpcms/internal/infra/encodedid`
+    `dpcms/internal/infra/xhashids`
     `dpcms/internal/infra/persistence/datatype`
     `dpcms/internal/middleware/authz`
     `dpcms/internal/types`
@@ -19,10 +19,10 @@ import (
 type FileController struct {
     fileSrv *service.FileService
     auth    *authz.Factory
-    hashID  *encodedid.HashID
+    hashID  *xhashids.HashID
 }
 
-func NewFileController(fileSrv *service.FileService, auth *authz.Factory, hashID *encodedid.HashID) *FileController {
+func NewFileController(fileSrv *service.FileService, auth *authz.Factory, hashID *xhashids.HashID) *FileController {
     return &FileController{fileSrv: fileSrv, auth: auth, hashID: hashID}
 }
 
