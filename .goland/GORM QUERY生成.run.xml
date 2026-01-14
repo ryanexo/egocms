@@ -3,7 +3,7 @@
     <module name="golang" />
     <working_directory value="$PROJECT_DIR$" />
     <kind value="PACKAGE" />
-    <package value="dpcms/cmd/gormgen" />
+    <package value="cms/cmd/gormgen" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$/cmd/gormgen/main.go" />
     <method v="2" />

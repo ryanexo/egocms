@@ -1,11 +1,12 @@
 package controller
 
 import (
-    `dpcms/internal/app/articlemodel/internal/dto`
-    articleModelSrv `dpcms/internal/app/articlemodel/service`
-    `dpcms/internal/middleware/authz`
-    `dpcms/internal/types`
-    `dpcms/internal/util/httpbinding`
+    `cms/internal/app/articlemodel/internal/dto`
+    articleModelSrv `cms/internal/app/articlemodel/service`
+    `cms/internal/httpserver`
+    `cms/internal/middleware/authz`
+    `cms/internal/types`
+    `cms/internal/util/httpbinding`
     
     "github.com/gin-gonic/gin"
 )
@@ -22,10 +23,10 @@ func NewArticleModelController(
     return &ArticleModelController{articleModelSrv: articleModelSrv, auth: auth}
 }
 
-func (s ArticleModelController) Setup(engine *gin.Engine) {
+func (s ArticleModelController) Setup(router httpserver.Router) {
     acl := s.auth.AccessControl("article-model")
     
-    g := engine.Group("/article-model", acl.Middleware())
+    g := router.Group("/article-model", acl.Middleware())
     g.POST("/create", s.Create)
     g.POST("/delete", s.Delete)
     g.POST("/detail", s.Detail)

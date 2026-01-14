@@ -3,7 +3,7 @@ package local
 import (
     `errors`
     
-    `dpcms/internal/infra/file`
+    `cms/internal/infra/file`
 )
 
 type Factory struct{}

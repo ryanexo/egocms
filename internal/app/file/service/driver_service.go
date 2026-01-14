@@ -1,9 +1,9 @@
 package service
 
 import (
-    `dpcms/internal/config`
-    `dpcms/internal/erroz`
-    `dpcms/internal/infra/file`
+    `cms/internal/config`
+    `cms/internal/erroz`
+    `cms/internal/infra/file`
 )
 
 type FileDriverService struct {

@@ -3,8 +3,8 @@ package erroz
 import (
     `strings`
     
-    `dpcms/internal/erroz/internal/format`
-    `dpcms/internal/erroz/type`
+    `cms/internal/erroz/internal/format`
+    `cms/internal/erroz/type`
 )
 
 func Code(module string, typ errtype.ErrType, code int64) string {

@@ -1,4 +1,4 @@
-package rbac
+package casbin
 
 func DefaultModel() string {
     return `

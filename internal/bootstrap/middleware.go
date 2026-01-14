@@ -3,21 +3,21 @@ package bootstrap
 import (
     `reflect`
     
-    permChecker `dpcms/internal/app/permission/adapter`
-    tokenParser `dpcms/internal/app/token/adapter`
-    `dpcms/internal/httpserver`
-    `dpcms/internal/middleware/authz`
-    `dpcms/internal/middleware/cors`
-    `dpcms/internal/middleware/log`
-    `dpcms/internal/middleware/recovery`
-    `dpcms/internal/middleware/reqtrace`
+    permChecker `cms/internal/app/permission/adapter`
+    corsOptions `cms/internal/app/setting/adapter`
+    tokenParser `cms/internal/app/token/adapter`
+    `cms/internal/httpserver`
+    `cms/internal/middleware/authz`
+    `cms/internal/middleware/cors`
+    `cms/internal/middleware/log`
+    `cms/internal/middleware/recovery`
+    `cms/internal/middleware/reqtrace`
+    `cms/internal/util/reflectutil`
     
-    "github.com/gin-gonic/gin"
     "github.com/google/wire"
 )
 
 var MiddlewareProvider = wire.NewSet(
-    wire.Struct(new(Middleware), "*"),
     NewMiddlewareRegistrar,
     recovery.New,
     log.New,
@@ -26,37 +26,35 @@ var MiddlewareProvider = wire.NewSet(
     authz.NewFactory,
     tokenParser.NewTokenParser,
     permChecker.NewPermissionChecker,
+    corsOptions.NewCORSOptions,
 )
 
-type Middleware struct {
-    Recovery recovery.Middleware
-    ReqTrace reqtrace.Middleware
-    Logger   log.Middleware
-    CORS     cors.Middleware
+type middlewareSet struct {
+    Recovery recovery.Recovery
+    ReqTrace reqtrace.RequestTrace
+    Logger   log.Log
+    CORS     cors.CORS
 }
 
-var _ httpserver.Middleware = (*Middleware)(nil)
+var _ httpserver.Middleware = (*middlewareSet)(nil)
 
-func (m Middleware) SetupMiddleware(engine *gin.Engine) {
-    val := reflect.ValueOf(m)
-    if val.Kind() == reflect.Ptr {
-        val = val.Elem()
-    }
-    
-    handler := reflect.TypeOf(gin.HandlerFunc(nil))
-    
-    for i := 0; i < val.NumField(); i++ {
-        field := val.Field(i)
-        
-        if !field.CanConvert(handler) {
-            continue
-        }
-        
-        fn := field.Convert(handler).Interface().(gin.HandlerFunc)
-        engine.Use(fn)
-    }
+func (m middlewareSet) Setup(registry httpserver.MiddlewareRegistry) {
+    _ = reflectutil.InvokeImplementedStruct[httpserver.Middleware](m, func(_ reflect.Value, md httpserver.Middleware) error {
+        md.Setup(registry)
+        return nil
+    })
 }
 
-func NewMiddlewareRegistrar(m *Middleware) httpserver.Middleware {
-    return m
+func NewMiddlewareRegistrar(
+    recoveryMdl recovery.Recovery,
+    reqTraceMdl reqtrace.RequestTrace,
+    loggerMdl log.Log,
+    corsMdl cors.CORS,
+) httpserver.Middleware {
+    return middlewareSet{
+        Recovery: recoveryMdl,
+        ReqTrace: reqTraceMdl,
+        Logger:   loggerMdl,
+        CORS:     corsMdl,
+    }
 }

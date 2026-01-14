@@ -1,6 +1,6 @@
 package errtype
 
-import `dpcms/internal/erroz/internal/format`
+import `cms/internal/erroz/internal/format`
 
 type ErrType int
 

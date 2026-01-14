@@ -1,12 +1,5 @@
 definitions:
-  datatype.EnumValue:
-    properties:
-      label:
-        type: string
-      value:
-        type: string
-    type: object
-  dpcms_internal_app_category_internal_dto.ApiPagedData-model_Category:
+  cms_internal_app_category_internal_dto.ApiPagedData-model_Category:
     properties:
       list:
         items:
@@ -19,7 +12,7 @@ definitions:
       total:
         type: integer
     type: object
-  dpcms_internal_app_menu_internal_dto.ApiPagedData-dto_Menu:
+  cms_internal_app_menu_internal_dto.ApiPagedData-dto_Menu:
     properties:
       list:
         items:
@@ -32,7 +25,7 @@ definitions:
       total:
         type: integer
     type: object
-  dpcms_internal_app_role_internal_dto.ApiPagedData-dto_Role:
+  cms_internal_app_role_internal_dto.ApiPagedData-dto_Role:
     properties:
       list:
         items:
@@ -45,7 +38,7 @@ definitions:
       total:
         type: integer
     type: object
-  dpcms_internal_app_user_internal_dto.ApiPagedData-dto_User:
+  cms_internal_app_user_internal_dto.ApiPagedData-dto_User:
     properties:
       list:
         items:
@@ -57,6 +50,13 @@ definitions:
         type: integer
       total:
         type: integer
+    type: object
+  datatype.EnumValue:
+    properties:
+      label:
+        type: string
+      value:
+        type: string
     type: object
   dto.ApiArticle:
     properties:
@@ -99,7 +99,7 @@ definitions:
       code:
         type: string
       data:
-        $ref: '#/definitions/dpcms_internal_app_category_internal_dto.ApiPagedData-model_Category'
+        $ref: '#/definitions/cms_internal_app_category_internal_dto.ApiPagedData-model_Category'
       msg:
         type: string
     type: object
@@ -117,7 +117,7 @@ definitions:
       code:
         type: string
       data:
-        $ref: '#/definitions/dpcms_internal_app_menu_internal_dto.ApiPagedData-dto_Menu'
+        $ref: '#/definitions/cms_internal_app_menu_internal_dto.ApiPagedData-dto_Menu'
       msg:
         type: string
     type: object
@@ -148,7 +148,7 @@ definitions:
       code:
         type: string
       data:
-        $ref: '#/definitions/dpcms_internal_app_role_internal_dto.ApiPagedData-dto_Role'
+        $ref: '#/definitions/cms_internal_app_role_internal_dto.ApiPagedData-dto_Role'
       msg:
         type: string
     type: object
@@ -166,7 +166,7 @@ definitions:
       code:
         type: string
       data:
-        $ref: '#/definitions/dpcms_internal_app_user_internal_dto.ApiPagedData-dto_User'
+        $ref: '#/definitions/cms_internal_app_user_internal_dto.ApiPagedData-dto_User'
       msg:
         type: string
     type: object
@@ -1385,16 +1385,15 @@ paths:
       - 文件
       x-apifox-folder: 文件
   /file/download:
-    post:
+    get:
       consumes:
       - application/json
       parameters:
-      - description: 请求参数
-        in: body
-        name: body
+      - description: 文件ID
+        in: query
+        name: id
         required: true
-        schema:
-          $ref: '#/definitions/types.ResourceID'
+        type: string
       produces:
       - application/octet-stream
       responses:

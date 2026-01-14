@@ -3,7 +3,7 @@ package authz
 import (
     `context`
     
-    `dpcms/internal/constant`
+    `cms/internal/constant`
 )
 
 func GetCurrentUser[T any](ctx context.Context) (T, error) {

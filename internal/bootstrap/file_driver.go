@@ -3,8 +3,9 @@ package bootstrap
 import (
     `reflect`
     
-    `dpcms/internal/infra/file`
-    `dpcms/internal/infra/file/driver/local`
+    `cms/internal/infra/file`
+    `cms/internal/infra/file/driver/local`
+    `cms/internal/util/reflectutil`
     
     `github.com/google/wire`
 )
@@ -21,25 +22,12 @@ type FileDrivers struct {
 
 func NewFileRegistry(config file.Config, drivers FileDrivers) (*file.DriverRegistry, error) {
     registry := file.NewRegistry(config)
-    ref := reflect.ValueOf(drivers)
     
-    for i := 0; i < ref.NumField(); i++ {
-        iterateField := ref.Field(i)
-        if !iterateField.CanInterface() {
-            continue
-        }
-    
-    SETUP:
-        factory, ok := iterateField.Interface().(file.DriverFactory)
-        if ok {
-            err := registry.Register(factory)
-            if err != nil {
-                return nil, err
-            }
-        } else if iterateField.Kind() == reflect.Ptr {
-            iterateField = iterateField.Elem()
-            goto SETUP
-        }
+    err := reflectutil.InvokeImplementedStruct[file.DriverFactory](drivers, func(_ reflect.Value, factory file.DriverFactory) error {
+        return registry.Register(factory)
+    })
+    if err != nil {
+        return nil, err
     }
     
     return registry, nil

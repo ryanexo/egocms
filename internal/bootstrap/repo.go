@@ -1,16 +1,16 @@
 package bootstrap
 
 import (
-    articleRepo `dpcms/internal/app/article/adapter`
-    articleModelRepo `dpcms/internal/app/articlemodel/adapter`
-    categoryRepo `dpcms/internal/app/category/adapter`
-    config `dpcms/internal/app/setting/adapter`
-    file `dpcms/internal/app/file/adapter`
-    menuRepo `dpcms/internal/app/menu/adapter`
-    permission `dpcms/internal/app/permission/adapter`
-    roleRepo `dpcms/internal/app/role/adapter`
-    tokenBlacklistRepo `dpcms/internal/app/token/adapter`
-    userRepo `dpcms/internal/app/user/adapter`
+    articleRepo `cms/internal/app/article/adapter`
+    articleModelRepo `cms/internal/app/articlemodel/adapter`
+    categoryRepo `cms/internal/app/category/adapter`
+    config `cms/internal/app/setting/adapter`
+    file `cms/internal/app/file/adapter`
+    menuRepo `cms/internal/app/menu/adapter`
+    permission `cms/internal/app/permission/adapter`
+    roleRepo `cms/internal/app/role/adapter`
+    tokenBlacklistRepo `cms/internal/app/token/adapter`
+    userRepo `cms/internal/app/user/adapter`
     
     `github.com/google/wire`
 )

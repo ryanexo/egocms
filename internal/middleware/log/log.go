@@ -3,16 +3,23 @@ package log
 import (
     "time"
     
-    `dpcms/internal/constant`
-    `dpcms/internal/infra/logger`
+    `cms/internal/constant`
+    `cms/internal/httpserver`
+    `cms/internal/infra/logger`
     
     "github.com/gin-gonic/gin"
     "go.uber.org/zap"
 )
 
-type Middleware gin.HandlerFunc
+type Log struct {
+    logger *logger.Logger
+}
 
-func New(log *logger.Logger) Middleware {
+func (s Log) Setup(registry httpserver.MiddlewareRegistry) {
+    registry.Use(s.Middleware())
+}
+
+func (s Log) Middleware() gin.HandlerFunc {
     return func(context *gin.Context) {
         startTime := time.Now()
         context.Next()
@@ -38,6 +45,10 @@ func New(log *logger.Logger) Middleware {
             fields = append(fields, zap.String("error", context.Errors.String()))
         }
         
-        log.Access.Log(lvl, context.Request.URL.Path, fields...)
+        s.logger.Access.Log(lvl, context.Request.URL.Path, fields...)
     }
+}
+
+func New(l *logger.Logger) Log {
+    return Log{logger: l}
 }

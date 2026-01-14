@@ -1,9 +1,9 @@
 package assembler
 
 import (
-    `dpcms/internal/app/file/internal/dto`
-    `dpcms/internal/infra/persistence/model`
-    `dpcms/internal/types`
+    `cms/internal/app/file/internal/dto`
+    `cms/internal/infra/persistence/model`
+    `cms/internal/types`
 )
 
 func ToFileInfoDTO(data *model.File, url string) *dto.FileInfo {

@@ -1,8 +1,8 @@
 package authz
 
 import (
-    `dpcms/internal/erroz`
-    errtype `dpcms/internal/erroz/type`
+    `cms/internal/erroz`
+    errtype `cms/internal/erroz/type`
 )
 
 var ErrAuthorized = erroz.New(erroz.Code("AUTH", errtype.Auth, 0), "未授权")

@@ -4,9 +4,9 @@ import (
     `context`
     `time`
     
-    `dpcms/internal/infra/persistence/contract`
-    `dpcms/internal/infra/persistence/datatype`
-    `dpcms/internal/infra/persistence/model`
+    `cms/internal/infra/persistence/contract`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/model`
     
     `gorm.io/gen`
 )

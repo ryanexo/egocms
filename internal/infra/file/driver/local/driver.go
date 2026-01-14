@@ -6,7 +6,7 @@ import (
     `os`
     `path`
     
-    `dpcms/internal/infra/file`
+    `cms/internal/infra/file`
 )
 
 type localStorage struct {

@@ -1,24 +1,24 @@
 package bootstrap
 
 import (
-    "reflect"
+    `reflect`
     
-    article `dpcms/internal/app/article/controller`
-    articleModel `dpcms/internal/app/articlemodel/controller`
-    category `dpcms/internal/app/category/controller`
-    file `dpcms/internal/app/file/controller`
-    menu `dpcms/internal/app/menu/controller`
-    permission `dpcms/internal/app/permission/controller`
-    role `dpcms/internal/app/role/controller`
-    user `dpcms/internal/app/user/controller`
-    `dpcms/internal/httpserver`
+    article `cms/internal/app/article/controller`
+    articleModel `cms/internal/app/articlemodel/controller`
+    category `cms/internal/app/category/controller`
+    file `cms/internal/app/file/controller`
+    menu `cms/internal/app/menu/controller`
+    permission `cms/internal/app/permission/controller`
+    role `cms/internal/app/role/controller`
+    user `cms/internal/app/user/controller`
+    `cms/internal/httpserver`
+    `cms/internal/util/reflectutil`
     
-    "github.com/gin-gonic/gin"
     `github.com/google/wire`
 )
 
 var ControllerProvider = wire.NewSet(
-    wire.Struct(new(Controllers), "*"),
+    wire.Struct(new(ControllerSet), "*"),
     article.NewArticleController,
     articleModel.NewArticleModelController,
     category.NewCategoryController,
@@ -30,7 +30,7 @@ var ControllerProvider = wire.NewSet(
     NewRouteRegistrar,
 )
 
-type Controllers struct {
+type ControllerSet struct {
     User         *user.UserController
     Menu         *menu.MenuController
     Category     *category.CategoryController
@@ -40,27 +40,15 @@ type Controllers struct {
     File         *file.FileController
 }
 
-var _ httpserver.Routes = (*Controllers)(nil)
+var _ httpserver.Route = (*ControllerSet)(nil)
 
-func (c Controllers) SetupRoutes(engine *gin.Engine) {
-    ref := reflect.ValueOf(c)
-    
-    for i := 0; i < ref.NumField(); i++ {
-        iterateField := ref.Field(i)
-        if !iterateField.CanInterface() {
-            continue
-        }
-    SETUP:
-        controller, ok := iterateField.Interface().(interface{ Setup(engine *gin.Engine) })
-        if ok {
-            controller.Setup(engine)
-        } else if iterateField.Kind() == reflect.Ptr {
-            iterateField = iterateField.Elem()
-            goto SETUP
-        }
-    }
+func (c ControllerSet) Setup(router httpserver.Router) {
+    _ = reflectutil.InvokeImplementedStruct[httpserver.Route](c, func(_ reflect.Value, i httpserver.Route) error {
+        i.Setup(router)
+        return nil
+    })
 }
 
-func NewRouteRegistrar(c *Controllers) httpserver.Routes {
-    return c
+func NewRouteRegistrar(ctlSet *ControllerSet) httpserver.Route {
+    return ctlSet
 }

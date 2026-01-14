@@ -4,12 +4,12 @@ import (
     "context"
     "database/sql"
     
-    `dpcms/internal/app/user/internal/dto`
-    `dpcms/internal/app/user/service`
-    "dpcms/internal/infra/persistence/datatype"
-    "dpcms/internal/infra/persistence/dbscope"
-    "dpcms/internal/infra/persistence/model"
-    "dpcms/internal/infra/persistence/query"
+    `cms/internal/app/user/internal/dto`
+    `cms/internal/app/user/service`
+    "cms/internal/infra/persistence/datatype"
+    "cms/internal/infra/persistence/dbscope"
+    "cms/internal/infra/persistence/model"
+    "cms/internal/infra/persistence/query"
     
     "gorm.io/gen"
 )

@@ -1,6 +1,6 @@
 package model
 
-import `dpcms/internal/infra/persistence/datatype`
+import `cms/internal/infra/persistence/datatype`
 
 type CategoryContext struct {
     ID datatype.SafeUint64 `gorm:"primaryKey"`

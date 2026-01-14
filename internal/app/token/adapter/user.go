@@ -1,8 +1,8 @@
 package adapter
 
 import (
-    `dpcms/internal/infra/persistence/model`
-    `dpcms/internal/middleware/authz`
+    `cms/internal/infra/persistence/model`
+    `cms/internal/middleware/authz`
 )
 
 type user struct {

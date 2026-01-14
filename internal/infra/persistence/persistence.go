@@ -1,8 +1,8 @@
 package persistence
 
 import (
-    `dpcms/internal/infra/persistence/contract`
-    `dpcms/internal/infra/persistence/query`
+    `cms/internal/infra/persistence/contract`
+    `cms/internal/infra/persistence/query`
     
     `gorm.io/gorm`
 )

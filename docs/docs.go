@@ -877,7 +877,7 @@ const docTemplate = `{
             }
         },
         "/file/download": {
-            "post": {
+            "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -895,13 +895,11 @@ const docTemplate = `{
                 "summary": "文件下载",
                 "parameters": [
                     {
-                        "description": "请求参数",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/types.ResourceID"
-                        }
+                        "type": "string",
+                        "description": "文件ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1725,18 +1723,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "datatype.EnumValue": {
-            "type": "object",
-            "properties": {
-                "label": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "dpcms_internal_app_category_internal_dto.ApiPagedData-model_Category": {
+        "cms_internal_app_category_internal_dto.ApiPagedData-model_Category": {
             "type": "object",
             "properties": {
                 "list": {
@@ -1756,7 +1743,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dpcms_internal_app_menu_internal_dto.ApiPagedData-dto_Menu": {
+        "cms_internal_app_menu_internal_dto.ApiPagedData-dto_Menu": {
             "type": "object",
             "properties": {
                 "list": {
@@ -1776,7 +1763,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dpcms_internal_app_role_internal_dto.ApiPagedData-dto_Role": {
+        "cms_internal_app_role_internal_dto.ApiPagedData-dto_Role": {
             "type": "object",
             "properties": {
                 "list": {
@@ -1796,7 +1783,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dpcms_internal_app_user_internal_dto.ApiPagedData-dto_User": {
+        "cms_internal_app_user_internal_dto.ApiPagedData-dto_User": {
             "type": "object",
             "properties": {
                 "list": {
@@ -1813,6 +1800,17 @@ const docTemplate = `{
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "datatype.EnumValue": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         },
@@ -1879,7 +1877,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "data": {
-                    "$ref": "#/definitions/dpcms_internal_app_category_internal_dto.ApiPagedData-model_Category"
+                    "$ref": "#/definitions/cms_internal_app_category_internal_dto.ApiPagedData-model_Category"
                 },
                 "msg": {
                     "type": "string"
@@ -1907,7 +1905,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "data": {
-                    "$ref": "#/definitions/dpcms_internal_app_menu_internal_dto.ApiPagedData-dto_Menu"
+                    "$ref": "#/definitions/cms_internal_app_menu_internal_dto.ApiPagedData-dto_Menu"
                 },
                 "msg": {
                     "type": "string"
@@ -1955,7 +1953,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "data": {
-                    "$ref": "#/definitions/dpcms_internal_app_role_internal_dto.ApiPagedData-dto_Role"
+                    "$ref": "#/definitions/cms_internal_app_role_internal_dto.ApiPagedData-dto_Role"
                 },
                 "msg": {
                     "type": "string"
@@ -1983,7 +1981,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "data": {
-                    "$ref": "#/definitions/dpcms_internal_app_user_internal_dto.ApiPagedData-dto_User"
+                    "$ref": "#/definitions/cms_internal_app_user_internal_dto.ApiPagedData-dto_User"
                 },
                 "msg": {
                     "type": "string"

@@ -3,10 +3,10 @@ package service
 import (
     `context`
     
-    `dpcms/internal/app/permission/internal/assembler`
-    `dpcms/internal/app/permission/internal/dto`
-    `dpcms/internal/infra/persistence/datatype`
-    `dpcms/internal/infra/persistence/model`
+    `cms/internal/app/permission/internal/assembler`
+    `cms/internal/app/permission/internal/dto`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/model`
 )
 
 type PermissionService struct {

@@ -3,7 +3,7 @@ package sqlmockutils
 import (
     "testing"
     
-    `dpcms/internal/infra/db`
+    `cms/internal/infra/db`
     
     "github.com/stretchr/testify/assert"
 )

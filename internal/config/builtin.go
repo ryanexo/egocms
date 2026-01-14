@@ -5,12 +5,11 @@ import (
     `encoding/hex`
     `time`
     
-    `dpcms/internal/config/token`
-    `dpcms/internal/httpserver`
-    `dpcms/internal/infra/db`
-    `dpcms/internal/infra/file`
-    `dpcms/internal/infra/logger`
-    `dpcms/internal/middleware/cors`
+    `cms/internal/config/token`
+    `cms/internal/httpserver`
+    `cms/internal/infra/db`
+    `cms/internal/infra/file`
+    `cms/internal/infra/logger`
     
     `github.com/google/uuid`
 )
@@ -30,13 +29,6 @@ func defaultConfig() (*Config, error) {
         GlobalKey: hex.EncodeToString(globalKey[:]),
         Token: token.Config{
             Expires: int(time.Hour * 24 * 7 / time.Second),
-        },
-        CORS: cors.Config{
-            AllowOrigin:      "*",
-            AllowMethods:     "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS",
-            AllowHeaders:     "",
-            AllowCredentials: false,
-            ExposeHeaders:    "",
         },
         DB: db.DBConfig{
             Type:    "sqlite",

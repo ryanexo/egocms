@@ -3,10 +3,10 @@ package service
 import (
     `context`
     
-    `dpcms/internal/config`
-    `dpcms/internal/infra/logger`
-    `dpcms/internal/infra/persistence/contract`
-    `dpcms/internal/infra/persistence/model`
+    `cms/internal/config`
+    `cms/internal/infra/logger`
+    `cms/internal/infra/persistence/contract`
+    `cms/internal/infra/persistence/model`
 )
 
 type SettingService struct {

@@ -1,22 +1,22 @@
-package rbac
+package casbin
 
 import (
     `github.com/casbin/casbin/v3`
     `gorm.io/gorm`
 )
 
-type MenuCasbin struct {
+type RoleCasbin struct {
     *casbin.Enforcer
 }
 
-func NewMenuCasbin(db *gorm.DB) (*MenuCasbin, error) {
+func NewRoleCasbin(db *gorm.DB) (*RoleCasbin, error) {
     enforcer, err := New(Options{
         DB:        db,
-        TableName: "menu_casbin",
+        TableName: "role_casbin",
         Model:     DefaultModel(),
     })
     if err != nil {
         return nil, err
     }
-    return &MenuCasbin{Enforcer: enforcer}, nil
+    return &RoleCasbin{Enforcer: enforcer}, nil
 }

@@ -3,8 +3,8 @@ package dto
 import (
     `time`
     
-    `dpcms/internal/infra/persistence/datatype`
-    `dpcms/internal/types`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/types`
 )
 
 type ArticleCreateParams struct {

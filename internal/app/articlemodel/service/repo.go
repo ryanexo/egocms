@@ -3,10 +3,10 @@ package service
 import (
     `context`
     
-    `dpcms/internal/app/articlemodel/internal/dto`
-    `dpcms/internal/infra/persistence/datatype`
-    `dpcms/internal/infra/persistence/model`
-    `dpcms/internal/infra/persistence/contract`
+    `cms/internal/app/articlemodel/internal/dto`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/model`
+    `cms/internal/infra/persistence/contract`
     
     `gorm.io/gen`
 )

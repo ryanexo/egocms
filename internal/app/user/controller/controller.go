@@ -1,15 +1,16 @@
 package controller
 
 import (
-    token `dpcms/internal/app/token/service`
-    `dpcms/internal/app/user/internal/dto`
-    user `dpcms/internal/app/user/service`
-    "dpcms/internal/erroz"
-    `dpcms/internal/infra/logger`
-    `dpcms/internal/middleware/authz`
-    `dpcms/internal/types`
-    `dpcms/internal/util/contextutil`
-    `dpcms/internal/util/httpbinding`
+    token `cms/internal/app/token/service`
+    `cms/internal/app/user/internal/dto`
+    user `cms/internal/app/user/service`
+    "cms/internal/erroz"
+    `cms/internal/httpserver`
+    `cms/internal/infra/logger`
+    `cms/internal/middleware/authz`
+    `cms/internal/types`
+    `cms/internal/util/contextutil`
+    `cms/internal/util/httpbinding`
     
     "github.com/gin-gonic/gin"
     "go.uber.org/zap"
@@ -36,10 +37,10 @@ func NewUserController(
     }
 }
 
-func (s UserController) Setup(server *gin.Engine) {
+func (s UserController) Setup(router httpserver.Router) {
     acl := s.auth.AccessControl("user")
     
-    g := server.Group("/user", acl.Middleware())
+    g := router.Group("/user", acl.Middleware())
     g.POST("/register", s.Register)
     g.POST("/login", s.Login)
     g.POST("/logout", s.Logout)

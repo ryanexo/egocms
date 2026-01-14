@@ -1,10 +1,10 @@
 package assembler
 
 import (
-    `dpcms/internal/app/menu/internal/dto`
-    `dpcms/internal/infra/persistence/datatype`
-    `dpcms/internal/infra/persistence/model`
-    `dpcms/internal/types`
+    `cms/internal/app/menu/internal/dto`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/model`
+    `cms/internal/types`
 )
 
 func ToMenuCreateCommand(data *dto.MenuCreateParams) *model.Menu {

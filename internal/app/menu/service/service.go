@@ -4,14 +4,14 @@ import (
     `context`
     `errors`
     
-    `dpcms/internal/app/menu/internal/assembler`
-    `dpcms/internal/app/menu/internal/dto`
-    `dpcms/internal/app/menu/internal/errno`
-    `dpcms/internal/infra/persistence/contract`
-    `dpcms/internal/infra/persistence/datatype`
-    `dpcms/internal/infra/persistence/model`
-    `dpcms/internal/infra/persistence/query`
-    `dpcms/internal/types`
+    `cms/internal/app/menu/internal/assembler`
+    `cms/internal/app/menu/internal/dto`
+    `cms/internal/app/menu/internal/errno`
+    `cms/internal/infra/persistence/contract`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/model`
+    `cms/internal/infra/persistence/query`
+    `cms/internal/types`
     
     `gorm.io/gorm`
 )

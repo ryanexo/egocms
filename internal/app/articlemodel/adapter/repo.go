@@ -3,12 +3,12 @@ package adapter
 import (
     "context"
     
-    `dpcms/internal/app/articlemodel/internal/dto`
-    `dpcms/internal/app/articlemodel/service`
-    "dpcms/internal/infra/persistence/datatype"
-    "dpcms/internal/infra/persistence/dbscope"
-    "dpcms/internal/infra/persistence/model"
-    "dpcms/internal/infra/persistence/query"
+    `cms/internal/app/articlemodel/internal/dto`
+    `cms/internal/app/articlemodel/service`
+    "cms/internal/infra/persistence/datatype"
+    "cms/internal/infra/persistence/dbscope"
+    "cms/internal/infra/persistence/model"
+    "cms/internal/infra/persistence/query"
     
     "gorm.io/gen"
 )

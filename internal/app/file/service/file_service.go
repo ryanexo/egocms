@@ -10,14 +10,14 @@ import (
     `path`
     `time`
     
-    `dpcms/internal/app/file/internal/assembler`
-    `dpcms/internal/app/file/internal/dto`
-    `dpcms/internal/app/file/internal/errno`
-    `dpcms/internal/app/file/internal/fileutil`
-    `dpcms/internal/infra/logger`
-    `dpcms/internal/infra/persistence/contract`
-    `dpcms/internal/infra/persistence/datatype`
-    `dpcms/internal/infra/persistence/model`
+    `cms/internal/app/file/internal/assembler`
+    `cms/internal/app/file/internal/dto`
+    `cms/internal/app/file/internal/errno`
+    `cms/internal/app/file/internal/fileutil`
+    `cms/internal/infra/logger`
+    `cms/internal/infra/persistence/contract`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/model`
     
     `github.com/avast/retry-go`
 )

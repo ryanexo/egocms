@@ -3,12 +3,12 @@ package adapter
 import (
     `context`
     
-    `dpcms/internal/infra/rbac`
-    `dpcms/internal/middleware/authz`
+    `cms/internal/infra/casbin`
+    `cms/internal/middleware/authz`
 )
 
 type permissionChecker struct {
-    casbin *rbac.RoleCasbin
+    casbin *casbin.RoleCasbin
 }
 
 var _ authz.PermissionChecker = (*permissionChecker)(nil)
@@ -17,6 +17,6 @@ func (s permissionChecker) Check(_ context.Context, subject string, object strin
     return s.casbin.Enforce(subject, object, action)
 }
 
-func NewPermissionChecker(casbin *rbac.RoleCasbin) authz.PermissionChecker {
+func NewPermissionChecker(casbin *casbin.RoleCasbin) authz.PermissionChecker {
     return &permissionChecker{casbin: casbin}
 }

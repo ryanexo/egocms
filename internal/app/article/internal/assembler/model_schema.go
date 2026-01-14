@@ -3,9 +3,9 @@ package assembler
 import (
     `database/sql`
     
-    `dpcms/internal/app/article/internal/domain`
-    `dpcms/internal/infra/persistence/datatype`
-    `dpcms/internal/infra/persistence/model`
+    `cms/internal/app/article/internal/domain`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/model`
     
     `github.com/shopspring/decimal`
 )

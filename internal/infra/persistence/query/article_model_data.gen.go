@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"dpcms/internal/infra/persistence/model"
+	"cms/internal/infra/persistence/model"
 )
 
 func newArticleModelData(db *gorm.DB, opts ...gen.DOOption) articleModelData {

@@ -3,15 +3,15 @@ package service
 import (
     "context"
     
-    `dpcms/internal/app/user/internal/assembler`
-    `dpcms/internal/app/user/internal/dto`
-    `dpcms/internal/app/user/internal/errno`
-    "dpcms/internal/infra/password"
-    `dpcms/internal/infra/persistence/contract`
-    "dpcms/internal/infra/persistence/datatype"
-    "dpcms/internal/infra/persistence/model"
-    "dpcms/internal/infra/persistence/query"
-    `dpcms/internal/types`
+    `cms/internal/app/user/internal/assembler`
+    `cms/internal/app/user/internal/dto`
+    `cms/internal/app/user/internal/errno`
+    "cms/internal/infra/password"
+    `cms/internal/infra/persistence/contract`
+    "cms/internal/infra/persistence/datatype"
+    "cms/internal/infra/persistence/model"
+    "cms/internal/infra/persistence/query"
+    `cms/internal/types`
 )
 
 type UserService struct {

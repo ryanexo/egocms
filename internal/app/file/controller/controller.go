@@ -3,15 +3,16 @@ package controller
 import (
     `fmt`
     
-    `dpcms/internal/app/file/internal/dto`
-    `dpcms/internal/app/file/service`
-    `dpcms/internal/erroz`
-    `dpcms/internal/infra/xhashids`
-    `dpcms/internal/infra/persistence/datatype`
-    `dpcms/internal/middleware/authz`
-    `dpcms/internal/types`
-    `dpcms/internal/util/contextutil`
-    `dpcms/internal/util/httpbinding`
+    `cms/internal/app/file/internal/dto`
+    `cms/internal/app/file/service`
+    `cms/internal/erroz`
+    `cms/internal/httpserver`
+    `cms/internal/infra/xhashids`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/middleware/authz`
+    `cms/internal/types`
+    `cms/internal/util/contextutil`
+    `cms/internal/util/httpbinding`
     
     `github.com/gin-gonic/gin`
 )
@@ -26,10 +27,10 @@ func NewFileController(fileSrv *service.FileService, auth *authz.Factory, hashID
     return &FileController{fileSrv: fileSrv, auth: auth, hashID: hashID}
 }
 
-func (s FileController) Setup(engine *gin.Engine) {
+func (s FileController) Setup(router httpserver.Router) {
     acl := s.auth.AccessControl("file")
     
-    g := engine.Group("/file", acl.Middleware())
+    g := router.Group("/file", acl.Middleware())
     g.POST("/upload", s.Upload)
     g.POST("/delete", s.Delete)
     g.GET("/download", s.Download)

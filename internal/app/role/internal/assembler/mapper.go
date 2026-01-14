@@ -1,9 +1,9 @@
 package assembler
 
 import (
-    `dpcms/internal/app/role/internal/dto`
-    `dpcms/internal/infra/persistence/model`
-    `dpcms/internal/types`
+    `cms/internal/app/role/internal/dto`
+    `cms/internal/infra/persistence/model`
+    `cms/internal/types`
 )
 
 func ToRoleDTO(data *model.Role) *dto.Role {

@@ -3,7 +3,7 @@ package model
 import (
     "database/sql"
     
-    "dpcms/internal/infra/persistence/datatype"
+    "cms/internal/infra/persistence/datatype"
 )
 
 type User struct {

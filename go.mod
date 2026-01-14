@@ -1,4 +1,4 @@
-module dpcms
+module cms
 
 go 1.24.0
 

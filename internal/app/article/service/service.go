@@ -4,15 +4,15 @@ import (
     "context"
     "database/sql"
     
-    `dpcms/internal/app/article/internal/assembler`
-    `dpcms/internal/app/article/internal/domain`
-    `dpcms/internal/app/article/internal/dto`
-    `dpcms/internal/app/article/internal/errno`
-    `dpcms/internal/app/articlemodel/service`
-    `dpcms/internal/infra/persistence/contract`
-    "dpcms/internal/infra/persistence/datatype"
-    "dpcms/internal/infra/persistence/model"
-    "dpcms/internal/infra/persistence/query"
+    `cms/internal/app/article/internal/assembler`
+    `cms/internal/app/article/internal/domain`
+    `cms/internal/app/article/internal/dto`
+    `cms/internal/app/article/internal/errno`
+    `cms/internal/app/articlemodel/service`
+    `cms/internal/infra/persistence/contract`
+    "cms/internal/infra/persistence/datatype"
+    "cms/internal/infra/persistence/model"
+    "cms/internal/infra/persistence/query"
 )
 
 type ArticleService struct {

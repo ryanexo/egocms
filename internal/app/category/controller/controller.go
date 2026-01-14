@@ -1,13 +1,14 @@
 package controller
 
 import (
-    "dpcms/internal/app/category/internal/dto"
-    "dpcms/internal/app/category/service"
-    "dpcms/internal/middleware/authz"
-    "dpcms/internal/types"
-    "dpcms/internal/util/httpbinding"
+    "cms/internal/app/category/internal/dto"
+    "cms/internal/app/category/service"
+    `cms/internal/httpserver`
+    "cms/internal/middleware/authz"
+    "cms/internal/types"
+    "cms/internal/util/httpbinding"
     
-    _ "dpcms/internal/util/httpbinding"
+    _ "cms/internal/util/httpbinding"
     
     "github.com/gin-gonic/gin"
 )
@@ -27,10 +28,10 @@ func NewCategoryController(
     }
 }
 
-func (s CategoryController) Setup(engine *gin.Engine) {
+func (s CategoryController) Setup(router httpserver.Router) {
     acl := s.auth.AccessControl("category")
     
-    g := engine.Group("/category", acl.Middleware())
+    g := router.Group("/category", acl.Middleware())
     g.POST("/list", s.List)
     g.POST("/create", s.Create)
     g.POST("/update", s.Update)

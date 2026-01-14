@@ -1,9 +1,9 @@
 package assembler
 
 import (
-    `dpcms/internal/app/user/internal/dto`
-    "dpcms/internal/infra/persistence/model"
-    `dpcms/internal/types`
+    `cms/internal/app/user/internal/dto`
+    "cms/internal/infra/persistence/model"
+    `cms/internal/types`
 )
 
 func ToUserCreateCommand(data *dto.UserCreateParams) *model.User {

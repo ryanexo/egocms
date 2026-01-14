@@ -3,7 +3,7 @@ package contract
 import (
     `database/sql`
     
-    `dpcms/internal/infra/persistence/query`
+    `cms/internal/infra/persistence/query`
 )
 
 type TxManager interface {

@@ -1,18 +1,18 @@
 package xhashids
 
-import `github.com/speps/go-hashids`
+import (
+    `cms/internal/config`
+    
+    `github.com/speps/go-hashids`
+)
 
 type HashID struct {
     *hashids.HashID
 }
 
-type Config struct {
-    Salt string `json:"salt" yaml:"salt"`
-}
-
-func New(config Config) (*HashID, error) {
+func New(config *config.Config) (*HashID, error) {
     hashData := hashids.NewData()
-    hashData.Salt = config.Salt
+    hashData.Salt = config.GlobalKey
     hashData.MinLength = 16
     hd, err := hashids.NewWithData(hashData)
     if err != nil {

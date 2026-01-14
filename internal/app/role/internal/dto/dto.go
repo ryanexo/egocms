@@ -1,8 +1,8 @@
 package dto
 
 import (
-    "dpcms/internal/infra/persistence/datatype"
-    `dpcms/internal/types`
+    "cms/internal/infra/persistence/datatype"
+    `cms/internal/types`
 )
 
 type RoleCreateParams struct {

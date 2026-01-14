@@ -3,13 +3,13 @@ package httpserver
 import (
     "path/filepath"
     
-    `dpcms/internal/httpserver/validator`
+    `cms/internal/httpserver/validator`
     
     "github.com/gin-gonic/gin"
     "github.com/gin-gonic/gin/binding"
 )
 
-func New(cfg Config, middleware Middleware, routes Routes) (*Launcher, error) {
+func New(cfg Config, middleware Middleware, routes Route) (*Launcher, error) {
     if cfg.Debug {
         gin.SetMode(gin.DebugMode)
     }

@@ -1,6 +1,6 @@
 package erroz
 
-import `dpcms/internal/erroz/type`
+import `cms/internal/erroz/type`
 
 var (
     OK               = New(Code("SERVER", errtype.OK, 0), "操作成功")

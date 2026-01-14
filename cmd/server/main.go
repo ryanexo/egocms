@@ -1,11 +1,8 @@
 package main
 
 import (
-    `fmt`
-    `runtime/debug`
-    
-    _ `dpcms/docs`
-    `dpcms/internal/config`
+    _ `cms/docs`
+    `cms/internal/config`
 )
 
 // @title           EgoCms Api
@@ -18,18 +15,18 @@ import (
 func main() {
     appConfig := &config.Config{}
     if err := registerCommand(appConfig); err != nil {
-        panic(fmt.Sprintf("%+v\n%s", err, debug.Stack()))
+        panic(err)
     }
     err := appConfig.Validate()
     if err != nil {
-        panic(fmt.Sprintf("%+v\n%s", err, debug.Stack()))
+        panic(err)
     }
     launcher, err := createHttpServer(appConfig)
     if err != nil {
-        panic(fmt.Sprintf("%+v\n%s", err, debug.Stack()))
+        panic(err)
     }
     err = launcher.Run(true)
     if err != nil {
-        panic(fmt.Sprintf("%+v\n%s", err, debug.Stack()))
+        panic(err)
     }
 }

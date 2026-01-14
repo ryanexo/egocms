@@ -1,6 +1,6 @@
 package controller
 
-import permission `dpcms/internal/app/permission/service`
+import permission `cms/internal/app/permission/service`
 
 type PermissionController struct {
     permSrv *permission.PermissionService

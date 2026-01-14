@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"dpcms/internal/infra/persistence/model"
+	"cms/internal/infra/persistence/model"
 )
 
 func newCategory(db *gorm.DB, opts ...gen.DOOption) category {

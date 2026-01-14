@@ -1,15 +1,16 @@
 package controller
 
 import (
-    `dpcms/internal/app/article/internal/domain`
-    `dpcms/internal/app/article/internal/dto`
-    `dpcms/internal/app/article/service`
-    permissionSrv `dpcms/internal/app/permission/service`
-    `dpcms/internal/infra/rbac`
-    `dpcms/internal/middleware/authz`
-    `dpcms/internal/types`
-    `dpcms/internal/util/contextutil`
-    `dpcms/internal/util/httpbinding`
+    `cms/internal/app/article/internal/domain`
+    `cms/internal/app/article/internal/dto`
+    `cms/internal/app/article/service`
+    permissionSrv `cms/internal/app/permission/service`
+    `cms/internal/httpserver`
+    `cms/internal/infra/casbin`
+    `cms/internal/middleware/authz`
+    `cms/internal/types`
+    `cms/internal/util/contextutil`
+    `cms/internal/util/httpbinding`
     
     `github.com/gin-gonic/gin`
 )
@@ -18,14 +19,14 @@ type ArticleController struct {
     articleSrv *service.ArticleService
     permSrv    *permissionSrv.PermissionService
     auth       *authz.Factory
-    casbin     *rbac.RoleCasbin
+    casbin     *casbin.RoleCasbin
 }
 
 func NewArticleController(
     articleSrv *service.ArticleService,
     permSrv *permissionSrv.PermissionService,
     auth *authz.Factory,
-    casbin *rbac.RoleCasbin,
+    casbin *casbin.RoleCasbin,
 ) *ArticleController {
     return &ArticleController{
         articleSrv: articleSrv,
@@ -35,10 +36,10 @@ func NewArticleController(
     }
 }
 
-func (s ArticleController) Setup(engine *gin.Engine) {
+func (s ArticleController) Setup(router httpserver.Router) {
     acl := s.auth.AccessControl("article")
     
-    g := engine.Group("/article", acl.Middleware())
+    g := router.Group("/article", acl.Middleware())
     g.POST("/create", s.Create)
     g.POST("/update", s.Update)
     g.POST("/delete", s.Delete)

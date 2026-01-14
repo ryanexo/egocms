@@ -3,8 +3,8 @@ package dto
 import (
     `io`
     
-    `dpcms/internal/infra/persistence/datatype`
-    `dpcms/internal/types`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/types`
 )
 
 type FileSaveCommand struct {

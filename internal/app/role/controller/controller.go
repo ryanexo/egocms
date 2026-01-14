@@ -1,11 +1,12 @@
 package controller
 
 import (
-    `dpcms/internal/app/role/internal/dto`
-    `dpcms/internal/app/role/service`
-    `dpcms/internal/middleware/authz`
-    `dpcms/internal/types`
-    `dpcms/internal/util/httpbinding`
+    `cms/internal/app/role/internal/dto`
+    `cms/internal/app/role/service`
+    `cms/internal/httpserver`
+    `cms/internal/middleware/authz`
+    `cms/internal/types`
+    `cms/internal/util/httpbinding`
     
     `github.com/gin-gonic/gin`
 )
@@ -22,10 +23,10 @@ func NewRoleController(
     return &RoleController{roleSrv: roleSrv, auth: auth}
 }
 
-func (s RoleController) Setup(server *gin.Engine) {
+func (s RoleController) Setup(router httpserver.Router) {
     acl := s.auth.AccessControl("role")
     
-    g := server.Group("/role", acl.Middleware())
+    g := router.Group("/role", acl.Middleware())
     g.POST("/create", s.Create)
     g.POST("/update", s.Update)
     g.POST("/delete", s.Delete)

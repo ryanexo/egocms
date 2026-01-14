@@ -3,8 +3,8 @@ package adapter
 import (
     `context`
     
-    `dpcms/internal/app/token/service`
-    `dpcms/internal/middleware/authz`
+    `cms/internal/app/token/service`
+    `cms/internal/middleware/authz`
 )
 
 type parser struct {

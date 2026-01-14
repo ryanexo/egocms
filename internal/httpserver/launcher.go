@@ -8,25 +8,17 @@ import (
     ginSwagger `github.com/swaggo/gin-swagger`
 )
 
-type Routes interface {
-    SetupRoutes(s *gin.Engine)
-}
-
-type Middleware interface {
-    SetupMiddleware(s *gin.Engine)
-}
-
 type Launcher struct {
     engine *gin.Engine
     config Config
 }
 
-func (launcher Launcher) addRoutes(routes Routes) {
-    routes.SetupRoutes(launcher.engine)
+func (launcher Launcher) addRoutes(routes Route) {
+    routes.Setup(launcher.engine)
 }
 
 func (launcher Launcher) addMiddleware(middleware Middleware) {
-    middleware.SetupMiddleware(launcher.engine)
+    middleware.Setup(launcher.engine)
 }
 
 func (launcher Launcher) Run(enableDoc bool) error {

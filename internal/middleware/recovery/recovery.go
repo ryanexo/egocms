@@ -1,27 +1,30 @@
 package recovery
 
 import (
-    "errors"
-    "net"
-    "net/http"
-    "net/http/httputil"
-    "os"
-    "strings"
+    `errors`
+    `net`
+    `net/http`
+    `net/http/httputil`
+    `os`
+    `strings`
     
-    `dpcms/internal/erroz`
-    `dpcms/internal/infra/logger`
+    `cms/internal/erroz`
+    `cms/internal/httpserver`
+    `cms/internal/infra/logger`
     
     "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
+    `go.uber.org/zap`
 )
 
-type Middleware gin.HandlerFunc
-
-func (fn Middleware) Setup(engine *gin.Engine) {
-    engine.Use(gin.HandlerFunc(fn))
+type Recovery struct {
+    logger *logger.Logger
 }
 
-func New(log *logger.Logger) Middleware {
+func (s Recovery) Setup(registry httpserver.MiddlewareRegistry) {
+    registry.Use(s.middleware())
+}
+
+func (s Recovery) middleware() gin.HandlerFunc {
     return func(ctx *gin.Context) {
         if !gin.IsDebugging() {
             _ = os.Stdout.Close()
@@ -70,10 +73,14 @@ func New(log *logger.Logger) Middleware {
                 ).Write(ctx)
             }
             
-            log.Access.Error(message, fields...)
-            log.App.Error(message, fields...)
+            s.logger.Access.Error(message, fields...)
+            s.logger.App.Error(message, fields...)
         }()
         
         ctx.Next()
     }
+}
+
+func New(l *logger.Logger) Recovery {
+    return Recovery{logger: l}
 }

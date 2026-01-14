@@ -1,36 +1,47 @@
 package cors
 
 import (
-    "github.com/gin-gonic/gin"
+    `cms/internal/httpserver`
+    
+    `github.com/gin-gonic/gin`
 )
 
-type Middleware gin.HandlerFunc
-
-type Config struct {
-    AllowOrigin      string `json:"allowOrigin" yaml:"allowOrigin"`
-    AllowMethods     string `json:"allowMethods" yaml:"allowMethods"`
-    AllowHeaders     string `json:"allowHeaders" yaml:"allowHeaders"`
-    AllowCredentials bool   `json:"allowCredentials" yaml:"allowCredentials"`
-    ExposeHeaders    string `json:"exposeHeaders" yaml:"exposeHeaders"`
+type CORS struct {
+    opts Options
 }
 
-func New(opts Config) Middleware {
-    return func(context *gin.Context) {
-        if opts.AllowOrigin != "" {
-            context.Header("Access-Control-Allow-Origin", opts.AllowOrigin)
+func (s CORS) Setup(registry httpserver.MiddlewareRegistry) {
+    registry.Use(s.middleware())
+}
+
+func (s CORS) middleware() gin.HandlerFunc {
+    return func(ctx *gin.Context) {
+        allowOrigin := s.opts.GetAllowOrigin(ctx)
+        allowMethods := s.opts.GetAllowMethods(ctx)
+        allowHeaders := s.opts.GetAllowHeaders(ctx)
+        allowCredentials := s.opts.GetAllowCredentials(ctx)
+        exposeHeaders := s.opts.GetExposeHeaders(ctx)
+        
+        if allowOrigin != "" {
+            ctx.Header("Access-Control-Allow-Origin", allowOrigin)
         }
-        if opts.AllowMethods != "" {
-            context.Header("Access-Control-Allow-Methods", opts.AllowMethods)
+        if allowMethods != "" {
+            ctx.Header("Access-Control-Allow-Methods", allowMethods)
         }
-        if opts.AllowHeaders != "" {
-            context.Header("Access-Control-Allow-Headers", opts.AllowHeaders)
+        if allowHeaders != "" {
+            ctx.Header("Access-Control-Allow-Headers", allowHeaders)
         }
-        if opts.AllowCredentials {
-            context.Header("Access-Control-Allow-Credentials", "true")
+        if allowCredentials == "true" {
+            ctx.Header("Access-Control-Allow-Credentials", "true")
         }
-        if opts.ExposeHeaders != "" {
-            context.Header("Access-Control-Expose-Headers", opts.ExposeHeaders)
+        if exposeHeaders != "" {
+            ctx.Header("Access-Control-Expose-Headers", exposeHeaders)
         }
-        context.Next()
+        
+        ctx.Next()
     }
+}
+
+func New(opts Options) CORS {
+    return CORS{opts: opts}
 }

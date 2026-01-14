@@ -5,8 +5,8 @@ import (
     "os"
     "path"
     
-    "dpcms/internal/config"
-    "dpcms/internal/httpserver"
+    "cms/internal/config"
+    "cms/internal/httpserver"
     
     "github.com/bytedance/sonic"
     "github.com/spf13/pflag"

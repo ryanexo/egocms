@@ -3,7 +3,7 @@ package model
 import (
     `time`
     
-    `dpcms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/datatype`
 )
 
 type TokenBlacklist struct {

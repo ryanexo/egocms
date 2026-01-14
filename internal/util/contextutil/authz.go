@@ -3,8 +3,8 @@ package contextutil
 import (
     `context`
     
-    `dpcms/internal/infra/persistence/model`
-    `dpcms/internal/middleware/authz`
+    `cms/internal/infra/persistence/model`
+    `cms/internal/middleware/authz`
 )
 
 func GetAuthorizedUser(ctx context.Context) (*model.User, error) {

@@ -3,9 +3,9 @@ package main
 import (
     `fmt`
     
-    `dpcms/internal/config`
-    `dpcms/internal/infra/db`
-    `dpcms/internal/infra/persistence/model`
+    `cms/internal/config`
+    `cms/internal/infra/db`
+    `cms/internal/infra/persistence/model`
     
     `gorm.io/gorm`
 )

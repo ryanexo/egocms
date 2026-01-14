@@ -1,8 +1,8 @@
 package assembler
 
 import (
-    `dpcms/internal/app/article/internal/domain`
-    `dpcms/internal/infra/persistence/model`
+    `cms/internal/app/article/internal/domain`
+    `cms/internal/infra/persistence/model`
 )
 
 type ModelData model.ArticleModelData

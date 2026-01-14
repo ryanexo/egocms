@@ -1,6 +1,6 @@
 package model
 
-import `dpcms/internal/infra/persistence/datatype`
+import `cms/internal/infra/persistence/datatype`
 
 type ClosureTable interface {
     // INSERT INTO @@table (ancestor, descendant, distance)

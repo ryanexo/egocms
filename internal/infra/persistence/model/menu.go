@@ -1,6 +1,6 @@
 package model
 
-import "dpcms/internal/infra/persistence/datatype"
+import "cms/internal/infra/persistence/datatype"
 
 type Menu struct {
     Base

@@ -1,12 +1,11 @@
 package config
 
 import (
-    `dpcms/internal/config/token`
-    `dpcms/internal/httpserver`
-    `dpcms/internal/infra/db`
-    `dpcms/internal/infra/file`
-    `dpcms/internal/infra/logger`
-    `dpcms/internal/middleware/cors`
+    `cms/internal/config/token`
+    `cms/internal/httpserver`
+    `cms/internal/infra/db`
+    `cms/internal/infra/file`
+    `cms/internal/infra/logger`
 )
 
 func Get() *Config {
@@ -15,10 +14,6 @@ func Get() *Config {
 
 func GetTokenConfig(cfg *Config) token.Config {
     return cfg.Token
-}
-
-func GetCORSConfig(cfg *Config) cors.Config {
-    return cfg.CORS
 }
 
 func GetDBConfig(cfg *Config) db.DBConfig {

@@ -4,7 +4,7 @@ import (
     `os`
     `time`
     
-    `dpcms/internal/infra/file`
+    `cms/internal/infra/file`
 )
 
 type fileInfo struct {

@@ -1,7 +1,7 @@
 package httpbinding
 
 import (
-    `dpcms/internal/erroz`
+    `cms/internal/erroz`
     
     `github.com/gin-gonic/gin`
 )

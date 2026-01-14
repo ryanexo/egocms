@@ -5,12 +5,12 @@ import (
     `errors`
     `time`
     
-    `dpcms/internal/app/token/internal/dto`
-    `dpcms/internal/app/token/internal/errno`
-    user `dpcms/internal/app/user/service`
-    `dpcms/internal/config`
-    `dpcms/internal/infra/persistence/datatype`
-    `dpcms/internal/infra/persistence/model`
+    `cms/internal/app/token/internal/dto`
+    `cms/internal/app/token/internal/errno`
+    user `cms/internal/app/user/service`
+    `cms/internal/config`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/model`
     
     `github.com/golang-jwt/jwt/v5`
     `github.com/google/uuid`

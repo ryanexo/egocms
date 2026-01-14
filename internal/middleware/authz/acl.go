@@ -4,8 +4,8 @@ import (
     `fmt`
     `strings`
     
-    `dpcms/internal/constant`
-    `dpcms/internal/erroz`
+    `cms/internal/constant`
+    `cms/internal/erroz`
     
     `github.com/armon/go-radix`
     `github.com/gin-gonic/gin`

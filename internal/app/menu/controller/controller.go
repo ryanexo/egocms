@@ -1,11 +1,12 @@
 package controller
 
 import (
-    `dpcms/internal/app/menu/internal/dto`
-    `dpcms/internal/app/menu/service`
-    `dpcms/internal/middleware/authz`
-    `dpcms/internal/types`
-    `dpcms/internal/util/httpbinding`
+    `cms/internal/app/menu/internal/dto`
+    `cms/internal/app/menu/service`
+    `cms/internal/httpserver`
+    `cms/internal/middleware/authz`
+    `cms/internal/types`
+    `cms/internal/util/httpbinding`
     
     `github.com/gin-gonic/gin`
 )
@@ -22,10 +23,10 @@ func NewMenuController(
     return &MenuController{menuSrv: menuSrv, auth: auth}
 }
 
-func (s MenuController) Setup(engine *gin.Engine) {
+func (s MenuController) Setup(router httpserver.Router) {
     acl := s.auth.AccessControl("menu")
     
-    g := engine.Group("/menu", acl.Middleware())
+    g := router.Group("/menu", acl.Middleware())
     g.POST("/list", s.List)
     g.POST("/create", s.Create)
     g.POST("/update", s.Update)

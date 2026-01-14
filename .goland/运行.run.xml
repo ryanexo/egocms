@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="运行" type="GoApplicationRunConfiguration" factoryName="Go Application">
-    <module name="egocms" />
+    <module name="golang" />
     <working_directory value="$PROJECT_DIR$" />
     <kind value="PACKAGE" />
-    <package value="dpcms/cmd/server" />
+    <package value="cms/cmd/server" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$/cmd/server/main.go" />
     <method v="2" />

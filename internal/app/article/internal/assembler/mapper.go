@@ -4,9 +4,9 @@ import (
     `database/sql`
     `time`
     
-    dto2 `dpcms/internal/app/article/internal/dto`
-    `dpcms/internal/infra/persistence/model`
-    `dpcms/internal/types`
+    dto2 `cms/internal/app/article/internal/dto`
+    `cms/internal/infra/persistence/model`
+    `cms/internal/types`
 )
 
 func extractKeywords(data []*model.ArticleKeywords) []string {

@@ -4,11 +4,11 @@ import (
     "context"
     "fmt"
     
-    `dpcms/internal/app/menu/internal/dto`
-    `dpcms/internal/app/menu/service`
-    "dpcms/internal/infra/persistence/dbscope"
-    "dpcms/internal/infra/persistence/model"
-    "dpcms/internal/infra/persistence/query"
+    `cms/internal/app/menu/internal/dto`
+    `cms/internal/app/menu/service`
+    "cms/internal/infra/persistence/dbscope"
+    "cms/internal/infra/persistence/model"
+    "cms/internal/infra/persistence/query"
     
     "gorm.io/gen"
 )

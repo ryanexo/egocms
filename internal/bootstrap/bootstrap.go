@@ -1,24 +1,25 @@
 package bootstrap
 
 import (
-    `dpcms/internal/httpserver`
-    `dpcms/internal/infra/cache`
-    `dpcms/internal/infra/db`
-    `dpcms/internal/infra/logger`
-    `dpcms/internal/infra/persistence`
-    `dpcms/internal/infra/rbac`
+    `cms/internal/httpserver`
+    `cms/internal/infra/cache`
+    `cms/internal/infra/casbin`
+    `cms/internal/infra/db`
+    `cms/internal/infra/logger`
+    `cms/internal/infra/persistence`
+    `cms/internal/infra/xhashids`
     
     `github.com/google/wire`
 )
 
 var BootstrapProvider = wire.NewSet(
-    httpserver.New,
-    rbac.NewRoleCasbin,
-    rbac.NewMenuCasbin,
     logger.New,
     db.NewDB,
     persistence.NewQuery,
     persistence.NewTxManager,
+    casbin.NewRoleCasbin,
+    casbin.NewMenuCasbin,
     cache.NewConfigCache,
-    NewXHashIds,
+    xhashids.New,
+    httpserver.New,
 )

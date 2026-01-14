@@ -1,8 +1,8 @@
 package errno
 
 import (
-    `dpcms/internal/erroz`
-    `dpcms/internal/erroz/type`
+    `cms/internal/erroz`
+    `cms/internal/erroz/type`
 )
 
 var (

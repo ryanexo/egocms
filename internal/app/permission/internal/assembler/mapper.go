@@ -1,9 +1,9 @@
 package assembler
 
 import (
-    `dpcms/internal/app/permission/internal/dto`
-    `dpcms/internal/infra/persistence/model`
-    `dpcms/internal/types`
+    `cms/internal/app/permission/internal/dto`
+    `cms/internal/infra/persistence/model`
+    `cms/internal/types`
 )
 
 func ToPermissionCreateCommand(data *dto.PermissionCreateParams) *model.Permission {
