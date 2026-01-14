@@ -33,7 +33,7 @@ func main() {
         &model.Category{},
         &model.CategorySeo{},
         &model.CategoryContext{},
-        &model.Config{},
+        &model.Setting{},
         &model.Menu{},
         &model.MenuContext{},
         &model.User{},

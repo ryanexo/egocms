@@ -50,7 +50,7 @@ func main() {
         model.ArticleModelSchema{},
         model.ArticleModelData{},
         model.File{},
-        model.Config{},
+        model.Setting{},
     )
     
     g.ApplyInterface(

@@ -4,11 +4,11 @@ import (
     `github.com/dgraph-io/ristretto/v2`
 )
 
-type ConfigCache struct {
+type SettingCache struct {
     *ristretto.Cache[string, string]
 }
 
-func NewConfigCache() (*ConfigCache, error) {
+func NewConfigCache() (*SettingCache, error) {
     cache, err := ristretto.NewCache[string, string](&ristretto.Config[string, string]{
         BufferItems: 64,
         NumCounters: 1000,
@@ -21,5 +21,5 @@ func NewConfigCache() (*ConfigCache, error) {
     if err != nil {
         return nil, err
     }
-    return &ConfigCache{cache}, nil
+    return &SettingCache{cache}, nil
 }
