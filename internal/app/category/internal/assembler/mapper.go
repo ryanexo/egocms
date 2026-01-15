@@ -2,7 +2,7 @@ package assembler
 
 import (
     `cms/internal/app/category/internal/dto`
-    `cms/internal/infra/persistence/model`
+    `cms/internal/infra/persist/model`
     `cms/internal/util/types`
 )
 

@@ -9,7 +9,7 @@ import (
     "github.com/gin-gonic/gin/binding"
 )
 
-func New(cfg Config, middleware Middleware, routes Route) (*Launcher, error) {
+func New(cfg Config) (*Launcher, error) {
     if cfg.Debug {
         gin.SetMode(gin.DebugMode)
     }
@@ -30,8 +30,5 @@ func New(cfg Config, middleware Middleware, routes Route) (*Launcher, error) {
         engine.MaxMultipartMemory = 8 << 20
     }
     
-    launcher := &Launcher{config: cfg, engine: engine}
-    launcher.addMiddleware(middleware)
-    launcher.addRoutes(routes)
-    return launcher, nil
+    return &Launcher{config: cfg, engine: engine}, nil
 }

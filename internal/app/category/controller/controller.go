@@ -5,8 +5,8 @@ import (
     "cms/internal/app/category/service"
     `cms/internal/httpserver`
     "cms/internal/middleware/authz"
-    "cms/internal/types"
     "cms/internal/util/httpbinding"
+    "cms/internal/util/types"
     
     _ "cms/internal/util/httpbinding"
     

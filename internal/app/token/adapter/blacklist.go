@@ -5,9 +5,9 @@ import (
     `time`
     
     `cms/internal/app/token/contract`
-    `cms/internal/infra/persistence/datatype`
-    `cms/internal/infra/persistence/model`
-    `cms/internal/infra/persistence/query`
+    `cms/internal/infra/persist/datatype`
+    `cms/internal/infra/persist/model`
+    `cms/internal/infra/persist/query`
     
     `gorm.io/gen`
 )

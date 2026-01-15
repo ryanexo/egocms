@@ -8,9 +8,9 @@ import (
     `cms/internal/httpserver`
     `cms/internal/infra/casbin`
     `cms/internal/middleware/authz`
-    `cms/internal/util/types`
-    `cms/internal/util/contextutil`
+    `cms/internal/util/authzutil`
     `cms/internal/util/httpbinding`
+    `cms/internal/util/types`
     
     `github.com/gin-gonic/gin`
 )
@@ -74,7 +74,7 @@ func (s ArticleController) Setup(router httpserver.Router) {
 // @Router  /article/create [post]
 func (s ArticleController) Create(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ArticleCreateParams](ctx, func(params dto.ArticleCreateParams) (any, error) {
-        u, err := contextutil.GetAuthorizedUser(ctx)
+        u, err := authzutil.GetAuthorizedUser(ctx)
         if err != nil {
             return nil, err
         }
@@ -99,7 +99,7 @@ func (s ArticleController) Update(ctx *gin.Context) {
 }
 
 func (s ArticleController) createActor(ctx *gin.Context) (domain.Actor, error) {
-    u, err := contextutil.GetAuthorizedUser(ctx)
+    u, err := authzutil.GetAuthorizedUser(ctx)
     if err != nil {
         return domain.Actor{}, err
     }

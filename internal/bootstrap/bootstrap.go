@@ -2,24 +2,36 @@ package bootstrap
 
 import (
     `cms/internal/httpserver`
-    `cms/internal/infra/cache`
-    `cms/internal/infra/casbin`
-    `cms/internal/infra/db`
-    `cms/internal/infra/logger`
-    `cms/internal/infra/persistence`
-    `cms/internal/infra/xhashids`
+    `cms/internal/lifecycle`
     
+    `github.com/gin-gonic/gin`
     `github.com/google/wire`
 )
 
 var BootstrapProvider = wire.NewSet(
-    logger.New,
-    db.NewDB,
-    persistence.NewQuery,
-    persistence.NewTxManager,
-    casbin.NewRoleCasbin,
-    casbin.NewMenuCasbin,
-    cache.NewConfigCache,
-    xhashids.New,
-    httpserver.New,
+    lifecycle.New,
+    New,
 )
+
+type Bootstrap struct {
+    lifecycle *lifecycle.Lifecycle
+    http      *httpserver.Launcher
+    mw        httpserver.Middleware
+    route     httpserver.Route
+}
+
+func (s Bootstrap) Start() error {
+    s.http.AddMiddleware(s.mw)
+    s.http.AddRoutes(s.route)
+    
+    err := s.lifecycle.WarmUp()
+    if err != nil {
+        return err
+    }
+    
+    return s.http.Run(gin.Mode() == gin.DebugMode)
+}
+
+func New(lc *lifecycle.Lifecycle, http *httpserver.Launcher, mw httpserver.Middleware, route httpserver.Route) Bootstrap {
+    return Bootstrap{lifecycle: lc, http: http, mw: mw, route: route}
+}

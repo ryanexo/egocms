@@ -21,11 +21,11 @@ func main() {
     if err != nil {
         panic(err)
     }
-    launcher, err := createHttpServer(appConfig)
+    launcher, err := initApp(appConfig)
     if err != nil {
         panic(err)
     }
-    err = launcher.Run(true)
+    err = launcher.Start()
     if err != nil {
         panic(err)
     }

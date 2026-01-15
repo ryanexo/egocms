@@ -8,9 +8,9 @@ import (
     `cms/internal/httpserver`
     `cms/internal/infra/logger`
     `cms/internal/middleware/authz`
-    `cms/internal/util/types`
-    `cms/internal/util/contextutil`
+    `cms/internal/util/authzutil`
     `cms/internal/util/httpbinding`
+    `cms/internal/util/types`
     
     "github.com/gin-gonic/gin"
     "go.uber.org/zap"
@@ -130,7 +130,7 @@ func (s UserController) Logout(ctx *gin.Context) {
 // @Router  /user/change-password [post]
 func (s UserController) ChangePassword(ctx *gin.Context) {
     httpbinding.BindJSON[dto.UserPasswdUpdateParams](ctx, func(params dto.UserPasswdUpdateParams) (any, error) {
-        u, err := contextutil.GetAuthorizedUser(ctx)
+        u, err := authzutil.GetAuthorizedUser(ctx)
         if err != nil {
             return nil, err
         }
@@ -218,7 +218,7 @@ func (s UserController) Delete(ctx *gin.Context) {
 // @Router  /user/update-profile [post]
 func (s UserController) UpdateProfile(ctx *gin.Context) {
     httpbinding.BindJSON[dto.UserProfile](ctx, func(params dto.UserProfile) (any, error) {
-        u, err := contextutil.GetAuthorizedUser(ctx)
+        u, err := authzutil.GetAuthorizedUser(ctx)
         if err != nil {
             return nil, err
         }

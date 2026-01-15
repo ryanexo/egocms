@@ -5,8 +5,8 @@ import (
     "os"
     "path"
     
+    `cms/internal/app/version`
     "cms/internal/config"
-    "cms/internal/httpserver"
     
     "github.com/bytedance/sonic"
     "github.com/spf13/pflag"
@@ -25,7 +25,7 @@ func registerCommand(appConfig *config.Config) error {
     pflag.Parse()
     
     if doPrintVersion {
-        fmt.Println(httpserver.Version)
+        fmt.Println(version.Version)
         os.Exit(0)
     }
     

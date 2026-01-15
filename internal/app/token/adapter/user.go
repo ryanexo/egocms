@@ -1,7 +1,7 @@
 package adapter
 
 import (
-    `cms/internal/infra/persistence/model`
+    `cms/internal/infra/persist/model`
     `cms/internal/middleware/authz`
 )
 

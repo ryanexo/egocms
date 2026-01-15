@@ -8,10 +8,10 @@ import (
     `cms/internal/app/menu/internal/assembler`
     `cms/internal/app/menu/internal/dto`
     `cms/internal/app/menu/internal/errno`
-    `cms/internal/infra/persistence/contract`
-    `cms/internal/infra/persistence/datatype`
-    `cms/internal/infra/persistence/model`
-    `cms/internal/infra/persistence/query`
+    `cms/internal/infra/persist/contract`
+    `cms/internal/infra/persist/datatype`
+    `cms/internal/infra/persist/model`
+    `cms/internal/infra/persist/query`
     `cms/internal/util/types`
     
     `gorm.io/gorm`
@@ -37,7 +37,7 @@ func (s MenuService) Create(ctx context.Context, params dto.MenuCreateParams) (*
         if txErr != nil {
             return txErr
         }
-        txErr = menuRepo.CreateSubtree(ctx, menu.ID.Raw(), menu.ParentID.Raw())
+        txErr = menuRepo.CreateSubtree(ctx, menu.ID, menu.ParentID)
         if txErr != nil {
             return txErr
         }
@@ -50,7 +50,7 @@ func (s MenuService) Create(ctx context.Context, params dto.MenuCreateParams) (*
 }
 
 func (s MenuService) Update(ctx context.Context, params dto.MenuUpdateParams) error {
-    _, err := s.repo.FindByID(ctx, params.ID.Raw())
+    _, err := s.repo.FindByID(ctx, params.ID)
     if err != nil {
         return err
     }
@@ -61,26 +61,26 @@ func (s MenuService) Update(ctx context.Context, params dto.MenuUpdateParams) er
 
 func (s MenuService) Delete(ctx context.Context, id datatype.SafeUint64) error {
     return s.txManager.Transaction(func(tx *query.Query) error {
-        return s.repo.CloneWithQuery(tx).Delete(ctx, id.Raw())
+        return s.repo.CloneWithQuery(tx).Delete(ctx, id)
     })
 }
 
 func (s MenuService) Move(ctx context.Context, id datatype.SafeUint64, target datatype.SafeUint64) error {
     return s.txManager.Transaction(func(tx *query.Query) error {
         menuRepo := s.repo.CloneWithQuery(tx)
-        _, err := menuRepo.FindByIDWithAncestor(ctx, id.Raw(), target.Raw())
+        _, err := menuRepo.FindByIDWithAncestor(ctx, id, target)
         if err == nil {
             return errno.MenuCircular.ToError()
         } else if !errors.Is(err, gorm.ErrRecordNotFound) {
             return err
         }
         
-        return menuRepo.Move(ctx, id.Raw(), target.Raw())
+        return menuRepo.Move(ctx, id, target)
     })
 }
 
 func (s MenuService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Menu, error) {
-    menu, err := s.repo.FindByID(ctx, id.Raw())
+    menu, err := s.repo.FindByID(ctx, id)
     if err != nil {
         return nil, err
     }

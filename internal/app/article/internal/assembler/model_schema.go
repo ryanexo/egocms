@@ -4,8 +4,8 @@ import (
     `database/sql`
     
     `cms/internal/app/article/internal/domain`
-    `cms/internal/infra/persistence/datatype`
-    `cms/internal/infra/persistence/model`
+    `cms/internal/infra/persist/datatype`
+    `cms/internal/infra/persist/model`
     
     `github.com/shopspring/decimal`
 )

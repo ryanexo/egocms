@@ -4,8 +4,6 @@ import (
     "runtime"
     "time"
     
-    "github.com/DATA-DOG/go-sqlmock"
-    "gorm.io/driver/mysql"
     "gorm.io/gorm"
     "gorm.io/gorm/logger"
     "gorm.io/gorm/schema"
@@ -20,7 +18,7 @@ type DBConfig struct {
     Charset string `json:"charset" yaml:"charset"`
 }
 
-func DefaultConfig() *gorm.Config {
+func createBasicConfig() *gorm.Config {
     return &gorm.Config{
         NamingStrategy: schema.NamingStrategy{
             SingularTable: true,
@@ -41,8 +39,8 @@ func buildDB(dialector gorm.Dialector, config *gorm.Config) (*gorm.DB, error) {
     if err != nil {
         return nil, err
     }
-    sqlDB, sqlDBErr := db.DB()
-    if sqlDBErr != nil {
+    sqlDB, err := db.DB()
+    if err != nil {
         return nil, err
     }
     
@@ -58,18 +56,5 @@ func NewDB(config DBConfig) (*gorm.DB, error) {
     if err != nil {
         return nil, err
     }
-    return buildDB(driver, DefaultConfig())
-}
-
-func NewDBMock() (*gorm.DB, sqlmock.Sqlmock) {
-    sqlDB, sqlm, err := sqlmock.New()
-    if err != nil {
-        panic(err)
-    }
-    sqlm.ExpectQuery(`SELECT VERSION()`).WillReturnRows(sqlmock.NewRows([]string{"VERSION()"}).AddRow("8.0.0"))
-    db, err := buildDB(mysql.New(mysql.Config{Conn: sqlDB}), DefaultConfig())
-    if err != nil {
-        panic(err)
-    }
-    return db, sqlm
+    return buildDB(driver, createBasicConfig())
 }

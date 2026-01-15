@@ -5,7 +5,7 @@ import (
     
     `cms/internal/config`
     `cms/internal/infra/db`
-    `cms/internal/infra/persistence/model`
+    `cms/internal/infra/persist/model`
     
     `gorm.io/gorm`
 )

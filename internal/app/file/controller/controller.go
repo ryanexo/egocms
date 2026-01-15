@@ -7,12 +7,12 @@ import (
     `cms/internal/app/file/service`
     `cms/internal/erroz`
     `cms/internal/httpserver`
+    `cms/internal/infra/persist/datatype`
     `cms/internal/infra/xhashids`
-    `cms/internal/infra/persistence/datatype`
     `cms/internal/middleware/authz`
-    `cms/internal/util/types`
-    `cms/internal/util/contextutil`
+    `cms/internal/util/authzutil`
     `cms/internal/util/httpbinding`
+    `cms/internal/util/types`
     
     `github.com/gin-gonic/gin`
 )
@@ -64,7 +64,7 @@ func (s FileController) Upload(ctx *gin.Context) {
         erroz.ResolveWithAbort(ctx, err)
         return
     }
-    u, err := contextutil.GetAuthorizedUser(ctx)
+    u, err := authzutil.GetAuthorizedUser(ctx)
     if err != nil {
         erroz.ResolveWithAbort(ctx, err)
         return

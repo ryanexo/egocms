@@ -6,13 +6,13 @@ import (
     
     "cms/internal/config"
     "cms/internal/infra/db"
-    "cms/internal/infra/persistence/model"
+    "cms/internal/infra/persist/model"
     
     "gorm.io/gen"
 )
 
 func main() {
-    outputPath := path.Clean("./internal/infra/persistence/query")
+    outputPath := path.Clean("./internal/infra/persist/query")
     err := os.RemoveAll(outputPath)
     if err != nil {
         panic(err)

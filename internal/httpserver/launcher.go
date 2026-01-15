@@ -13,11 +13,11 @@ type Launcher struct {
     config Config
 }
 
-func (launcher Launcher) addRoutes(routes Route) {
+func (launcher Launcher) AddRoutes(routes Route) {
     routes.Setup(launcher.engine)
 }
 
-func (launcher Launcher) addMiddleware(middleware Middleware) {
+func (launcher Launcher) AddMiddleware(middleware Middleware) {
     middleware.Setup(launcher.engine)
 }
 

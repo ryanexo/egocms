@@ -3,8 +3,8 @@ package contract
 import (
     `context`
     
-    `cms/internal/infra/persistence/contract`
-    `cms/internal/infra/persistence/model`
+    `cms/internal/infra/persist/contract`
+    `cms/internal/infra/persist/model`
     
     `gorm.io/gen`
 )

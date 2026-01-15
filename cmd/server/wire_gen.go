@@ -9,7 +9,7 @@ package main
 import (
 	adapter8 "cms/internal/app/article/adapter"
 	controller5 "cms/internal/app/article/controller"
-	service7 "cms/internal/app/article/service"
+	service8 "cms/internal/app/article/service"
 	adapter9 "cms/internal/app/articlemodel/adapter"
 	controller6 "cms/internal/app/articlemodel/controller"
 	service9 "cms/internal/app/articlemodel/service"
@@ -23,10 +23,11 @@ import (
 	controller2 "cms/internal/app/menu/controller"
 	service4 "cms/internal/app/menu/service"
 	adapter4 "cms/internal/app/permission/adapter"
-	service8 "cms/internal/app/permission/service"
+	controller8 "cms/internal/app/permission/controller"
+	service6 "cms/internal/app/permission/service"
 	adapter7 "cms/internal/app/role/adapter"
 	controller4 "cms/internal/app/role/controller"
-	service6 "cms/internal/app/role/service"
+	service7 "cms/internal/app/role/service"
 	"cms/internal/app/setting/adapter"
 	"cms/internal/app/setting/service"
 	adapter3 "cms/internal/app/token/adapter"
@@ -35,15 +36,18 @@ import (
 	"cms/internal/app/user/controller"
 	service2 "cms/internal/app/user/service"
 	"cms/internal/bootstrap"
+	controller9 "cms/internal/bootstrap/controller"
+	"cms/internal/bootstrap/filedriver"
+	"cms/internal/bootstrap/middleware"
 	"cms/internal/config"
 	"cms/internal/httpserver"
-	"cms/internal/infra/cache"
 	"cms/internal/infra/casbin"
 	"cms/internal/infra/db"
 	"cms/internal/infra/file/driver/local"
 	"cms/internal/infra/logger"
-	"cms/internal/infra/persistence"
+	"cms/internal/infra/persist"
 	"cms/internal/infra/xhashids"
+	"cms/internal/lifecycle"
 	"cms/internal/middleware/authz"
 	"cms/internal/middleware/cors"
 	"cms/internal/middleware/log"
@@ -57,8 +61,13 @@ import (
 
 // Injectors from wire.go:
 
-func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
+func initApp(cfg *config.Config) (bootstrap.Bootstrap, error) {
+	lifecycleLifecycle := lifecycle.New()
 	httpserverConfig := config.GetServerConfig(cfg)
+	launcher, err := httpserver.New(httpserverConfig)
+	if err != nil {
+		return bootstrap.Bootstrap{}, err
+	}
 	loggerConfig := config.GetLoggerConfig(cfg)
 	loggerLogger := logger.New(loggerConfig)
 	recoveryRecovery := recovery.New(loggerLogger)
@@ -67,19 +76,15 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	dbConfig := config.GetDBConfig(cfg)
 	gormDB, err := db.NewDB(dbConfig)
 	if err != nil {
-		return nil, err
+		return bootstrap.Bootstrap{}, err
 	}
-	query := persistence.NewQuery(gormDB)
-	txManager := persistence.NewTxManager(query)
-	settingCache, err := cache.NewConfigCache()
-	if err != nil {
-		return nil, err
-	}
-	settingRepo := adapter.NewConfigRepo(query, settingCache)
+	query := persist.NewQuery(gormDB)
+	txManager := persist.NewTxManager(query)
+	settingRepo := adapter.NewConfigRepo(query)
 	settingService := service.NewSettingService(txManager, settingRepo, loggerLogger, cfg)
 	options := adapter.NewCORSOptions(settingService)
 	corsCORS := cors.New(options)
-	middleware := bootstrap.NewMiddlewareRegistrar(recoveryRecovery, requestTrace, logLog, corsCORS)
+	httpserverMiddleware := middleware.NewMiddlewareRegistrar(recoveryRecovery, requestTrace, logLog, corsCORS)
 	userRepo := adapter2.NewUserRepo(query)
 	userService := service2.NewUserService(txManager, userRepo)
 	tokenBlacklistRepo := adapter3.NewTokenBlacklistRepo(query)
@@ -87,7 +92,7 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	tokenParser := adapter3.NewTokenParser(tokenService)
 	roleCasbin, err := casbin.NewRoleCasbin(gormDB)
 	if err != nil {
-		return nil, err
+		return bootstrap.Bootstrap{}, err
 	}
 	permissionChecker := adapter4.NewPermissionChecker(roleCasbin)
 	factory := authz.NewFactory(tokenParser, permissionChecker)
@@ -99,34 +104,35 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 	categoryService := service5.NewCategoryService(txManager, categoryRepo)
 	categoryController := controller3.NewCategoryController(categoryService, factory)
 	roleRepo := adapter7.NewRoleRepo(query)
-	roleService := service6.NewRoleService(txManager, roleCasbin, roleRepo)
+	permissionRepo := adapter4.NewPermissionRepo(query)
+	permissionService := service6.NewPermissionService(permissionRepo)
+	roleService := service7.NewRoleService(txManager, roleCasbin, roleRepo, permissionService)
 	roleController := controller4.NewRoleController(roleService, factory)
 	articleRepo := adapter8.NewArticleRepo(query)
 	articleModelRepo := adapter9.NewArticleModelRepo(query)
-	articleService := service7.NewArticleService(txManager, articleRepo, articleModelRepo)
-	permissionRepo := adapter4.NewPermissionRepo(query)
-	permissionService := service8.NewPermissionService(permissionRepo)
+	articleService := service8.NewArticleService(txManager, articleRepo, articleModelRepo)
 	articleController := controller5.NewArticleController(articleService, permissionService, factory, roleCasbin)
 	articleModelService := service9.NewArticleModelService(txManager, articleModelRepo)
 	articleModelController := controller6.NewArticleModelController(articleModelService, factory)
 	fileRepo := adapter10.NewFileRepo(query)
 	fileConfig := config.GetFileConfig(cfg)
 	localFactory := local.Factory{}
-	fileDrivers := bootstrap.FileDrivers{
+	fileDrivers := filedriver.FileDrivers{
 		Local: localFactory,
 	}
-	driverRegistry, err := bootstrap.NewFileRegistry(fileConfig, fileDrivers)
+	driverRegistry, err := filedriver.NewFileRegistry(fileConfig, fileDrivers)
 	if err != nil {
-		return nil, err
+		return bootstrap.Bootstrap{}, err
 	}
 	fileDriverService := service10.NewFileDriverService(driverRegistry, cfg)
 	fileService := service10.NewFileService(txManager, fileRepo, fileDriverService, loggerLogger)
 	hashID, err := xhashids.New(cfg)
 	if err != nil {
-		return nil, err
+		return bootstrap.Bootstrap{}, err
 	}
 	fileController := controller7.NewFileController(fileService, factory, hashID)
-	controllerSet := &bootstrap.ControllerSet{
+	permissionController := controller8.NewPermissionController(permissionService)
+	controllerSet := &controller9.ControllerSet{
 		User:         userController,
 		Menu:         menuController,
 		Category:     categoryController,
@@ -134,11 +140,9 @@ func createHttpServer(cfg *config.Config) (*httpserver.Launcher, error) {
 		Article:      articleController,
 		ArticleModel: articleModelController,
 		File:         fileController,
+		Perm:         permissionController,
 	}
-	route := bootstrap.NewRouteRegistrar(controllerSet)
-	launcher, err := httpserver.New(httpserverConfig, middleware, route)
-	if err != nil {
-		return nil, err
-	}
-	return launcher, nil
+	route := controller9.NewRouteRegistrar(controllerSet)
+	bootstrapBootstrap := bootstrap.New(lifecycleLifecycle, launcher, httpserverMiddleware, route)
+	return bootstrapBootstrap, nil
 }
