@@ -2,7 +2,7 @@ package dto
 
 import (
     "cms/internal/infra/persistence/datatype"
-    `cms/internal/types`
+    `cms/internal/util/types`
 )
 
 type Category struct {

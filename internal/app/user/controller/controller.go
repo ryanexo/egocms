@@ -8,7 +8,7 @@ import (
     `cms/internal/httpserver`
     `cms/internal/infra/logger`
     `cms/internal/middleware/authz`
-    `cms/internal/types`
+    `cms/internal/util/types`
     `cms/internal/util/contextutil`
     `cms/internal/util/httpbinding`
     

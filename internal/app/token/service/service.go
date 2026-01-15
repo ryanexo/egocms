@@ -5,9 +5,10 @@ import (
     `errors`
     `time`
     
+    `cms/internal/app/token/contract`
     `cms/internal/app/token/internal/dto`
     `cms/internal/app/token/internal/errno`
-    user `cms/internal/app/user/service`
+    user `cms/internal/app/user/contract`
     `cms/internal/config`
     `cms/internal/infra/persistence/datatype`
     `cms/internal/infra/persistence/model`
@@ -19,11 +20,11 @@ import (
 
 type TokenService struct {
     config        *config.Config
-    blacklistRepo TokenBlacklistRepo
+    blacklistRepo contract.TokenBlacklistRepo
     userRepo      user.UserRepo
 }
 
-func NewTokenService(config *config.Config, blacklistRepo TokenBlacklistRepo, userRepo user.UserRepo) *TokenService {
+func NewTokenService(config *config.Config, blacklistRepo contract.TokenBlacklistRepo, userRepo user.UserRepo) *TokenService {
     return &TokenService{
         config:        config,
         blacklistRepo: blacklistRepo,

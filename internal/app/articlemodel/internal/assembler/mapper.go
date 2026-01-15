@@ -6,7 +6,7 @@ import (
     `cms/internal/app/articlemodel/internal/dto`
     `cms/internal/infra/persistence/datatype`
     `cms/internal/infra/persistence/model`
-    `cms/internal/types`
+    `cms/internal/util/types`
     
     `github.com/shopspring/decimal`
 )

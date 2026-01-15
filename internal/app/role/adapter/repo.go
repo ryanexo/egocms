@@ -3,8 +3,8 @@ package adapter
 import (
     `context`
     
+    `cms/internal/app/role/contract`
     `cms/internal/app/role/internal/dto`
-    `cms/internal/app/role/service`
     `cms/internal/infra/persistence/datatype`
     `cms/internal/infra/persistence/dbscope`
     `cms/internal/infra/persistence/model`
@@ -17,11 +17,11 @@ type roleRepo struct {
     query *query.Query
 }
 
-func NewRoleRepo(query *query.Query) service.RoleRepo {
+func NewRoleRepo(query *query.Query) contract.RoleRepo {
     return &roleRepo{query}
 }
 
-func (r *roleRepo) CloneWithQuery(q *query.Query) service.RoleRepo {
+func (r *roleRepo) CloneWithQuery(q *query.Query) contract.RoleRepo {
     return NewRoleRepo(q)
 }
 

@@ -3,7 +3,7 @@ package adapter
 import (
     `context`
     
-    `cms/internal/app/setting/service`
+    `cms/internal/app/setting/contract`
     `cms/internal/infra/cache`
     `cms/internal/infra/persistence/model`
     `cms/internal/infra/persistence/query`
@@ -16,11 +16,11 @@ type settingRepo struct {
     cache   *cache.SettingCache
 }
 
-func NewConfigRepo(persist *query.Query, c *cache.SettingCache) service.SettingRepo {
+func NewConfigRepo(persist *query.Query, c *cache.SettingCache) contract.SettingRepo {
     return &settingRepo{persist: persist, cache: c}
 }
 
-func (s *settingRepo) CloneWithQuery(q *query.Query) service.SettingRepo {
+func (s *settingRepo) CloneWithQuery(q *query.Query) contract.SettingRepo {
     return NewConfigRepo(q, s.cache)
 }
 

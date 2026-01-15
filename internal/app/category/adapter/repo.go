@@ -4,8 +4,8 @@ import (
     "context"
     "fmt"
     
+    `cms/internal/app/category/contract`
     `cms/internal/app/category/internal/dto`
-    `cms/internal/app/category/service`
     "cms/internal/infra/persistence/dbscope"
     "cms/internal/infra/persistence/model"
     "cms/internal/infra/persistence/query"
@@ -17,11 +17,11 @@ type categoryRepo struct {
     query *query.Query
 }
 
-func NewCategoryRepo(persist *query.Query) service.CategoryRepo {
+func NewCategoryRepo(persist *query.Query) contract.CategoryRepo {
     return &categoryRepo{persist}
 }
 
-func (s *categoryRepo) CloneWithQuery(q *query.Query) service.CategoryRepo {
+func (s *categoryRepo) CloneWithQuery(q *query.Query) contract.CategoryRepo {
     return NewCategoryRepo(q)
 }
 

@@ -3,7 +3,7 @@ package adapter
 import (
     `context`
     
-    `cms/internal/app/article/service`
+    `cms/internal/app/article/contract`
     `cms/internal/infra/persistence/datatype`
     `cms/internal/infra/persistence/model`
     `cms/internal/infra/persistence/query`
@@ -15,13 +15,13 @@ type articleRepo struct {
     query *query.Query
 }
 
-var _ service.ArticleRepo = (*articleRepo)(nil)
+var _ contract.ArticleRepo = (*articleRepo)(nil)
 
-func NewArticleRepo(persist *query.Query) service.ArticleRepo {
+func NewArticleRepo(persist *query.Query) contract.ArticleRepo {
     return articleRepo{persist}
 }
 
-func (s articleRepo) CloneWithQuery(q *query.Query) service.ArticleRepo {
+func (s articleRepo) CloneWithQuery(q *query.Query) contract.ArticleRepo {
     return NewArticleRepo(q)
 }
 

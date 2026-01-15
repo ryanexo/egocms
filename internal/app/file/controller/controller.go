@@ -10,7 +10,7 @@ import (
     `cms/internal/infra/xhashids`
     `cms/internal/infra/persistence/datatype`
     `cms/internal/middleware/authz`
-    `cms/internal/types`
+    `cms/internal/util/types`
     `cms/internal/util/contextutil`
     `cms/internal/util/httpbinding`
     

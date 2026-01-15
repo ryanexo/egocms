@@ -4,23 +4,24 @@ import (
     "context"
     `errors`
     
+    contract2 `cms/internal/app/category/contract`
     `cms/internal/app/category/internal/assembler`
     `cms/internal/app/category/internal/dto`
     `cms/internal/app/category/internal/errno`
     `cms/internal/infra/persistence/contract`
     `cms/internal/infra/persistence/datatype`
     `cms/internal/infra/persistence/query`
-    `cms/internal/types`
+    `cms/internal/util/types`
     
     `gorm.io/gorm`
 )
 
 type CategoryService struct {
     txManager contract.TxManager
-    repo      CategoryRepo
+    repo      contract2.CategoryRepo
 }
 
-func NewCategoryService(txManager contract.TxManager, repo CategoryRepo) *CategoryService {
+func NewCategoryService(txManager contract.TxManager, repo contract2.CategoryRepo) *CategoryService {
     return &CategoryService{
         txManager: txManager,
         repo:      repo,

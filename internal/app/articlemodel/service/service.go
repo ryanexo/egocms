@@ -3,21 +3,22 @@ package service
 import (
     `context`
     
+    contract2 `cms/internal/app/articlemodel/contract`
     `cms/internal/app/articlemodel/internal/assembler`
     `cms/internal/app/articlemodel/internal/dto`
     `cms/internal/infra/persistence/contract`
     `cms/internal/infra/persistence/datatype`
     `cms/internal/infra/persistence/model`
     `cms/internal/infra/persistence/query`
-    `cms/internal/types`
+    `cms/internal/util/types`
 )
 
 type ArticleModelService struct {
     txManager contract.TxManager
-    repo      ArticleModelRepo
+    repo      contract2.ArticleModelRepo
 }
 
-func NewArticleModelService(txManager contract.TxManager, repo ArticleModelRepo) *ArticleModelService {
+func NewArticleModelService(txManager contract.TxManager, repo contract2.ArticleModelRepo) *ArticleModelService {
     return &ArticleModelService{
         txManager: txManager,
         repo:      repo,

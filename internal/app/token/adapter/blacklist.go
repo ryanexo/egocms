@@ -4,7 +4,7 @@ import (
     `context`
     `time`
     
-    `cms/internal/app/token/service`
+    `cms/internal/app/token/contract`
     `cms/internal/infra/persistence/datatype`
     `cms/internal/infra/persistence/model`
     `cms/internal/infra/persistence/query`
@@ -16,11 +16,11 @@ type TokenBlacklistRepo struct {
     query *query.Query
 }
 
-func NewTokenBlacklistRepo(persist *query.Query) service.TokenBlacklistRepo {
+func NewTokenBlacklistRepo(persist *query.Query) contract.TokenBlacklistRepo {
     return &TokenBlacklistRepo{persist}
 }
 
-func (r *TokenBlacklistRepo) CloneWithQuery(q *query.Query) service.TokenBlacklistRepo {
+func (r *TokenBlacklistRepo) CloneWithQuery(q *query.Query) contract.TokenBlacklistRepo {
     return NewTokenBlacklistRepo(q)
 }
 

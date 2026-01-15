@@ -3,7 +3,7 @@ package adapter
 import (
     `context`
     
-    `cms/internal/app/file/service`
+    `cms/internal/app/file/contract`
     `cms/internal/infra/persistence/datatype`
     `cms/internal/infra/persistence/model`
     `cms/internal/infra/persistence/query`
@@ -15,13 +15,13 @@ type fileRepo struct {
     persist *query.Query
 }
 
-var _ service.FileRepo = (*fileRepo)(nil)
+var _ contract.FileRepo = (*fileRepo)(nil)
 
-func NewFileRepo(persist *query.Query) service.FileRepo {
+func NewFileRepo(persist *query.Query) contract.FileRepo {
     return fileRepo{persist}
 }
 
-func (s fileRepo) CloneWithQuery(q *query.Query) service.FileRepo {
+func (s fileRepo) CloneWithQuery(q *query.Query) contract.FileRepo {
     return NewFileRepo(q)
 }
 

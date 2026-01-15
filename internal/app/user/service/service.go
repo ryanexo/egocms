@@ -3,6 +3,7 @@ package service
 import (
     "context"
     
+    contract2 `cms/internal/app/user/contract`
     `cms/internal/app/user/internal/assembler`
     `cms/internal/app/user/internal/dto`
     `cms/internal/app/user/internal/errno`
@@ -11,15 +12,15 @@ import (
     "cms/internal/infra/persistence/datatype"
     "cms/internal/infra/persistence/model"
     "cms/internal/infra/persistence/query"
-    `cms/internal/types`
+    `cms/internal/util/types`
 )
 
 type UserService struct {
     txManager contract.TxManager
-    repo      UserRepo
+    repo      contract2.UserRepo
 }
 
-func NewUserService(txManager contract.TxManager, repo UserRepo) *UserService {
+func NewUserService(txManager contract.TxManager, repo contract2.UserRepo) *UserService {
     return &UserService{
         txManager: txManager,
         repo:      repo,

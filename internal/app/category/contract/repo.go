@@ -1,11 +1,11 @@
-package service
+package contract
 
 import (
     `context`
     
     `cms/internal/app/category/internal/dto`
-    `cms/internal/infra/persistence/model`
     `cms/internal/infra/persistence/contract`
+    `cms/internal/infra/persistence/model`
     
     `gorm.io/gen`
 )

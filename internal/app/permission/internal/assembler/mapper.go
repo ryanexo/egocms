@@ -3,7 +3,7 @@ package assembler
 import (
     `cms/internal/app/permission/internal/dto`
     `cms/internal/infra/persistence/model`
-    `cms/internal/types`
+    `cms/internal/util/types`
 )
 
 func ToPermissionCreateCommand(data *dto.PermissionCreateParams) *model.Permission {

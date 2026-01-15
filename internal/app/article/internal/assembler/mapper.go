@@ -6,7 +6,7 @@ import (
     
     dto2 `cms/internal/app/article/internal/dto`
     `cms/internal/infra/persistence/model`
-    `cms/internal/types`
+    `cms/internal/util/types`
 )
 
 func extractKeywords(data []*model.ArticleKeywords) []string {

@@ -4,11 +4,12 @@ import (
     "context"
     "database/sql"
     
+    contract2 `cms/internal/app/article/contract`
     `cms/internal/app/article/internal/assembler`
     `cms/internal/app/article/internal/domain`
     `cms/internal/app/article/internal/dto`
     `cms/internal/app/article/internal/errno`
-    `cms/internal/app/articlemodel/service`
+    contract3 `cms/internal/app/articlemodel/contract`
     `cms/internal/infra/persistence/contract`
     "cms/internal/infra/persistence/datatype"
     "cms/internal/infra/persistence/model"
@@ -17,11 +18,11 @@ import (
 
 type ArticleService struct {
     txManager        contract.TxManager
-    articleRepo      ArticleRepo
-    articleModelRepo service.ArticleModelRepo
+    articleRepo      contract2.ArticleRepo
+    articleModelRepo contract3.ArticleModelRepo
 }
 
-func NewArticleService(txManager contract.TxManager, articleRepo ArticleRepo, articleModelRepo service.ArticleModelRepo) *ArticleService {
+func NewArticleService(txManager contract.TxManager, articleRepo contract2.ArticleRepo, articleModelRepo contract3.ArticleModelRepo) *ArticleService {
     return &ArticleService{
         txManager:        txManager,
         articleRepo:      articleRepo,

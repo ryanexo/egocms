@@ -4,7 +4,7 @@ import (
     `cms/internal/app/menu/internal/dto`
     `cms/internal/infra/persistence/datatype`
     `cms/internal/infra/persistence/model`
-    `cms/internal/types`
+    `cms/internal/util/types`
 )
 
 func ToMenuCreateCommand(data *dto.MenuCreateParams) *model.Menu {

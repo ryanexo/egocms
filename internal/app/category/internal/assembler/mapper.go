@@ -3,7 +3,7 @@ package assembler
 import (
     `cms/internal/app/category/internal/dto`
     `cms/internal/infra/persistence/model`
-    `cms/internal/types`
+    `cms/internal/util/types`
 )
 
 func ToCategoryCreateCommand(data *dto.CategoryCreateParams) *model.Category {

@@ -3,6 +3,7 @@ package service
 import (
     `context`
     
+    contract2 `cms/internal/app/setting/contract`
     `cms/internal/config`
     `cms/internal/infra/logger`
     `cms/internal/infra/persistence/contract`
@@ -11,14 +12,14 @@ import (
 
 type SettingService struct {
     txManager contract.TxManager
-    repo      SettingRepo
+    repo      contract2.SettingRepo
     logger    *logger.Logger
     cfg       *config.Config
 }
 
 func NewSettingService(
     txManager contract.TxManager,
-    repo SettingRepo,
+    repo contract2.SettingRepo,
     logger *logger.Logger,
     cfg *config.Config,
 ) *SettingService {

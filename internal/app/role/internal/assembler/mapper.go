@@ -3,7 +3,7 @@ package assembler
 import (
     `cms/internal/app/role/internal/dto`
     `cms/internal/infra/persistence/model`
-    `cms/internal/types`
+    `cms/internal/util/types`
 )
 
 func ToRoleDTO(data *model.Role) *dto.Role {

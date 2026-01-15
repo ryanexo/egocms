@@ -10,6 +10,7 @@ import (
     `path`
     `time`
     
+    contract2 `cms/internal/app/file/contract`
     `cms/internal/app/file/internal/assembler`
     `cms/internal/app/file/internal/dto`
     `cms/internal/app/file/internal/errno`
@@ -24,12 +25,12 @@ import (
 
 type FileService struct {
     txManager contract.TxManager
-    repo      FileRepo
+    repo      contract2.FileRepo
     logger    *logger.Logger
     driverSrv *FileDriverService
 }
 
-func NewFileService(txManager contract.TxManager, repo FileRepo, driverSrv *FileDriverService, logger *logger.Logger) *FileService {
+func NewFileService(txManager contract.TxManager, repo contract2.FileRepo, driverSrv *FileDriverService, logger *logger.Logger) *FileService {
     return &FileService{
         txManager: txManager,
         repo:      repo,

@@ -4,6 +4,7 @@ import (
     `context`
     `errors`
     
+    contract2 `cms/internal/app/menu/contract`
     `cms/internal/app/menu/internal/assembler`
     `cms/internal/app/menu/internal/dto`
     `cms/internal/app/menu/internal/errno`
@@ -11,17 +12,17 @@ import (
     `cms/internal/infra/persistence/datatype`
     `cms/internal/infra/persistence/model`
     `cms/internal/infra/persistence/query`
-    `cms/internal/types`
+    `cms/internal/util/types`
     
     `gorm.io/gorm`
 )
 
 type MenuService struct {
     txManager contract.TxManager
-    repo      MenuRepo
+    repo      contract2.MenuRepo
 }
 
-func NewMenuService(txManager contract.TxManager, repo MenuRepo) *MenuService {
+func NewMenuService(txManager contract.TxManager, repo contract2.MenuRepo) *MenuService {
     return &MenuService{
         txManager: txManager,
         repo:      repo,

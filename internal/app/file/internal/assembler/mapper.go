@@ -3,7 +3,7 @@ package assembler
 import (
     `cms/internal/app/file/internal/dto`
     `cms/internal/infra/persistence/model`
-    `cms/internal/types`
+    `cms/internal/util/types`
 )
 
 func ToFileInfoDTO(data *model.File, url string) *dto.FileInfo {

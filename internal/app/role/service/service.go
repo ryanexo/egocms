@@ -3,28 +3,37 @@ package service
 import (
     `context`
     
+    permission `cms/internal/app/permission/service`
+    contract2 `cms/internal/app/role/contract`
     roleAssembler `cms/internal/app/role/internal/assembler`
     `cms/internal/app/role/internal/dto`
     `cms/internal/app/role/internal/errno`
+    `cms/internal/infra/casbin`
     `cms/internal/infra/persistence/contract`
     `cms/internal/infra/persistence/datatype`
     `cms/internal/infra/persistence/model`
     `cms/internal/infra/persistence/query`
-    `cms/internal/infra/casbin`
-    `cms/internal/types`
+    `cms/internal/util/types`
 )
 
 type RoleService struct {
     txManager contract.TxManager
     casbin    *casbin.RoleCasbin
-    repo      RoleRepo
+    repo      contract2.RoleRepo
+    permSrv   permission.PermissionService
 }
 
-func NewRoleService(txManager contract.TxManager, casbin *casbin.RoleCasbin, repo RoleRepo) *RoleService {
+func NewRoleService(
+    txManager contract.TxManager,
+    casbin *casbin.RoleCasbin,
+    repo contract2.RoleRepo,
+    permSrv permission.PermissionService,
+) *RoleService {
     return &RoleService{
         txManager: txManager,
         casbin:    casbin,
         repo:      repo,
+        permSrv:   permSrv,
     }
 }
 

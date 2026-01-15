@@ -3,7 +3,7 @@ package adapter
 import (
     `context`
     
-    `cms/internal/app/permission/service`
+    `cms/internal/app/permission/contract`
     `cms/internal/infra/persistence/datatype`
     `cms/internal/infra/persistence/model`
     `cms/internal/infra/persistence/query`
@@ -15,11 +15,11 @@ type permissionRepo struct {
     persist *query.Query
 }
 
-func NewPermissionRepo(persist *query.Query) service.PermissionRepo {
+func NewPermissionRepo(persist *query.Query) contract.PermissionRepo {
     return &permissionRepo{persist: persist}
 }
 
-func (s permissionRepo) CloneWithQuery(q *query.Query) service.PermissionRepo {
+func (s permissionRepo) CloneWithQuery(q *query.Query) contract.PermissionRepo {
     return NewPermissionRepo(q)
 }
 

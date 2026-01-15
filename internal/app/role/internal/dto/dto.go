@@ -2,7 +2,7 @@ package dto
 
 import (
     "cms/internal/infra/persistence/datatype"
-    `cms/internal/types`
+    `cms/internal/util/types`
 )
 
 type RoleCreateParams struct {
@@ -12,8 +12,8 @@ type RoleCreateParams struct {
 }
 
 type RoleUpdateParams struct {
+    types.ResourceID
     RoleCreateParams
-    ID datatype.SafeUint64 `validate:"required" json:"id" swaggertype:"string"`
 }
 
 type Role struct {
@@ -26,4 +26,9 @@ type RoleListParams struct {
     types.Pagination
     Name        *string `json:"name"`
     Description *string `json:"description"`
+}
+
+type RoleGrantParams struct {
+    types.ResourceID
+    PermID []datatype.SafeUint64 `validate:"required" json:"permId" swaggertype:"array,string"`
 }

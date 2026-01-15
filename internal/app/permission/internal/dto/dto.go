@@ -2,11 +2,12 @@ package dto
 
 import (
     `cms/internal/infra/persistence/datatype`
-    `cms/internal/types`
+    `cms/internal/util/types`
 )
 
 type Permission struct {
     types.Base
+    MenuName    string               `json:"menuName"`
     MenuID      *datatype.SafeUint64 `json:"menuId" swaggertype:"string"`
     Name        string               `validate:"required" json:"name" label:"权限名称"`
     Description string               `json:"description"`

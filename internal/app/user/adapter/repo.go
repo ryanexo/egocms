@@ -4,8 +4,8 @@ import (
     "context"
     "database/sql"
     
+    `cms/internal/app/user/contract`
     `cms/internal/app/user/internal/dto`
-    `cms/internal/app/user/service`
     "cms/internal/infra/persistence/datatype"
     "cms/internal/infra/persistence/dbscope"
     "cms/internal/infra/persistence/model"
@@ -18,11 +18,11 @@ type userRepo struct {
     query *query.Query
 }
 
-func NewUserRepo(persist *query.Query) service.UserRepo {
+func NewUserRepo(persist *query.Query) contract.UserRepo {
     return &userRepo{persist}
 }
 
-func (r *userRepo) CloneWithQuery(q *query.Query) service.UserRepo {
+func (r *userRepo) CloneWithQuery(q *query.Query) contract.UserRepo {
     return NewUserRepo(q)
 }
 

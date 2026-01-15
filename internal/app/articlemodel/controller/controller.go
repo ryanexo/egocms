@@ -5,7 +5,7 @@ import (
     articleModelSrv `cms/internal/app/articlemodel/service`
     `cms/internal/httpserver`
     `cms/internal/middleware/authz`
-    `cms/internal/types`
+    `cms/internal/util/types`
     `cms/internal/util/httpbinding`
     
     "github.com/gin-gonic/gin"
