@@ -17,12 +17,12 @@ import (
 var currentConfig *Config
 
 type Config struct {
-    GlobalKey string            `json:"globalKey" yaml:"globalKey"`
-    Token     token.Config      `json:"token" yaml:"token"`
-    DB        db.DBConfig       `json:"db" yaml:"db"`
-    File      file.Config       `json:"file" yaml:"file"`
-    Log       logger.Config     `json:"log" yaml:"log"`
-    Server    httpserver.Config `json:"httpserver" yaml:"httpserver"`
+    AppKey string            `json:"appKey" yaml:"appKey"`
+    Token  token.Config      `json:"token" yaml:"token"`
+    DB     db.DBConfig       `json:"db" yaml:"db"`
+    File   file.Config       `json:"file" yaml:"file"`
+    Log    logger.Config     `json:"log" yaml:"log"`
+    Server httpserver.Config `json:"httpserver" yaml:"httpserver"`
 }
 
 func (s Config) Validate() error {

@@ -38,7 +38,7 @@ func (s TokenService) Create(userID datatype.SafeUint64) (string, error) {
         return "", err
     }
     expires := s.config.Token.Expires
-    tokenKey := []byte(s.config.GlobalKey)
+    tokenKey := []byte(s.config.AppKey)
     return jwt.NewWithClaims(
         jwt.SigningMethodHS512,
         dto.UserToken{
@@ -72,7 +72,7 @@ func (s TokenService) isRevoked(ctx context.Context, uuid string, expires int) (
 func (s TokenService) Parse(ctx context.Context, tokenString string) (*dto.UserToken, error) {
     claims := &dto.UserToken{}
     jwtData, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-        return s.config.GlobalKey, nil
+        return s.config.AppKey, nil
     })
     if err != nil || !jwtData.Valid {
         if errors.Is(err, jwt.ErrTokenExpired) {

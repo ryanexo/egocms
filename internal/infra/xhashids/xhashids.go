@@ -12,7 +12,7 @@ type HashID struct {
 
 func New(config *config.Config) (*HashID, error) {
     hashData := hashids.NewData()
-    hashData.Salt = config.GlobalKey
+    hashData.Salt = config.AppKey
     hashData.MinLength = 16
     hd, err := hashids.NewWithData(hashData)
     if err != nil {

@@ -15,8 +15,8 @@ import (
 	"gorm.io/gen/field"
 
 	"gorm.io/plugin/dbresolver"
-    
-    "cms/internal/infra/persist/model"
+
+	"cms/internal/infra/persist/model"
 )
 
 func newMenu(db *gorm.DB, opts ...gen.DOOption) menu {
@@ -39,6 +39,9 @@ func newMenu(db *gorm.DB, opts ...gen.DOOption) menu {
 	_menu.URI = field.NewString(tableName, "uri")
 	_menu.Template = field.NewString(tableName, "template")
 	_menu.Remark = field.NewString(tableName, "remark")
+	_menu.Affix = field.NewInt8(tableName, "affix")
+	_menu.ExternalURL = field.NewString(tableName, "external_url")
+	_menu.Icon = field.NewString(tableName, "icon")
 	_menu.Action = menuHasManyAction{
 		db: db.Session(&gorm.Session{}),
 
@@ -53,20 +56,23 @@ func newMenu(db *gorm.DB, opts ...gen.DOOption) menu {
 type menu struct {
 	menuDo menuDo
 
-	ALL       field.Asterisk
-	ID        field.Uint64
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	DeletedAt field.Field
-	ParentID  field.Uint64
-	Type      field.Int8
-	Name      field.String
-	Sequence  field.Int64
-	Visible   field.Int8
-	URI       field.String
-	Template  field.String
-	Remark    field.String
-	Action    menuHasManyAction
+	ALL         field.Asterisk
+	ID          field.Uint64
+	CreatedAt   field.Time
+	UpdatedAt   field.Time
+	DeletedAt   field.Field
+	ParentID    field.Uint64
+	Type        field.Int8
+	Name        field.String
+	Sequence    field.Int64
+	Visible     field.Int8
+	URI         field.String
+	Template    field.String
+	Remark      field.String
+	Affix       field.Int8
+	ExternalURL field.String
+	Icon        field.String
+	Action      menuHasManyAction
 
 	fieldMap map[string]field.Expr
 }
@@ -95,6 +101,9 @@ func (m *menu) updateTableName(table string) *menu {
 	m.URI = field.NewString(table, "uri")
 	m.Template = field.NewString(table, "template")
 	m.Remark = field.NewString(table, "remark")
+	m.Affix = field.NewInt8(table, "affix")
+	m.ExternalURL = field.NewString(table, "external_url")
+	m.Icon = field.NewString(table, "icon")
 
 	m.fillFieldMap()
 
@@ -119,7 +128,7 @@ func (m *menu) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (m *menu) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 13)
+	m.fieldMap = make(map[string]field.Expr, 16)
 	m.fieldMap["id"] = m.ID
 	m.fieldMap["created_at"] = m.CreatedAt
 	m.fieldMap["updated_at"] = m.UpdatedAt
@@ -132,6 +141,9 @@ func (m *menu) fillFieldMap() {
 	m.fieldMap["uri"] = m.URI
 	m.fieldMap["template"] = m.Template
 	m.fieldMap["remark"] = m.Remark
+	m.fieldMap["affix"] = m.Affix
+	m.fieldMap["external_url"] = m.ExternalURL
+	m.fieldMap["icon"] = m.Icon
 
 }
 

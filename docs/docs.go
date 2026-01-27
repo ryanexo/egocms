@@ -1566,7 +1566,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.UserCreateParams"
+                            "$ref": "#/definitions/dto.UserCredentialParams"
                         }
                     }
                 ],
@@ -1574,7 +1574,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/types.ApiCreateResult"
+                            "$ref": "#/definitions/dto.ApiUserLogin"
                         }
                     }
                 },
@@ -1982,6 +1982,20 @@ const docTemplate = `{
                 },
                 "data": {
                     "$ref": "#/definitions/cms_internal_app_user_internal_dto.ApiPagedData-dto_User"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ApiUserLogin": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/dto.UserAuthnResult"
                 },
                 "msg": {
                     "type": "string"
@@ -2490,7 +2504,16 @@ const docTemplate = `{
         "dto.Menu": {
             "type": "object",
             "properties": {
+                "affix": {
+                    "type": "integer"
+                },
                 "createdAt": {
+                    "type": "string"
+                },
+                "externalUrl": {
+                    "type": "string"
+                },
+                "icon": {
                     "type": "string"
                 },
                 "id": {
@@ -2532,6 +2555,15 @@ const docTemplate = `{
                 "uri"
             ],
             "properties": {
+                "affix": {
+                    "type": "integer"
+                },
+                "externalUrl": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -2593,6 +2625,15 @@ const docTemplate = `{
                 "id"
             ],
             "properties": {
+                "affix": {
+                    "type": "integer"
+                },
+                "externalUrl": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -2690,7 +2731,8 @@ const docTemplate = `{
                     "maxLength": 255
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123456"
                 },
                 "inheritList": {
                     "type": "array",
@@ -2723,7 +2765,7 @@ const docTemplate = `{
                 "profile": {
                     "$ref": "#/definitions/dto.UserProfile"
                 },
-                "roleID": {
+                "roleId": {
                     "type": "string"
                 },
                 "roleName": {
@@ -2736,6 +2778,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserAuthnResult": {
+            "type": "object",
+            "properties": {
+                "detail": {
+                    "$ref": "#/definitions/dto.User"
+                },
+                "token": {
                     "type": "string"
                 }
             }
@@ -2767,6 +2820,21 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 32,
                     "minLength": 4
+                }
+            }
+        },
+        "dto.UserCredentialParams": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },

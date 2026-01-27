@@ -81,8 +81,8 @@ func (s UserController) Register(ctx *gin.Context) {
 // @Tags    用户
 // @Accept  json
 // @Produce json
-// @Param   body body dto.UserCreateParams true "请求参数"
-// @Success 200 {object} types.ApiCreateResult
+// @Param   body body dto.UserCredentialParams true "请求参数"
+// @Success 200 {object} dto.ApiUserLogin
 // @Router  /user/login [post]
 func (s UserController) Login(ctx *gin.Context) {
     httpbinding.BindJSON[dto.UserCredentialParams](ctx, func(params dto.UserCredentialParams) (any, error) {

@@ -170,6 +170,15 @@ definitions:
       msg:
         type: string
     type: object
+  dto.ApiUserLogin:
+    properties:
+      code:
+        type: string
+      data:
+        $ref: '#/definitions/dto.UserAuthnResult'
+      msg:
+        type: string
+    type: object
   dto.Article:
     properties:
       authorId:
@@ -505,7 +514,13 @@ definitions:
     type: object
   dto.Menu:
     properties:
+      affix:
+        type: integer
       createdAt:
+        type: string
+      externalUrl:
+        type: string
+      icon:
         type: string
       id:
         type: string
@@ -530,6 +545,12 @@ definitions:
     type: object
   dto.MenuCreateParams:
     properties:
+      affix:
+        type: integer
+      externalUrl:
+        type: string
+      icon:
+        type: string
       name:
         type: string
       parentId:
@@ -571,6 +592,12 @@ definitions:
     type: object
   dto.MenuUpdateParams:
     properties:
+      affix:
+        type: integer
+      externalUrl:
+        type: string
+      icon:
+        type: string
       id:
         type: string
       name:
@@ -635,6 +662,7 @@ definitions:
         maxLength: 255
         type: string
       id:
+        example: "123456"
         type: string
       inheritList:
         items:
@@ -661,7 +689,7 @@ definitions:
         type: string
       profile:
         $ref: '#/definitions/dto.UserProfile'
-      roleID:
+      roleId:
         type: string
       roleName:
         type: string
@@ -670,6 +698,13 @@ definitions:
       updatedAt:
         type: string
       username:
+        type: string
+    type: object
+  dto.UserAuthnResult:
+    properties:
+      detail:
+        $ref: '#/definitions/dto.User'
+      token:
         type: string
     type: object
   dto.UserCreateParams:
@@ -693,6 +728,16 @@ definitions:
     - email
     - password
     - passwordConfirm
+    - username
+    type: object
+  dto.UserCredentialParams:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
     - username
     type: object
   dto.UserListParams:
@@ -1805,14 +1850,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.UserCreateParams'
+          $ref: '#/definitions/dto.UserCredentialParams'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/types.ApiCreateResult'
+            $ref: '#/definitions/dto.ApiUserLogin'
       summary: 用户登录
       tags:
       - 用户

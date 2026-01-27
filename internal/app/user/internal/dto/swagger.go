@@ -20,4 +20,5 @@ type ApiPagedResult[T any] struct {
 }
 
 type ApiUserList = ApiPagedResult[User]
+type ApiUserLogin = ApiResult[UserAuthnResult]
 type ApiUser = ApiResult[User]

@@ -16,8 +16,8 @@ import (
 	"gorm.io/gen/field"
 
 	"gorm.io/plugin/dbresolver"
-    
-    "cms/internal/infra/persist/model"
+
+	"cms/internal/infra/persist/model"
 )
 
 func newMenuContext(db *gorm.DB, opts ...gen.DOOption) menuContext {

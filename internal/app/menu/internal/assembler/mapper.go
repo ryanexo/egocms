@@ -9,14 +9,19 @@ import (
 
 func ToMenuCreateCommand(data *dto.MenuCreateParams) *model.Menu {
     return &model.Menu{
-        ParentID: data.ParentID,
-        Type:     data.Type,
-        Name:     data.Name,
-        Sequence: data.Sequence,
-        Visible:  datatype.BoolInt8(1),
-        URI:      data.URI,
-        Template: data.Template,
-        Remark:   data.Remark,
+        Base:        model.Base{},
+        ParentID:    data.ParentID,
+        Type:        data.Type,
+        Name:        data.Name,
+        Affix:       data.Affix,
+        Icon:        data.Icon,
+        ExternalURL: data.ExternalURL,
+        Sequence:    data.Sequence,
+        Visible:     datatype.BoolInt8(1),
+        URI:         data.URI,
+        Template:    data.Template,
+        Remark:      data.Remark,
+        Action:      nil,
     }
 }
 
@@ -25,12 +30,15 @@ func ToMenuUpdateCommand(data *dto.MenuUpdateParams) *model.Menu {
         Base: model.Base{
             ID: data.ID,
         },
-        Type:     data.Type,
-        Name:     data.Name,
-        Sequence: data.Sequence,
-        URI:      data.URI,
-        Template: data.Template,
-        Remark:   data.Remark,
+        Type:        data.Type,
+        Name:        data.Name,
+        Affix:       data.Affix,
+        Icon:        data.Icon,
+        ExternalURL: data.ExternalURL,
+        Sequence:    data.Sequence,
+        URI:         data.URI,
+        Template:    data.Template,
+        Remark:      data.Remark,
     }
 }
 
@@ -41,14 +49,17 @@ func ToMenuDTO(data *model.Menu) *dto.Menu {
             CreatedAt: data.CreatedAt,
             UpdatedAt: data.UpdatedAt,
         },
-        ParentID: data.ParentID,
-        Type:     data.Type,
-        Name:     data.Name,
-        Sequence: data.Sequence,
-        Visible:  &data.Visible,
-        URI:      data.URI,
-        Template: data.Template,
-        Remark:   data.Remark,
+        ParentID:    data.ParentID,
+        Type:        data.Type,
+        Name:        data.Name,
+        Affix:       data.Affix,
+        Icon:        data.Icon,
+        ExternalURL: data.ExternalURL,
+        Sequence:    data.Sequence,
+        Visible:     data.Visible,
+        URI:         data.URI,
+        Template:    data.Template,
+        Remark:      data.Remark,
     }
 }
 

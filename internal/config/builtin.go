@@ -23,10 +23,10 @@ func defaultConfig() (*Config, error) {
     if err != nil {
         return nil, err
     }
-    globalKey := md5.Sum(binID)
+    appKey := md5.Sum(binID)
     
     return &Config{
-        GlobalKey: hex.EncodeToString(globalKey[:]),
+        AppKey: hex.EncodeToString(appKey[:]),
         Token: token.Config{
             Expires: int(time.Hour * 24 * 7 / time.Second),
         },
