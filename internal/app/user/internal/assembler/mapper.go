@@ -27,8 +27,6 @@ func ToUserDTO(data *model.User) *dto.User {
         Email:    data.Email,
         IP:       data.IP,
         Status:   data.Status,
-        RoleID:   data.RoleID,
-        RoleName: data.Role.Name,
         Profile: &dto.UserProfile{
             Avatar:      data.Profile.Avatar,
             Nickname:    data.Profile.Nickname,

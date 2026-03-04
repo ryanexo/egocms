@@ -2,6 +2,7 @@ package service
 
 import (
     "context"
+    `errors`
     
     contract2 `cms/internal/app/user/contract`
     `cms/internal/app/user/internal/assembler`
@@ -13,6 +14,8 @@ import (
     "cms/internal/infra/persist/model"
     "cms/internal/infra/persist/query"
     `cms/internal/util/types`
+    
+    `gorm.io/gorm`
 )
 
 type UserService struct {
@@ -29,14 +32,16 @@ func NewUserService(txManager contract.TxManager, repo contract2.UserRepo) *User
 
 func (s UserService) Create(ctx context.Context, params dto.UserCreateParams) (datatype.SafeUint64, error) {
     user, err := s.repo.FirstByUsernameOrEmail(ctx, params.Username, params.Email)
-    if err != nil {
+    if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
         return 0, err
     }
-    if user.Username == params.Username {
-        return 0, errno.UserNameExists.ToError()
-    }
-    if user.Email == params.Email {
-        return 0, errno.UserEmailExists.ToError()
+    if user != nil {
+        if user.Username == params.Username {
+            return 0, errno.UserNameExists.ToError()
+        }
+        if user.Email == params.Email {
+            return 0, errno.UserEmailExists.ToError()
+        }
     }
     
     hashedPwd, err := password.Password(params.Password).Generate()

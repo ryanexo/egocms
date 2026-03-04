@@ -37,6 +37,7 @@ func main() {
         &model.Menu{},
         &model.MenuContext{},
         &model.User{},
+        &model.UserProfile{},
         &model.Role{},
         &model.TokenBlacklist{},
         &model.File{},
