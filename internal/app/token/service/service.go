@@ -37,14 +37,13 @@ func (s TokenService) Create(userID datatype.SafeUint64) (string, error) {
     if err != nil {
         return "", err
     }
-    expires := s.config.Token.Expires
     tokenKey := []byte(s.config.AppKey)
     return jwt.NewWithClaims(
         jwt.SigningMethodHS512,
         dto.UserToken{
             RegisteredClaims: jwt.RegisteredClaims{
                 ExpiresAt: jwt.NewNumericDate(
-                    time.Now().Add(time.Duration(expires)),
+                    time.Now().Add(time.Hour * 24 * 7),
                 ),
                 ID: uuidValue.String(),
             },
@@ -52,7 +51,7 @@ func (s TokenService) Create(userID datatype.SafeUint64) (string, error) {
         }).SignedString(tokenKey)
 }
 
-func (s TokenService) isRevoked(ctx context.Context, uuid string, expires int) (bool, error) {
+func (s TokenService) isRevoked(ctx context.Context, uuid string) (bool, error) {
     data, err := s.blacklistRepo.FindByUUID(ctx, uuid)
     if err != nil {
         if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -61,8 +60,7 @@ func (s TokenService) isRevoked(ctx context.Context, uuid string, expires int) (
         return false, err
     }
     
-    expiresTime := data.CreatedAt.Add(time.Duration(expires) * time.Second)
-    if expiresTime.Before(time.Now()) {
+    if data.Expires.Before(time.Now()) {
         return true, nil
     }
     _, err = s.blacklistRepo.Remove(ctx, data.ID)
@@ -80,7 +78,7 @@ func (s TokenService) Parse(ctx context.Context, tokenString string) (*dto.UserT
         }
         return nil, errno.Unauthorized.Wrap(err).ToError()
     }
-    isRevoked, err := s.isRevoked(ctx, claims.ID, s.config.Token.Expires)
+    isRevoked, err := s.isRevoked(ctx, claims.ID)
     if err != nil {
         return nil, err
     }

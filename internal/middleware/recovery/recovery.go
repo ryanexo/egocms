@@ -10,7 +10,7 @@ import (
     
     `cms/internal/erroz`
     `cms/internal/httpserver`
-    `cms/internal/infra/logger`
+    `cms/internal/pkg/logger`
     
     "github.com/gin-gonic/gin"
     `go.uber.org/zap`

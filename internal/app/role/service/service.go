@@ -17,14 +17,14 @@ import (
 )
 
 type RoleService struct {
-    txManager contract.TxManager
+    txManager contract.Transactor
     repo      repoContract.RoleRepo
     casbin    *casbin.RoleCasbin
     permSrv   *permission.PermissionService
 }
 
 func NewRoleService(
-    txManager contract.TxManager,
+    txManager contract.Transactor,
     casbin *casbin.RoleCasbin,
     repo repoContract.RoleRepo,
     permSrv *permission.PermissionService,

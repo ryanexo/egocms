@@ -1,19 +1,14 @@
 package config
 
 import (
-    `cms/internal/config/token`
     `cms/internal/httpserver`
     `cms/internal/infra/db`
     `cms/internal/infra/file`
-    `cms/internal/infra/logger`
+    `cms/internal/pkg/logger`
 )
 
 func Get() *Config {
     return currentConfig
-}
-
-func GetTokenConfig(cfg *Config) token.Config {
-    return cfg.Token
 }
 
 func GetDBConfig(cfg *Config) db.DBConfig {

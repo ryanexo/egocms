@@ -3,10 +3,10 @@ package service
 import (
     `context`
     
-    menu `cms/internal/app/menu/contract`
     `cms/internal/app/permission/contract`
     `cms/internal/app/permission/internal/assembler`
     `cms/internal/app/permission/internal/dto`
+    menu `cms/internal/infra/persist/contract`
     `cms/internal/infra/persist/datatype`
     `cms/internal/infra/persist/model`
 )

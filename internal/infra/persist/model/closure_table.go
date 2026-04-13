@@ -7,7 +7,7 @@ type ClosureTable interface {
     // SELECT @id, @id, 0, @ancestor
     // {{ if ancestor > 0 }}
     // UNION ALL
-    // SELECT ancestor, @id, distance + 1, @ancestor
+    // SELECT ancestor, @id, distance + 1
     // FROM @@table
     // WHERE descendant = @ancestor
     // {{ end }}

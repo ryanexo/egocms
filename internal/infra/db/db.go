@@ -34,7 +34,7 @@ func createBasicConfig() *gorm.Config {
     }
 }
 
-func buildDB(dialector gorm.Dialector, config *gorm.Config) (*gorm.DB, error) {
+func createDBInstance(dialector gorm.Dialector, config *gorm.Config) (*gorm.DB, error) {
     db, err := gorm.Open(dialector, config)
     if err != nil {
         return nil, err
@@ -56,5 +56,5 @@ func NewDB(config DBConfig) (*gorm.DB, error) {
     if err != nil {
         return nil, err
     }
-    return buildDB(driver, createBasicConfig())
+    return createDBInstance(driver, createBasicConfig())
 }

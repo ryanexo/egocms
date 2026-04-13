@@ -5,8 +5,8 @@ import (
     articleModelSrv `cms/internal/app/articlemodel/service`
     `cms/internal/httpserver`
     `cms/internal/middleware/authz`
-    `cms/internal/util/types`
     `cms/internal/util/httpbinding`
+    `cms/internal/util/types`
     
     "github.com/gin-gonic/gin"
 )
@@ -87,7 +87,7 @@ func (s ArticleModelController) Update(ctx *gin.Context) {
 // @Router  /article-model/update-schema [post]
 func (s ArticleModelController) UpdateSchema(ctx *gin.Context) {
     httpbinding.BindJSON[dto.ArticleModelSchemaUpdateParams](ctx, func(params dto.ArticleModelSchemaUpdateParams) (any, error) {
-        return nil, s.articleModelSrv.ReplaceSchema(ctx, params)
+        return nil, s.articleModelSrv.UpdateModelSchema(ctx, params)
     })
 }
 

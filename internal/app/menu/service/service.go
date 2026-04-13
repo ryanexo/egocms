@@ -4,7 +4,6 @@ import (
     `context`
     `errors`
     
-    contract2 `cms/internal/app/menu/contract`
     `cms/internal/app/menu/internal/assembler`
     `cms/internal/app/menu/internal/dto`
     `cms/internal/app/menu/internal/errno`
@@ -18,11 +17,11 @@ import (
 )
 
 type MenuService struct {
-    txManager contract.TxManager
-    repo      contract2.MenuRepo
+    txManager contract.Transactor
+    repo      contract.MenuRepo
 }
 
-func NewMenuService(txManager contract.TxManager, repo contract2.MenuRepo) *MenuService {
+func NewMenuService(txManager contract.Transactor, repo contract.MenuRepo) *MenuService {
     return &MenuService{
         txManager: txManager,
         repo:      repo,

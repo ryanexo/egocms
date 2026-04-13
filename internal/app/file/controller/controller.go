@@ -8,8 +8,8 @@ import (
     `cms/internal/erroz`
     `cms/internal/httpserver`
     `cms/internal/infra/persist/datatype`
-    `cms/internal/infra/xhashids`
     `cms/internal/middleware/authz`
+    `cms/internal/pkg/hashid`
     `cms/internal/util/authzutil`
     `cms/internal/util/httpbinding`
     `cms/internal/util/types`
@@ -20,10 +20,10 @@ import (
 type FileController struct {
     fileSrv *service.FileService
     auth    *authz.Factory
-    hashID  *xhashids.HashID
+    hashID  *hashid.HashID
 }
 
-func NewFileController(fileSrv *service.FileService, auth *authz.Factory, hashID *xhashids.HashID) *FileController {
+func NewFileController(fileSrv *service.FileService, auth *authz.Factory, hashID *hashid.HashID) *FileController {
     return &FileController{fileSrv: fileSrv, auth: auth, hashID: hashID}
 }
 
@@ -101,7 +101,7 @@ func (s FileController) Download(ctx *gin.Context) {
         erroz.DataNotFound.WriteWithAbort(ctx)
         return
     }
-    reader, meta, err := s.fileSrv.OpenFileRecordByID(ctx, datatype.SafeUint64(id[0]))
+    reader, meta, err := s.fileSrv.OpenFileRecordByID(ctx, datatype.SafeUint64(id))
     if err != nil {
         erroz.ResolveWithAbort(ctx, err)
         return

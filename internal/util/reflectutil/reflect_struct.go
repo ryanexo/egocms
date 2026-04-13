@@ -20,16 +20,18 @@ func InvokeImplementedStruct[T any](v any, callback func(reflect.Value, T) error
         if !iterateField.CanInterface() {
             continue
         }
-    INVOKE:
-        controller, ok := iterateField.Interface().(T)
-        if ok {
-            err := callback(iterateField, controller)
-            if err != nil {
-                return err
+        for {
+            controller, ok := iterateField.Interface().(T)
+            if ok {
+                if err := callback(iterateField, controller); err != nil {
+                    return err
+                }
+                break
+            } else if iterateField.Kind() == reflect.Ptr {
+                iterateField = iterateField.Elem()
+            } else {
+                break
             }
-        } else if iterateField.Kind() == reflect.Ptr {
-            iterateField = iterateField.Elem()
-            goto INVOKE
         }
     }
     

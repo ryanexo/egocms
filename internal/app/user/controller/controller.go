@@ -6,8 +6,8 @@ import (
     user `cms/internal/app/user/service`
     "cms/internal/erroz"
     `cms/internal/httpserver`
-    `cms/internal/infra/logger`
     `cms/internal/middleware/authz`
+    `cms/internal/pkg/logger`
     `cms/internal/util/authzutil`
     `cms/internal/util/httpbinding`
     `cms/internal/util/types`

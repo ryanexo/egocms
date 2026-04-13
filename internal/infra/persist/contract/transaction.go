@@ -6,6 +6,6 @@ import (
     `cms/internal/infra/persist/query`
 )
 
-type TxManager interface {
+type Transactor interface {
     Transaction(fc func(tx *query.Query) error, opts ...*sql.TxOptions) error
 }

@@ -3,7 +3,6 @@ package service
 import (
     `context`
     
-    contract2 `cms/internal/app/articlemodel/contract`
     `cms/internal/app/articlemodel/internal/assembler`
     `cms/internal/app/articlemodel/internal/dto`
     `cms/internal/infra/persist/contract`
@@ -14,11 +13,11 @@ import (
 )
 
 type ArticleModelService struct {
-    txManager contract.TxManager
-    repo      contract2.ArticleModelRepo
+    txManager contract.Transactor
+    repo      contract.ArticleModelRepo
 }
 
-func NewArticleModelService(txManager contract.TxManager, repo contract2.ArticleModelRepo) *ArticleModelService {
+func NewArticleModelService(txManager contract.Transactor, repo contract.ArticleModelRepo) *ArticleModelService {
     return &ArticleModelService{
         txManager: txManager,
         repo:      repo,
@@ -39,7 +38,7 @@ func (s ArticleModelService) UpdateModel(ctx context.Context, params dto.Article
     return s.repo.UpdateModel(ctx, data)
 }
 
-func (s ArticleModelService) ReplaceSchema(ctx context.Context, params dto.ArticleModelSchemaUpdateParams) error {
+func (s ArticleModelService) UpdateModelSchema(ctx context.Context, params dto.ArticleModelSchemaUpdateParams) error {
     _, err := s.repo.FindByID(ctx, params.ID)
     if err != nil {
         return err

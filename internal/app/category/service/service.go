@@ -4,7 +4,6 @@ import (
     "context"
     `errors`
     
-    contract2 `cms/internal/app/category/contract`
     `cms/internal/app/category/internal/assembler`
     `cms/internal/app/category/internal/dto`
     `cms/internal/app/category/internal/errno`
@@ -17,11 +16,11 @@ import (
 )
 
 type CategoryService struct {
-    txManager contract.TxManager
-    repo      contract2.CategoryRepo
+    txManager contract.Transactor
+    repo      contract.CategoryRepo
 }
 
-func NewCategoryService(txManager contract.TxManager, repo contract2.CategoryRepo) *CategoryService {
+func NewCategoryService(txManager contract.Transactor, repo contract.CategoryRepo) *CategoryService {
     return &CategoryService{
         txManager: txManager,
         repo:      repo,

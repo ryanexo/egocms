@@ -3,13 +3,11 @@ package config
 import (
     `crypto/md5`
     `encoding/hex`
-    `time`
     
-    `cms/internal/config/token`
     `cms/internal/httpserver`
     `cms/internal/infra/db`
     `cms/internal/infra/file`
-    `cms/internal/infra/logger`
+    `cms/internal/pkg/logger`
     
     `github.com/google/uuid`
 )
@@ -27,9 +25,6 @@ func defaultConfig() (*Config, error) {
     
     return &Config{
         AppKey: hex.EncodeToString(appKey[:]),
-        Token: token.Config{
-            Expires: int(time.Hour * 24 * 7 / time.Second),
-        },
         DB: db.DBConfig{
             Type:    "sqlite",
             Host:    "./runtime/data.db",

@@ -4,11 +4,10 @@ import (
     "os"
     `reflect`
     
-    `cms/internal/config/token`
     `cms/internal/httpserver`
     `cms/internal/infra/db`
     `cms/internal/infra/file`
-    `cms/internal/infra/logger`
+    `cms/internal/pkg/logger`
     `cms/internal/util/reflectutil`
     
     "github.com/bytedance/sonic"
@@ -18,7 +17,6 @@ var currentConfig *Config
 
 type Config struct {
     AppKey string            `json:"appKey" yaml:"appKey"`
-    Token  token.Config      `json:"token" yaml:"token"`
     DB     db.DBConfig       `json:"db" yaml:"db"`
     File   file.Config       `json:"file" yaml:"file"`
     Log    logger.Config     `json:"log" yaml:"log"`

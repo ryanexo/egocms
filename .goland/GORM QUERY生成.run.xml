@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="GORM QUERY生成" type="GoApplicationRunConfiguration" factoryName="Go Application">
-    <module name="egocms" />
+    <module name="golang" />
     <working_directory value="$PROJECT_DIR$" />
     <kind value="PACKAGE" />
     <package value="cms/cmd/gormgen" />

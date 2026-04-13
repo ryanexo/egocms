@@ -7,56 +7,52 @@
 package main
 
 import (
-	adapter8 "cms/internal/app/article/adapter"
-	controller5 "cms/internal/app/article/controller"
-	service8 "cms/internal/app/article/service"
-	adapter9 "cms/internal/app/articlemodel/adapter"
-	controller6 "cms/internal/app/articlemodel/controller"
-	service9 "cms/internal/app/articlemodel/service"
-	adapter6 "cms/internal/app/category/adapter"
-	controller3 "cms/internal/app/category/controller"
-	service5 "cms/internal/app/category/service"
-	adapter10 "cms/internal/app/file/adapter"
-	controller7 "cms/internal/app/file/controller"
-	service10 "cms/internal/app/file/service"
-	adapter5 "cms/internal/app/menu/adapter"
-	controller2 "cms/internal/app/menu/controller"
-	service4 "cms/internal/app/menu/service"
-	adapter4 "cms/internal/app/permission/adapter"
-	controller8 "cms/internal/app/permission/controller"
-	service6 "cms/internal/app/permission/service"
-	adapter7 "cms/internal/app/role/adapter"
-	controller4 "cms/internal/app/role/controller"
-	service7 "cms/internal/app/role/service"
-	"cms/internal/app/setting/adapter"
-	"cms/internal/app/setting/service"
-	adapter3 "cms/internal/app/token/adapter"
-	service3 "cms/internal/app/token/service"
-	adapter2 "cms/internal/app/user/adapter"
-	"cms/internal/app/user/controller"
-	service2 "cms/internal/app/user/service"
 	"cms/internal/bootstrap"
-	controller9 "cms/internal/bootstrap/controller"
-	"cms/internal/bootstrap/filedriver"
-	"cms/internal/bootstrap/middleware"
+	provider11 `cms/internal/bootstrap/internal/provider`
 	"cms/internal/config"
+    controller5 "cms/internal/app/article/controller"
+    provider8 "cms/internal/app/article/provider"
+    service8 "cms/internal/app/article/service"
+    controller6 "cms/internal/app/articlemodel/controller"
+    provider9 "cms/internal/app/articlemodel/provider"
+    service9 "cms/internal/app/articlemodel/service"
+    controller3 "cms/internal/app/category/controller"
+    provider6 "cms/internal/app/category/provider"
+    service5 "cms/internal/app/category/service"
+    controller7 "cms/internal/app/file/controller"
+    provider10 "cms/internal/app/file/provider"
+    service10 "cms/internal/app/file/service"
+    controller2 "cms/internal/app/menu/controller"
+    provider5 "cms/internal/app/menu/provider"
+    service4 "cms/internal/app/menu/service"
+    controller8 "cms/internal/app/permission/controller"
+    provider4 "cms/internal/app/permission/provider"
+    service6 "cms/internal/app/permission/service"
+    controller4 "cms/internal/app/role/controller"
+    provider7 "cms/internal/app/role/provider"
+    service7 "cms/internal/app/role/service"
+    "cms/internal/app/setting/provider"
+    "cms/internal/app/setting/service"
+    provider3 "cms/internal/app/token/provider"
+    service3 "cms/internal/app/token/service"
+    "cms/internal/app/user/controller"
+    provider2 "cms/internal/app/user/provider"
+    service2 "cms/internal/app/user/service"
 	"cms/internal/httpserver"
 	"cms/internal/infra/casbin"
 	"cms/internal/infra/db"
 	"cms/internal/infra/file/driver/local"
-	"cms/internal/infra/logger"
+	`cms/internal/infra/lifecycle`
 	"cms/internal/infra/persist"
-	"cms/internal/infra/xhashids"
-	"cms/internal/lifecycle"
 	"cms/internal/middleware/authz"
 	"cms/internal/middleware/cors"
 	"cms/internal/middleware/log"
 	"cms/internal/middleware/recovery"
 	"cms/internal/middleware/reqtrace"
-)
-
-import (
-	_ "cms/docs"
+	`cms/internal/pkg/hashid`
+	`cms/internal/pkg/logger`
+	
+	_ `cms/docs`
 )
 
 // Injectors from wire.go:
@@ -79,60 +75,60 @@ func initApp(cfg *config.Config) (bootstrap.Bootstrap, error) {
 		return bootstrap.Bootstrap{}, err
 	}
 	query := persist.NewQuery(gormDB)
-	txManager := persist.NewTxManager(query)
-	settingRepo := adapter.NewConfigRepo(query)
+	txManager := persist.NewTransactor(query)
+	settingRepo := provider.NewConfigRepo(query)
 	settingService := service.NewSettingService(txManager, settingRepo, loggerLogger, cfg)
-	options := adapter.NewCORSOptions(settingService)
+	options := provider.NewCORSOptions(settingService)
 	corsCORS := cors.New(options)
-	httpserverMiddleware := middleware.NewMiddlewareRegistrar(recoveryRecovery, requestTrace, logLog, corsCORS)
-	userRepo := adapter2.NewUserRepo(query)
+	httpserverMiddleware := provider11.NewMiddlewareRegistrar(recoveryRecovery, requestTrace, logLog, corsCORS)
+	userRepo := provider2.NewUserRepo(query)
 	userService := service2.NewUserService(txManager, userRepo)
-	tokenBlacklistRepo := adapter3.NewTokenBlacklistRepo(query)
+	tokenBlacklistRepo := provider3.NewTokenBlacklistRepo(query)
 	tokenService := service3.NewTokenService(cfg, tokenBlacklistRepo, userRepo)
-	tokenParser := adapter3.NewTokenParser(tokenService)
+	tokenParser := provider3.NewTokenParser(tokenService)
 	roleCasbin, err := casbin.NewRoleCasbin(gormDB)
 	if err != nil {
 		return bootstrap.Bootstrap{}, err
 	}
-	permissionChecker := adapter4.NewPermissionChecker(roleCasbin)
+	permissionChecker := provider4.NewPermissionChecker(roleCasbin)
 	factory := authz.NewFactory(tokenParser, permissionChecker)
 	userController := controller.NewUserController(userService, tokenService, loggerLogger, factory)
-	menuRepo := adapter5.NewMenuRepo(query)
+	menuRepo := provider5.NewMenuRepo(query)
 	menuService := service4.NewMenuService(txManager, menuRepo)
 	menuController := controller2.NewMenuController(menuService, factory)
-	categoryRepo := adapter6.NewCategoryRepo(query)
+	categoryRepo := provider6.NewCategoryRepo(query)
 	categoryService := service5.NewCategoryService(txManager, categoryRepo)
 	categoryController := controller3.NewCategoryController(categoryService, factory)
-	roleRepo := adapter7.NewRoleRepo(query)
-	permissionRepo := adapter4.NewPermissionRepo(query)
+	roleRepo := provider7.NewRoleRepo(query)
+	permissionRepo := provider4.NewPermissionRepo(query)
 	permissionService := service6.NewPermissionService(permissionRepo)
 	roleService := service7.NewRoleService(txManager, roleCasbin, roleRepo, permissionService)
 	roleController := controller4.NewRoleController(roleService, factory)
-	articleRepo := adapter8.NewArticleRepo(query)
-	articleModelRepo := adapter9.NewArticleModelRepo(query)
+	articleRepo := provider8.NewArticleRepo(query)
+	articleModelRepo := provider9.NewArticleModelRepo(query)
 	articleService := service8.NewArticleService(txManager, articleRepo, articleModelRepo)
 	articleController := controller5.NewArticleController(articleService, permissionService, factory, roleCasbin)
 	articleModelService := service9.NewArticleModelService(txManager, articleModelRepo)
 	articleModelController := controller6.NewArticleModelController(articleModelService, factory)
-	fileRepo := adapter10.NewFileRepo(query)
+	fileRepo := provider10.NewFileRepo(query)
 	fileConfig := config.GetFileConfig(cfg)
 	localFactory := local.Factory{}
-	fileDrivers := filedriver.FileDrivers{
+	fileDrivers := provider11.FileDrivers{
 		Local: localFactory,
 	}
-	driverRegistry, err := filedriver.NewFileRegistry(fileConfig, fileDrivers)
+	driverRegistry, err := provider11.NewFileRegistry(fileConfig, fileDrivers)
 	if err != nil {
 		return bootstrap.Bootstrap{}, err
 	}
 	fileDriverService := service10.NewFileDriverService(driverRegistry, cfg)
 	fileService := service10.NewFileService(txManager, fileRepo, fileDriverService, loggerLogger)
-	hashID, err := xhashids.New(cfg)
+	hashID, err := hashid.New(cfg)
 	if err != nil {
 		return bootstrap.Bootstrap{}, err
 	}
 	fileController := controller7.NewFileController(fileService, factory, hashID)
 	permissionController := controller8.NewPermissionController(permissionService)
-	controllerSet := &controller9.ControllerSet{
+	controllerSet := &provider11.ControllerSet{
 		User:         userController,
 		Menu:         menuController,
 		Category:     categoryController,
@@ -142,7 +138,7 @@ func initApp(cfg *config.Config) (bootstrap.Bootstrap, error) {
 		File:         fileController,
 		Perm:         permissionController,
 	}
-	route := controller9.NewRouteRegistrar(controllerSet)
+	route := provider11.NewRouteRegistrar(controllerSet)
 	bootstrapBootstrap := bootstrap.New(lifecycleLifecycle, launcher, httpserverMiddleware, route)
 	return bootstrapBootstrap, nil
 }

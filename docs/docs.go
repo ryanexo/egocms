@@ -3079,18 +3079,18 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "0.1",
-	Host:             "",
-	BasePath:         "",
-	Schemes:          []string{},
-	Title:            "EgoCms Api",
-	Description:      "",
-	InfoInstanceName: "swagger",
-	SwaggerTemplate:  docTemplate,
-	LeftDelim:        "{{",
-	RightDelim:       "}}",
+    Version:          "0.1",
+    Host:             "",
+    BasePath:         "",
+    Schemes:          []string{},
+    Title:            "EgoCms Api",
+    Description:      "",
+    InfoInstanceName: "swagger",
+    SwaggerTemplate:  docTemplate,
+    LeftDelim:        "{{",
+    RightDelim:       "}}",
 }
 
 func init() {
-	swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
+    swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
 }

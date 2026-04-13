@@ -5,20 +5,20 @@ import (
     
     contract2 `cms/internal/app/setting/contract`
     `cms/internal/config`
-    `cms/internal/infra/logger`
     `cms/internal/infra/persist/contract`
     `cms/internal/infra/persist/model`
+    `cms/internal/pkg/logger`
 )
 
 type SettingService struct {
-    txManager contract.TxManager
+    txManager contract.Transactor
     repo      contract2.SettingRepo
     logger    *logger.Logger
     cfg       *config.Config
 }
 
 func NewSettingService(
-    txManager contract.TxManager,
+    txManager contract.Transactor,
     repo contract2.SettingRepo,
     logger *logger.Logger,
     cfg *config.Config,
