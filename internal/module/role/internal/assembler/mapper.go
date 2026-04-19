@@ -1,0 +1,27 @@
+package assembler
+
+import (
+    `cms/internal/domain/role/internal/dto`
+    `cms/internal/infra/persist/model`
+    `cms/internal/util/types`
+)
+
+func ToRoleDTO(data *model.Role) *dto.Role {
+    return &dto.Role{
+        Base: types.Base{
+            ID:        data.ID,
+            CreatedAt: data.CreatedAt,
+            UpdatedAt: data.UpdatedAt,
+        },
+        Name:        data.Name,
+        Description: data.Description,
+    }
+}
+
+func ToRoleListDTO(data []*model.Role) []*dto.Role {
+    result := make([]*dto.Role, 0, len(data))
+    for _, item := range data {
+        result = append(result, ToRoleDTO(item))
+    }
+    return result
+}

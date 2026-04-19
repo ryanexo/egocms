@@ -5,7 +5,7 @@ import (
     
     `cms/internal/constant`
     `cms/internal/httpserver`
-    `cms/internal/pkg/logger`
+    `cms/internal/infra/logger`
     
     "github.com/gin-gonic/gin"
     "go.uber.org/zap"

@@ -7,7 +7,7 @@ import (
     `cms/internal/httpserver`
     `cms/internal/infra/db`
     `cms/internal/infra/file`
-    `cms/internal/pkg/logger`
+    `cms/internal/infra/logger`
     
     `github.com/google/uuid`
 )

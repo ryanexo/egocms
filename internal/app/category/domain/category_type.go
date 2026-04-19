@@ -1,7 +1,7 @@
 package domain
 
 const (
-    CategoryTypeNormal = iota
-    CategoryTypePage
-    CategoryTypeUrl
+    TypeCategory = iota
+    TypePage
+    TypeURL
 )

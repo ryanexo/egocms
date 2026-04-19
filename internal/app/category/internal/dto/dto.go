@@ -47,7 +47,7 @@ type CategoryMoveParams struct {
     TargetID datatype.SafeUint64 `json:"targetId" swaggertype:"string"`
 }
 
-type CategoryListParams struct {
+type CategoryQuery struct {
     types.Pagination
     ID       *datatype.SafeUint64 `json:"id" swaggertype:"string"`
     ParentID *datatype.SafeUint64 `json:"parentId" swaggertype:"string"`

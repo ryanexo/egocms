@@ -14,7 +14,7 @@ type Category struct {
     Name     string               `gorm:"type:varchar(255);not null"`
     Path     string               `gorm:"type:varchar(64);not null;uniqueIndex"`
     Type     int8                 `gorm:"type:tinyint;not null;comment:'0:普通分类,1:单页型分类,2:链接'"`
-    Url      *string              `gorm:"type:varchar(255);default:null"`
+    URL      *string              `gorm:"type:varchar(255);default:null"`
     Visible  datatype.BoolInt8    `gorm:"type:tinyint;not null"`
     SEO      *CategorySeo         `gorm:"foreignKey:CategoryID;references:ID"`
 }

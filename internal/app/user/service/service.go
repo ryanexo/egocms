@@ -12,7 +12,7 @@ import (
     "cms/internal/infra/persist/datatype"
     "cms/internal/infra/persist/model"
     "cms/internal/infra/persist/query"
-    `cms/internal/pkg/password`
+    `cms/internal/kernel/valueobject`
     `cms/internal/util/types`
     
     `gorm.io/gorm`
@@ -44,7 +44,7 @@ func (s UserService) Create(ctx context.Context, params dto.UserCreateParams) (d
         }
     }
     
-    hashedPwd, err := password.Password(params.Password).Generate()
+    hashedPwd, err := valueobject.Password(params.Password).Generate()
     if err != nil {
         return 0, err
     }
@@ -66,7 +66,7 @@ func (s UserService) FindByCredential(ctx context.Context, params dto.UserCreden
     if err != nil {
         return nil, err
     }
-    if !password.Password(data.Password).Compare(params.Password) {
+    if !valueobject.Password(data.Password).Compare(params.Password) {
         return nil, errno.UserWrongPasswd.ToError()
     }
     return assembler.ToUserDTO(data), nil
@@ -89,7 +89,7 @@ func (s UserService) FindByName(ctx context.Context, name string) (*dto.User, er
 }
 
 func (s UserService) ResetPassword(ctx context.Context, id datatype.SafeUint64, pwd string) error {
-    hashedPwd, err := password.Password(pwd).Generate()
+    hashedPwd, err := valueobject.Password(pwd).Generate()
     if err != nil {
         return err
     }

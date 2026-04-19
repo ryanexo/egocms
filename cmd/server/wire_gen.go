@@ -7,9 +7,6 @@
 package main
 
 import (
-	"cms/internal/bootstrap"
-	provider11 `cms/internal/bootstrap/internal/provider`
-	"cms/internal/config"
     controller5 "cms/internal/app/article/controller"
     provider8 "cms/internal/app/article/provider"
     service8 "cms/internal/app/article/service"
@@ -38,21 +35,24 @@ import (
     "cms/internal/app/user/controller"
     provider2 "cms/internal/app/user/provider"
     service2 "cms/internal/app/user/service"
-	"cms/internal/httpserver"
-	"cms/internal/infra/casbin"
-	"cms/internal/infra/db"
-	"cms/internal/infra/file/driver/local"
-	`cms/internal/infra/lifecycle`
-	"cms/internal/infra/persist"
-	"cms/internal/middleware/authz"
-	"cms/internal/middleware/cors"
-	"cms/internal/middleware/log"
-	"cms/internal/middleware/recovery"
-	"cms/internal/middleware/reqtrace"
-	`cms/internal/pkg/hashid`
-	`cms/internal/pkg/logger`
-	
-	_ `cms/docs`
+    "cms/internal/bootstrap"
+    provider11 `cms/internal/bootstrap/internal/provider`
+    "cms/internal/config"
+    "cms/internal/httpserver"
+    "cms/internal/infra/casbin"
+    "cms/internal/infra/db"
+    "cms/internal/infra/file/driver/local"
+    `cms/internal/infra/lifecycle`
+    `cms/internal/infra/logger`
+    "cms/internal/infra/persist"
+    "cms/internal/middleware/authz"
+    "cms/internal/middleware/cors"
+    "cms/internal/middleware/log"
+    "cms/internal/middleware/recovery"
+    "cms/internal/middleware/reqtrace"
+    `cms/internal/pkg/hashid`
+    
+    _ `cms/docs`
 )
 
 // Injectors from wire.go:

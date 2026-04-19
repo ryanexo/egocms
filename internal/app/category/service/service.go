@@ -87,20 +87,20 @@ func (s CategoryService) FindByID(ctx context.Context, id datatype.SafeUint64) (
 
 func (s CategoryService) ListRootNodes(ctx context.Context, pageNo int, pageSize int) (*types.PaginatedResult[*dto.Category], error) {
     pid := datatype.SafeUint64(0)
-    return s.List(ctx, dto.CategoryListParams{
+    return s.List(ctx, dto.CategoryQuery{
         ParentID:   &pid,
         Pagination: types.Pagination{PageNo: pageNo, PageSize: pageSize},
     })
 }
 
 func (s CategoryService) ListNodesByParentID(ctx context.Context, id datatype.SafeUint64, pageSize int, pageNo int) (*types.PaginatedResult[*dto.Category], error) {
-    return s.List(ctx, dto.CategoryListParams{
+    return s.List(ctx, dto.CategoryQuery{
         ParentID:   &id,
         Pagination: types.Pagination{PageNo: pageNo, PageSize: pageSize},
     })
 }
 
-func (s CategoryService) List(ctx context.Context, params dto.CategoryListParams) (*types.PaginatedResult[*dto.Category], error) {
+func (s CategoryService) List(ctx context.Context, params dto.CategoryQuery) (*types.PaginatedResult[*dto.Category], error) {
     data, total, err := s.repo.List(ctx, params)
     if err != nil {
         return nil, err

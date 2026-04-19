@@ -5,8 +5,8 @@ import (
     `cms/internal/infra/cache`
     `cms/internal/infra/casbin`
     `cms/internal/infra/db`
+    `cms/internal/infra/logger`
     `cms/internal/pkg/hashid`
-    `cms/internal/pkg/logger`
     
     `github.com/google/wire`
     

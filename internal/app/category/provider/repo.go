@@ -3,57 +3,84 @@ package provider
 import (
     "context"
     "fmt"
+    `strings`
     
+    `cms/internal/app/category/domain`
     `cms/internal/app/category/internal/dto`
     `cms/internal/infra/persist/contract`
+    `cms/internal/infra/persist/datatype`
     "cms/internal/infra/persist/model"
     "cms/internal/infra/persist/query"
     "cms/internal/infra/persist/scope"
+    
+    `gorm.io/gen`
 )
 
 type categoryRepo struct {
-    query *query.Query
+    q *query.Query
 }
 
-func NewCategoryRepo(persist *query.Query) contract.CategoryRepo {
-    return &categoryRepo{persist}
+func NewCategoryRepo(q *query.Query) domain.CategoryRepo {
+    return &categoryRepo{q}
 }
 
 func (s *categoryRepo) CloneWithQuery(q *query.Query) contract.CategoryRepo {
     return NewCategoryRepo(q)
 }
 
-func (s *categoryRepo) Create(ctx context.Context, category *model.Category) error {
-    return s.query.Category.WithContext(ctx).Create(category)
+func (s *categoryRepo) Create(ctx context.Context, data domain.Category) error {
+    m := model.Category{
+        ParentID: data.ParentId(),
+        Sequence: data.Sequence(),
+        Name:     data.Name(),
+        Path:     data.Path().String(),
+        Type:     data.Typ(),
+        Visible:  0,
+        SEO: &model.CategorySeo{
+            Title:       data.Seo().Title(),
+            Keywords:    strings.Join(data.Seo().Keywords(), ","),
+            Description: data.Seo().Description(),
+        },
+    }
+    u, _ := data.URL()
+    if u != nil {
+        url := u.String()
+        m.URL = &url
+    }
+    return s.q.Category.WithContext(ctx).Create(&m)
 }
 
-func (s *categoryRepo) CreateSubtree(ctx context.Context, id uint64, parentID uint64) error {
-    return s.query.CategoryContext.WithContext(ctx).CreateSubtree(id, parentID)
+func (s *categoryRepo) CreateSubtree(ctx context.Context, id datatype.SafeUint64, parentId datatype.SafeUint64) error {
+    return s.q.CategoryContext.WithContext(ctx).CreateSubtree(id.Raw(), parentId.Raw())
 }
 
-func (s *categoryRepo) Update(ctx context.Context, data *model.Category) (gen.ResultInfo, error) {
-    return s.query.Category.WithContext(ctx).Where(s.query.Category.ID.Eq(data.ID.Raw())).Updates(data)
+func (s *categoryRepo) Update(ctx context.Context, data domain.Category) (gen.ResultInfo, error) {
+    return s.q.Category.WithContext(ctx).Where(
+        s.q.Category.ID.Eq(data.Id().Raw()),
+    ).Updates(data)
 }
 
-func (s *categoryRepo) Move(ctx context.Context, fromNode uint64, toNode uint64) error {
-    ctxDao := s.query.CategoryContext
-    catDao := s.query.Category
-    err := ctxDao.WithContext(ctx).UnbindRelationships(fromNode)
+func (s *categoryRepo) Move(ctx context.Context, from datatype.SafeUint64, to datatype.SafeUint64) error {
+    ctxDao := s.q.CategoryContext
+    catDao := s.q.Category
+    fromId := from.Raw()
+    toId := to.Raw()
+    err := ctxDao.WithContext(ctx).UnbindRelationships(fromId)
     if err != nil {
         return err
     }
-    err = ctxDao.WithContext(ctx).ReBindRelationships(fromNode, toNode)
+    err = ctxDao.WithContext(ctx).ReBindRelationships(fromId, toId)
     if err != nil {
         return err
     }
-    _, err = catDao.WithContext(ctx).Where(catDao.ID.Eq(fromNode)).Update(catDao.ParentID, toNode)
+    _, err = catDao.WithContext(ctx).Where(catDao.ID.Eq(fromId)).Update(catDao.ParentID, toId)
     return err
 }
 
-func (s *categoryRepo) Delete(ctx context.Context, id uint64) error {
-    ctxDao := s.query.CategoryContext
-    catDao := s.query.Category
-    seoDao := s.query.CategorySeo
+func (s *categoryRepo) Delete(ctx context.Context, id datatype.SafeUint64) error {
+    ctxDao := s.q.CategoryContext
+    catDao := s.q.Category
+    seoDao := s.q.CategorySeo
     sqlStr := `DELETE FROM %[1]s WHERE id IN ( SELECT d_id FROM ( SELECT t.%[4]s AS d_id FROM %[2]s AS t WHERE %[3]s = ? ) )`
     deleteCategorySql := fmt.Sprintf(
         sqlStr,
@@ -70,17 +97,17 @@ func (s *categoryRepo) Delete(ctx context.Context, id uint64) error {
         ctxDao.Descendant.ColumnName(),
     )
     
-    err := s.query.Category.WithContext(ctx).UnderlyingDB().Exec(deleteCategorySql, id).Error
+    err := s.q.Category.WithContext(ctx).UnderlyingDB().Exec(deleteCategorySql, id).Error
     if err != nil {
         return err
     }
     
-    err = s.query.CategorySeo.WithContext(ctx).UnderlyingDB().Exec(deleteSeoSql, id).Error
+    err = s.q.CategorySeo.WithContext(ctx).UnderlyingDB().Exec(deleteSeoSql, id).Error
     if err != nil {
         return err
     }
     
-    err = s.query.CategoryContext.WithContext(ctx).DropSubtree(id)
+    err = s.q.CategoryContext.WithContext(ctx).DropSubtree(id.Raw())
     if err != nil {
         return err
     }
@@ -88,17 +115,22 @@ func (s *categoryRepo) Delete(ctx context.Context, id uint64) error {
     return nil
 }
 
-func (s *categoryRepo) FindByID(ctx context.Context, id uint64) (*model.Category, error) {
-    return s.query.Category.WithContext(ctx).Preload(s.query.Category.SEO).Where(s.query.Category.ID.Eq(id)).First()
+func (s *categoryRepo) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.Category, error) {
+    return s.q.Category.WithContext(ctx).Preload(s.q.Category.SEO).Where(
+        s.q.Category.ID.Eq(id.Raw()),
+    ).First()
 }
 
-func (s *categoryRepo) FindByIDWithAncestor(ctx context.Context, ancestor uint64, descendant uint64) (*model.CategoryContext, error) {
-    ctxDao := s.query.CategoryContext
-    return ctxDao.WithContext(ctx).Where(ctxDao.Ancestor.Eq(ancestor), ctxDao.Descendant.Eq(descendant)).First()
+func (s *categoryRepo) FindByIDWithAncestor(ctx context.Context, ancestor datatype.SafeUint64, descendant datatype.SafeUint64) (*model.CategoryContext, error) {
+    ctxDao := s.q.CategoryContext
+    return ctxDao.WithContext(ctx).Where(
+        ctxDao.Ancestor.Eq(ancestor.Raw()),
+        ctxDao.Descendant.Eq(descendant.Raw()),
+    ).First()
 }
 
-func (s *categoryRepo) List(ctx context.Context, params dto.CategoryListParams) ([]*model.Category, int64, error) {
-    dao := s.query.Category
+func (s *categoryRepo) List(ctx context.Context, params dto.CategoryQuery) ([]*model.Category, int64, error) {
+    dao := s.q.Category
     q := dao.WithContext(ctx).Scopes(scope.Paginate(params.PageNo, params.PageSize))
     if params.ID != nil {
         q = q.Where(dao.ID.Eq(params.ID.Raw()))

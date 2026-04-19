@@ -14,10 +14,10 @@ import (
     `cms/internal/app/file/internal/dto`
     `cms/internal/app/file/internal/errno`
     `cms/internal/app/file/internal/fileutil`
+    `cms/internal/infra/logger`
     `cms/internal/infra/persist/contract`
     `cms/internal/infra/persist/datatype`
     `cms/internal/infra/persist/model`
-    `cms/internal/pkg/logger`
     
     `github.com/avast/retry-go`
 )

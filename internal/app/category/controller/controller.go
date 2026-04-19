@@ -56,11 +56,11 @@ func (s CategoryController) Setup(router httpserver.Router) {
 // @Tags    分类
 // @Accept  json
 // @Produce json
-// @Param   body body dto.CategoryListParams true "请求参数"
+// @Param   body body dto.CategoryQuery true "请求参数"
 // @Success 200 {object} dto.ApiCategoryList
 // @Router  /category/list [post]
 func (s CategoryController) List(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.CategoryListParams](ctx, func(params dto.CategoryListParams) (any, error) {
+    httpbinding.BindJSON[dto.CategoryQuery](ctx, func(params dto.CategoryQuery) (any, error) {
         return s.categorySrv.List(ctx, params)
     })
 }
