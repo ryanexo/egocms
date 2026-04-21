@@ -6,39 +6,37 @@ import (
 )
 
 type Category struct {
-    id       datatype.SafeUint64
-    parentId *datatype.SafeUint64
+    id       uint64
+    parentId *uint64
     sequence datatype.SafeInt64
     name     string
     path     valueobject2.URLPath
     typ      int8
     url      *valueobject2.URL
-    visible  datatype.BoolInt8
+    visible  int8
     seo      CategorySeo
     content  *valueobject2.HTMLContent
 }
 
 func NewCategory(
-    id datatype.SafeUint64,
     name string,
     path valueobject2.URLPath,
 ) *Category {
     return &Category{
-        id:       id,
         name:     name,
         path:     path,
-        visible:  datatype.BoolInt8(1),
+        visible:  1,
         typ:      0,
         sequence: 0,
         seo:      NewCategorySeo(name, make([]string, 0), ""),
     }
 }
 
-func (s *Category) Id() datatype.SafeUint64 {
+func (s *Category) Id() uint64 {
     return s.id
 }
 
-func (s *Category) ParentId() *datatype.SafeUint64 {
+func (s *Category) ParentId() *uint64 {
     return s.parentId
 }
 
@@ -62,7 +60,7 @@ func (s *Category) URL() (*valueobject2.URL, bool) {
     return s.url, s.typ == TypeURL
 }
 
-func (s *Category) Visible() datatype.BoolInt8 {
+func (s *Category) Visible() int8 {
     return s.visible
 }
 
@@ -78,12 +76,16 @@ func (s *Category) IsRoot() bool {
     return s.parentId == nil
 }
 
-func (s *Category) MoveTo(id datatype.SafeUint64) {
+func (s *Category) MoveTo(id uint64) {
     s.parentId = &id
 }
 
-func (s *Category) ChangeVisibility(v bool) {
-    s.visible.FromBool(v)
+func (s *Category) Show() {
+    s.visible = 1
+}
+
+func (s *Category) Hide() {
+    s.visible = 0
 }
 
 func (s *Category) UpdateSEOMeta(seo CategorySeo) {
