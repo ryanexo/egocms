@@ -6,8 +6,8 @@ import (
     `cms/internal/config`
     contract2 `cms/internal/domain/setting/contract`
     `cms/internal/infra/logger`
-    `cms/internal/infra/persist/contract`
-    `cms/internal/infra/persist/model`
+    `cms/internal/infra/persistence/contract`
+    `cms/internal/infra/persistence/model`
 )
 
 type SettingService struct {

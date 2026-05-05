@@ -2,14 +2,13 @@ package domain
 
 import (
     `context`
+    
+    `cms/internal/kernel/port`
 )
 
 type CategoryRepo interface {
-    Create(ctx context.Context, category Category) error
-    CreateSubtree(ctx context.Context, category Category) error
-    Update(ctx context.Context, category Category) error
-    Move(ctx context.Context, category Category, ancestor Category) error
+    port.DomainRepository[Category]
     
-    Delete(ctx context.Context, category Category) error
-    Find(ctx context.Context, id uint64) (Category, error)
+    CreateSubtree(ctx context.Context, id uint64) error
+    Move(ctx context.Context, category *Category, ancestor *Category) error
 }

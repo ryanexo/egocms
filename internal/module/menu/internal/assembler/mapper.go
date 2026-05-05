@@ -2,8 +2,8 @@ package assembler
 
 import (
     `cms/internal/domain/menu/internal/dto`
-    `cms/internal/infra/persist/datatype`
-    `cms/internal/infra/persist/model`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/model`
     `cms/internal/util/types`
 )
 

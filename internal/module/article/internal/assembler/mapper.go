@@ -5,7 +5,7 @@ import (
     `time`
     
     dto2 `cms/internal/domain/article/internal/dto`
-    `cms/internal/infra/persist/model`
+    `cms/internal/infra/persistence/model`
     `cms/internal/util/types`
 )
 

@@ -1,7 +1,7 @@
 package dto
 
 import (
-    `cms/internal/infra/persist/datatype`
+    `cms/internal/infra/persistence/datatype`
     
     `github.com/golang-jwt/jwt/v5`
 )

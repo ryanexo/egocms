@@ -7,7 +7,7 @@ import (
     `cms/internal/app/file/service`
     `cms/internal/erroz`
     `cms/internal/httpserver`
-    `cms/internal/infra/persist/datatype`
+    `cms/internal/infra/persistence/datatype`
     `cms/internal/middleware/authz`
     `cms/internal/pkg/hashid`
     `cms/internal/util/authzutil`

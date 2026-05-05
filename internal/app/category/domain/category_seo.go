@@ -1,27 +1,27 @@
 package domain
 
-type CategorySeo struct {
+type CategorySEO struct {
     title       string
     keywords    []string
     description string
 }
 
-func NewCategorySeo(title string, keywords []string, description string) CategorySeo {
-    return CategorySeo{
+func NewCategorySeo(title string, keywords []string, description string) CategorySEO {
+    return CategorySEO{
         title,
         keywords,
         description,
     }
 }
 
-func (c CategorySeo) Title() string {
+func (c CategorySEO) Title() string {
     return c.title
 }
 
-func (c CategorySeo) Keywords() []string {
+func (c CategorySEO) Keywords() []string {
     return c.keywords
 }
 
-func (c CategorySeo) Description() string {
+func (c CategorySEO) Description() string {
     return c.description
 }

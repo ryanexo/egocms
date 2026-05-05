@@ -3,7 +3,7 @@ package provider
 import (
     article `cms/internal/app/article/service`
     articlemodel `cms/internal/app/articlemodel/service`
-    category `cms/internal/app/category/service`
+    `cms/internal/app/category`
     fileService `cms/internal/app/file/service`
     menu `cms/internal/app/menu/service`
     permission `cms/internal/app/permission/service`

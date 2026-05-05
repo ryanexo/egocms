@@ -3,7 +3,7 @@ package types
 import (
     `time`
     
-    `cms/internal/infra/persist/datatype`
+    `cms/internal/infra/persistence/datatype`
 )
 
 type ResourceID struct {

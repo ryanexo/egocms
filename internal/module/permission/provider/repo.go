@@ -4,9 +4,9 @@ import (
     `context`
     
     `cms/internal/domain/permission/contract`
-    `cms/internal/infra/persist/datatype`
-    `cms/internal/infra/persist/model`
-    `cms/internal/infra/persist/query`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/model`
+    `cms/internal/infra/persistence/query`
 )
 
 type permissionRepo struct {

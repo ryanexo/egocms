@@ -1,7 +1,7 @@
 package dto
 
 import (
-    `cms/internal/infra/persist/model`
+    `cms/internal/infra/persistence/model`
 )
 
 type ApiResult[T any] struct {

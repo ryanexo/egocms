@@ -1,7 +1,7 @@
 package provider
 
 import (
-    `cms/internal/infra/persist/model`
+    `cms/internal/infra/persistence/model`
     `cms/internal/middleware/authz`
 )
 

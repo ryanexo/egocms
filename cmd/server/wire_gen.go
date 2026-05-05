@@ -7,52 +7,49 @@
 package main
 
 import (
-    controller5 "cms/internal/app/article/controller"
-    provider8 "cms/internal/app/article/provider"
-    service8 "cms/internal/app/article/service"
-    controller6 "cms/internal/app/articlemodel/controller"
-    provider9 "cms/internal/app/articlemodel/provider"
-    service9 "cms/internal/app/articlemodel/service"
-    controller3 "cms/internal/app/category/controller"
-    provider6 "cms/internal/app/category/provider"
-    service5 "cms/internal/app/category/service"
-    controller7 "cms/internal/app/file/controller"
-    provider10 "cms/internal/app/file/provider"
-    service10 "cms/internal/app/file/service"
-    controller2 "cms/internal/app/menu/controller"
-    provider5 "cms/internal/app/menu/provider"
-    service4 "cms/internal/app/menu/service"
-    controller8 "cms/internal/app/permission/controller"
-    provider4 "cms/internal/app/permission/provider"
-    service6 "cms/internal/app/permission/service"
-    controller4 "cms/internal/app/role/controller"
-    provider7 "cms/internal/app/role/provider"
-    service7 "cms/internal/app/role/service"
-    "cms/internal/app/setting/provider"
-    "cms/internal/app/setting/service"
-    provider3 "cms/internal/app/token/provider"
-    service3 "cms/internal/app/token/service"
-    "cms/internal/app/user/controller"
-    provider2 "cms/internal/app/user/provider"
-    service2 "cms/internal/app/user/service"
-    "cms/internal/bootstrap"
-    provider11 `cms/internal/bootstrap/internal/provider`
-    "cms/internal/config"
-    "cms/internal/httpserver"
-    "cms/internal/infra/casbin"
-    "cms/internal/infra/db"
-    "cms/internal/infra/file/driver/local"
-    `cms/internal/infra/lifecycle`
-    `cms/internal/infra/logger`
-    "cms/internal/infra/persist"
-    "cms/internal/middleware/authz"
-    "cms/internal/middleware/cors"
-    "cms/internal/middleware/log"
-    "cms/internal/middleware/recovery"
-    "cms/internal/middleware/reqtrace"
-    `cms/internal/pkg/hashid`
-    
-    _ `cms/docs`
+	controller5 "cms/internal/app/article/controller"
+	provider8 "cms/internal/app/article/provider"
+	service8 "cms/internal/app/article/service"
+	controller6 "cms/internal/app/articlemodel/controller"
+	provider9 "cms/internal/app/articlemodel/provider"
+	service9 "cms/internal/app/articlemodel/service"
+	provider6 `cms/internal/app/category`
+	controller7 "cms/internal/app/file/controller"
+	provider10 "cms/internal/app/file/provider"
+	service10 "cms/internal/app/file/service"
+	controller2 "cms/internal/app/menu/controller"
+	provider5 "cms/internal/app/menu/provider"
+	service4 "cms/internal/app/menu/service"
+	controller8 "cms/internal/app/permission/controller"
+	provider4 "cms/internal/app/permission/provider"
+	service6 "cms/internal/app/permission/service"
+	controller4 "cms/internal/app/role/controller"
+	provider7 "cms/internal/app/role/provider"
+	service7 "cms/internal/app/role/service"
+	"cms/internal/app/setting/provider"
+	"cms/internal/app/setting/service"
+	provider3 "cms/internal/app/token/provider"
+	service3 "cms/internal/app/token/service"
+	"cms/internal/app/user/controller"
+	provider2 "cms/internal/app/user/provider"
+	service2 "cms/internal/app/user/service"
+	"cms/internal/bootstrap"
+	provider11 `cms/internal/bootstrap/internal/provider`
+	"cms/internal/config"
+	"cms/internal/httpserver"
+	"cms/internal/infra/casbin"
+	"cms/internal/infra/db"
+	"cms/internal/infra/file/driver/local"
+	`cms/internal/infra/lifecycle`
+	`cms/internal/infra/logger`
+	"cms/internal/middleware/authz"
+	"cms/internal/middleware/cors"
+	"cms/internal/middleware/log"
+	"cms/internal/middleware/recovery"
+	"cms/internal/middleware/reqtrace"
+	`cms/internal/pkg/hashid`
+	
+	_ `cms/docs`
 )
 
 // Injectors from wire.go:
@@ -97,8 +94,8 @@ func initApp(cfg *config.Config) (bootstrap.Bootstrap, error) {
 	menuService := service4.NewMenuService(txManager, menuRepo)
 	menuController := controller2.NewMenuController(menuService, factory)
 	categoryRepo := provider6.NewCategoryRepo(query)
-	categoryService := service5.NewCategoryService(txManager, categoryRepo)
-	categoryController := controller3.NewCategoryController(categoryService, factory)
+	categoryService := provider6.NewCategoryService(txManager, categoryRepo)
+	categoryController := provider6.NewCategoryController(categoryService, factory)
 	roleRepo := provider7.NewRoleRepo(query)
 	permissionRepo := provider4.NewPermissionRepo(query)
 	permissionService := service6.NewPermissionService(permissionRepo)

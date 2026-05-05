@@ -1,6 +1,6 @@
 package domain
 
-import `cms/internal/infra/persist/datatype`
+import `cms/internal/infra/persistence/datatype`
 
 type Article struct {
     ID         datatype.SafeUint64

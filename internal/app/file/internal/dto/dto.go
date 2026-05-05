@@ -3,7 +3,7 @@ package dto
 import (
     `io`
     
-    `cms/internal/infra/persist/datatype`
+    `cms/internal/infra/persistence/datatype`
     `cms/internal/util/types`
 )
 

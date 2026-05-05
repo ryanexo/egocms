@@ -5,7 +5,7 @@ import (
     
     article `cms/internal/app/article/controller`
     articleModel `cms/internal/app/articlemodel/controller`
-    category `cms/internal/app/category/controller`
+    `cms/internal/app/category`
     file `cms/internal/app/file/controller`
     menu `cms/internal/app/menu/controller`
     permission `cms/internal/app/permission/controller`

@@ -10,8 +10,8 @@ import (
     `cms/internal/domain/token/internal/errno`
     user `cms/internal/domain/user/contract`
     `cms/internal/config`
-    `cms/internal/infra/persist/datatype`
-    `cms/internal/infra/persist/model`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/model`
     
     `github.com/golang-jwt/jwt/v5`
     `github.com/google/uuid`

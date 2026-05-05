@@ -4,8 +4,8 @@ import (
     `context`
     
     `cms/internal/domain/setting/contract`
-    `cms/internal/infra/persist/model`
-    `cms/internal/infra/persist/query`
+    `cms/internal/infra/persistence/model`
+    `cms/internal/infra/persistence/query`
 )
 
 type settingRepo struct {

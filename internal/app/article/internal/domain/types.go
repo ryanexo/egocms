@@ -4,7 +4,7 @@ import (
     `database/sql`
     `time`
     
-    `cms/internal/infra/persist/datatype`
+    `cms/internal/infra/persistence/datatype`
     
     `github.com/shopspring/decimal`
 )

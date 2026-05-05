@@ -10,8 +10,8 @@ import (
     
     `github.com/google/wire`
     
-    `cms/internal/infra/persist/contract`
-    `cms/internal/infra/persist/query`
+    `cms/internal/infra/persistence/contract`
+    `cms/internal/infra/persistence/query`
     
     `gorm.io/gorm`
 )
