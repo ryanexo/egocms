@@ -4,8 +4,8 @@ import (
     `context`
     
     `cms/internal/app/setting/contract`
-    `cms/internal/infra/persist/model`
-    `cms/internal/infra/persist/query`
+    `cms/internal/infra/persistence/model`
+    `cms/internal/infra/persistence/query`
     
     `gorm.io/gen`
 )

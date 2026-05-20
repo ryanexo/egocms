@@ -2,7 +2,7 @@ package assembler
 
 import (
     `cms/internal/app/article/internal/domain`
-    `cms/internal/infra/persist/model`
+    `cms/internal/infra/persistence/model`
 )
 
 type ModelData model.ArticleModelData

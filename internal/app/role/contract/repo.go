@@ -4,9 +4,9 @@ import (
     `context`
     
     `cms/internal/app/role/internal/dto`
-    `cms/internal/infra/persist/contract`
-    `cms/internal/infra/persist/datatype`
-    `cms/internal/infra/persist/model`
+    `cms/internal/infra/persistence/contract`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/model`
     
     `gorm.io/gen`
 )

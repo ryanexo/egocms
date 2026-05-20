@@ -7,8 +7,8 @@ import (
     `cms/internal/app/permission/contract`
     `cms/internal/app/permission/internal/assembler`
     `cms/internal/app/permission/internal/dto`
-    `cms/internal/infra/persist/datatype`
-    `cms/internal/infra/persist/model`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/model`
 )
 
 type PermissionService struct {

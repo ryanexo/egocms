@@ -16,21 +16,21 @@ import (
     `cms/internal/app/file/internal/errno`
     `cms/internal/app/file/internal/fileutil`
     `cms/internal/infra/logger`
-    `cms/internal/infra/persist/contract`
-    `cms/internal/infra/persist/datatype`
-    `cms/internal/infra/persist/model`
+    `cms/internal/infra/persistence/contract`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/model`
     
     `github.com/avast/retry-go`
 )
 
 type FileService struct {
-    txManager contract.TxManager
+    txManager contract.Transactor
     repo      contract2.FileRepo
     logger    *logger.Logger
     driverSrv *FileDriverService
 }
 
-func NewFileService(txManager contract.TxManager, repo contract2.FileRepo, driverSrv *FileDriverService, logger *logger.Logger) *FileService {
+func NewFileService(txManager contract.Transactor, repo contract2.FileRepo, driverSrv *FileDriverService, logger *logger.Logger) *FileService {
     return &FileService{
         txManager: txManager,
         repo:      repo,

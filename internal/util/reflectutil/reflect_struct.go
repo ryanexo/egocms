@@ -17,19 +17,21 @@ func InvokeImplementedStruct[T any](v any, callback func(reflect.Value, T) error
     
     for i := 0; i < ref.NumField(); i++ {
         iterateField := ref.Field(i)
-        if !iterateField.CanInterface() {
+        if iterateField.IsNil() || !iterateField.CanInterface() {
             continue
         }
-    INVOKE:
-        controller, ok := iterateField.Interface().(T)
-        if ok {
-            err := callback(iterateField, controller)
-            if err != nil {
-                return err
+        for {
+            value, ok := iterateField.Interface().(T)
+            if ok {
+                if err := callback(iterateField, value); err != nil {
+                    return err
+                }
+                break
+            } else if iterateField.Kind() == reflect.Ptr {
+                iterateField = iterateField.Elem()
+            } else {
+                break
             }
-        } else if iterateField.Kind() == reflect.Ptr {
-            iterateField = iterateField.Elem()
-            goto INVOKE
         }
     }
     

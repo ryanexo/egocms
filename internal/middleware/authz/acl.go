@@ -1,10 +1,8 @@
 package authz
 
 import (
-    `fmt`
     `strings`
     
-    `cms/internal/constant`
     `cms/internal/erroz`
     
     `github.com/armon/go-radix`
@@ -42,13 +40,13 @@ func (s acl) Middleware() gin.HandlerFunc {
         
         credential := ctx.GetHeader("Authorization")
         if credential == "" {
-            ErrAuthorized.WriteWithAbort(ctx)
+            ErrAuthorized.Abort(ctx)
             return
         }
         
         token, found := strings.CutPrefix(credential, "Bearer ")
         if !found {
-            ErrAuthorized.WriteWithAbort(ctx)
+            ErrAuthorized.Abort(ctx)
             return
         }
         
@@ -57,7 +55,7 @@ func (s acl) Middleware() gin.HandlerFunc {
             erroz.ResolveWithAbort(ctx, err)
             return
         }
-        ctx.Set(constant.RequestUserKey, user)
+        setCurrentUser(ctx, user)
         
         if s.object == "" {
             ctx.Next()
@@ -69,16 +67,15 @@ func (s acl) Middleware() gin.HandlerFunc {
         if found {
             permStr, ok := perm.(string)
             if !ok {
-                err = fmt.Errorf("permission not found for %s", permStr)
-                ErrAccessDenied.Wrap(err).WriteWithAbort(ctx)
+                ErrAccessDenied.Abort(ctx)
                 return
             }
             
             if pass, err := s.perm.Check(ctx, user.Role(), s.object, permStr); err != nil {
-                ErrAccessDenied.Wrap(err).WriteWithAbort(ctx)
+                ErrAccessDenied.Abort(ctx)
                 return
             } else if !pass {
-                ErrAccessDenied.WriteWithAbort(ctx)
+                ErrAccessDenied.Abort(ctx)
                 return
             }
         }

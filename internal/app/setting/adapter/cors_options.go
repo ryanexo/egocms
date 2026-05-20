@@ -4,14 +4,14 @@ import (
     `context`
     
     `cms/internal/app/setting/service`
-    `cms/internal/middleware/cors`
+    `cms/internal/middleware`
 )
 
 type CORSOptions struct {
     settingSrv *service.SettingService
 }
 
-var _ cors.Options = (*CORSOptions)(nil)
+var _ middleware.Options = (*CORSOptions)(nil)
 
 func (s CORSOptions) GetAllowOrigin(ctx context.Context) string {
     value, _ := s.settingSrv.Get(ctx, "allow-origin")
@@ -38,6 +38,6 @@ func (s CORSOptions) GetExposeHeaders(ctx context.Context) string {
     return value
 }
 
-func NewCORSOptions(settingSrv *service.SettingService) cors.Options {
+func NewCORSOptions(settingSrv *service.SettingService) middleware.Options {
     return CORSOptions{settingSrv: settingSrv}
 }

@@ -6,19 +6,19 @@ import (
     contract2 `cms/internal/app/articlemodel/contract`
     `cms/internal/app/articlemodel/internal/assembler`
     `cms/internal/app/articlemodel/internal/dto`
-    `cms/internal/infra/persist/contract`
-    `cms/internal/infra/persist/datatype`
-    `cms/internal/infra/persist/model`
-    `cms/internal/infra/persist/query`
+    `cms/internal/infra/persistence/contract`
+    `cms/internal/infra/persistence/datatype`
+    `cms/internal/infra/persistence/model`
+    `cms/internal/infra/persistence/query`
     `cms/internal/util/types`
 )
 
 type ArticleModelService struct {
-    txManager contract.TxManager
+    txManager contract.Transactor
     repo      contract2.ArticleModelRepo
 }
 
-func NewArticleModelService(txManager contract.TxManager, repo contract2.ArticleModelRepo) *ArticleModelService {
+func NewArticleModelService(txManager contract.Transactor, repo contract2.ArticleModelRepo) *ArticleModelService {
     return &ArticleModelService{
         txManager: txManager,
         repo:      repo,

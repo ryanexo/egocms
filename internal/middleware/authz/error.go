@@ -1,9 +1,10 @@
 package authz
 
 import (
-    `cms/internal/erroz`
-    errtype `cms/internal/erroz/type`
+    `cms/internal/httpserver`
 )
 
-var ErrAuthorized = erroz.New(erroz.Code("AUTH", errtype.Auth, 0), "未授权")
-var ErrAccessDenied = erroz.New(erroz.Code("AUTH", errtype.Auth, 1), "无权访问")
+var (
+    ErrAuthorized   = httpserver.NewError(400001, "未授权")
+    ErrAccessDenied = httpserver.NewError(400002, "无权访问")
+)

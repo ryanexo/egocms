@@ -7,9 +7,10 @@ import (
     `cms/internal/app/file/service`
     `cms/internal/erroz`
     `cms/internal/httpserver`
-    `cms/internal/infra/persist/datatype`
-    `cms/internal/infra/xhashids`
+    erroz2 `cms/internal/httpserver/erroz`
+    `cms/internal/infra/persistence/datatype`
     `cms/internal/middleware/authz`
+    `cms/internal/pkg/hashid`
     `cms/internal/util/authzutil`
     `cms/internal/util/httpbinding`
     `cms/internal/util/types`
@@ -20,10 +21,10 @@ import (
 type FileController struct {
     fileSrv *service.FileService
     auth    *authz.Factory
-    hashID  *xhashids.HashID
+    hashID  *hashid.HashID
 }
 
-func NewFileController(fileSrv *service.FileService, auth *authz.Factory, hashID *xhashids.HashID) *FileController {
+func NewFileController(fileSrv *service.FileService, auth *authz.Factory, hashID *hashid.HashID) *FileController {
     return &FileController{fileSrv: fileSrv, auth: auth, hashID: hashID}
 }
 
@@ -77,7 +78,7 @@ func (s FileController) Upload(ctx *gin.Context) {
         erroz.ResolveWithAbort(ctx, err)
         return
     }
-    erroz.OK.WithOption(erroz.WithData(result)).Write(ctx)
+    erroz.OK.WithOption(erroz2.WithData(result)).Write(ctx)
 }
 
 // Download

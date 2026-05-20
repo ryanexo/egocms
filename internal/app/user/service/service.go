@@ -9,21 +9,21 @@ import (
     `cms/internal/app/user/internal/dto`
     `cms/internal/app/user/internal/errno`
     "cms/internal/infra/password"
-    `cms/internal/infra/persist/contract`
-    "cms/internal/infra/persist/datatype"
-    "cms/internal/infra/persist/model"
-    "cms/internal/infra/persist/query"
+    `cms/internal/infra/persistence/contract`
+    "cms/internal/infra/persistence/datatype"
+    "cms/internal/infra/persistence/model"
+    "cms/internal/infra/persistence/query"
     `cms/internal/util/types`
     
     `gorm.io/gorm`
 )
 
 type UserService struct {
-    txManager contract.TxManager
+    txManager contract.Transactor
     repo      contract2.UserRepo
 }
 
-func NewUserService(txManager contract.TxManager, repo contract2.UserRepo) *UserService {
+func NewUserService(txManager contract.Transactor, repo contract2.UserRepo) *UserService {
     return &UserService{
         txManager: txManager,
         repo:      repo,

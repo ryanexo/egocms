@@ -6,9 +6,9 @@ import (
     
     `cms/internal/app/category/contract`
     `cms/internal/app/category/internal/dto`
-    "cms/internal/infra/persist/dbscope"
-    "cms/internal/infra/persist/model"
-    "cms/internal/infra/persist/query"
+    "cms/internal/infra/persistence/dbscope"
+    "cms/internal/infra/persistence/model"
+    "cms/internal/infra/persistence/query"
     
     "gorm.io/gen"
 )

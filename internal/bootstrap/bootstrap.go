@@ -1,37 +1,37 @@
 package bootstrap
 
 import (
+    `cms/internal/bootstrap/internal/provider`
     `cms/internal/httpserver`
-    `cms/internal/lifecycle`
     
     `github.com/gin-gonic/gin`
     `github.com/google/wire`
 )
 
 var BootstrapProvider = wire.NewSet(
-    lifecycle.New,
+    provider.ConfigProvider,
+    provider.ServiceProvider,
+    provider.InfraProvider,
+    provider.RepoProvider,
+    provider.ControllerProvider,
+    provider.MiddlewareProvider,
+    provider.FileDriverProvider,
     New,
 )
 
 type Bootstrap struct {
-    lifecycle *lifecycle.Lifecycle
-    http      *httpserver.Launcher
-    mw        httpserver.Middleware
-    route     httpserver.Route
+    http  *httpserver.Launcher
+    mw    httpserver.Middleware
+    route httpserver.Route
 }
 
 func (s Bootstrap) Start() error {
     s.http.AddMiddleware(s.mw)
     s.http.AddRoutes(s.route)
     
-    err := s.lifecycle.WarmUp()
-    if err != nil {
-        return err
-    }
-    
     return s.http.Run(gin.Mode() == gin.DebugMode)
 }
 
-func New(lc *lifecycle.Lifecycle, http *httpserver.Launcher, mw httpserver.Middleware, route httpserver.Route) Bootstrap {
-    return Bootstrap{lifecycle: lc, http: http, mw: mw, route: route}
+func New(http *httpserver.Launcher, mw httpserver.Middleware, route httpserver.Route) Bootstrap {
+    return Bootstrap{http: http, mw: mw, route: route}
 }

@@ -3,15 +3,18 @@ package erroz
 import (
     `errors`
     
+    `cms/internal/httpserver`
+    `cms/internal/httpserver/erroz`
+    
     `github.com/gin-gonic/gin`
     `github.com/go-playground/validator/v10`
     `gorm.io/gorm`
 )
 
-func ResolveWithWrite(ctx Responsible, err error) {
+func ResolveWithWrite(ctx erroz.Responsible, err error) {
     var (
         notResolved     bool
-        returnValue     businessError
+        returnValue     httpserver.Error
         validationError validator.ValidationErrors
     )
     
@@ -20,7 +23,7 @@ func ResolveWithWrite(ctx Responsible, err error) {
         break
     
     case errors.As(err, &validationError):
-        returnValue = ValidationFailed.WithOption(WithData(validationError)).prototype()
+        returnValue = ValidationFailed.WithOption(erroz.WithData(validationError)).prototype()
     
     case errors.Is(err, gorm.ErrRecordNotFound):
         returnValue = DataNotFound.prototype()
@@ -30,7 +33,7 @@ func ResolveWithWrite(ctx Responsible, err error) {
         notResolved = true
     }
     
-    if gin.Mode() == gin.DebugMode && (notResolved || returnValue.cause != nil) {
+    if gin.Mode() == gin.DebugMode && (notResolved || returnValue.Cause != nil) {
         var unResolvedErr error = returnValue
         for {
             e := errors.Unwrap(unResolvedErr)
@@ -44,7 +47,7 @@ func ResolveWithWrite(ctx Responsible, err error) {
     returnValue.Write(ctx)
 }
 
-func ResolveWithAbort(ctx Responsible, err error) {
+func ResolveWithAbort(ctx erroz.Responsible, err error) {
     ResolveWithWrite(ctx, err)
     ctx.Abort()
 }

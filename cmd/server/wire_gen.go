@@ -45,18 +45,13 @@ import (
 	"cms/internal/infra/db"
 	"cms/internal/infra/file/driver/local"
 	"cms/internal/infra/logger"
-	"cms/internal/infra/persist"
-	"cms/internal/infra/xhashids"
+	"cms/internal/infra/persistence"
 	"cms/internal/lifecycle"
+	middleware2 `cms/internal/middleware`
 	"cms/internal/middleware/authz"
-	"cms/internal/middleware/cors"
-	"cms/internal/middleware/log"
-	"cms/internal/middleware/recovery"
-	"cms/internal/middleware/reqtrace"
-)
-
-import (
-	_ "cms/docs"
+	`cms/internal/pkg/hashid`
+	
+	_ `cms/docs`
 )
 
 // Injectors from wire.go:
@@ -70,20 +65,20 @@ func initApp(cfg *config.Config) (bootstrap.Bootstrap, error) {
 	}
 	loggerConfig := config.GetLoggerConfig(cfg)
 	loggerLogger := logger.New(loggerConfig)
-	recoveryRecovery := recovery.New(loggerLogger)
-	requestTrace := reqtrace.New()
-	logLog := log.New(loggerLogger)
+	recoveryRecovery := middleware2.New(loggerLogger)
+	requestTrace := middleware2.New()
+	logLog := middleware2.New(loggerLogger)
 	dbConfig := config.GetDBConfig(cfg)
 	gormDB, err := db.NewDB(dbConfig)
 	if err != nil {
 		return bootstrap.Bootstrap{}, err
 	}
-	query := persist.NewQuery(gormDB)
-	txManager := persist.NewTxManager(query)
+	query := persistence.NewQuery(gormDB)
+	txManager := persistence.NewTxManager(query)
 	settingRepo := adapter.NewConfigRepo(query)
 	settingService := service.NewSettingService(txManager, settingRepo, loggerLogger, cfg)
 	options := adapter.NewCORSOptions(settingService)
-	corsCORS := cors.New(options)
+	corsCORS := middleware2.New(options)
 	httpserverMiddleware := middleware.NewMiddlewareRegistrar(recoveryRecovery, requestTrace, logLog, corsCORS)
 	userRepo := adapter2.NewUserRepo(query)
 	userService := service2.NewUserService(txManager, userRepo)
@@ -126,7 +121,7 @@ func initApp(cfg *config.Config) (bootstrap.Bootstrap, error) {
 	}
 	fileDriverService := service10.NewFileDriverService(driverRegistry, cfg)
 	fileService := service10.NewFileService(txManager, fileRepo, fileDriverService, loggerLogger)
-	hashID, err := xhashids.New(cfg)
+	hashID, err := hashid.New(cfg)
 	if err != nil {
 		return bootstrap.Bootstrap{}, err
 	}

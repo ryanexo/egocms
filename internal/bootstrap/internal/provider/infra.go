@@ -1,0 +1,35 @@
+package provider
+
+import (
+    `cms/internal/httpserver`
+    `cms/internal/infra/casbin`
+    `cms/internal/infra/db`
+    `cms/internal/infra/logger`
+    `cms/internal/pkg/hashid`
+    
+    `github.com/google/wire`
+    
+    `cms/internal/infra/persistence/contract`
+    `cms/internal/infra/persistence/query`
+    
+    `gorm.io/gorm`
+)
+
+var InfraProvider = wire.NewSet(
+    logger.New,
+    db.NewDB,
+    casbin.NewRoleCasbin,
+    casbin.NewMenuCasbin,
+    hashid.New,
+    httpserver.New,
+    NewQuery,
+    NewTransactor,
+)
+
+func NewQuery(db *gorm.DB) *query.Query {
+    return query.Use(db)
+}
+
+func NewTransactor(q *query.Query) contract.Transactor {
+    return q
+}

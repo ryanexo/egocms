@@ -2,10 +2,10 @@ package errno
 
 import (
     `cms/internal/erroz`
-    `cms/internal/erroz/type`
+    erroz2 `cms/internal/httpserver`
 )
 
 var (
-    Unauthorized         = erroz.New(erroz.Code("TOKEN", errtype.Auth, 0), "未授权")
-    AuthorizationExpired = erroz.New(erroz.Code("TOKEN", errtype.Auth, 1), "授权已过期，请重新登陆")
+    Unauthorized         = erroz2.New(erroz.Code("TOKEN", errtype.Auth, 0), "未授权")
+    AuthorizationExpired = erroz2.New(erroz.Code("TOKEN", errtype.Auth, 1), "授权已过期，请重新登陆")
 )

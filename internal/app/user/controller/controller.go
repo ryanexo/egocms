@@ -4,7 +4,7 @@ import (
     token `cms/internal/app/token/service`
     `cms/internal/app/user/internal/dto`
     user `cms/internal/app/user/service`
-    "cms/internal/erroz"
+    `cms/internal/erroz`
     `cms/internal/httpserver`
     `cms/internal/infra/logger`
     `cms/internal/middleware/authz`

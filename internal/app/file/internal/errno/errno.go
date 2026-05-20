@@ -2,11 +2,11 @@ package errno
 
 import (
     `cms/internal/erroz`
-    `cms/internal/erroz/type`
+    erroz2 `cms/internal/httpserver`
 )
 
 var (
-    FileDriverConfigNotExists  = erroz.New(erroz.Code("FILE", errtype.NotFound, 0), "未配置文件驱动")
-    FileDeleteFailedInCreating = erroz.New(erroz.Code("FILE", errtype.Unknown, 1), "上传失败")
-    FilePreCreateFileFailed    = erroz.New(erroz.Code("FILE", errtype.Unknown, 2), "上传失败")
+    FileDriverConfigNotExists  = erroz2.New(erroz.Code("FILE", errtype.NotFound, 0), "未配置文件驱动")
+    FileDeleteFailedInCreating = erroz2.New(erroz.Code("FILE", errtype.Unknown, 1), "上传失败")
+    FilePreCreateFileFailed    = erroz2.New(erroz.Code("FILE", errtype.Unknown, 2), "上传失败")
 )

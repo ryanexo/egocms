@@ -6,10 +6,10 @@ import (
     
     `cms/internal/app/menu/contract`
     `cms/internal/app/menu/internal/dto`
-    `cms/internal/infra/persist/datatype`
-    "cms/internal/infra/persist/dbscope"
-    "cms/internal/infra/persist/model"
-    "cms/internal/infra/persist/query"
+    `cms/internal/infra/persistence/datatype`
+    "cms/internal/infra/persistence/dbscope"
+    "cms/internal/infra/persistence/model"
+    "cms/internal/infra/persistence/query"
     
     "gorm.io/gen"
 )
