@@ -202,7 +202,7 @@ func (s ArticleService) ToArticleModelData(artID datatype.SafeUint64, modelID da
         
         v, err := assembler.NewValue(schema.Type, value)
         if err != nil {
-            return nil, nil, errno.ArticleModelDataInvalidType.Format(schema.FieldName).ToError()
+            return nil, nil, errno.ErrModelDataInvalidType.Format(schema.FieldName).ToError()
         }
         
         artModel := domain.NewModelValue(assembler.NewRules(schema), v)

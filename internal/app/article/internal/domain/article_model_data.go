@@ -15,28 +15,28 @@ func NewModelValue(rules Rules, value Value) *ModelValue {
 
 func (v *ModelValue) IsValid() error {
     if !v.rules.IsEnable() {
-        return errno.ArticleModelDataDisabled.Format(v.rules.FieldKey()).ToError()
+        return errno.ErrModelDataDisabled.Format(v.rules.FieldKey())
     }
     
     if v.rules.IsRequired() && v.value.IsEmpty() {
-        return errno.ArticleModelDataMissingValue.Format(v.rules.FieldName()).ToError()
+        return errno.ErrModelDataMissingValue.Format(v.rules.FieldName())
     }
     
     lenMin, lenMax := v.rules.MinLen(), v.rules.MaxLen()
     if lenMin < lenMax && !v.value.IsValidLen(lenMin, v.rules.MaxLen()) {
-        return errno.ArticleModelDataInvalidLen.Format(lenMin, v.rules.MaxLen()).ToError()
+        return errno.ErrModelDataInvalidLen.Format(lenMin, v.rules.MaxLen())
     }
     
     vMin, vMax := v.rules.MinValue(), v.rules.MaxValue()
     if vMin.Decimal.LessThan(vMax.Decimal) {
         validMin, validMax := vMin.Valid, vMax.Valid
         if !validMin || !validMax || !v.value.InRange(vMin.Decimal, vMax.Decimal) {
-            return errno.ArticleModelDataInvalidNumRange.Format(v.rules.MinValue(), v.rules.MaxValue()).ToError()
+            return errno.ErrModelDataInvalidNumRange.Format(v.rules.MinValue(), v.rules.MaxValue())
         }
     }
     
     if len(v.rules.EnumOptions()) > 0 && !v.value.IsEnumValue(v.rules.EnumOptions()) {
-        return errno.ArticleModelDataInvalidValue.Format(v.rules.FieldName()).ToError()
+        return errno.ErrModelDataInvalidValue.Format(v.rules.FieldName())
     }
     
     pattern := v.rules.Pattern()
@@ -46,7 +46,7 @@ func (v *ModelValue) IsValid() error {
             return err
         }
         if !matched {
-            return errno.ArticleModelDataInvalidValue.Format(v.rules.FieldName()).ToError()
+            return errno.ErrModelDataInvalidValue.Format(v.rules.FieldName())
         }
     }
     
@@ -54,7 +54,7 @@ func (v *ModelValue) IsValid() error {
     if !vMinTime.Time.IsZero() || !vMaxTime.Time.IsZero() {
         validMin, validMax := vMinTime.Valid, vMaxTime.Valid
         if !validMin || !validMax || !v.value.InTimeRange(vMinTime.Time, vMaxTime.Time) {
-            return errno.ArticleModelDataInvalidTimeRange.Format(v.rules.FieldName(), vMinTime, vMaxTime).ToError()
+            return errno.ErrModelDataInvalidTimeRange.Format(v.rules.FieldName(), vMinTime, vMaxTime)
         }
     }
     

@@ -3,6 +3,7 @@ package middleware
 import (
     `errors`
     
+    `cms/internal/erroz`
     `cms/internal/httpserver`
     `cms/internal/httpserver/validator`
     
@@ -16,39 +17,26 @@ func NewErrorFallback() ErrorFallback {
     return func(context *gin.Context) {
         context.Next()
         
-        var (
-            isResolved      bool
-            returnValue     httpserver.Error
-            validationError validator.ValidationErrors
-        )
-        
         err := context.Errors.Last()
-        
-        switch {
-        case errors.As(err, &returnValue):
-            break
-        
-        case errors.As(err, &validationError):
-            returnValue = ValidationFailed.WithOption(erroz.WithData(validationError)).prototype()
-        
-        case errors.Is(err, gorm.ErrRecordNotFound):
-            returnValue = DataNotFound.prototype()
-        
-        default:
-            returnValue = Unknown.Wrap(err).prototype()
-            isResolved = true
+        if err == nil {
+            return
         }
         
-        if gin.Mode() == gin.DebugMode && (isResolved || returnValue.Cause != nil) {
-            var unResolvedErr error = returnValue
-            for {
-                e := errors.Unwrap(unResolvedErr)
-                if e == nil {
-                    break
-                }
-                returnValue.Debug = append(returnValue.Debug, e.Error())
-                unResolvedErr = e
-            }
+        var response httpserver.Error
+        var validationError validator.ValidationErrors
+        
+        switch {
+        case errors.As(err, &response):
+            response.Abort(context)
+        
+        case errors.As(err, &validationError):
+            erroz.ValidationFailed.Data(validationError).Abort(context)
+        
+        case errors.Is(err, gorm.ErrRecordNotFound):
+            erroz.DataNotFound.Abort(context)
+        
+        default:
+            erroz.Unknown.Abort(context)
         }
     }
 }

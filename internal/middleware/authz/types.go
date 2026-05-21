@@ -16,6 +16,7 @@ type AccessControl interface {
 }
 
 type User interface {
+    UserID() uint64
     Role() string
 }
 

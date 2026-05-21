@@ -3,8 +3,6 @@ package authz
 import (
     `strings`
     
-    `cms/internal/erroz`
-    
     `github.com/armon/go-radix`
     `github.com/gin-gonic/gin`
 )
@@ -40,7 +38,7 @@ func (s acl) Middleware() gin.HandlerFunc {
         
         credential := ctx.GetHeader("Authorization")
         if credential == "" {
-            ErrAuthorized.Abort(ctx)
+            _ = ctx.Error(ErrAuthorized)
             return
         }
         
@@ -52,7 +50,7 @@ func (s acl) Middleware() gin.HandlerFunc {
         
         user, err := s.token.Parse(ctx, token)
         if err != nil {
-            erroz.ResolveWithAbort(ctx, err)
+            ErrAuthorized.Abort(ctx)
             return
         }
         setCurrentUser(ctx, user)

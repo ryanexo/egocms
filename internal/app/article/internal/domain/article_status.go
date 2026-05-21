@@ -44,11 +44,11 @@ func (s *Status) transitionStatus(expect StatusValue) error {
         From  StatusValue
         Error error
     }{
-        StatusPending:          {From: StatusDraft, Error: errno.ArticleSubmitStatusNotAllowed.ToError()},
-        StatusPublished:        {From: StatusPending, Error: errno.ArticlePublishStatusNotAllowed.ToError()},
-        StatusOffline:          {From: StatusPublished, Error: errno.ArticleOfflineStatusNotAllowed.ToError()},
-        StatusReject:           {From: StatusPending, Error: errno.ArticleRejectStatusNotAllowed.ToError()},
-        StatusPendingRepublish: {From: StatusPublished, Error: errno.ArticleRepublishStatusNotAllowed.ToError()},
+        StatusPending:          {From: StatusDraft, Error: errno.ErrSubmitStatusNotAllowed.ToError()},
+        StatusPublished:        {From: StatusPending, Error: errno.ErrPublishStatusNotAllowed.ToError()},
+        StatusOffline:          {From: StatusPublished, Error: errno.ErrOfflineStatusNotAllowed.ToError()},
+        StatusReject:           {From: StatusPending, Error: errno.ErrRejectStatusNotAllowed.ToError()},
+        StatusPendingRepublish: {From: StatusPublished, Error: errno.ErrRepublishStatusNotAllowed.ToError()},
     }
     
     nextState := stateMachine[expect]
@@ -65,7 +65,7 @@ func (s *Status) Submit() error {
         return nil
     }
     if s.status == StatusPending {
-        return errno.ArticleAlreadySubmitted.ToError()
+        return errno.ErrAlreadySubmitted.ToError()
     }
     return s.transitionStatus(StatusPending)
 }
@@ -73,7 +73,7 @@ func (s *Status) Submit() error {
 func (s *Status) Publish() error {
     if !s.actor.CanPublishDirect {
         if s.status == StatusPublished {
-            return errno.ArticleAlreadyPublished.ToError()
+            return errno.ErrAlreadyPublished.ToError()
         }
     }
     return s.transitionStatus(StatusPublished)
@@ -81,14 +81,14 @@ func (s *Status) Publish() error {
 
 func (s *Status) Offline() error {
     if s.status == StatusOffline {
-        return errno.ArticleAlreadyOffline.ToError()
+        return errno.ErrAlreadyOffline.ToError()
     }
     return s.transitionStatus(StatusOffline)
 }
 
 func (s *Status) Reject() error {
     if s.status == StatusReject {
-        return errno.ArticleAlreadyReject.ToError()
+        return errno.ErrAlreadyReject.ToError()
     }
     return s.transitionStatus(StatusReject)
 }
@@ -96,7 +96,7 @@ func (s *Status) Reject() error {
 func (s *Status) Republish() error {
     if !s.actor.CanPublishDirect {
         if s.status == StatusPendingRepublish {
-            return errno.ArticleAlreadyRepublish.ToError()
+            return errno.ErrAlreadyRepublish.ToError()
         }
     }
     return s.transitionStatus(StatusPendingRepublish)
