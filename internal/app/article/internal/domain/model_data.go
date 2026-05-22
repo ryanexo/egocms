@@ -4,16 +4,16 @@ import (
     `cms/internal/app/article/internal/errno`
 )
 
-type ModelValue struct {
+type ModelData struct {
     value Value
     rules Rules
 }
 
-func NewModelValue(rules Rules, value Value) *ModelValue {
-    return &ModelValue{rules: rules, value: value}
+func NewModelData(rules Rules, value Value) *ModelData {
+    return &ModelData{rules: rules, value: value}
 }
 
-func (v *ModelValue) IsValid() error {
+func (v *ModelData) IsValid() error {
     if !v.rules.IsEnable() {
         return errno.ErrModelDataDisabled.Format(v.rules.FieldKey())
     }
@@ -61,6 +61,6 @@ func (v *ModelValue) IsValid() error {
     return nil
 }
 
-func (v *ModelValue) Assign(s Scannable) error {
-    return v.value.Assign(s)
+func (v *ModelData) Assign(s Setter) error {
+    return v.value.Set(s)
 }

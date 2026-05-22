@@ -7,9 +7,8 @@
 package main
 
 import (
+	controller5 "cms/internal/app/article"
 	adapter8 "cms/internal/app/article/adapter"
-	controller5 "cms/internal/app/article/controller"
-	service8 "cms/internal/app/article/service"
 	adapter9 "cms/internal/app/articlemodel/adapter"
 	controller6 "cms/internal/app/articlemodel/controller"
 	service9 "cms/internal/app/articlemodel/service"
@@ -50,7 +49,7 @@ import (
 	middleware2 `cms/internal/middleware`
 	"cms/internal/middleware/authz"
 	`cms/internal/pkg/hashid`
-	
+
 	_ `cms/docs`
 )
 
@@ -74,7 +73,7 @@ func initApp(cfg *config.Config) (bootstrap.Bootstrap, error) {
 		return bootstrap.Bootstrap{}, err
 	}
 	query := persistence.NewQuery(gormDB)
-	txManager := persistence.NewTxManager(query)
+	txManager := persistence.NewTransactor(query)
 	settingRepo := adapter.NewConfigRepo(query)
 	settingService := service.NewSettingService(txManager, settingRepo, loggerLogger, cfg)
 	options := adapter.NewCORSOptions(settingService)
@@ -105,7 +104,7 @@ func initApp(cfg *config.Config) (bootstrap.Bootstrap, error) {
 	roleController := controller4.NewRoleController(roleService, factory)
 	articleRepo := adapter8.NewArticleRepo(query)
 	articleModelRepo := adapter9.NewArticleModelRepo(query)
-	articleService := service8.NewArticleService(txManager, articleRepo, articleModelRepo)
+	articleService := controller5.NewArticleService(txManager, articleRepo, articleModelRepo)
 	articleController := controller5.NewArticleController(articleService, permissionService, factory, roleCasbin)
 	articleModelService := service9.NewArticleModelService(txManager, articleModelRepo)
 	articleModelController := controller6.NewArticleModelController(articleModelService, factory)

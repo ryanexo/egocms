@@ -7,24 +7,24 @@ import (
 
 type ModelData model.ArticleModelData
 
-var _ domain.Scannable = (*ModelData)(nil)
+var _ domain.Setter = (*ModelData)(nil)
 
-func (m *ModelData) ScanString(value any) error {
+func (m *ModelData) SetString(value any) error {
     s := (*model.ArticleModelData)(m)
     return s.ValueString.Scan(value)
 }
 
-func (m *ModelData) ScanNumber(value any) error {
+func (m *ModelData) SetNumber(value any) error {
     s := (*model.ArticleModelData)(m)
     return s.ValueNumber.Scan(value)
 }
 
-func (m *ModelData) ScanBool(value any) error {
+func (m *ModelData) SetBool(value any) error {
     s := (*model.ArticleModelData)(m)
     return s.ValueBool.Scan(value)
 }
 
-func (m *ModelData) ScanTime(value any) error {
+func (m *ModelData) SetTime(value any) error {
     s := (*model.ArticleModelData)(m)
     return s.ValueTime.Scan(value)
 }

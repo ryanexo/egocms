@@ -1,50 +1,50 @@
 package service
 
 import (
-    `context`
-    
-    contract2 `cms/internal/app/setting/contract`
-    `cms/internal/config`
-    `cms/internal/infra/logger`
-    `cms/internal/infra/persistence/contract`
-    `cms/internal/infra/persistence/model`
+	"cms/internal/infra/persistence"
+	"context"
+
+	contract2 "cms/internal/app/setting/contract"
+	"cms/internal/config"
+	"cms/internal/infra/logger"
+	"cms/internal/infra/persistence/model"
 )
 
 type SettingService struct {
-    txManager contract.Transactor
-    repo      contract2.SettingRepo
-    logger    *logger.Logger
-    cfg       *config.Config
+	txManager persistence.Transactor
+	repo      contract2.SettingRepo
+	logger    *logger.Logger
+	cfg       *config.Config
 }
 
 func NewSettingService(
-    txManager contract.Transactor,
-    repo contract2.SettingRepo,
-    logger *logger.Logger,
-    cfg *config.Config,
+	txManager persistence.Transactor,
+	repo contract2.SettingRepo,
+	logger *logger.Logger,
+	cfg *config.Config,
 ) *SettingService {
-    return &SettingService{
-        txManager: txManager,
-        repo:      repo,
-        logger:    logger,
-        cfg:       cfg,
-    }
+	return &SettingService{
+		txManager: txManager,
+		repo:      repo,
+		logger:    logger,
+		cfg:       cfg,
+	}
 }
 
 func (s SettingService) Add(ctx context.Context, key string, value string) error {
-    return s.repo.Add(ctx, &model.Setting{Key: key, Value: value})
+	return s.repo.Add(ctx, &model.Setting{Key: key, Value: value})
 }
 
 func (s SettingService) Update(ctx context.Context, key string, value string) error {
-    _, err := s.repo.Update(ctx, &model.Setting{Key: key, Value: value})
-    return err
+	_, err := s.repo.Update(ctx, &model.Setting{Key: key, Value: value})
+	return err
 }
 
 func (s SettingService) Remove(ctx context.Context, key string) error {
-    _, err := s.repo.Remove(ctx, key)
-    return err
+	_, err := s.repo.Remove(ctx, key)
+	return err
 }
 
 func (s SettingService) Get(ctx context.Context, key string) (string, error) {
-    return s.repo.Get(ctx, key)
+	return s.repo.Get(ctx, key)
 }

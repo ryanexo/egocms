@@ -1,20 +1,20 @@
 package contract
 
 import (
-    `context`
-    
-    `cms/internal/infra/persistence/contract`
-    `cms/internal/infra/persistence/model`
-    
-    `gorm.io/gen`
+	"cms/internal/infra/persistence"
+	"context"
+
+	"cms/internal/infra/persistence/model"
+
+	"gorm.io/gen"
 )
 
 type SettingRepo interface {
-    contract.Repository[SettingRepo]
-    Add(ctx context.Context, data *model.Setting) error
-    AddInBatches(ctx context.Context, data []*model.Setting) error
-    Update(ctx context.Context, data *model.Setting) (gen.ResultInfo, error)
-    Remove(ctx context.Context, key string) (gen.ResultInfo, error)
-    Get(ctx context.Context, key string) (string, error)
-    GetAll(ctx context.Context) ([]*model.Setting, error)
+	persistence.Repository[SettingRepo]
+	Add(ctx context.Context, data *model.Setting) error
+	AddInBatches(ctx context.Context, data []*model.Setting) error
+	Update(ctx context.Context, data *model.Setting) (gen.ResultInfo, error)
+	Remove(ctx context.Context, key string) (gen.ResultInfo, error)
+	Get(ctx context.Context, key string) (string, error)
+	GetAll(ctx context.Context) ([]*model.Setting, error)
 }
