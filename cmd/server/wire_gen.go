@@ -12,9 +12,8 @@ import (
 	adapter9 "cms/internal/app/articlemodel/adapter"
 	controller6 "cms/internal/app/articlemodel/controller"
 	service9 "cms/internal/app/articlemodel/service"
+	service5 `cms/internal/app/category`
 	adapter6 "cms/internal/app/category/adapter"
-	controller3 "cms/internal/app/category/controller"
-	service5 "cms/internal/app/category/service"
 	adapter10 "cms/internal/app/file/adapter"
 	controller7 "cms/internal/app/file/controller"
 	service10 "cms/internal/app/file/service"
@@ -49,7 +48,7 @@ import (
 	middleware2 `cms/internal/middleware`
 	"cms/internal/middleware/authz"
 	`cms/internal/pkg/hashid`
-
+	
 	_ `cms/docs`
 )
 
@@ -96,7 +95,7 @@ func initApp(cfg *config.Config) (bootstrap.Bootstrap, error) {
 	menuController := controller2.NewMenuController(menuService, factory)
 	categoryRepo := adapter6.NewCategoryRepo(query)
 	categoryService := service5.NewCategoryService(txManager, categoryRepo)
-	categoryController := controller3.NewCategoryController(categoryService, factory)
+	categoryController := service5.NewCategoryController(categoryService, factory)
 	roleRepo := adapter7.NewRoleRepo(query)
 	permissionRepo := adapter4.NewPermissionRepo(query)
 	permissionService := service6.NewPermissionService(permissionRepo)

@@ -1,8 +1,7 @@
-package controller
+package category
 
 import (
     "cms/internal/app/category/internal/dto"
-    "cms/internal/app/category/service"
     `cms/internal/httpserver`
     "cms/internal/middleware/authz"
     "cms/internal/util/httpbinding"
@@ -14,12 +13,12 @@ import (
 )
 
 type CategoryController struct {
-    categorySrv *service.CategoryService
+    categorySrv *CategoryService
     auth        *authz.Factory
 }
 
 func NewCategoryController(
-    categorySrv *service.CategoryService,
+    categorySrv *CategoryService,
     auth *authz.Factory,
 ) *CategoryController {
     return &CategoryController{
