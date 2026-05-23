@@ -23,7 +23,7 @@ func newArticleModelSchema(db *gorm.DB, opts ...gen.DOOption) articleModelSchema
 	_articleModelSchema := articleModelSchema{}
 
 	_articleModelSchema.articleModelSchemaDo.UseDB(db, opts...)
-	_articleModelSchema.articleModelSchemaDo.UseModel(&model.ArticleModelSchema{})
+	_articleModelSchema.articleModelSchemaDo.UseModel(&model.ContentTypeSchema{})
 
 	tableName := _articleModelSchema.articleModelSchemaDo.TableName()
 	_articleModelSchema.ALL = field.NewAsterisk(tableName)
@@ -272,57 +272,57 @@ func (a articleModelSchemaDo) Unscoped() *articleModelSchemaDo {
 	return a.withDO(a.DO.Unscoped())
 }
 
-func (a articleModelSchemaDo) Create(values ...*model.ArticleModelSchema) error {
+func (a articleModelSchemaDo) Create(values ...*model.ContentTypeSchema) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return a.DO.Create(values)
 }
 
-func (a articleModelSchemaDo) CreateInBatches(values []*model.ArticleModelSchema, batchSize int) error {
+func (a articleModelSchemaDo) CreateInBatches(values []*model.ContentTypeSchema, batchSize int) error {
 	return a.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (a articleModelSchemaDo) Save(values ...*model.ArticleModelSchema) error {
+func (a articleModelSchemaDo) Save(values ...*model.ContentTypeSchema) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return a.DO.Save(values)
 }
 
-func (a articleModelSchemaDo) First() (*model.ArticleModelSchema, error) {
+func (a articleModelSchemaDo) First() (*model.ContentTypeSchema, error) {
 	if result, err := a.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleModelSchema), nil
+		return result.(*model.ContentTypeSchema), nil
 	}
 }
 
-func (a articleModelSchemaDo) Take() (*model.ArticleModelSchema, error) {
+func (a articleModelSchemaDo) Take() (*model.ContentTypeSchema, error) {
 	if result, err := a.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleModelSchema), nil
+		return result.(*model.ContentTypeSchema), nil
 	}
 }
 
-func (a articleModelSchemaDo) Last() (*model.ArticleModelSchema, error) {
+func (a articleModelSchemaDo) Last() (*model.ContentTypeSchema, error) {
 	if result, err := a.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleModelSchema), nil
+		return result.(*model.ContentTypeSchema), nil
 	}
 }
 
-func (a articleModelSchemaDo) Find() ([]*model.ArticleModelSchema, error) {
+func (a articleModelSchemaDo) Find() ([]*model.ContentTypeSchema, error) {
 	result, err := a.DO.Find()
-	return result.([]*model.ArticleModelSchema), err
+	return result.([]*model.ContentTypeSchema), err
 }
 
-func (a articleModelSchemaDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ArticleModelSchema, err error) {
-	buf := make([]*model.ArticleModelSchema, 0, batchSize)
+func (a articleModelSchemaDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ContentTypeSchema, err error) {
+	buf := make([]*model.ContentTypeSchema, 0, batchSize)
 	err = a.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -330,7 +330,7 @@ func (a articleModelSchemaDo) FindInBatch(batchSize int, fc func(tx gen.Dao, bat
 	return results, err
 }
 
-func (a articleModelSchemaDo) FindInBatches(result *[]*model.ArticleModelSchema, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (a articleModelSchemaDo) FindInBatches(result *[]*model.ContentTypeSchema, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return a.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -356,23 +356,23 @@ func (a articleModelSchemaDo) Preload(fields ...field.RelationField) *articleMod
 	return &a
 }
 
-func (a articleModelSchemaDo) FirstOrInit() (*model.ArticleModelSchema, error) {
+func (a articleModelSchemaDo) FirstOrInit() (*model.ContentTypeSchema, error) {
 	if result, err := a.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleModelSchema), nil
+		return result.(*model.ContentTypeSchema), nil
 	}
 }
 
-func (a articleModelSchemaDo) FirstOrCreate() (*model.ArticleModelSchema, error) {
+func (a articleModelSchemaDo) FirstOrCreate() (*model.ContentTypeSchema, error) {
 	if result, err := a.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleModelSchema), nil
+		return result.(*model.ContentTypeSchema), nil
 	}
 }
 
-func (a articleModelSchemaDo) FindByPage(offset int, limit int) (result []*model.ArticleModelSchema, count int64, err error) {
+func (a articleModelSchemaDo) FindByPage(offset int, limit int) (result []*model.ContentTypeSchema, count int64, err error) {
 	result, err = a.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -401,7 +401,7 @@ func (a articleModelSchemaDo) Scan(result interface{}) (err error) {
 	return a.DO.Scan(result)
 }
 
-func (a articleModelSchemaDo) Delete(models ...*model.ArticleModelSchema) (result gen.ResultInfo, err error) {
+func (a articleModelSchemaDo) Delete(models ...*model.ContentTypeSchema) (result gen.ResultInfo, err error) {
 	return a.DO.Delete(models)
 }
 

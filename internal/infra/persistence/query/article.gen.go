@@ -519,11 +519,11 @@ func (a articleHasOneModelData) Unscoped() *articleHasOneModelData {
 
 type articleHasOneModelDataTx struct{ tx *gorm.Association }
 
-func (a articleHasOneModelDataTx) Find() (result *model.ArticleModelJsonData, err error) {
+func (a articleHasOneModelDataTx) Find() (result *model.ContentEntries, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a articleHasOneModelDataTx) Append(values ...*model.ArticleModelJsonData) (err error) {
+func (a articleHasOneModelDataTx) Append(values ...*model.ContentEntries) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -531,7 +531,7 @@ func (a articleHasOneModelDataTx) Append(values ...*model.ArticleModelJsonData) 
 	return a.tx.Append(targetValues...)
 }
 
-func (a articleHasOneModelDataTx) Replace(values ...*model.ArticleModelJsonData) (err error) {
+func (a articleHasOneModelDataTx) Replace(values ...*model.ContentEntries) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -539,7 +539,7 @@ func (a articleHasOneModelDataTx) Replace(values ...*model.ArticleModelJsonData)
 	return a.tx.Replace(targetValues...)
 }
 
-func (a articleHasOneModelDataTx) Delete(values ...*model.ArticleModelJsonData) (err error) {
+func (a articleHasOneModelDataTx) Delete(values ...*model.ContentEntries) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -681,11 +681,11 @@ func (a articleHasManyModelSchema) Unscoped() *articleHasManyModelSchema {
 
 type articleHasManyModelSchemaTx struct{ tx *gorm.Association }
 
-func (a articleHasManyModelSchemaTx) Find() (result []*model.ArticleModelSchema, err error) {
+func (a articleHasManyModelSchemaTx) Find() (result []*model.ContentTypeSchema, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a articleHasManyModelSchemaTx) Append(values ...*model.ArticleModelSchema) (err error) {
+func (a articleHasManyModelSchemaTx) Append(values ...*model.ContentTypeSchema) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -693,7 +693,7 @@ func (a articleHasManyModelSchemaTx) Append(values ...*model.ArticleModelSchema)
 	return a.tx.Append(targetValues...)
 }
 
-func (a articleHasManyModelSchemaTx) Replace(values ...*model.ArticleModelSchema) (err error) {
+func (a articleHasManyModelSchemaTx) Replace(values ...*model.ContentTypeSchema) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -701,7 +701,7 @@ func (a articleHasManyModelSchemaTx) Replace(values ...*model.ArticleModelSchema
 	return a.tx.Replace(targetValues...)
 }
 
-func (a articleHasManyModelSchemaTx) Delete(values ...*model.ArticleModelSchema) (err error) {
+func (a articleHasManyModelSchemaTx) Delete(values ...*model.ContentTypeSchema) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v

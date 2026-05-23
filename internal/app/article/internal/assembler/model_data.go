@@ -1,38 +1,38 @@
 package assembler
 
 import (
-    `cms/internal/app/article/internal/domain`
+    `cms/internal/app/contenttype/domain`
     `cms/internal/infra/persistence/model`
 )
 
-type ModelData model.ArticleModelData
+type ModelData model.ContentFieldValues
 
-var _ domain.Setter = (*ModelData)(nil)
+var _ domain.Writable = (*ModelData)(nil)
 
 func (m *ModelData) SetString(value any) error {
-    s := (*model.ArticleModelData)(m)
-    return s.ValueString.Scan(value)
+    s := (*model.ContentFieldValues)(m)
+    return s.StringValue.Scan(value)
 }
 
 func (m *ModelData) SetNumber(value any) error {
-    s := (*model.ArticleModelData)(m)
-    return s.ValueNumber.Scan(value)
+    s := (*model.ContentFieldValues)(m)
+    return s.NumberValue.Scan(value)
 }
 
 func (m *ModelData) SetBool(value any) error {
-    s := (*model.ArticleModelData)(m)
-    return s.ValueBool.Scan(value)
+    s := (*model.ContentFieldValues)(m)
+    return s.BoolValue.Scan(value)
 }
 
 func (m *ModelData) SetTime(value any) error {
-    s := (*model.ArticleModelData)(m)
-    return s.ValueTime.Scan(value)
+    s := (*model.ContentFieldValues)(m)
+    return s.TimeValue.Scan(value)
 }
 
-func (m *ModelData) Model() *model.ArticleModelData {
-    return (*model.ArticleModelData)(m)
+func (m *ModelData) Model() *model.ContentFieldValues {
+    return (*model.ContentFieldValues)(m)
 }
 
-func NewModelData(data *model.ArticleModelData) *ModelData {
+func NewModelData(data *model.ContentFieldValues) *ModelData {
     return (*ModelData)(data)
 }

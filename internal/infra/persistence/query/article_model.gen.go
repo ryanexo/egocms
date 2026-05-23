@@ -23,7 +23,7 @@ func newArticleModel(db *gorm.DB, opts ...gen.DOOption) articleModel {
 	_articleModel := articleModel{}
 
 	_articleModel.articleModelDo.UseDB(db, opts...)
-	_articleModel.articleModelDo.UseModel(&model.ArticleModel{})
+	_articleModel.articleModelDo.UseModel(&model.ContentType{})
 
 	tableName := _articleModel.articleModelDo.TableName()
 	_articleModel.ALL = field.NewAsterisk(tableName)
@@ -157,7 +157,7 @@ func (a articleModelHasManySchema) Session(session *gorm.Session) *articleModelH
 	return &a
 }
 
-func (a articleModelHasManySchema) Model(m *model.ArticleModel) *articleModelHasManySchemaTx {
+func (a articleModelHasManySchema) Model(m *model.ContentType) *articleModelHasManySchemaTx {
 	return &articleModelHasManySchemaTx{a.db.Model(m).Association(a.Name())}
 }
 
@@ -168,11 +168,11 @@ func (a articleModelHasManySchema) Unscoped() *articleModelHasManySchema {
 
 type articleModelHasManySchemaTx struct{ tx *gorm.Association }
 
-func (a articleModelHasManySchemaTx) Find() (result []*model.ArticleModelSchema, err error) {
+func (a articleModelHasManySchemaTx) Find() (result []*model.ContentTypeSchema, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a articleModelHasManySchemaTx) Append(values ...*model.ArticleModelSchema) (err error) {
+func (a articleModelHasManySchemaTx) Append(values ...*model.ContentTypeSchema) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -180,7 +180,7 @@ func (a articleModelHasManySchemaTx) Append(values ...*model.ArticleModelSchema)
 	return a.tx.Append(targetValues...)
 }
 
-func (a articleModelHasManySchemaTx) Replace(values ...*model.ArticleModelSchema) (err error) {
+func (a articleModelHasManySchemaTx) Replace(values ...*model.ContentTypeSchema) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -188,7 +188,7 @@ func (a articleModelHasManySchemaTx) Replace(values ...*model.ArticleModelSchema
 	return a.tx.Replace(targetValues...)
 }
 
-func (a articleModelHasManySchemaTx) Delete(values ...*model.ArticleModelSchema) (err error) {
+func (a articleModelHasManySchemaTx) Delete(values ...*model.ContentTypeSchema) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -303,57 +303,57 @@ func (a articleModelDo) Unscoped() *articleModelDo {
 	return a.withDO(a.DO.Unscoped())
 }
 
-func (a articleModelDo) Create(values ...*model.ArticleModel) error {
+func (a articleModelDo) Create(values ...*model.ContentType) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return a.DO.Create(values)
 }
 
-func (a articleModelDo) CreateInBatches(values []*model.ArticleModel, batchSize int) error {
+func (a articleModelDo) CreateInBatches(values []*model.ContentType, batchSize int) error {
 	return a.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (a articleModelDo) Save(values ...*model.ArticleModel) error {
+func (a articleModelDo) Save(values ...*model.ContentType) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return a.DO.Save(values)
 }
 
-func (a articleModelDo) First() (*model.ArticleModel, error) {
+func (a articleModelDo) First() (*model.ContentType, error) {
 	if result, err := a.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleModel), nil
+		return result.(*model.ContentType), nil
 	}
 }
 
-func (a articleModelDo) Take() (*model.ArticleModel, error) {
+func (a articleModelDo) Take() (*model.ContentType, error) {
 	if result, err := a.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleModel), nil
+		return result.(*model.ContentType), nil
 	}
 }
 
-func (a articleModelDo) Last() (*model.ArticleModel, error) {
+func (a articleModelDo) Last() (*model.ContentType, error) {
 	if result, err := a.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleModel), nil
+		return result.(*model.ContentType), nil
 	}
 }
 
-func (a articleModelDo) Find() ([]*model.ArticleModel, error) {
+func (a articleModelDo) Find() ([]*model.ContentType, error) {
 	result, err := a.DO.Find()
-	return result.([]*model.ArticleModel), err
+	return result.([]*model.ContentType), err
 }
 
-func (a articleModelDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ArticleModel, err error) {
-	buf := make([]*model.ArticleModel, 0, batchSize)
+func (a articleModelDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ContentType, err error) {
+	buf := make([]*model.ContentType, 0, batchSize)
 	err = a.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -361,7 +361,7 @@ func (a articleModelDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int
 	return results, err
 }
 
-func (a articleModelDo) FindInBatches(result *[]*model.ArticleModel, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (a articleModelDo) FindInBatches(result *[]*model.ContentType, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return a.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -387,23 +387,23 @@ func (a articleModelDo) Preload(fields ...field.RelationField) *articleModelDo {
 	return &a
 }
 
-func (a articleModelDo) FirstOrInit() (*model.ArticleModel, error) {
+func (a articleModelDo) FirstOrInit() (*model.ContentType, error) {
 	if result, err := a.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleModel), nil
+		return result.(*model.ContentType), nil
 	}
 }
 
-func (a articleModelDo) FirstOrCreate() (*model.ArticleModel, error) {
+func (a articleModelDo) FirstOrCreate() (*model.ContentType, error) {
 	if result, err := a.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleModel), nil
+		return result.(*model.ContentType), nil
 	}
 }
 
-func (a articleModelDo) FindByPage(offset int, limit int) (result []*model.ArticleModel, count int64, err error) {
+func (a articleModelDo) FindByPage(offset int, limit int) (result []*model.ContentType, count int64, err error) {
 	result, err = a.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -432,7 +432,7 @@ func (a articleModelDo) Scan(result interface{}) (err error) {
 	return a.DO.Scan(result)
 }
 
-func (a articleModelDo) Delete(models ...*model.ArticleModel) (result gen.ResultInfo, err error) {
+func (a articleModelDo) Delete(models ...*model.ContentType) (result gen.ResultInfo, err error) {
 	return a.DO.Delete(models)
 }
 

@@ -10,3 +10,14 @@ var (
     DataNotFound     = httpserver.NewError(50001, "数据不存在")
     ValidationFailed = httpserver.NewError(50002, "参数错误")
 )
+
+const (
+    Article = (10 + iota) * 100
+    ContentType
+    Category
+    File
+    Menu
+    Permission
+    Role
+    User
+)

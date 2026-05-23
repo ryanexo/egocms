@@ -21,16 +21,16 @@ func extractKeywords(data []*model.ArticleKeywords) []string {
 
 func ToArticleCreateCommand(user *model.User, data *dto2.ArticleCreateParams) *model.Article {
     result := &model.Article{
-        AuthorID:    user.ID,
-        Url:         data.Url,
-        CategoryID:  data.CategoryID,
-        ModelID:     data.ModelID,
-        Flag:        data.Flag,
-        Title:       data.Title,
-        Description: data.Description,
-        Target:      sql.NullString{String: data.Target, Valid: true},
-        Content:     &model.ArticleContent{Content: data.Content},
-        ModelData:   &model.ArticleModelJsonData{},
+        AuthorID:       user.ID,
+        Url:            data.Url,
+        CategoryID:     data.CategoryID,
+        ContentTypeID:  data.ModelID,
+        Flag:           data.Flag,
+        Title:          data.Title,
+        Description:    data.Description,
+        Target:         sql.NullString{String: data.Target, Valid: true},
+        Content:        &model.ArticleContent{Content: data.Content},
+        ContentEntries: &model.ContentEntries{},
     }
     
     keywordCount := len(data.Keywords)
@@ -62,7 +62,7 @@ func ToArticleDTO(data *model.Article) *dto2.Article {
         Status:      data.Status,
         Target:      data.Target.String,
         Keywords:    extractKeywords(data.Keywords),
-        ModelID:     data.ModelID,
+        ModelID:     data.ContentTypeID,
         PublishAt:   time.Time{},
     }
     
@@ -78,9 +78,9 @@ func ToArticleDTO(data *model.Article) *dto2.Article {
         result.AuthorName = data.Author.Nickname
     }
     
-    if data.ModelSchema != nil {
-        schema := make([]*dto2.ArticleModelSchema, 0, len(data.ModelSchema))
-        for _, modelSchema := range data.ModelSchema {
+    if data.ContentTypeSchemas != nil {
+        schema := make([]*dto2.ArticleModelSchema, 0, len(data.ContentTypeSchemas))
+        for _, modelSchema := range data.ContentTypeSchemas {
             schema = append(schema, &dto2.ArticleModelSchema{
                 FieldKey:  modelSchema.FieldKey,
                 FieldName: modelSchema.FieldName,
@@ -90,8 +90,8 @@ func ToArticleDTO(data *model.Article) *dto2.Article {
         }
     }
     
-    if data.ModelData != nil || data.ModelData.Data != nil {
-        result.ModelData = data.ModelData.Data
+    if data.ContentEntries != nil || data.ContentEntries.Data != nil {
+        result.ModelData = data.ContentEntries.Data
     }
     
     return result

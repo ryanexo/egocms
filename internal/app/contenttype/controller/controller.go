@@ -1,8 +1,8 @@
 package controller
 
 import (
-    `cms/internal/app/articlemodel/internal/dto`
-    articleModelSrv `cms/internal/app/articlemodel/service`
+    `cms/internal/app/contenttype/internal/dto`
+    articleModelSrv `cms/internal/app/contenttype/service`
     `cms/internal/httpserver`
     `cms/internal/middleware/authz`
     `cms/internal/util/httpbinding`

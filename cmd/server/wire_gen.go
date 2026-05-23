@@ -9,9 +9,9 @@ package main
 import (
 	controller5 "cms/internal/app/article"
 	adapter8 "cms/internal/app/article/adapter"
-	adapter9 "cms/internal/app/articlemodel/adapter"
-	controller6 "cms/internal/app/articlemodel/controller"
-	service9 "cms/internal/app/articlemodel/service"
+    adapter9 "cms/internal/app/contenttype/adapter"
+    controller6 "cms/internal/app/contenttype/controller"
+    service9 "cms/internal/app/contenttype/service"
 	service5 `cms/internal/app/category`
 	adapter6 "cms/internal/app/category/adapter"
 	adapter10 "cms/internal/app/file/adapter"

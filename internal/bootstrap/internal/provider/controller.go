@@ -6,7 +6,7 @@ import (
     
     "reflect"
     
-    articleModel "cms/internal/app/articlemodel/controller"
+    articleModel "cms/internal/app/contenttype/controller"
     file "cms/internal/app/file/controller"
     menu "cms/internal/app/menu/controller"
     permission "cms/internal/app/permission/controller"
