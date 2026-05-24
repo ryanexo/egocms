@@ -15,12 +15,12 @@ import (
 type ArticleModelRepo interface {
     persistence.Repository[ArticleModelRepo]
     Create(ctx context.Context, data *model.ContentType) error
-    CreateModelJsonData(ctx context.Context, data *model.ContentEntries) error
+    CreateModelJsonData(ctx context.Context, data *model.ContentTypeEntries) error
     CreateModelTypedData(ctx context.Context, data []*model.ContentFieldValues) error
     UpdateModel(ctx context.Context, data *model.ContentType) error
     ReplaceSchema(ctx context.Context, id datatype.SafeUint64, data []*model.ContentTypeSchema) error
     UpdateModelTypedData(ctx context.Context, data []*model.ContentFieldValues) error
-    UpdateModelJsonData(ctx context.Context, data *model.ContentEntries) error
+    UpdateModelJsonData(ctx context.Context, data *model.ContentTypeEntries) error
     FindByID(ctx context.Context, id datatype.SafeUint64) (*model.ContentType, error)
     FindAllSchema(ctx context.Context, modelID datatype.SafeUint64) ([]*model.ContentTypeSchema, error)
     DeleteModel(ctx context.Context, modelID datatype.SafeUint64) error

@@ -519,11 +519,11 @@ func (a articleHasOneModelData) Unscoped() *articleHasOneModelData {
 
 type articleHasOneModelDataTx struct{ tx *gorm.Association }
 
-func (a articleHasOneModelDataTx) Find() (result *model.ContentEntries, err error) {
+func (a articleHasOneModelDataTx) Find() (result *model.ContentTypeEntries, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a articleHasOneModelDataTx) Append(values ...*model.ContentEntries) (err error) {
+func (a articleHasOneModelDataTx) Append(values ...*model.ContentTypeEntries) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -531,7 +531,7 @@ func (a articleHasOneModelDataTx) Append(values ...*model.ContentEntries) (err e
 	return a.tx.Append(targetValues...)
 }
 
-func (a articleHasOneModelDataTx) Replace(values ...*model.ContentEntries) (err error) {
+func (a articleHasOneModelDataTx) Replace(values ...*model.ContentTypeEntries) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -539,7 +539,7 @@ func (a articleHasOneModelDataTx) Replace(values ...*model.ContentEntries) (err 
 	return a.tx.Replace(targetValues...)
 }
 
-func (a articleHasOneModelDataTx) Delete(values ...*model.ContentEntries) (err error) {
+func (a articleHasOneModelDataTx) Delete(values ...*model.ContentTypeEntries) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -600,11 +600,11 @@ func (a articleHasManyKeywords) Unscoped() *articleHasManyKeywords {
 
 type articleHasManyKeywordsTx struct{ tx *gorm.Association }
 
-func (a articleHasManyKeywordsTx) Find() (result []*model.ArticleKeywords, err error) {
+func (a articleHasManyKeywordsTx) Find() (result []*model.ArticleTag, err error) {
 	return result, a.tx.Find(&result)
 }
 
-func (a articleHasManyKeywordsTx) Append(values ...*model.ArticleKeywords) (err error) {
+func (a articleHasManyKeywordsTx) Append(values ...*model.ArticleTag) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -612,7 +612,7 @@ func (a articleHasManyKeywordsTx) Append(values ...*model.ArticleKeywords) (err 
 	return a.tx.Append(targetValues...)
 }
 
-func (a articleHasManyKeywordsTx) Replace(values ...*model.ArticleKeywords) (err error) {
+func (a articleHasManyKeywordsTx) Replace(values ...*model.ArticleTag) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v
@@ -620,7 +620,7 @@ func (a articleHasManyKeywordsTx) Replace(values ...*model.ArticleKeywords) (err
 	return a.tx.Replace(targetValues...)
 }
 
-func (a articleHasManyKeywordsTx) Delete(values ...*model.ArticleKeywords) (err error) {
+func (a articleHasManyKeywordsTx) Delete(values ...*model.ArticleTag) (err error) {
 	targetValues := make([]interface{}, len(values))
 	for i, v := range values {
 		targetValues[i] = v

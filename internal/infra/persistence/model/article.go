@@ -1,41 +1,73 @@
 package model
 
 import (
-    `database/sql`
     `time`
 )
 
 type Article struct {
     Base
-    Url                string               `gorm:"type:varchar(255);unique"`
-    CategoryID         uint64               `gorm:"index"`
-    Category           *Category            `gorm:"foreignKey:ID;referenceKey:CategoryID"`
-    AuthorID           uint64               `gorm:"index"`
-    Author             *UserProfile         `gorm:"foreignKey:UserID;referenceKey:AuthorID"`
-    Flag               int16                `gorm:"type:smallint;index;not null;default:0"`
-    Title              string               `gorm:"type:varchar(255);not null;default:''"`
-    Description        string               `gorm:"type:varchar(500);not null;default:''"`
-    Status             int8                 `gorm:"type:tinyint;index;not null;default:0"`
-    Target             sql.NullString       `gorm:"type:varchar(500)"`
-    Keywords           []*ArticleKeywords   `gorm:"foreignKey:ArticleID;referenceKey:ID"`
-    Content            *ArticleContent      `gorm:"foreignKey:ArticleID;referenceKey:ID"`
-    ContentTypeID      *uint64              `gorm:"index"`
-    ContentTypeSchemas []*ContentTypeSchema `gorm:"foreignKey:ModelID;referenceKey:ModelID"`
-    ContentEntries     *ContentEntries      `gorm:"foreignKey:ArticleID;referenceKey:ID"`
-    SubmitAt           time.Time            `gorm:"type:datetime"`
-    PublishAt          time.Time            `gorm:"type:datetime"`
-    OfflineAt          time.Time            `gorm:"type:datetime"`
-    RejectAt           time.Time            `gorm:"type:datetime"`
+    
+    ContentTypeID uint64
+    AuthorID      uint64
+    
+    Url     *string
+    Slug    *string
+    Title   string
+    Summary string
+    Status  int8
 }
 
-type ArticleKeywords struct {
+type ArticleVersion struct {
     Base
-    ArticleID uint64 `gorm:"index"`
-    Keyword   string `gorm:"type:varchar(255);not null"`
+    ArticleID uint64
+    VersionNo uint64
+    
+    Title     string
+    Content   string
+    Summary   string
+    ChangeLog string
+    Published bool
 }
 
-type ArticleContent struct {
+type ArticlePublish struct {
     Base
-    ArticleID uint64 `gorm:"index"`
-    Content   string `gorm:"type:text;not null;default:''"`
+    ArticleID uint64
+    VersionID uint64
+    
+    PublishAt   time.Time
+    PublishType int8
+    
+    Remark string
+}
+
+type ArticleCategoryRel struct {
+    Base
+    ArticleID  uint64
+    CategoryID uint64
+}
+
+type ArticleTag struct {
+    Base
+    Name string
+    Slug string
+}
+
+type ArticleTagRel struct {
+    Base
+    ArticleID uint64
+    TagID     uint64
+}
+
+type ArticleComment struct {
+    Base
+    ParentID uint64
+}
+
+type ArticleStat struct {
+    ArticleID    uint64
+    ViewCount    int64
+    LikeCount    int64
+    CommentCount int64
+    Score        float32
+    UpdatedAt    time.Time
 }

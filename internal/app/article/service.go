@@ -35,8 +35,8 @@ func NewArticleService(transactor persistence.Transactor, articleRepo contract2.
 func (s Service) Create(ctx context.Context, user *model.User, params dto.ArticleCreateParams) (uint64, error) {
     artData := assembler.ToArticleCreateCommand(user, &params)
     
-    content := domain2.NewContent(artData.Description, artData.Content.Content)
-    artData.Description = content.Description()
+    content := domain2.NewContent(artData.Summary, artData.Content.Content)
+    artData.Summary = content.Description()
     artData.Content.Content = content.Content()
     
     err := s.transactor.Transaction(func(tx *query.Query) error {
@@ -102,13 +102,13 @@ func (s Service) Update(ctx context.Context, params dto.ArticleUpdateParams) err
     content := domain2.NewContent(params.Description, params.Content)
     
     artUpdateData := &model.Article{
-        Base:        model.Base{ID: params.ID},
-        Url:         params.Url,
-        CategoryID:  params.CategoryID,
-        Flag:        params.Flag,
-        Title:       params.Title,
-        Description: content.Description(),
-        Target:      sql.NullString{String: params.Target, Valid: true},
+        Base:       model.Base{ID: params.ID},
+        Url:        params.Url,
+        CategoryID: params.CategoryID,
+        Flag:       params.Flag,
+        Title:      params.Title,
+        Summary:    content.Description(),
+        Target:     sql.NullString{String: params.Target, Valid: true},
     }
     
     return s.transactor.Transaction(func(tx *query.Query) error {
@@ -191,8 +191,8 @@ func (s Service) ChangeStatus(ctx context.Context, id datatype.SafeUint64, actio
     return err
 }
 
-func (s Service) ToArticleModelData(artID datatype.SafeUint64, modelID datatype.SafeUint64, allSchema []*model.ContentTypeSchema, data map[string]any) (*model.ContentEntries, []*model.ContentFieldValues, error) {
-    jsonResult := &model.ContentEntries{
+func (s Service) ToArticleModelData(artID datatype.SafeUint64, modelID datatype.SafeUint64, allSchema []*model.ContentTypeSchema, data map[string]any) (*model.ContentTypeEntries, []*model.ContentFieldValues, error) {
+    jsonResult := &model.ContentTypeEntries{
         ArticleID:     artID,
         ContentTypeID: modelID,
         Data:          make(map[string]any),

@@ -9,7 +9,7 @@ import (
     `cms/internal/util/types`
 )
 
-func extractKeywords(data []*model.ArticleKeywords) []string {
+func extractKeywords(data []*model.ArticleTag) []string {
     keywords := make([]string, 0, len(data))
     if len(data) > 0 {
         for _, item := range data {
@@ -27,17 +27,17 @@ func ToArticleCreateCommand(user *model.User, data *dto2.ArticleCreateParams) *m
         ContentTypeID:  data.ModelID,
         Flag:           data.Flag,
         Title:          data.Title,
-        Description:    data.Description,
+        Summary:        data.Description,
         Target:         sql.NullString{String: data.Target, Valid: true},
         Content:        &model.ArticleContent{Content: data.Content},
-        ContentEntries: &model.ContentEntries{},
+        ContentEntries: &model.ContentTypeEntries{},
     }
     
     keywordCount := len(data.Keywords)
     if keywordCount > 0 {
-        keywords := make([]*model.ArticleKeywords, 0, len(data.Keywords))
+        keywords := make([]*model.ArticleTag, 0, len(data.Keywords))
         for _, keyword := range data.Keywords {
-            keywords = append(keywords, &model.ArticleKeywords{Keyword: keyword})
+            keywords = append(keywords, &model.ArticleTag{Keyword: keyword})
         }
         result.Keywords = keywords
     }
@@ -57,7 +57,7 @@ func ToArticleDTO(data *model.Article) *dto2.Article {
         AuthorID:    data.AuthorID,
         Flag:        data.Flag,
         Title:       data.Title,
-        Description: data.Description,
+        Description: data.Summary,
         ClickCount:  data.ClickCount,
         Status:      data.Status,
         Target:      data.Target.String,

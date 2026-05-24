@@ -15,6 +15,8 @@ type ContentEntries struct {
     boolValue   *bool
 }
 
+var _ Writable = (*ContentEntries)(nil)
+
 func NewContentEntries(fieldKey string, typ valueType) ContentEntries {
     return ContentEntries{fieldKey: fieldKey, typ: typ.typ}
 }
@@ -41,4 +43,24 @@ func (c ContentEntries) TimeValue() *time.Time {
 
 func (c ContentEntries) BoolValue() *bool {
     return c.boolValue
+}
+
+func (c ContentEntries) WriteString(value *string) error {
+    c.stringValue = value
+    return nil
+}
+
+func (c ContentEntries) WriteNumber(value *decimal.Decimal) error {
+    c.numberValue = value
+    return nil
+}
+
+func (c ContentEntries) WriteBool(value *bool) error {
+    c.boolValue = value
+    return nil
+}
+
+func (c ContentEntries) WriteTime(value *time.Time) error {
+    c.timeValue = value
+    return nil
 }

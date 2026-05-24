@@ -24,10 +24,10 @@ func main() {
     }
     err = db.AutoMigrate(
         &model.Article{},
-        &model.ArticleKeywords{},
+        &model.ArticleTag{},
         &model.ArticleContent{},
         &model.ContentType{},
-        &model.ContentEntries{},
+        &model.ContentTypeEntries{},
         &model.ContentTypeSchema{},
         &model.ContentFieldValues{},
         &model.Category{},

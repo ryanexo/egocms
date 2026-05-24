@@ -29,7 +29,7 @@ func (r *articleModelRepo) CloneWithQuery(q *query.Query) contract.ArticleModelR
 func (r *articleModelRepo) Create(ctx context.Context, data *model.ContentType) error {
     return r.query.ArticleModel.WithContext(ctx).Create(data)
 }
-func (r *articleModelRepo) CreateModelJsonData(ctx context.Context, data *model.ContentEntries) error {
+func (r *articleModelRepo) CreateModelJsonData(ctx context.Context, data *model.ContentTypeEntries) error {
     return r.query.ArticleModelJsonData.WithContext(ctx).Create(data)
 }
 
@@ -71,7 +71,7 @@ func (r *articleModelRepo) UpdateModelTypedData(ctx context.Context, data []*mod
     return nil
 }
 
-func (r *articleModelRepo) UpdateModelJsonData(ctx context.Context, data *model.ContentEntries) error {
+func (r *articleModelRepo) UpdateModelJsonData(ctx context.Context, data *model.ContentTypeEntries) error {
     jsonModel := r.query.ArticleModelJsonData
     _, err := jsonModel.WithContext(ctx).Where(
         jsonModel.ModelID.Eq(data.ContentTypeID.Raw()),

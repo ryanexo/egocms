@@ -14,7 +14,7 @@ type ContentType struct {
     Schema      []*ContentTypeSchema `gorm:"foreignKey:ContentTypeID;referenceKey:ID"`
 }
 
-type ContentEntries struct {
+type ContentTypeEntries struct {
     Base
     ArticleID     uint64 `gorm:"index:idx_artid_ctid,priority:1"`
     ContentTypeID uint64 `gorm:"index:idx_artid_ctid,priority:2"`

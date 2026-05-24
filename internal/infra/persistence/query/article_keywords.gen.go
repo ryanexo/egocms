@@ -23,7 +23,7 @@ func newArticleKeywords(db *gorm.DB, opts ...gen.DOOption) articleKeywords {
 	_articleKeywords := articleKeywords{}
 
 	_articleKeywords.articleKeywordsDo.UseDB(db, opts...)
-	_articleKeywords.articleKeywordsDo.UseModel(&model.ArticleKeywords{})
+	_articleKeywords.articleKeywordsDo.UseModel(&model.ArticleTag{})
 
 	tableName := _articleKeywords.articleKeywordsDo.TableName()
 	_articleKeywords.ALL = field.NewAsterisk(tableName)
@@ -212,57 +212,57 @@ func (a articleKeywordsDo) Unscoped() *articleKeywordsDo {
 	return a.withDO(a.DO.Unscoped())
 }
 
-func (a articleKeywordsDo) Create(values ...*model.ArticleKeywords) error {
+func (a articleKeywordsDo) Create(values ...*model.ArticleTag) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return a.DO.Create(values)
 }
 
-func (a articleKeywordsDo) CreateInBatches(values []*model.ArticleKeywords, batchSize int) error {
+func (a articleKeywordsDo) CreateInBatches(values []*model.ArticleTag, batchSize int) error {
 	return a.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (a articleKeywordsDo) Save(values ...*model.ArticleKeywords) error {
+func (a articleKeywordsDo) Save(values ...*model.ArticleTag) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return a.DO.Save(values)
 }
 
-func (a articleKeywordsDo) First() (*model.ArticleKeywords, error) {
+func (a articleKeywordsDo) First() (*model.ArticleTag, error) {
 	if result, err := a.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleKeywords), nil
+		return result.(*model.ArticleTag), nil
 	}
 }
 
-func (a articleKeywordsDo) Take() (*model.ArticleKeywords, error) {
+func (a articleKeywordsDo) Take() (*model.ArticleTag, error) {
 	if result, err := a.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleKeywords), nil
+		return result.(*model.ArticleTag), nil
 	}
 }
 
-func (a articleKeywordsDo) Last() (*model.ArticleKeywords, error) {
+func (a articleKeywordsDo) Last() (*model.ArticleTag, error) {
 	if result, err := a.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleKeywords), nil
+		return result.(*model.ArticleTag), nil
 	}
 }
 
-func (a articleKeywordsDo) Find() ([]*model.ArticleKeywords, error) {
+func (a articleKeywordsDo) Find() ([]*model.ArticleTag, error) {
 	result, err := a.DO.Find()
-	return result.([]*model.ArticleKeywords), err
+	return result.([]*model.ArticleTag), err
 }
 
-func (a articleKeywordsDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ArticleKeywords, err error) {
-	buf := make([]*model.ArticleKeywords, 0, batchSize)
+func (a articleKeywordsDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.ArticleTag, err error) {
+	buf := make([]*model.ArticleTag, 0, batchSize)
 	err = a.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -270,7 +270,7 @@ func (a articleKeywordsDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch 
 	return results, err
 }
 
-func (a articleKeywordsDo) FindInBatches(result *[]*model.ArticleKeywords, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (a articleKeywordsDo) FindInBatches(result *[]*model.ArticleTag, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return a.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -296,23 +296,23 @@ func (a articleKeywordsDo) Preload(fields ...field.RelationField) *articleKeywor
 	return &a
 }
 
-func (a articleKeywordsDo) FirstOrInit() (*model.ArticleKeywords, error) {
+func (a articleKeywordsDo) FirstOrInit() (*model.ArticleTag, error) {
 	if result, err := a.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleKeywords), nil
+		return result.(*model.ArticleTag), nil
 	}
 }
 
-func (a articleKeywordsDo) FirstOrCreate() (*model.ArticleKeywords, error) {
+func (a articleKeywordsDo) FirstOrCreate() (*model.ArticleTag, error) {
 	if result, err := a.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.ArticleKeywords), nil
+		return result.(*model.ArticleTag), nil
 	}
 }
 
-func (a articleKeywordsDo) FindByPage(offset int, limit int) (result []*model.ArticleKeywords, count int64, err error) {
+func (a articleKeywordsDo) FindByPage(offset int, limit int) (result []*model.ArticleTag, count int64, err error) {
 	result, err = a.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -341,7 +341,7 @@ func (a articleKeywordsDo) Scan(result interface{}) (err error) {
 	return a.DO.Scan(result)
 }
 
-func (a articleKeywordsDo) Delete(models ...*model.ArticleKeywords) (result gen.ResultInfo, err error) {
+func (a articleKeywordsDo) Delete(models ...*model.ArticleTag) (result gen.ResultInfo, err error) {
 	return a.DO.Delete(models)
 }
 
