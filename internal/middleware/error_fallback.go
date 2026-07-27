@@ -3,9 +3,8 @@ package middleware
 import (
     `errors`
     
-    `cms/internal/erroz`
-    `cms/internal/httpserver`
-    `cms/internal/httpserver/validator`
+    `cms/internal/httpx`
+    `cms/internal/httpx/validator`
     
     `github.com/gin-gonic/gin`
     `gorm.io/gorm`
@@ -22,7 +21,7 @@ func NewErrorFallback() ErrorFallback {
             return
         }
         
-        var response httpserver.Error
+        var response httpx.Error
         var validationError validator.ValidationErrors
         
         switch {
@@ -30,13 +29,13 @@ func NewErrorFallback() ErrorFallback {
             response.Abort(context)
         
         case errors.As(err, &validationError):
-            erroz.ValidationFailed.Data(validationError).Abort(context)
+            httpx.ValidationFailed.Data(validationError).Abort(context)
         
         case errors.Is(err, gorm.ErrRecordNotFound):
-            erroz.DataNotFound.Abort(context)
+            httpx.DataNotFound.Abort(context)
         
         default:
-            erroz.Unknown.Abort(context)
+            httpx.Unknown.Abort(context)
         }
     }
 }

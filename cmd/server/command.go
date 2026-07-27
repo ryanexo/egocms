@@ -5,8 +5,8 @@ import (
     "os"
     "path"
     
-    `cms/internal/app/version`
     "cms/internal/config"
+    `cms/internal/modules/version`
     
     "github.com/bytedance/sonic"
     "github.com/spf13/pflag"

@@ -1,7 +1,7 @@
 package httpbinding
 
 import (
-    `cms/internal/erroz`
+    `cms/internal/httpx`
     
     `github.com/gin-gonic/gin`
 )
@@ -16,9 +16,9 @@ func BindJSON[T any](ctx *gin.Context, fn func(params T) (any, error)) error {
     if err != nil {
         return err
     } else if result == nil {
-        erroz.OK.JSON(ctx)
+        httpx.OK.JSON(ctx)
     } else {
-        erroz.OK.Data(result).JSON(ctx)
+        httpx.OK.Data(result).JSON(ctx)
     }
     return nil
 }

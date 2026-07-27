@@ -2,7 +2,7 @@ package bootstrap
 
 import (
     `cms/internal/bootstrap/internal/provider`
-    `cms/internal/httpserver`
+    `cms/internal/httpx`
     
     `github.com/gin-gonic/gin`
     `github.com/google/wire`
@@ -20,9 +20,9 @@ var BootstrapProvider = wire.NewSet(
 )
 
 type Bootstrap struct {
-    http  *httpserver.Launcher
-    mw    httpserver.Middleware
-    route httpserver.Route
+    http  *httpx.Launcher
+    mw    httpx.Middleware
+    route httpx.Route
 }
 
 func (s Bootstrap) Start() error {
@@ -32,6 +32,6 @@ func (s Bootstrap) Start() error {
     return s.http.Run(gin.Mode() == gin.DebugMode)
 }
 
-func New(http *httpserver.Launcher, mw httpserver.Middleware, route httpserver.Route) Bootstrap {
+func New(http *httpx.Launcher, mw httpx.Middleware, route httpx.Route) Bootstrap {
     return Bootstrap{http: http, mw: mw, route: route}
 }

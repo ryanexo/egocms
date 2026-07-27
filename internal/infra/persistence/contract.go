@@ -1,14 +1,15 @@
 package persistence
 
 import (
-	"cms/internal/infra/persistence/query"
-	"database/sql"
+    "database/sql"
+    
+    `cms/internal/infra/persistence/gorm/gquery`
 )
 
 type Transactor interface {
-	Transaction(fc func(tx *query.Query) error, opts ...*sql.TxOptions) error
+    Transaction(fc func(tx *gquery.Query) error, opts ...*sql.TxOptions) error
 }
 
 type Repository[T any] interface {
-	CloneWithQuery(*query.Query) T
+    CloneWithQuery(*gquery.Query) T
 }

@@ -5,7 +5,6 @@ import (
     
     `cms/internal/config`
     `cms/internal/infra/db`
-    `cms/internal/infra/persistence/model`
     
     `gorm.io/gorm`
 )
@@ -22,27 +21,7 @@ func main() {
     if cfg.DB.Type == "mysql" {
         db.Set("gorm:table_options", "ENGINE=InnoDB")
     }
-    err = db.AutoMigrate(
-        &model.Article{},
-        &model.ArticleTag{},
-        &model.ArticleContent{},
-        &model.ContentType{},
-        &model.ContentTypeEntries{},
-        &model.ContentTypeSchema{},
-        &model.ContentFieldValues{},
-        &model.Category{},
-        &model.CategorySeo{},
-        &model.CategoryContext{},
-        &model.Setting{},
-        &model.Menu{},
-        &model.MenuContext{},
-        &model.User{},
-        &model.UserProfile{},
-        &model.Role{},
-        &model.TokenBlacklist{},
-        &model.File{},
-        &model.Permission{},
-    )
+    err = db.AutoMigrate()
     if err != nil {
         panic(err)
     }

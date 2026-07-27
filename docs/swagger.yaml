@@ -1435,7 +1435,7 @@ paths:
       - application/json
       parameters:
       - description: 文件ID
-        in: query
+        in: gquery
         name: id
         required: true
         type: string

@@ -1,10 +1,10 @@
 package authz
 
 import (
-    `cms/internal/httpserver`
+    `cms/internal/httpx`
 )
 
 var (
-    ErrAuthorized   = httpserver.NewError(400001, "未授权")
-    ErrAccessDenied = httpserver.NewError(400002, "无权访问")
+    ErrAuthorized   = httpx.NewError(400001, "未授权")
+    ErrAccessDenied = httpx.NewError(400002, "无权访问")
 )

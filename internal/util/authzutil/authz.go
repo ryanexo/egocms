@@ -3,7 +3,7 @@ package authzutil
 import (
     `context`
     
-    `cms/internal/infra/persistence/model`
+    `cms/internal/infra/persistence/gorm/model`
     `cms/internal/middleware/authz`
 )
 

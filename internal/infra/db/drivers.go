@@ -5,13 +5,11 @@ import (
     
     mysqlDriver "github.com/go-sql-driver/mysql"
     "gorm.io/driver/mysql"
-    "gorm.io/driver/sqlite"
     "gorm.io/gorm"
 )
 
 var drivers = map[string]func(c DBConfig) (gorm.Dialector, error){
-    "mysql":  mysqlDriverBuilder,
-    "sqlite": sqliteDriverBuilder,
+    "mysql": mysqlDriverBuilder,
 }
 
 func GetDriver(dbConfig DBConfig) (gorm.Dialector, error) {
@@ -35,8 +33,4 @@ func mysqlDriverBuilder(dbConfig DBConfig) (gorm.Dialector, error) {
             },
         },
     }), nil
-}
-
-func sqliteDriverBuilder(dbConfig DBConfig) (gorm.Dialector, error) {
-    return sqlite.Open(fmt.Sprintf("%s?journal_mode=WAL", dbConfig.Host)), nil
 }

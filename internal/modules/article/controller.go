@@ -1,0 +1,254 @@
+package article
+
+import (
+    "cms/internal/httpx"
+    "cms/internal/infra/casbin"
+    "cms/internal/middleware/authz"
+    `cms/internal/modules/article/domain`
+    "cms/internal/modules/article/internal/dto"
+    permissionSrv "cms/internal/modules/permission/service"
+    "cms/internal/util/authzutil"
+    "cms/internal/util/httpbinding"
+    "cms/internal/util/types"
+    
+    "github.com/gin-gonic/gin"
+)
+
+type ArticleController struct {
+    articleSrv *Service
+    permSrv    *permissionSrv.PermissionService
+    auth       *authz.Factory
+    casbin     *casbin.RoleCasbin
+}
+
+func NewArticleController(
+    articleSrv *Service,
+    permSrv *permissionSrv.PermissionService,
+    auth *authz.Factory,
+    casbin *casbin.RoleCasbin,
+) *ArticleController {
+    return &ArticleController{
+        articleSrv: articleSrv,
+        permSrv:    permSrv,
+        auth:       auth,
+        casbin:     casbin,
+    }
+}
+
+func (s ArticleController) Setup(router httpx.Router) {
+    acl := s.auth.AccessControl("article")
+    
+    g := router.Group("/article", acl.Middleware())
+    g.POST("/create", httpx.Handler(s.Create))
+    g.POST("/update", httpx.Handler(s.Update))
+    g.POST("/delete", httpx.Handler(s.Delete))
+    g.POST("/detail", httpx.Handler(s.Detail))
+    g.POST("/submit", httpx.Handler(s.Submit))
+    g.POST("/publish", httpx.Handler(s.Publish))
+    g.POST("/reject", httpx.Handler(s.Reject))
+    g.POST("/republish", httpx.Handler(s.Republish))
+    
+    acl.WithRouterOption(
+        g,
+        authz.WithRouterPermission("/create", "create"),
+        authz.WithRouterPermission("/update", "update"),
+        authz.WithRouterPermission("/delete", "delete"),
+        authz.WithRouterPermission("/detail", "read"),
+        authz.WithRouterPermission("/submit", "submit"),
+        authz.WithRouterPermission("/publish", "publish"),
+        authz.WithRouterPermission("/reject", "reject"),
+        authz.WithRouterPermission("/republish", "republish"),
+    )
+}
+
+// Create
+// @x-apifox-folder "文章"
+// @Security ApiKeyAuth
+// @Summary 创建文章
+// @Tags    文章
+// @Accept  json
+// @Produce json
+// @Param   body body dto.ArticleCreateParams true "请求参数"
+// @Success 200 {object} types.ApiCreateResult
+// @Router  /article/create [post]
+func (s ArticleController) Create(ctx *gin.Context) error {
+    return httpbinding.BindJSON[dto.ArticleCreateParams](ctx, func(params dto.ArticleCreateParams) (any, error) {
+        u, err := authzutil.GetAuthorizedUser(ctx)
+        if err != nil {
+            return nil, err
+        }
+        return s.articleSrv.Create(ctx, u, params)
+    })
+}
+
+// Update
+// @x-apifox-folder "文章"
+// @Security ApiKeyAuth
+// @Summary 更新文章
+// @Tags    文章
+// @Accept  json
+// @Produce json
+// @Param   body body dto.ArticleUpdateParams true "请求参数"
+// @Success 200 {object} types.ApiEmptyResult
+// @Router  /article/update [post]
+func (s ArticleController) Update(ctx *gin.Context) error {
+    return httpbinding.BindJSON[dto.ArticleUpdateParams](ctx, func(params dto.ArticleUpdateParams) (any, error) {
+        return nil, s.articleSrv.Update(ctx, params)
+    })
+}
+
+func (s ArticleController) createActor(ctx *gin.Context) (domain.Actor, error) {
+    u, err := authz.GetCurrentUser(ctx)
+    if err != nil {
+        return domain.Actor{}, err
+    }
+    canPublishDirect, err := s.casbin.Enforce(u.Role(), "article", "publish-direct")
+    if err != nil {
+        return domain.Actor{}, err
+    }
+    return domain.Actor{
+        CanPublishDirect: canPublishDirect,
+    }, nil
+}
+
+// Submit
+// @x-apifox-folder "文章"
+// @Security ApiKeyAuth
+// @Summary 提交文章
+// @Tags    文章
+// @Accept  json
+// @Produce json
+// @Param   body body types.ResourceID true "请求参数"
+// @Success 200 {object} types.ApiEmptyResult
+// @Router  /article/submit [post]
+func (s ArticleController) Submit(ctx *gin.Context) error {
+    return httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+        actor, err := s.createActor(ctx)
+        if err != nil {
+            return nil, err
+        }
+        return nil, s.articleSrv.ChangeStatus(ctx, params.ID, func(status *domain.Status) error {
+            return status.WithActor(actor).Submit()
+        })
+    })
+}
+
+// Publish
+// @x-apifox-folder "文章"
+// @Security ApiKeyAuth
+// @Summary 发布文章
+// @Tags    文章
+// @Accept  json
+// @Produce json
+// @Param   body body types.ResourceID true "请求参数"
+// @Success 200 {object} types.ApiEmptyResult
+// @Router  /article/publish [post]
+func (s ArticleController) Publish(ctx *gin.Context) error {
+    return httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+        actor, err := s.createActor(ctx)
+        if err != nil {
+            return nil, err
+        }
+        return nil, s.articleSrv.ChangeStatus(ctx, params.ID, func(status *domain.Status) error {
+            return status.WithActor(actor).Publish()
+        })
+    })
+}
+
+// Offline
+// @x-apifox-folder "文章"
+// @Security ApiKeyAuth
+// @Summary 下线文章
+// @Tags    文章
+// @Accept  json
+// @Produce json
+// @Param   body body types.ResourceID true "请求参数"
+// @Success 200 {object} types.ApiEmptyResult
+// @Router  /article/offline [post]
+func (s ArticleController) Offline(ctx *gin.Context) error {
+    return httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+        actor, err := s.createActor(ctx)
+        if err != nil {
+            return nil, err
+        }
+        return nil, s.articleSrv.ChangeStatus(ctx, params.ID, func(status *domain.Status) error {
+            return status.WithActor(actor).Offline()
+        })
+    })
+}
+
+// Reject
+// @x-apifox-folder "文章"
+// @Security ApiKeyAuth
+// @Summary 拒审文章
+// @Tags    文章
+// @Accept  json
+// @Produce json
+// @Param   body body types.ResourceID true "请求参数"
+// @Success 200 {object} types.ApiEmptyResult
+// @Router  /article/reject [post]
+func (s ArticleController) Reject(ctx *gin.Context) error {
+    return httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+        actor, err := s.createActor(ctx)
+        if err != nil {
+            return nil, err
+        }
+        return nil, s.articleSrv.ChangeStatus(ctx, params.ID, func(status *domain.Status) error {
+            return status.WithActor(actor).Reject()
+        })
+    })
+}
+
+// Republish
+// @x-apifox-folder "文章"
+// @Security ApiKeyAuth
+// @Summary 重新提交审核文章
+// @Tags    文章
+// @Accept  json
+// @Produce json
+// @Param   body body types.ResourceID true "请求参数"
+// @Success 200 {object} types.ApiEmptyResult
+// @Router  /article/republish [post]
+func (s ArticleController) Republish(ctx *gin.Context) error {
+    return httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+        actor, err := s.createActor(ctx)
+        if err != nil {
+            return nil, err
+        }
+        return nil, s.articleSrv.ChangeStatus(ctx, params.ID, func(status *domain.Status) error {
+            return status.WithActor(actor).Republish()
+        })
+    })
+}
+
+// Delete
+// @x-apifox-folder "文章"
+// @Security ApiKeyAuth
+// @Summary 删除文章
+// @Tags    文章
+// @Accept  json
+// @Produce json
+// @Param   body body types.ResourceID true "请求参数"
+// @Success 200 {object} types.ApiEmptyResult
+// @Router  /article/delete [post]
+func (s ArticleController) Delete(ctx *gin.Context) error {
+    return httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+        return nil, s.articleSrv.Delete(ctx, params.ID)
+    })
+}
+
+// Detail
+// @x-apifox-folder "文章"
+// @Security ApiKeyAuth
+// @Summary 查看文章
+// @Tags    文章
+// @Accept  json
+// @Produce json
+// @Param   body body types.ResourceID true "请求参数"
+// @Success 200 {object} dto.ApiArticle
+// @Router  /article/detail [post]
+func (s ArticleController) Detail(ctx *gin.Context) error {
+    return httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+        return s.articleSrv.FindByID(ctx, params.ID)
+    })
+}

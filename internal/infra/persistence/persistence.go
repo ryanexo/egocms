@@ -1,15 +1,15 @@
 package persistence
 
 import (
-    `cms/internal/infra/persistence/query`
-
+    `cms/internal/infra/persistence/gorm/gquery`
+    
     `gorm.io/gorm`
 )
 
-func NewQuery(db *gorm.DB) *query.Query {
-    return query.Use(db)
+func NewQuery(db *gorm.DB) *gquery.Query {
+    return gquery.Use(db)
 }
 
-func NewTransactor(q *query.Query) Transactor {
+func NewTransactor(q *gquery.Query) Transactor {
     return q
 }

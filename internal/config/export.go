@@ -2,7 +2,7 @@ package config
 
 import (
     `cms/internal/config/token`
-    `cms/internal/httpserver`
+    `cms/internal/httpx`
     `cms/internal/infra/db`
     `cms/internal/infra/file`
     `cms/internal/infra/logger`
@@ -24,7 +24,7 @@ func GetLoggerConfig(cfg *Config) logger.Config {
     return cfg.Log
 }
 
-func GetServerConfig(cfg *Config) httpserver.Config {
+func GetServerConfig(cfg *Config) httpx.Config {
     return cfg.Server
 }
 

@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>用户 / 角色 / 菜单 / 权限 / 接口 / Casbin 逻辑链</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --text: #17202a;
+      --muted: #5f6b7a;
+      --line: #d9dee7;
+      --primary: #1769aa;
+      --primary-soft: #e8f2fb;
+      --accent: #2f7d57;
+      --accent-soft: #e7f4ee;
+      --warn: #9a5b00;
+      --warn-soft: #fff2d8;
+      --danger: #b3261e;
+      --danger-soft: #fdecea;
+      --code-bg: #101820;
+      --code-text: #eaf2f8;
+      --shadow: 0 12px 32px rgba(21, 32, 43, 0.08);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 22px;
+      overflow: auto;
+      color: #eef5fb;
+      background: #142536;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .brand {
+      margin-bottom: 28px;
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .brand span {
+      display: block;
+      margin-top: 6px;
+      color: #aebdcb;
+      font-size: 13px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav a {
+      display: block;
+      padding: 9px 10px;
+      color: #dce8f2;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .nav a:hover,
+    .nav a.active {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .main {
+      min-width: 0;
+    }
+
+    .hero {
+      padding: 42px min(5vw, 64px) 28px;
+      background: linear-gradient(135deg, #ffffff 0%, #edf5f7 100%);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero h1 {
+      max-width: 880px;
+      margin: 0;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 840px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .content {
+      max-width: 1120px;
+      padding: 28px min(5vw, 64px) 72px;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding: 14px 0 18px;
+      background: rgba(246, 247, 249, 0.94);
+      backdrop-filter: blur(8px);
+    }
+
+    .search {
+      flex: 1 1 280px;
+      min-width: 220px;
+      height: 40px;
+      padding: 0 12px;
+      color: var(--text);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      outline: none;
+    }
+
+    .search:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.14);
+    }
+
+    .btn {
+      height: 40px;
+      padding: 0 13px;
+      color: var(--text);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .section {
+      margin-top: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      width: 100%;
+      padding: 18px 20px;
+      color: var(--text);
+      text-align: left;
+      background: var(--panel);
+      border: 0;
+      cursor: pointer;
+    }
+
+    .section-header:hover {
+      background: #f9fbfd;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.3;
+    }
+
+    .section-header span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .chevron {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      color: var(--primary);
+      background: var(--primary-soft);
+      border-radius: 6px;
+      transition: transform 160ms ease;
+    }
+
+    .section.collapsed .chevron {
+      transform: rotate(-90deg);
+    }
+
+    .section-body {
+      padding: 0 20px 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .section.collapsed .section-body {
+      display: none;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .chain {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      gap: 10px;
+      margin: 22px 0;
+    }
+
+    .node {
+      position: relative;
+      min-height: 104px;
+      padding: 14px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .node:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      width: 10px;
+      border-top: 2px solid var(--primary);
+    }
+
+    .node strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--primary);
+      font-size: 15px;
+    }
+
+    .node span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .info {
+      padding: 15px;
+      background: #fbfcfd;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .info h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .info p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 8px;
+      margin-right: 6px;
+      color: var(--primary);
+      background: var(--primary-soft);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge.green {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .badge.warn {
+      color: var(--warn);
+      background: var(--warn-soft);
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-top: 14px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+      background: #ffffff;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      color: #344253;
+      background: #f3f6f9;
+      font-weight: 700;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    code {
+      padding: 2px 5px;
+      color: #17415f;
+      background: #edf3f8;
+      border-radius: 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+    }
+
+    pre {
+      margin: 14px 0 0;
+      padding: 16px;
+      color: var(--code-text);
+      background: var(--code-bg);
+      border-radius: 8px;
+      overflow: auto;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    pre code {
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      border-radius: 0;
+    }
+
+    .tabs {
+      margin-top: 16px;
+    }
+
+    .tab-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tab-button {
+      padding: 8px 11px;
+      color: var(--muted);
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .tab-button.active {
+      color: #ffffff;
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+      counter-reset: step;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      gap: 12px;
+      padding: 14px;
+      background: #fbfcfd;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      background: var(--accent);
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .callout {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .callout.good {
+      border-color: #b7dcc9;
+      background: var(--accent-soft);
+    }
+
+    .callout.warn {
+      border-color: #f0cf8a;
+      background: var(--warn-soft);
+    }
+
+    .callout.danger {
+      border-color: #f2b8b5;
+      background: var(--danger-soft);
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .highlight {
+      outline: 3px solid rgba(23, 105, 170, 0.18);
+      background: #fffef7;
+    }
+
+    .hidden-by-search {
+      display: none;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+
+      .nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .chain {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .node:not(:last-child)::after {
+        display: none;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .hero,
+      .content {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .nav {
+        grid-template-columns: 1fr;
+      }
+
+      .chain {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        position: relative;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <strong>RBAC + Casbin</strong>
+        <span>用户 / 角色 / 菜单 / 权限 / 接口逻辑链</span>
+      </div>
+      <nav class="nav" aria-label="页面导航">
+        <a href="#overview">总览</a>
+        <a href="#tables">表职责</a>
+        <a href="#casbin">Casbin 策略</a>
+        <a href="#menu">菜单展示</a>
+        <a href="#api">接口鉴权</a>
+        <a href="#grant">角色授权</a>
+        <a href="#inherit">角色继承</a>
+        <a href="#summary">落地模型</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="hero">
+        <h1>把用户、角色、菜单、权限、接口串成一条可执行的业务链</h1>
+        <p>
+          数据库维护“有哪些东西可以配置”，Casbin 维护“谁实际拥有权限”。
+          前端菜单展示和后端接口鉴权都走 Casbin，只是资源类型不同。
+        </p>
+      </header>
+
+      <div class="content">
+        <div class="toolbar">
+          <input class="search" id="searchInput" type="search" placeholder="搜索：菜单、权限、Casbin、接口、角色继承...">
+          <button class="btn" id="expandAll" type="button">展开全部</button>
+          <button class="btn" id="collapseAll" type="button">折叠全部</button>
+        </div>
+
+        <section class="section" id="overview" data-title="总览 逻辑链 用户 角色 菜单 权限 接口">
+          <button class="section-header" type="button" aria-expanded="true">
+            <span class="chevron">⌄</span>
+            <span>
+              <h2>1. 总览逻辑链</h2>
+              <span>用户绑定角色，角色通过 Casbin 获得菜单和接口权限。</span>
+            </span>
+          </button>
+          <div class="section-body">
+            <p class="lead">建议把系统拆成两层：业务表负责配置资料，Casbin 负责运行时授权事实。</p>
+            <div class="chain" aria-label="权限逻辑链">
+              <div class="node"><strong>用户 user</strong><span>登录主体，最终发起菜单查询和接口请求。</span></div>
+              <div class="node"><strong>角色 role</strong><span>用户的权限集合载体，可继承其他角色。</span></div>
+              <div class="node"><strong>菜单 menu</strong><span>控制页面、目录、前端路由是否展示。</span></div>
+              <div class="node"><strong>权限 permission</strong><span>系统中已创建好的接口权限点目录。</span></div>
+              <div class="node"><strong>接口 API</strong><span>由 resource + action 描述，例如路径 + 方法。</span></div>
+              <div class="node"><strong>Casbin</strong><span>运行时唯一鉴权来源，返回允许或拒绝。</span></div>
+            </div>
+            <pre><code>用户 user
+  -> 绑定角色 role
+  -> 角色通过 Casbin 继承其他角色
+  -> 角色被授予菜单访问权
+  -> 角色被授予菜单下的接口权限
+  -> 前端按菜单授权展示页面
+  -> 后端按接口权限拦截请求</code></pre>
+            <div class="callout good">
+              <strong>关键原则</strong>
+              数据库不要承担运行时鉴权查询。运行时判断能不能看菜单、能不能调接口，只查 Casbin。
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="tables" data-title="表职责 数据库 user role menu permission menu_context">
+          <button class="section-header" type="button" aria-expanded="true">
+            <span class="chevron">⌄</span>
+            <span>
+              <h2>2. 现有 SQL 表职责</h2>
+              <span>根据 install.sql 中已有结构划分职责边界。</span>
+            </span>
+          </button>
+          <div class="section-body">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>表 / 字段</th>
+                    <th>职责</th>
+                    <th>运行时是否直接鉴权</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>user</code></td>
+                    <td>账号资料。<code>role_id</code> 可作为用户主角色记录，但需要同步到 Casbin 的 <code>g</code> 关系。</td>
+                    <td>否</td>
+                  </tr>
+                  <tr>
+                    <td><code>role</code></td>
+                    <td>角色基础信息，例如名称、描述。</td>
+                    <td>否</td>
+                  </tr>
+                  <tr>
+                    <td><code>menu</code></td>
+                    <td>菜单、目录、页面、路由、图标、排序、是否显示等元数据。</td>
+                    <td>否，菜单是否可见查 Casbin</td>
+                  </tr>
+                  <tr>
+                    <td><code>menu_context</code></td>
+                    <td>菜单树闭包表，便于查祖先、子孙、补齐父级目录。</td>
+                    <td>否</td>
+                  </tr>
+                  <tr>
+                    <td><code>permission</code></td>
+                    <td>已创建好的权限点目录。通过 <code>menu_id</code> 归属到页面，通过 <code>resource + action</code> 对应接口。</td>
+                    <td>否，接口是否允许查 Casbin</td>
+                  </tr>
+                  <tr>
+                    <td><code>casbin_rule</code></td>
+                    <td>Casbin adapter 自动创建。保存用户-角色、角色继承、角色-菜单、角色-接口授权策略。</td>
+                    <td>是</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="callout warn">
+              <strong>permission 表的定位</strong>
+              它是“可授权权限点目录”，不是运行时鉴权表。角色授权时只能从这里选择已创建好的权限。
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="casbin" data-title="Casbin 策略 p g 用户角色 菜单权限 接口权限">
+          <button class="section-header" type="button" aria-expanded="true">
+            <span class="chevron">⌄</span>
+            <span>
+              <h2>3. Casbin 中承载的关系</h2>
+              <span>建议把授权事实统一写入 Casbin。</span>
+            </span>
+          </button>
+          <div class="section-body">
+            <div class="tabs">
+              <div class="tab-buttons" role="tablist">
+                <button class="tab-button active" type="button" data-tab="tab-user-role">用户属于角色</button>
+                <button class="tab-button" type="button" data-tab="tab-role-inherit">角色继承</button>
+                <button class="tab-button" type="button" data-tab="tab-menu-policy">菜单访问</button>
+                <button class="tab-button" type="button" data-tab="tab-api-policy">接口访问</button>
+              </div>
+              <div class="tab-panel active" id="tab-user-role">
+                <p>用户绑定角色时，同步写入 Casbin 的 <code>g</code> 规则。</p>
+                <pre><code>g, user:1, role:admin</code></pre>
+              </div>
+              <div class="tab-panel" id="tab-role-inherit">
+                <p>角色继承关系也使用 <code>g</code>。Casbin 会自动处理继承后的权限。</p>
+                <pre><code>g, role:editor, role:viewer
+g, role:admin, role:editor</code></pre>
+              </div>
+              <div class="tab-panel" id="tab-menu-policy">
+                <p>菜单访问权建议使用独立资源命名，例如 <code>menu:{id}</code>，动作固定为 <code>view</code>。</p>
+                <pre><code>p, role:editor, menu:12, view</code></pre>
+              </div>
+              <div class="tab-panel" id="tab-api-policy">
+                <p>接口权限可以直接使用 HTTP 路径和方法，便于中间件拦截。</p>
+                <pre><code>p, role:editor, /api/articles, GET
+p, role:editor, /api/articles, POST
+p, role:editor, /api/articles/:id, PUT
+p, role:editor, /api/articles/:id, DELETE</code></pre>
+              </div>
+            </div>
+            <div class="callout good">
+              <strong>统一模型</strong>
+              菜单和接口都可以抽象成 <code>sub, obj, act</code>：用户或角色是 <code>sub</code>，资源是 <code>obj</code>，动作是 <code>act</code>。
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="menu" data-title="菜单展示 已授权菜单 前端展示 menu view">
+          <button class="section-header" type="button" aria-expanded="true">
+            <span class="chevron">⌄</span>
+            <span>
+              <h2>4. 给用户展示已授权菜单</h2>
+              <span>菜单是否展示也走 Casbin，而不是直接按表关系判断。</span>
+            </span>
+          </button>
+          <div class="section-body">
+            <div class="steps">
+              <div class="step"><div><strong>查询可见菜单</strong><span>从 <code>menu</code> 查询 <code>visible = 1</code> 的菜单元数据。</span></div></div>
+              <div class="step"><div><strong>查询 Casbin 授权</strong><span>获取当前用户或其角色拥有的 <code>menu:{id}, view</code> 策略。</span></div></div>
+              <div class="step"><div><strong>过滤菜单</strong><span>只保留用户有 <code>view</code> 权限的菜单。</span></div></div>
+              <div class="step"><div><strong>补齐父级</strong><span>如果子菜单有权限但父目录未直接授权，可用 <code>menu_context</code> 补齐父级容器。</span></div></div>
+              <div class="step"><div><strong>组装树返回</strong><span>按 <code>parent_id</code> 或闭包表组装成前端菜单树。</span></div></div>
+            </div>
+            <pre><code>Enforce(user:1, "menu:12", "view") == true
+  -> 展示菜单 12
+
+Enforce(user:1, "menu:13", "view") == false
+  -> 不展示菜单 13</code></pre>
+          </div>
+        </section>
+
+        <section class="section" id="api" data-title="接口鉴权 增删改查 403 resource action">
+          <button class="section-header" type="button" aria-expanded="true">
+            <span class="chevron">⌄</span>
+            <span>
+              <h2>5. 菜单页面中的增删改查接口鉴权</h2>
+              <span>能看到菜单不等于能调用页面中的接口。</span>
+            </span>
+          </button>
+          <div class="section-body">
+            <p>每个受保护接口进入业务 handler 前，由中间件执行 Casbin 判断。</p>
+            <pre><code>sub = "user:当前用户ID"
+obj = 当前请求资源，例如 "/api/articles"
+act = 当前请求动作，例如 "GET"
+
+allowed = casbin.Enforce(sub, obj, act)
+
+allowed == false -> 返回 403
+allowed == true  -> 继续执行业务逻辑</code></pre>
+            <div class="grid">
+              <div class="info">
+                <h3><span class="badge">菜单权限</span>页面入口</h3>
+                <p><code>p, role:editor, menu:12, view</code> 只说明该角色可以看到或进入菜单页面。</p>
+              </div>
+              <div class="info">
+                <h3><span class="badge green">接口权限</span>增删改查</h3>
+                <p><code>p, role:editor, /api/articles, GET</code> 才说明该角色可以请求文章列表接口。</p>
+              </div>
+            </div>
+            <div class="callout danger">
+              <strong>只勾选菜单的结果</strong>
+              用户可以看到菜单页，但页面内请求列表、创建、更新、删除等接口时，如果没有对应接口策略，后端返回 403。
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="grant" data-title="角色授权 已创建权限 勾选菜单 勾选权限 同步 Casbin">
+          <button class="section-header" type="button" aria-expanded="true">
+            <span class="chevron">⌄</span>
+            <span>
+              <h2>6. 角色授权页面设计</h2>
+              <span>授权页面展示来自数据库，授权结果写入 Casbin。</span>
+            </span>
+          </button>
+          <div class="section-body">
+            <div class="steps">
+              <div class="step"><div><strong>查询菜单树</strong><span>从 <code>menu</code> 读取页面、目录、路由等配置。</span></div></div>
+              <div class="step"><div><strong>查询权限目录</strong><span>从 <code>permission</code> 读取已创建好的接口权限点。</span></div></div>
+              <div class="step"><div><strong>权限挂到菜单下</strong><span>按 <code>permission.menu_id</code> 把接口权限展示在对应菜单页面下。</span></div></div>
+              <div class="step"><div><strong>查询当前策略回显</strong><span>从 Casbin 读取该角色已有的 <code>p</code> 策略，回显菜单和权限勾选状态。</span></div></div>
+              <div class="step"><div><strong>提交后校验</strong><span>后端校验提交的 <code>menu_ids</code> 和 <code>permission_ids</code> 必须真实存在。</span></div></div>
+              <div class="step"><div><strong>重写授权策略</strong><span>删除该角色旧的菜单/接口 <code>p</code> 策略，再写入新的 Casbin 策略。</span></div></div>
+            </div>
+            <pre><code>勾选菜单 12:
+  p, role:editor, menu:12, view
+
+勾选 permission.id = 8:
+  permission.resource = /api/articles
+  permission.action   = GET
+
+写入 Casbin:
+  p, role:editor, /api/articles, GET</code></pre>
+          </div>
+        </section>
+
+        <section class="section" id="inherit" data-title="角色继承 Casbin g admin editor viewer">
+          <button class="section-header" type="button" aria-expanded="true">
+            <span class="chevron">⌄</span>
+            <span>
+              <h2>7. 角色继承</h2>
+              <span>继承关系交给 Casbin，不需要额外业务表直接参与运行时判断。</span>
+            </span>
+          </button>
+          <div class="section-body">
+            <p>角色继承也是 <code>g</code> 关系。假设 <code>admin</code> 继承 <code>editor</code>，<code>editor</code> 继承 <code>viewer</code>：</p>
+            <pre><code>g, role:editor, role:viewer
+g, role:admin, role:editor
+
+p, role:viewer, menu:10, view
+p, role:editor, /api/articles, POST
+
+Enforce(user:1, "menu:10", "view")        -> true
+Enforce(user:1, "/api/articles", "POST")  -> true</code></pre>
+            <div class="callout warn">
+              <strong>授权页面提示</strong>
+              回显时可以区分“直接拥有”和“继承获得”。直接拥有允许取消；继承获得通常需要去上级角色调整。
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="summary" data-title="落地模型 总结 数据库 Casbin 运行时">
+          <button class="section-header" type="button" aria-expanded="true">
+            <span class="chevron">⌄</span>
+            <span>
+              <h2>8. 最终落地模型</h2>
+              <span>一句话：数据库管配置，Casbin 管授权事实。</span>
+            </span>
+          </button>
+          <div class="section-body">
+            <div class="grid">
+              <div class="info">
+                <h3>数据库负责</h3>
+                <p>有哪些用户、角色、菜单、权限可以配置；角色授权页面的数据来源；权限点是否允许被选择。</p>
+              </div>
+              <div class="info">
+                <h3>Casbin 负责</h3>
+                <p>用户属于哪个角色、角色继承关系、角色拥有的菜单访问权、角色拥有的接口访问权。</p>
+              </div>
+              <div class="info">
+                <h3>菜单资源</h3>
+                <p>使用 <code>menu:{id}</code> 作为资源，<code>view</code> 作为动作。</p>
+              </div>
+              <div class="info">
+                <h3>接口资源</h3>
+                <p>使用 <code>permission.resource</code> 和 <code>permission.action</code> 对应后端路由拦截。</p>
+              </div>
+            </div>
+            <pre><code>数据库 = 权限配置资料库
+Casbin = 运行时授权事实库
+
+菜单展示:
+  Enforce(user, "menu:{id}", "view")
+
+接口鉴权:
+  Enforce(user, resource, action)</code></pre>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const sections = Array.from(document.querySelectorAll(".section"));
+    const navLinks = Array.from(document.querySelectorAll(".nav a"));
+    const searchInput = document.getElementById("searchInput");
+
+    function setCollapsed(section, collapsed) {
+      section.classList.toggle("collapsed", collapsed);
+      const header = section.querySelector(".section-header");
+      header.setAttribute("aria-expanded", String(!collapsed));
+    }
+
+    sections.forEach((section) => {
+      const header = section.querySelector(".section-header");
+      header.addEventListener("click", () => {
+        setCollapsed(section, !section.classList.contains("collapsed"));
+      });
+    });
+
+    document.getElementById("expandAll").addEventListener("click", () => {
+      sections.forEach((section) => setCollapsed(section, false));
+    });
+
+    document.getElementById("collapseAll").addEventListener("click", () => {
+      sections.forEach((section) => setCollapsed(section, true));
+    });
+
+    document.querySelectorAll(".tab-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        const group = button.closest(".tabs");
+        group.querySelectorAll(".tab-button").forEach((item) => item.classList.remove("active"));
+        group.querySelectorAll(".tab-panel").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        document.getElementById(button.dataset.tab).classList.add("active");
+      });
+    });
+
+    searchInput.addEventListener("input", () => {
+      const keyword = searchInput.value.trim().toLowerCase();
+      sections.forEach((section) => {
+        section.classList.remove("highlight");
+        if (!keyword) {
+          section.classList.remove("hidden-by-search");
+          return;
+        }
+        const text = (section.innerText + " " + section.dataset.title).toLowerCase();
+        const matched = text.includes(keyword);
+        section.classList.toggle("hidden-by-search", !matched);
+        if (matched) {
+          section.classList.add("highlight");
+          setCollapsed(section, false);
+        }
+      });
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) {
+          return;
+        }
+        navLinks.forEach((link) => link.classList.toggle("active", link.getAttribute("href") === "#" + entry.target.id));
+      });
+    }, { rootMargin: "-20% 0px -70% 0px", threshold: 0 });
+
+    sections.forEach((section) => observer.observe(section));
+  </script>
+</body>
+</html>

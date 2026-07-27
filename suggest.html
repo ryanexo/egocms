@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Article 模块重构建议</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f5;
+      --surface: #ffffff;
+      --ink: #17201c;
+      --muted: #64706a;
+      --line: #d9dfdc;
+      --green: #176b4d;
+      --green-soft: #e5f2ec;
+      --blue: #255f85;
+      --blue-soft: #e9f2f8;
+      --amber: #8b5b10;
+      --amber-soft: #fbf1dd;
+      --red: #9a3e38;
+      --red-soft: #f8e9e7;
+      --code: #202724;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 64px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: end;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 8px; font-size: clamp(28px, 4vw, 44px); line-height: 1.2; }
+    h2 { margin-bottom: 18px; font-size: 22px; }
+    h3 { margin-bottom: 8px; font-size: 16px; }
+    p { margin-bottom: 0; }
+
+    .subtitle { max-width: 700px; color: var(--muted); font-size: 16px; }
+
+    .verdict {
+      min-width: 250px;
+      padding: 14px 16px;
+      border-left: 4px solid var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    section { padding-top: 34px; }
+
+    .decision {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .decision article { padding: 22px; }
+    .decision article + article { border-left: 1px solid var(--line); }
+    .decision strong { display: block; margin-bottom: 6px; font-size: 17px; }
+    .decision p { color: var(--muted); font-size: 14px; }
+    .decision .yes strong { color: var(--green); }
+    .decision .no strong { color: var(--red); }
+    .decision .why strong { color: var(--blue); }
+
+    .flow {
+      display: grid;
+      grid-template-columns: minmax(120px, .8fr) 40px minmax(180px, 1.1fr) 40px minmax(260px, 1.8fr);
+      align-items: stretch;
+      gap: 0;
+    }
+
+    .flow-box {
+      display: flex;
+      min-height: 112px;
+      flex-direction: column;
+      justify-content: center;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .flow-box span { color: var(--muted); font-size: 13px; }
+    .arrow { display: grid; place-items: center; color: var(--muted); font-size: 24px; }
+
+    .domain-stack {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .domain-item {
+      padding: 11px;
+      border: 1px solid #b8d5c8;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      padding: 22px;
+    }
+
+    .panel.good { border-top: 4px solid var(--green); }
+    .panel.bad { border-top: 4px solid var(--red); }
+
+    ul { margin: 12px 0 0; padding-left: 20px; }
+    li + li { margin-top: 7px; }
+    .panel li { color: var(--muted); }
+    .panel li::marker { color: currentColor; }
+
+    .boundary {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--line);
+    }
+
+    .boundary th, .boundary td {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .boundary th { background: #edf0ee; font-size: 13px; }
+    .boundary td:first-child { width: 30%; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .boundary tr:last-child td { border-bottom: 0; }
+
+    .service-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 0;
+      padding: 20px;
+      background: var(--code);
+      color: #e8eeeb;
+      font: 13px/1.7 ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+
+    .note {
+      padding: 18px 20px;
+      border-left: 4px solid var(--amber);
+      background: var(--amber-soft);
+      color: #68440d;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      counter-reset: step;
+    }
+
+    .step {
+      position: relative;
+      min-height: 150px;
+      padding: 48px 18px 18px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      counter-increment: step;
+    }
+
+    .step::before {
+      content: counter(step, decimal-leading-zero);
+      position: absolute;
+      top: 15px;
+      left: 18px;
+      color: var(--blue);
+      font: 700 17px ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+
+    .step p { color: var(--muted); font-size: 14px; }
+
+    footer {
+      margin-top: 38px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+
+    @media (max-width: 800px) {
+      main { width: min(100% - 20px, 680px); padding-top: 24px; }
+      header, .split, .service-grid { grid-template-columns: 1fr; }
+      .verdict { min-width: 0; }
+      .decision { grid-template-columns: 1fr; }
+      .decision article + article { border-left: 0; border-top: 1px solid var(--line); }
+      .flow { grid-template-columns: 1fr; gap: 8px; }
+      .arrow { min-height: 28px; transform: rotate(90deg); }
+      .domain-stack { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .steps { grid-template-columns: 1fr; }
+      .boundary { font-size: 13px; }
+      .boundary th, .boundary td { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>Article 模块怎么做</h1>
+        <p class="subtitle">目标不是套用完整 DDD，而是让复杂规则有明确归属，同时避免重复 Model 字段和大规模 hydrate / rehydrate。</p>
+      </div>
+      <div class="verdict">结论：采用轻量 DDD</div>
+    </header>
+
+    <section aria-labelledby="decision-title">
+      <h2 id="decision-title">先做决策</h2>
+      <div class="decision">
+        <article class="yes">
+          <strong>保留 Domain</strong>
+          <p>状态流转、内容规则、版本发布等真正的业务约束放进 Domain。</p>
+        </article>
+        <article class="no">
+          <strong>不要大 Aggregate</strong>
+          <p>不要复制 Article 全部字段、关联、时间字段，也不要为查询 hydrate 聚合。</p>
+        </article>
+        <article class="why">
+          <strong>Service 负责协调</strong>
+          <p>Service 表达用例并管理事务；Repository 负责查询和落库。</p>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="flow-title">
+      <h2 id="flow-title">推荐调用流</h2>
+      <div class="flow">
+        <div class="flow-box">
+          <strong>Controller</strong>
+          <span>接收参数、鉴权</span>
+        </div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="flow-box">
+          <strong>Application Service</strong>
+          <span>Create / Update / Publish / Reject</span>
+        </div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="flow-box">
+          <strong>小型 Domain + Repository</strong>
+          <div class="domain-stack">
+            <div class="domain-item">Status Workflow</div>
+            <div class="domain-item">Content Rules</div>
+            <div class="domain-item">Revision Rules</div>
+          </div>
+        </div>
+      </div>
+      <div class="note" style="margin-top: 14px;">
+        列表、详情、搜索属于读操作，Repository 可以直接返回 DTO，不经过 Domain。
+      </div>
+    </section>
+
+    <section aria-labelledby="scope-title">
+      <h2 id="scope-title">Domain 放什么</h2>
+      <div class="split">
+        <article class="panel good">
+          <h3>应该放入</h3>
+          <ul>
+            <li>草稿、审核、发布、下线、驳回的状态规则</li>
+            <li>内容清洗、摘要生成和版本校验</li>
+            <li>发布权限、当前版本与发布版本的一致性</li>
+          </ul>
+        </article>
+        <article class="panel bad">
+          <h3>不应该放入</h3>
+          <ul>
+            <li>数据库 Model 的全部字段和关联对象</li>
+            <li>CreatedAt、UpdatedAt 等纯持久化信息</li>
+            <li>详情 DTO、列表字段和大量无行为 Getter</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="boundary-title">
+      <h2 id="boundary-title">表与业务边界</h2>
+      <table class="boundary">
+        <thead>
+          <tr><th>数据表</th><th>建议定位</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>article</td><td>文章身份、状态、当前版本 ID、已发布版本 ID。</td></tr>
+          <tr><td>article_version</td><td>版本实体；只按用例加载当前版本，不加载全部历史。</td></tr>
+          <tr><td>article_publish</td><td>发布历史记录，追加写入。</td></tr>
+          <tr><td>article_category_rel<br>article_tag_rel</td><td>关系数据，只管理 ID，不放入大聚合。</td></tr>
+          <tr><td>article_comment<br>article_stat</td><td>独立聚合，避免扩大 Article 的事务边界。</td></tr>
+          <tr><td>content_type_*</td><td>独立模块，Article 只引用 ContentType ID。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="code-title">
+      <h2 id="code-title">最小领域对象</h2>
+      <div class="service-grid">
+        <pre><code>type Workflow struct {
+    ArticleID          uint64
+    Status             Status
+    CurrentVersionID   uint64
+    PublishedVersionID *uint64
+}
+
+func (w *Workflow) Publish(actor Actor) error
+func (w *Workflow) Reject(actor Actor) error</code></pre>
+        <pre><code>func (s Service) CreateDraft(...)
+func (s Service) UpdateDraft(...)
+func (s Service) Submit(...)
+func (s Service) Publish(...)
+func (s Service) Reject(...)
+func (s Service) Offline(...)</code></pre>
+      </div>
+      <div class="note" style="margin-top: 14px;">
+        Repository 发布时只查询 Workflow 需要的少数字段。这里允许一次很小的 restore，不再映射完整 Article。
+      </div>
+    </section>
+
+    <section aria-labelledby="schema-title">
+      <h2 id="schema-title">表结构先统一</h2>
+      <div class="panel">
+        <ul style="margin-top: 0;">
+          <li><code>published_version_id</code> 应允许 NULL，草稿创建时还没有发布版本。</li>
+          <li><code>article.title/summary</code> 与版本表重复，需要确定唯一事实来源。</li>
+          <li><code>article_version.published</code>、<code>published_version_id</code>、发布记录不要同时表达当前发布状态。</li>
+          <li>分类关系表是多分类，但旧 DTO 是单个 <code>CategoryID</code>，需要统一。</li>
+          <li><code>content_type_id</code> 数据库可空，Go Model 也应使用可空类型。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section aria-labelledby="steps-title">
+      <h2 id="steps-title">落地顺序</h2>
+      <div class="steps">
+        <article class="step">
+          <h3>统一数据定义</h3>
+          <p>先对齐 SQL、GORM Model、DTO 的字段和关系。</p>
+        </article>
+        <article class="step">
+          <h3>缩小 Domain</h3>
+          <p>保留 Status、Content、Workflow，移除大 Article 聚合。</p>
+        </article>
+        <article class="step">
+          <h3>分离读写</h3>
+          <p>写操作走规则；查询直接返回 DTO。</p>
+        </article>
+        <article class="step">
+          <h3>按需扩展</h3>
+          <p>规则增长后再扩大 Workflow，不提前设计完整聚合。</p>
+        </article>
+      </div>
+    </section>
+
+    <footer>
+      一句话方案：用 DDD 管规则，不用 Aggregate 搬运整张表。
+    </footer>
+  </main>
+</body>
+</html>

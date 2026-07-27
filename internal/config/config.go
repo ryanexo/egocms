@@ -5,7 +5,7 @@ import (
     `reflect`
     
     `cms/internal/config/token`
-    `cms/internal/httpserver`
+    `cms/internal/httpx`
     `cms/internal/infra/db`
     `cms/internal/infra/file`
     `cms/internal/infra/logger`
@@ -17,12 +17,12 @@ import (
 var currentConfig *Config
 
 type Config struct {
-    AppKey string            `json:"appKey" yaml:"appKey"`
-    Token  token.Config      `json:"token" yaml:"token"`
-    DB     db.DBConfig       `json:"db" yaml:"db"`
-    File   file.Config       `json:"file" yaml:"file"`
-    Log    logger.Config     `json:"log" yaml:"log"`
-    Server httpserver.Config `json:"httpserver" yaml:"httpserver"`
+    AppKey string        `json:"appKey" yaml:"appKey"`
+    Token  token.Config  `json:"token" yaml:"token"`
+    DB     db.DBConfig   `json:"db" yaml:"db"`
+    File   file.Config   `json:"file" yaml:"file"`
+    Log    logger.Config `json:"log" yaml:"log"`
+    Server httpx.Config  `json:"httpx" yaml:"httpx"`
 }
 
 func (s Config) Validate() error {

@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>persistence 目录结构分析</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --text: #1f2933;
+      --muted: #667085;
+      --line: #d8dee8;
+      --blue: #2563eb;
+      --green: #0f766e;
+      --amber: #b45309;
+      --red: #b42318;
+      --purple: #7c3aed;
+      --code: #eef2f7;
+      --shadow: 0 18px 42px rgba(31, 41, 51, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      line-height: 1.55;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 20px 60px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 28px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: 34px;
+    }
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 14px;
+    }
+
+    h3 {
+      font-size: 17px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .lead {
+      margin-top: 12px;
+      max-width: 820px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .stamp {
+      min-width: 210px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 13px;
+      box-shadow: var(--shadow);
+    }
+
+    .stamp strong {
+      display: block;
+      color: var(--text);
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    section {
+      margin-top: 24px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .metric {
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      min-height: 118px;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .metric .value {
+      font-size: 25px;
+      font-weight: 750;
+      margin-bottom: 6px;
+    }
+
+    .metric .note {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .tag.red {
+      color: var(--red);
+      background: #fff1f0;
+    }
+
+    .tag.green {
+      color: var(--green);
+      background: #ecfdf5;
+    }
+
+    .tag.amber {
+      color: var(--amber);
+      background: #fff7ed;
+    }
+
+    .tag.blue {
+      color: var(--blue);
+      background: #eff6ff;
+    }
+
+    .tree {
+      display: grid;
+      gap: 8px;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 13px;
+      color: #263445;
+    }
+
+    .node {
+      position: relative;
+      display: grid;
+      grid-template-columns: 14px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fbfcfe;
+    }
+
+    .node.sub {
+      margin-left: 24px;
+    }
+
+    .node.sub2 {
+      margin-left: 48px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    .dot.red {
+      background: var(--red);
+    }
+
+    .dot.green {
+      background: var(--green);
+    }
+
+    .dot.amber {
+      background: var(--amber);
+    }
+
+    .dot.blue {
+      background: var(--blue);
+    }
+
+    .dot.purple {
+      background: var(--purple);
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 2px 8px;
+      background: var(--code);
+      color: #455468;
+      font-family: Inter, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .flow {
+      display: grid;
+      gap: 12px;
+    }
+
+    .flow-row {
+      display: grid;
+      grid-template-columns: 1fr 44px 1fr 44px 1fr;
+      align-items: stretch;
+      gap: 10px;
+    }
+
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+      padding: 14px;
+      min-height: 108px;
+    }
+
+    .box strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .box span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .arrow {
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 24px;
+    }
+
+    .risk-list,
+    .steps {
+      display: grid;
+      gap: 12px;
+    }
+
+    .risk,
+    .step {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfcfe;
+    }
+
+    .num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      background: var(--blue);
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .risk .num {
+      background: var(--amber);
+    }
+
+    .risk-title,
+    .step-title {
+      font-weight: 750;
+      margin-bottom: 4px;
+    }
+
+    .risk-body,
+    .step-body {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    code {
+      border-radius: 5px;
+      background: var(--code);
+      padding: 2px 5px;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .callout {
+      border-left: 4px solid var(--green);
+      background: #f0fdfa;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #134e4a;
+    }
+
+    .callout strong {
+      display: block;
+      color: #0f3f3b;
+      margin-bottom: 5px;
+    }
+
+    .heatmap {
+      display: grid;
+      grid-template-columns: 180px repeat(4, 1fr);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .heatmap div {
+      padding: 10px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    .heatmap div:nth-child(5n) {
+      border-right: 0;
+    }
+
+    .heatmap .head {
+      background: #f1f5f9;
+      font-weight: 750;
+      color: #344054;
+    }
+
+    .heatmap .hot {
+      background: #fff1f0;
+      color: var(--red);
+      font-weight: 750;
+    }
+
+    .heatmap .warm {
+      background: #fff7ed;
+      color: var(--amber);
+      font-weight: 750;
+    }
+
+    .heatmap .ok {
+      background: #ecfdf5;
+      color: var(--green);
+      font-weight: 750;
+    }
+
+    .footer {
+      margin-top: 30px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 900px) {
+      header,
+      .grid,
+      .summary,
+      .compare,
+      .flow-row {
+        grid-template-columns: 1fr;
+      }
+
+      .arrow {
+        transform: rotate(90deg);
+        min-height: 24px;
+      }
+
+      .heatmap {
+        grid-template-columns: 1fr;
+      }
+
+      .heatmap div,
+      .heatmap div:nth-child(5n) {
+        border-right: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div>
+        <h1>internal/infra/persistence 结构分析</h1>
+        <p class="lead">
+          这份分析把 <code>closuretable</code> 视为新写好的待接入实现，而不是无用代码。当前的核心问题是：目录同时承担 ORM 模型、生成查询代码、事务抽象、通用查询工具和新 closure table 实现，导致职责边界不稳定。
+        </p>
+      </div>
+      <div class="stamp">
+        <strong>分析对象</strong>
+        internal/infra/persistence<br>
+        结论：先整理边界，再替换 closure table
+      </div>
+    </header>
+
+    <section class="summary" aria-label="结构摘要">
+      <div class="metric">
+        <div class="label">当前子目录</div>
+        <div class="value">4</div>
+        <div class="note">closuretable, dbscope, model, query</div>
+      </div>
+      <div class="metric">
+        <div class="label">主要职责</div>
+        <div class="value">5</div>
+        <div class="note">入口、模型、生成查询、scope、树结构实现</div>
+      </div>
+      <div class="metric">
+        <div class="label">最大风险</div>
+        <div class="value">边界泄漏</div>
+        <div class="note">app contract 直接暴露 query/model</div>
+      </div>
+      <div class="metric">
+        <div class="label">建议优先级</div>
+        <div class="value">先中等改造</div>
+        <div class="note">不用一次重写分层</div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <span class="tag red">当前结构</span>
+        <h2>为什么看起来奇怪</h2>
+        <div class="tree">
+          <div class="node"><span class="dot red"></span><span>persistence/</span><span class="badge">混合入口</span></div>
+          <div class="node sub"><span class="dot amber"></span><span>contract.go</span><span class="badge">事务和 repo 泛型</span></div>
+          <div class="node sub"><span class="dot amber"></span><span>persistence.go</span><span class="badge">NewQuery/NewTransactor</span></div>
+          <div class="node sub"><span class="dot blue"></span><span>model/</span><span class="badge">GORM 模型</span></div>
+          <div class="node sub"><span class="dot purple"></span><span>query/</span><span class="badge">gorm/gen 产物</span></div>
+          <div class="node sub"><span class="dot amber"></span><span>dbscope/</span><span class="badge">gen.Dao scope</span></div>
+          <div class="node sub"><span class="dot green"></span><span>closuretable/</span><span class="badge">新实现待接入</span></div>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><span class="dot red"></span>职责聚合点</span>
+          <span class="legend-item"><span class="dot blue"></span>ORM schema</span>
+          <span class="legend-item"><span class="dot purple"></span>生成代码</span>
+          <span class="legend-item"><span class="dot green"></span>新能力</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <span class="tag green">目标结构</span>
+        <h2>推荐整理后的形态</h2>
+        <div class="tree">
+          <div class="node"><span class="dot green"></span><span>persistence/</span><span class="badge">统一持久化边界</span></div>
+          <div class="node sub"><span class="dot amber"></span><span>transaction.go</span><span class="badge">事务抽象</span></div>
+          <div class="node sub"><span class="dot amber"></span><span>repository.go</span><span class="badge">CloneWithQuery 约定</span></div>
+          <div class="node sub"><span class="dot blue"></span><span>gorm/</span><span class="badge">GORM 专属</span></div>
+          <div class="node sub2"><span class="dot blue"></span><span>model/</span><span class="badge">GORM model</span></div>
+          <div class="node sub2"><span class="dot purple"></span><span>query/</span><span class="badge">gorm/gen output</span></div>
+          <div class="node sub2"><span class="dot amber"></span><span>scope/</span><span class="badge">Paginate 等</span></div>
+          <div class="node sub"><span class="dot green"></span><span>tree/closuretable/</span><span class="badge">通用树持久化组件</span></div>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><span class="dot green"></span>业务无关能力</span>
+          <span class="legend-item"><span class="dot blue"></span>ORM 细节</span>
+          <span class="legend-item"><span class="dot purple"></span>可重新生成</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <span class="tag amber">依赖流向</span>
+      <h2>现在的问题不是 closuretable 没用，而是接入点不清楚</h2>
+      <div class="flow">
+        <div class="flow-row">
+          <div class="box">
+            <strong>app service</strong>
+            <span>业务服务通过 <code>persistence.Transactor</code> 开事务，但事务回调暴露 <code>*query.Query</code>。</span>
+          </div>
+          <div class="arrow">→</div>
+          <div class="box">
+            <strong>app contract</strong>
+            <span>repo 接口嵌入 <code>persistence.Repository[T]</code>，于是 contract 也知道了 GORM Gen Query。</span>
+          </div>
+          <div class="arrow">→</div>
+          <div class="box">
+            <strong>infra query/model</strong>
+            <span><code>query</code> 和 <code>model</code> 变成全项目公共 API，而不是 infra 内部实现。</span>
+          </div>
+        </div>
+        <div class="flow-row">
+          <div class="box">
+            <strong>category/menu repo</strong>
+            <span>当前树操作来自 <code>model.ClosureTable</code> 的 gorm-gen interface。</span>
+          </div>
+          <div class="arrow">→</div>
+          <div class="box">
+            <strong>待替换方案</strong>
+            <span>新写的 <code>closuretable</code> 使用 <code>database/sql</code>，需要明确 adapter 注入和事务策略。</span>
+          </div>
+          <div class="arrow">→</div>
+          <div class="box">
+            <strong>目标</strong>
+            <span>repo 里只调用树组件接口，不再散落 closure table SQL 或 gorm-gen template SQL。</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="compare">
+      <div class="panel">
+        <span class="tag red">结构风险</span>
+        <h2>需要修正的点</h2>
+        <div class="risk-list">
+          <div class="risk">
+            <div class="num">1</div>
+            <div>
+              <div class="risk-title">根包职责过杂</div>
+              <div class="risk-body"><code>persistence</code> 同时像 facade、contract、ORM schema 容器和工具包。建议拆成明确文件和子包。</div>
+            </div>
+          </div>
+          <div class="risk">
+            <div class="num">2</div>
+            <div>
+              <div class="risk-title">生成代码成为业务 API</div>
+              <div class="risk-body"><code>query</code> 是 gorm-gen 输出，但 app contract/service 直接依赖它。短期可以接受，至少要把它收进 <code>gorm/query</code>，标出生成边界。</div>
+            </div>
+          </div>
+          <div class="risk">
+            <div class="num">3</div>
+            <div>
+              <div class="risk-title">两套路由的 closure table 并存</div>
+              <div class="risk-body">旧路径是 <code>model.ClosureTable</code> 加 gorm-gen interface，新路径是 <code>closuretable.ClosureTable</code>。现在不是删除新实现，而是要安排替换路径。</div>
+            </div>
+          </div>
+          <div class="risk">
+            <div class="num">4</div>
+            <div>
+              <div class="risk-title">事务语义需要统一</div>
+              <div class="risk-body">新 <code>closuretable</code> 使用 <code>*sql.DB</code>，但现有 repo 主要使用 <code>*gorm.DB</code>/<code>*query.Query</code>。替换前要决定树操作是否共享同一个事务。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <span class="tag blue">修改路线</span>
+        <h2>建议按这个顺序改</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="num">1</div>
+            <div>
+              <div class="step-title">先移动目录，不改业务语义</div>
+              <div class="step-body">把 <code>model</code>、<code>query</code>、<code>dbscope</code> 归入 <code>persistence/gorm</code>。这一步主要是 import 调整。</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="num">2</div>
+            <div>
+              <div class="step-title">把 closuretable 定义为树组件</div>
+              <div class="step-body">移动到 <code>persistence/tree/closuretable</code> 或 <code>persistence/closuretable</code>，并补一个小接口：<code>CreateSubtree</code>、<code>Move</code>、<code>DropSubtree</code>。</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="num">3</div>
+            <div>
+              <div class="step-title">给 category/menu adapter 注入树组件</div>
+              <div class="step-body">repo 不再调用 <code>query.CategoryContext</code> 的生成方法，而是调用注入的 tree store。这样替换集中在 adapter 层。</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="num">4</div>
+            <div>
+              <div class="step-title">最后移除 gorm-gen closure table template</div>
+              <div class="step-body">等 category/menu 都切过去，再从 <code>model.ClosureTable</code> 和 <code>cmd/gormgen</code> 里移除旧的 interface 生成逻辑。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <span class="tag blue">改造矩阵</span>
+      <h2>每个包应该保留的职责</h2>
+      <div class="heatmap" role="table" aria-label="职责矩阵">
+        <div class="head">包或目录</div>
+        <div class="head">当前职责</div>
+        <div class="head">问题</div>
+        <div class="head">建议位置</div>
+        <div class="head">处理方式</div>
+
+        <div><code>persistence</code></div>
+        <div>事务、repo 约定、NewQuery</div>
+        <div class="warm">入口和契约混在一起</div>
+        <div><code>persistence</code> 根包</div>
+        <div class="ok">只保留稳定抽象</div>
+
+        <div><code>model</code></div>
+        <div>GORM schema，同时被 app 使用</div>
+        <div class="hot">infra model 泄漏到 app</div>
+        <div><code>persistence/gorm/model</code></div>
+        <div class="warm">短期移动，长期再考虑 domain model</div>
+
+        <div><code>query</code></div>
+        <div>gorm-gen 生成代码</div>
+        <div class="warm">生成边界不明显</div>
+        <div><code>persistence/gorm/query</code></div>
+        <div class="ok">更新 gormgen 输出路径</div>
+
+        <div><code>dbscope</code></div>
+        <div>gen.Dao scope</div>
+        <div class="warm">名字太泛</div>
+        <div><code>persistence/gorm/scope</code></div>
+        <div class="ok">重命名更准确</div>
+
+        <div><code>closuretable</code></div>
+        <div>新写好的通用树实现</div>
+        <div class="warm">还没明确接入点</div>
+        <div><code>persistence/tree/closuretable</code></div>
+        <div class="ok">作为替换目标保留并接入</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <span class="tag green">closuretable 接入方案</span>
+      <h2>推荐的目标调用关系</h2>
+      <div class="flow-row">
+        <div class="box">
+          <strong>CategoryRepo / MenuRepo</strong>
+          <span>负责业务表更新，例如 parent_id、category、menu、seo 删除。</span>
+        </div>
+        <div class="arrow">→</div>
+        <div class="box">
+          <strong>TreeStore 接口</strong>
+          <span>repo 只依赖接口：创建子树、移动节点、删除子树。</span>
+        </div>
+        <div class="arrow">→</div>
+        <div class="box">
+          <strong>closuretable 实现</strong>
+          <span>内部封装 SQL、表名、字段名和循环移动校验。</span>
+        </div>
+      </div>
+      <div style="height: 14px;"></div>
+      <div class="callout">
+        <strong>关键决策</strong>
+        如果树操作必须和 GORM 写入共享事务，<code>closuretable</code> 不应该只持有 <code>*sql.DB</code>。更稳的做法是让它支持 <code>ExecContext</code> 级别的接口，或者提供基于 <code>*sql.Tx</code>/<code>*gorm.DB</code> session 的执行器，这样 category/menu 的业务表更新和 closure table 更新能放在同一个事务里。
+      </div>
+    </section>
+
+    <section class="panel">
+      <span class="tag amber">注意事项</span>
+      <h2>接入前建议先修的代码点</h2>
+      <div class="risk-list">
+        <div class="risk">
+          <div class="num">A</div>
+          <div>
+            <div class="risk-title">SQL 建表语句疑似有空格问题</div>
+            <div class="risk-body"><code>CREATE TABLE%s IF NOT EXISTS</code> 更常见的写法是 <code>CREATE TABLE IF NOT EXISTS %s</code>。这里接入前要先确认 MySQL/SQLite 都能跑。</div>
+          </div>
+        </div>
+        <div class="risk">
+          <div class="num">B</div>
+          <div>
+            <div class="risk-title">Move 中开启事务但没有用 tx 执行 SQL</div>
+            <div class="risk-body"><code>Move</code> 里 <code>BeginTx</code> 后，后续仍调用 <code>c.db.ExecContext</code>，实际没有进入这个事务。应改成基于 tx 的执行器。</div>
+          </div>
+        </div>
+        <div class="risk">
+          <div class="num">C</div>
+          <div>
+            <div class="risk-title">错误信息编码异常</div>
+            <div class="risk-body"><code>ErrInvalidNode</code> 和 <code>ErrCircularMove</code> 当前显示乱码，接入前要修正源码编码或直接改成稳定英文错误。</div>
+          </div>
+        </div>
+        <div class="risk">
+          <div class="num">D</div>
+          <div>
+            <div class="risk-title">表名拼接需要白名单</div>
+            <div class="risk-body">closure table 的表名来自 option，不能用 SQL 参数占位。需要限制为可信常量，或者在构造时校验只允许字母、数字和下划线。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer">
+      建议落地节奏：先移动目录并调整 import，再修 closuretable 事务和 SQL 细节，最后切 category/menu adapter。这样每一步都可回滚，且不会把结构整理和行为替换混成一次大改。
+    </p>
+  </main>
+</body>
+</html>

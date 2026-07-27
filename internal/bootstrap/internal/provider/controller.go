@@ -1,18 +1,9 @@
 package provider
 
 import (
-    "cms/internal/app/article"
-    `cms/internal/app/category`
-    
     "reflect"
     
-    articleModel "cms/internal/app/contenttype/controller"
-    file "cms/internal/app/file/controller"
-    menu "cms/internal/app/menu/controller"
-    permission "cms/internal/app/permission/controller"
-    role "cms/internal/app/role/controller"
-    user "cms/internal/app/user/controller"
-    "cms/internal/httpserver"
+    "cms/internal/httpx"
     "cms/internal/util/reflectutil"
     
     "github.com/google/wire"
@@ -20,37 +11,20 @@ import (
 
 var ControllerProvider = wire.NewSet(
     wire.Struct(new(ControllerSet), "*"),
-    article.NewArticleController,
-    articleModel.NewArticleModelController,
-    category.NewCategoryController,
-    menu.NewMenuController,
-    role.NewRoleController,
-    user.NewUserController,
-    file.NewFileController,
-    permission.NewPermissionController,
     NewRouteRegistrar,
 )
 
-type ControllerSet struct {
-    User         *user.UserController
-    Menu         *menu.MenuController
-    Category     *category.CategoryController
-    Role         *role.RoleController
-    Article      *article.ArticleController
-    ArticleModel *articleModel.ArticleModelController
-    File         *file.FileController
-    Perm         *permission.PermissionController
-}
+type ControllerSet struct{}
 
-var _ httpserver.Route = (*ControllerSet)(nil)
+var _ httpx.Route = (*ControllerSet)(nil)
 
-func (c ControllerSet) Setup(router httpserver.Router) {
-    _ = reflectutil.InvokeImplementedStruct[httpserver.Route](c, func(_ reflect.Value, i httpserver.Route) error {
+func (c ControllerSet) Setup(router httpx.Router) {
+    _ = reflectutil.InvokeImplementedStruct[httpx.Route](c, func(_ reflect.Value, i httpx.Route) error {
         i.Setup(router)
         return nil
     })
 }
 
-func NewRouteRegistrar(ctlSet *ControllerSet) httpserver.Route {
+func NewRouteRegistrar(ctlSet *ControllerSet) httpx.Route {
     return ctlSet
 }

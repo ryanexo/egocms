@@ -6,7 +6,7 @@ import (
     `time`
     
     `cms/internal/config/token`
-    `cms/internal/httpserver`
+    `cms/internal/httpx`
     `cms/internal/infra/db`
     `cms/internal/infra/file`
     `cms/internal/infra/logger`
@@ -31,11 +31,11 @@ func defaultConfig() (*Config, error) {
             Expires: int(time.Hour * 24 * 7 / time.Second),
         },
         DB: db.DBConfig{
-            Type:    "sqlite",
-            Host:    "./runtime/data.db",
-            Name:    "",
-            User:    "",
-            Pass:    "",
+            Type:    "mysql",
+            Host:    "127.0.0.1",
+            Name:    "egocms",
+            User:    "app",
+            Pass:    "123456",
             Charset: "utf8mb4",
         },
         Log: logger.Config{
@@ -45,7 +45,7 @@ func defaultConfig() (*Config, error) {
             MaxBackups: 0,
             Compress:   true,
         },
-        Server: httpserver.Config{
+        Server: httpx.Config{
             Debug:     true,
             Host:      "127.0.0.1",
             Port:      8234,

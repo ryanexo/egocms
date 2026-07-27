@@ -21,7 +21,7 @@ func NewRequestLog(log *logger.Logger) RequestLog {
         fields := []zap.Field{
             zap.Int("status", context.Writer.Status()),
             zap.String("method", context.Request.Method),
-            zap.String("query", context.Request.URL.RawQuery),
+            zap.String("gquery", context.Request.URL.RawQuery),
             zap.String("ip", context.RemoteIP()),
             zap.String("ua", context.Request.UserAgent()),
             zap.Duration("cost", cost),

@@ -69,7 +69,7 @@ func New(config Config) *Logger {
         Compress:   config.Compress,
     }, zapcore.InfoLevel)
     app := newLogger(&lumberjack.Logger{
-        Filename:   path.Join(config.Path, "./app.log"),
+        Filename:   path.Join(config.Path, "./modules.log"),
         MaxSize:    config.MaxSize,
         MaxAge:     config.MaxAge,
         MaxBackups: config.MaxBackups,
