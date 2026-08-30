@@ -1,27 +1,28 @@
 package local
 
 import (
-    `errors`
+    `encoding/json`
+    "errors"
     
     `cms/internal/infra/file`
 )
 
-type Factory struct{}
+type localFactory struct{}
 
-var _ file.DriverFactory = (*Factory)(nil)
+var DriverFactory file.DriverFactory = localFactory{}
 
-func (s Factory) Name() string {
+func (s localFactory) Type() string {
     return "local"
 }
 
-func (s Factory) Setup(config map[string]any) (file.Driver, error) {
+func (s localFactory) New(config json.RawMessage) (file.Driver, error) {
     val, ok := config["savePath"]
     if !ok {
-        return nil, errors.New("缺少配置 file.savePath")
+        return nil, errors.New("缺少配置 savePath")
     }
     savePath, ok := val.(string)
     if !ok {
-        return nil, errors.New("file.savePath 配置格式错误")
+        return nil, errors.New("savePath 配置格式错误")
     }
     
     return localStorage{savePath}, nil

@@ -7,9 +7,8 @@ import (
     `cms/internal/modules/article/domain`
     "cms/internal/modules/article/internal/dto"
     permissionSrv "cms/internal/modules/permission/service"
+    `cms/internal/public/apitype`
     "cms/internal/util/authzutil"
-    "cms/internal/util/httpbinding"
-    "cms/internal/util/types"
     
     "github.com/gin-gonic/gin"
 )
@@ -36,18 +35,19 @@ func NewArticleController(
 }
 
 func (s ArticleController) Setup(router httpx.Router) {
-    acl := s.auth.AccessControl("article")
+    acl := s.auth.auth("article")
     
     g := router.Group("/article", acl.Middleware())
-    g.POST("/create", httpx.Handler(s.Create))
-    g.POST("/update", httpx.Handler(s.Update))
-    g.POST("/delete", httpx.Handler(s.Delete))
-    g.POST("/detail", httpx.Handler(s.Detail))
-    g.POST("/submit", httpx.Handler(s.Submit))
-    g.POST("/publish", httpx.Handler(s.Publish))
-    g.POST("/reject", httpx.Handler(s.Reject))
-    g.POST("/republish", httpx.Handler(s.Republish))
+    g.POST("/create", httpx.HandlerFunc(s.Create))
+    g.POST("/update", httpx.HandlerFunc(s.Update))
+    g.POST("/delete", httpx.HandlerFunc(s.Delete))
+    g.POST("/detail", httpx.HandlerFunc(s.Detail))
+    g.POST("/submit", httpx.HandlerFunc(s.Submit))
+    g.POST("/publish", httpx.HandlerFunc(s.Publish))
+    g.POST("/reject", httpx.HandlerFunc(s.Reject))
+    g.POST("/republish", httpx.HandlerFunc(s.Republish))
     
+    acl.WithRouterOption(authz.WithWhitelist())
     acl.WithRouterOption(
         g,
         authz.WithRouterPermission("/create", "create"),
@@ -72,7 +72,7 @@ func (s ArticleController) Setup(router httpx.Router) {
 // @Success 200 {object} types.ApiCreateResult
 // @Router  /article/create [post]
 func (s ArticleController) Create(ctx *gin.Context) error {
-    return httpbinding.BindJSON[dto.ArticleCreateParams](ctx, func(params dto.ArticleCreateParams) (any, error) {
+    return httpx.BindJSON[dto.ArticleCreateParams](ctx, func(params dto.ArticleCreateParams) (any, error) {
         u, err := authzutil.GetAuthorizedUser(ctx)
         if err != nil {
             return nil, err
@@ -92,7 +92,7 @@ func (s ArticleController) Create(ctx *gin.Context) error {
 // @Success 200 {object} types.ApiEmptyResult
 // @Router  /article/update [post]
 func (s ArticleController) Update(ctx *gin.Context) error {
-    return httpbinding.BindJSON[dto.ArticleUpdateParams](ctx, func(params dto.ArticleUpdateParams) (any, error) {
+    return httpx.BindJSON[dto.ArticleUpdateParams](ctx, func(params dto.ArticleUpdateParams) (any, error) {
         return nil, s.articleSrv.Update(ctx, params)
     })
 }
@@ -122,7 +122,7 @@ func (s ArticleController) createActor(ctx *gin.Context) (domain.Actor, error) {
 // @Success 200 {object} types.ApiEmptyResult
 // @Router  /article/submit [post]
 func (s ArticleController) Submit(ctx *gin.Context) error {
-    return httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+    return httpx.BindJSON[apitype.ResourceID](ctx, func(params apitype.ResourceID) (any, error) {
         actor, err := s.createActor(ctx)
         if err != nil {
             return nil, err
@@ -144,7 +144,7 @@ func (s ArticleController) Submit(ctx *gin.Context) error {
 // @Success 200 {object} types.ApiEmptyResult
 // @Router  /article/publish [post]
 func (s ArticleController) Publish(ctx *gin.Context) error {
-    return httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+    return httpx.BindJSON[apitype.ResourceID](ctx, func(params apitype.ResourceID) (any, error) {
         actor, err := s.createActor(ctx)
         if err != nil {
             return nil, err
@@ -166,7 +166,7 @@ func (s ArticleController) Publish(ctx *gin.Context) error {
 // @Success 200 {object} types.ApiEmptyResult
 // @Router  /article/offline [post]
 func (s ArticleController) Offline(ctx *gin.Context) error {
-    return httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+    return httpx.BindJSON[apitype.ResourceID](ctx, func(params apitype.ResourceID) (any, error) {
         actor, err := s.createActor(ctx)
         if err != nil {
             return nil, err
@@ -188,7 +188,7 @@ func (s ArticleController) Offline(ctx *gin.Context) error {
 // @Success 200 {object} types.ApiEmptyResult
 // @Router  /article/reject [post]
 func (s ArticleController) Reject(ctx *gin.Context) error {
-    return httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+    return httpx.BindJSON[apitype.ResourceID](ctx, func(params apitype.ResourceID) (any, error) {
         actor, err := s.createActor(ctx)
         if err != nil {
             return nil, err
@@ -210,7 +210,7 @@ func (s ArticleController) Reject(ctx *gin.Context) error {
 // @Success 200 {object} types.ApiEmptyResult
 // @Router  /article/republish [post]
 func (s ArticleController) Republish(ctx *gin.Context) error {
-    return httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+    return httpx.BindJSON[apitype.ResourceID](ctx, func(params apitype.ResourceID) (any, error) {
         actor, err := s.createActor(ctx)
         if err != nil {
             return nil, err
@@ -232,7 +232,7 @@ func (s ArticleController) Republish(ctx *gin.Context) error {
 // @Success 200 {object} types.ApiEmptyResult
 // @Router  /article/delete [post]
 func (s ArticleController) Delete(ctx *gin.Context) error {
-    return httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+    return httpx.BindJSON[apitype.ResourceID](ctx, func(params apitype.ResourceID) (any, error) {
         return nil, s.articleSrv.Delete(ctx, params.ID)
     })
 }
@@ -248,7 +248,7 @@ func (s ArticleController) Delete(ctx *gin.Context) error {
 // @Success 200 {object} dto.ApiArticle
 // @Router  /article/detail [post]
 func (s ArticleController) Detail(ctx *gin.Context) error {
-    return httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+    return httpx.BindJSON[apitype.ResourceID](ctx, func(params apitype.ResourceID) (any, error) {
         return s.articleSrv.FindByID(ctx, params.ID)
     })
 }

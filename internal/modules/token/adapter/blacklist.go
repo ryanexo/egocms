@@ -4,10 +4,10 @@ import (
     "context"
     "time"
     
-    `cms/internal/infra/persistence/gorm/gquery`
-    "cms/internal/pkg/datatype"
+    `cms/internal/infra/store/gorm/gquery`
+    `cms/internal/public/jsontype`
     
-    "cms/internal/infra/persistence/model"
+    "cms/internal/infra/store/model"
     "cms/internal/modules/token/contract"
     
     "gorm.io/gen"
@@ -25,7 +25,7 @@ func (r *TokenBlacklistRepo) CloneWithQuery(q *gquery.Query) contract.TokenBlack
     return NewTokenBlacklistRepo(q)
 }
 
-func (r *TokenBlacklistRepo) Add(ctx context.Context, userID datatype.SafeUint64, uuid string, expires time.Time) error {
+func (r *TokenBlacklistRepo) Add(ctx context.Context, userID jsontype.SafeUint64, uuid string, expires time.Time) error {
     return r.query.TokenBlacklist.WithContext(ctx).Create(&model.TokenBlacklist{
         UserID:  userID,
         UUID:    uuid,
@@ -33,7 +33,7 @@ func (r *TokenBlacklistRepo) Add(ctx context.Context, userID datatype.SafeUint64
     })
 }
 
-func (r *TokenBlacklistRepo) Remove(ctx context.Context, id datatype.SafeUint64) (gen.ResultInfo, error) {
+func (r *TokenBlacklistRepo) Remove(ctx context.Context, id jsontype.SafeUint64) (gen.ResultInfo, error) {
     dao := r.query.TokenBlacklist
     return dao.WithContext(ctx).Where(dao.ID.Eq(id.Raw())).Delete()
 }

@@ -1,56 +1,57 @@
 package dto
 
 import (
-	datatype2 "cms/internal/pkg/datatype"
-	"time"
-
-	"cms/internal/infra/persistence/datatype"
-	"cms/internal/util/types"
+    "time"
+    
+    `cms/internal/public/apitype`
+    `cms/internal/public/jsontype`
+    
+    "cms/internal/infra/store/datatype"
 )
 
 type ArticleModel struct {
-	types.Base
-	Name        string `json:"name"`
-	Description string `json:"description"`
+    apitype.Base
+    Name        string `json:"name"`
+    Description string `json:"description"`
 }
 
 type ArticleModelCreateParams struct {
-	Name        string `validate:"required" json:"name"`
-	Description string `validate:"required" json:"description"`
+    Name        string `validate:"required" json:"name"`
+    Description string `validate:"required" json:"description"`
 }
 
 type ArticleModelUpdateParams struct {
-	types.ResourceID
-	Name        string `json:"name"`
-	Description string `json:"description"`
+    apitype.ResourceID
+    Name        string `json:"name"`
+    Description string `json:"description"`
 }
 
 type ArticleModelSchemaUpdateParams struct {
-	types.ResourceID
-	Data []*ArticleModelSchemaParams `json:"data"`
+    apitype.ResourceID
+    Data []*ArticleModelSchemaParams `json:"data"`
 }
 
 type ArticleModelSchemaParams struct {
-	ID          *datatype2.SafeUint64 `json:"id" swaggertype:"string"`
-	FieldKey    string                `validate:"required,max=255" json:"fieldKey"`
-	FieldName   string                `validate:"required,max=255" json:"fieldName"`
-	Description string                `validate:"max=255" json:"description"`
-	Sequence    datatype2.SafeInt64   `json:"sequence"`
-	Type        int16                 `validate:"required" json:"type"`
-	Required    datatype.BoolInt8     `json:"required" swaggertype:"boolean"`
-	MinLen      datatype2.SafeUint64  `json:"minLen" swaggertype:"string"`
-	MaxLen      datatype2.SafeUint64  `json:"maxLen" swaggertype:"string"`
-	MinValue    datatype2.SafeInt64   `json:"minValue"`
-	MaxValue    datatype2.SafeInt64   `json:"maxValue"`
-	MinTime     time.Time             `json:"minTime"`
-	MaxTime     time.Time             `json:"maxTime"`
-	Pattern     string                `json:"pattern"`
-	EnumOptions datatype.EnumValues   `json:"enumOptions"`
-	Hidden      datatype.BoolInt8     `json:"hidden" swaggertype:"boolean"`
-	Enable      datatype.BoolInt8     `json:"enable" swaggertype:"boolean"`
+    ID          *jsontype.SafeUint64 `json:"id" apitype:"string"`
+    FieldKey    string               `validate:"required,max=255" json:"fieldKey"`
+    FieldName   string               `validate:"required,max=255" json:"fieldName"`
+    Description string               `validate:"max=255" json:"description"`
+    Sequence    jsontype.SafeInt64   `json:"sequence"`
+    Type        int16                `validate:"required" json:"type"`
+    Required    datatype.BoolInt8    `json:"required" apitype:"boolean"`
+    MinLen      jsontype.SafeUint64  `json:"minLen" apitype:"string"`
+    MaxLen      jsontype.SafeUint64  `json:"maxLen" apitype:"string"`
+    MinValue    jsontype.SafeInt64   `json:"minValue"`
+    MaxValue    jsontype.SafeInt64   `json:"maxValue"`
+    MinTime     time.Time            `json:"minTime"`
+    MaxTime     time.Time            `json:"maxTime"`
+    Pattern     string               `json:"pattern"`
+    EnumOptions datatype.EnumValues  `json:"enumOptions"`
+    Hidden      datatype.BoolInt8    `json:"hidden" apitype:"boolean"`
+    Enable      datatype.BoolInt8    `json:"enable" apitype:"boolean"`
 }
 
 type ArticleModelListParams struct {
-	types.Pagination
-	Name *string `json:"name"`
+    apitype.Pagination
+    Name *string `json:"name"`
 }

@@ -3,25 +3,26 @@ package assembler
 import (
     "database/sql"
     
-    model2 `cms/internal/infra/persistence/gorm/model`
-    "cms/internal/pkg/datatype"
+    `cms/internal/infra/store/modeltype`
+    `cms/internal/public/apitype`
+    `cms/internal/public/jsontype`
+    `cms/internal/public/model`
     
     "cms/internal/modules/contenttype/internal/dto"
-    "cms/internal/util/types"
     
     "github.com/shopspring/decimal"
 )
 
-func ToArticleModelCreateCommand(data *dto.ArticleModelCreateParams) *model2.ContentType {
-    return &model2.ContentType{
+func ToArticleModelCreateCommand(data *dto.ArticleModelCreateParams) *model.ContentType {
+    return &model.ContentType{
         Name:        data.Name,
         Description: data.Description,
     }
 }
 
-func ToArticleModelUpdateCommand(data *dto.ArticleModelUpdateParams) *model2.ContentType {
-    return &model2.ContentType{
-        Base: model2.Base{
+func ToArticleModelUpdateCommand(data *dto.ArticleModelUpdateParams) *model.ContentType {
+    return &model.ContentType{
+        Base: modeltype.Base{
             ID: data.ID,
         },
         Name:        data.Name,
@@ -29,9 +30,9 @@ func ToArticleModelUpdateCommand(data *dto.ArticleModelUpdateParams) *model2.Con
     }
 }
 
-func ToArticleModelDTO(data *model2.ContentType) *dto.ArticleModel {
+func ToArticleModelDTO(data *model.ContentType) *dto.ArticleModel {
     return &dto.ArticleModel{
-        Base: types.Base{
+        Base: apitype.Base{
             ID:        data.ID,
             CreatedAt: data.CreatedAt,
             UpdatedAt: data.UpdatedAt,
@@ -41,7 +42,7 @@ func ToArticleModelDTO(data *model2.ContentType) *dto.ArticleModel {
     }
 }
 
-func ToArticleModelListDTO(data []*model2.ContentType) []*dto.ArticleModel {
+func ToArticleModelListDTO(data []*model.ContentType) []*dto.ArticleModel {
     result := make([]*dto.ArticleModel, 0, len(data))
     for _, item := range data {
         result = append(result, ToArticleModelDTO(item))
@@ -49,7 +50,7 @@ func ToArticleModelListDTO(data []*model2.ContentType) []*dto.ArticleModel {
     return result
 }
 
-func ToArticleModelSchemaDTO(data *model2.ContentTypeSchema) *dto.ArticleModelSchemaParams {
+func ToArticleModelSchemaDTO(data *model.ContentTypeSchema) *dto.ArticleModelSchemaParams {
     return &dto.ArticleModelSchemaParams{
         ID:          &data.ID,
         FieldKey:    data.FieldKey,
@@ -60,8 +61,8 @@ func ToArticleModelSchemaDTO(data *model2.ContentTypeSchema) *dto.ArticleModelSc
         Required:    data.Required,
         MinLen:      data.MinLen,
         MaxLen:      data.MaxLen,
-        MinValue:    datatype.SafeInt64(data.MinValue.Decimal.BigInt().Int64()),
-        MaxValue:    datatype.SafeInt64(data.MaxValue.Decimal.BigInt().Int64()),
+        MinValue:    jsontype.SafeInt64(data.MinValue.Decimal.BigInt().Int64()),
+        MaxValue:    jsontype.SafeInt64(data.MaxValue.Decimal.BigInt().Int64()),
         MinTime:     data.MinTime.Time,
         MaxTime:     data.MaxTime.Time,
         Pattern:     data.Pattern,
@@ -71,7 +72,7 @@ func ToArticleModelSchemaDTO(data *model2.ContentTypeSchema) *dto.ArticleModelSc
     }
 }
 
-func ToArticleModelSchemaList(data []*model2.ContentTypeSchema) []*dto.ArticleModelSchemaParams {
+func ToArticleModelSchemaList(data []*model.ContentTypeSchema) []*dto.ArticleModelSchemaParams {
     result := make([]*dto.ArticleModelSchemaParams, 0, len(data))
     for _, item := range data {
         result = append(result, ToArticleModelSchemaDTO(item))
@@ -79,8 +80,8 @@ func ToArticleModelSchemaList(data []*model2.ContentTypeSchema) []*dto.ArticleMo
     return result
 }
 
-func ToArticleModelSchemaModel(data *dto.ArticleModelSchemaParams) *model2.ContentTypeSchema {
-    return &model2.ContentTypeSchema{
+func ToArticleModelSchemaModel(data *dto.ArticleModelSchemaParams) *model.ContentTypeSchema {
+    return &model.ContentTypeSchema{
         FieldKey:  data.FieldKey,
         FieldName: data.FieldName,
         MinLen:    data.MinLen,

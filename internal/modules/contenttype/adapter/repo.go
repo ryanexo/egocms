@@ -3,10 +3,10 @@ package adapter
 import (
     "context"
     
-    `cms/internal/infra/persistence/gorm/dbscope`
-    `cms/internal/infra/persistence/gorm/model`
-    `cms/internal/infra/persistence/gorm/gquery`
-    "cms/internal/pkg/datatype"
+    `cms/internal/infra/store/gorm/dbscope`
+    `cms/internal/infra/store/gorm/gquery`
+    `cms/internal/public/jsontype`
+    `cms/internal/public/model`
     
     "cms/internal/modules/contenttype/contract"
     "cms/internal/modules/contenttype/internal/dto"
@@ -43,7 +43,7 @@ func (r *articleModelRepo) UpdateModel(ctx context.Context, data *model.ContentT
     return err
 }
 
-func (r *articleModelRepo) ReplaceSchema(ctx context.Context, id datatype.SafeUint64, data []*model.ContentTypeSchema) error {
+func (r *articleModelRepo) ReplaceSchema(ctx context.Context, id jsontype.SafeUint64, data []*model.ContentTypeSchema) error {
     _, err := r.DeleteSchema(ctx, id)
     if err != nil {
         return err
@@ -80,32 +80,32 @@ func (r *articleModelRepo) UpdateModelJsonData(ctx context.Context, data *model.
     return err
 }
 
-func (r *articleModelRepo) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.ContentType, error) {
+func (r *articleModelRepo) FindByID(ctx context.Context, id jsontype.SafeUint64) (*model.ContentType, error) {
     return r.query.ArticleModel.WithContext(ctx).Where(r.query.ArticleModel.ID.Eq(id.Raw())).First()
 }
 
-func (r *articleModelRepo) FindAllSchema(ctx context.Context, modelID datatype.SafeUint64) ([]*model.ContentTypeSchema, error) {
+func (r *articleModelRepo) FindAllSchema(ctx context.Context, modelID jsontype.SafeUint64) ([]*model.ContentTypeSchema, error) {
     schemaModel := r.query.ArticleModelSchema
     return schemaModel.WithContext(ctx).Where(schemaModel.ModelID.Eq(modelID.Raw())).Find()
 }
 
-func (r *articleModelRepo) DeleteModel(ctx context.Context, modelID datatype.SafeUint64) error {
+func (r *articleModelRepo) DeleteModel(ctx context.Context, modelID jsontype.SafeUint64) error {
     _, err := r.query.ArticleModel.WithContext(ctx).Unscoped().Where(r.query.ArticleModel.ID.Eq(modelID.Raw())).Delete()
     return err
 }
 
-func (r *articleModelRepo) DeleteSchema(ctx context.Context, id datatype.SafeUint64) (gen.ResultInfo, error) {
+func (r *articleModelRepo) DeleteSchema(ctx context.Context, id jsontype.SafeUint64) (gen.ResultInfo, error) {
     m := r.query.ArticleModelSchema
     return m.WithContext(ctx).Unscoped().Where(m.ModelID.Eq(id.Raw())).Delete()
 }
 
-func (r *articleModelRepo) DeleteAllSchema(ctx context.Context, id datatype.SafeUint64) error {
+func (r *articleModelRepo) DeleteAllSchema(ctx context.Context, id jsontype.SafeUint64) error {
     m := r.query.ArticleModelSchema
     _, err := m.WithContext(ctx).Unscoped().Where(m.ModelID.Eq(id.Raw())).Delete()
     return err
 }
 
-func (r *articleModelRepo) DeleteArticleData(ctx context.Context, articleID datatype.SafeUint64) error {
+func (r *articleModelRepo) DeleteArticleData(ctx context.Context, articleID jsontype.SafeUint64) error {
     m := r.query.ArticleModelData
     _, err := m.WithContext(ctx).Unscoped().Where(m.ArticleID.Eq(articleID.Raw())).Delete()
     return err

@@ -1,14 +1,14 @@
 package assembler
 
 import (
-    `cms/internal/infra/persistence/gorm/model`
     `cms/internal/modules/file/internal/dto`
-    `cms/internal/util/types`
+    `cms/internal/public/apitype`
+    `cms/internal/public/model`
 )
 
 func ToFileInfoDTO(data *model.File, url string) *dto.FileInfo {
     return &dto.FileInfo{
-        Base: types.Base{
+        Base: apitype.Base{
             ID:        data.ID,
             CreatedAt: data.CreatedAt,
             UpdatedAt: data.UpdatedAt,

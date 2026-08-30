@@ -9,8 +9,8 @@ import (
     contentdomain "cms/internal/modules/contenttype/domain"
     "cms/internal/modules/new_article/contract"
     "cms/internal/modules/new_article/domain"
-    "cms/internal/pkg/datatype"
-    "cms/internal/util/types"
+    `cms/internal/public/apitype`
+    `cms/internal/public/jsontype`
 )
 
 const (
@@ -27,7 +27,7 @@ func NewArticleService(repository contract.Repository) *Service {
     return &Service{repository: repository, now: time.Now}
 }
 
-func (service *Service) CreateDraft(ctx context.Context, authorID uint64, params CreateParams) (datatype.SafeUint64, error) {
+func (service *Service) CreateDraft(ctx context.Context, authorID uint64, params CreateParams) (jsontype.SafeUint64, error) {
     revision, err := domain.NewRevision(params.Title, params.Content, params.Summary, params.ChangeLog)
     if err != nil {
         return 0, mapDomainError(err)
@@ -77,7 +77,7 @@ func (service *Service) CreateDraft(ctx context.Context, authorID uint64, params
     if err != nil {
         return 0, mapDomainError(err)
     }
-    return datatype.SafeUint64(articleID), nil
+    return jsontype.SafeUint64(articleID), nil
 }
 
 func (service *Service) UpdateDraft(ctx context.Context, params UpdateParams) error {
@@ -137,31 +137,31 @@ func (service *Service) UpdateDraft(ctx context.Context, params UpdateParams) er
     return mapDomainError(err)
 }
 
-func (service *Service) Submit(ctx context.Context, articleID datatype.SafeUint64, canPublishDirect bool) error {
+func (service *Service) Submit(ctx context.Context, articleID jsontype.SafeUint64, canPublishDirect bool) error {
     return service.changeWorkflow(ctx, articleID.Uint64(), canPublishDirect, func(workflow *domain.Workflow) error {
         return workflow.Submit(canPublishDirect)
     })
 }
 
-func (service *Service) Publish(ctx context.Context, articleID datatype.SafeUint64) error {
+func (service *Service) Publish(ctx context.Context, articleID jsontype.SafeUint64) error {
     return service.changeWorkflow(ctx, articleID.Uint64(), false, func(workflow *domain.Workflow) error {
         return workflow.Publish()
     })
 }
 
-func (service *Service) Reject(ctx context.Context, articleID datatype.SafeUint64) error {
+func (service *Service) Reject(ctx context.Context, articleID jsontype.SafeUint64) error {
     return service.changeWorkflow(ctx, articleID.Uint64(), false, func(workflow *domain.Workflow) error {
         return workflow.Reject()
     })
 }
 
-func (service *Service) Offline(ctx context.Context, articleID datatype.SafeUint64) error {
+func (service *Service) Offline(ctx context.Context, articleID jsontype.SafeUint64) error {
     return service.changeWorkflow(ctx, articleID.Uint64(), false, func(workflow *domain.Workflow) error {
         return workflow.Offline()
     })
 }
 
-func (service *Service) Republish(ctx context.Context, articleID datatype.SafeUint64, canPublishDirect bool) error {
+func (service *Service) Republish(ctx context.Context, articleID jsontype.SafeUint64, canPublishDirect bool) error {
     return service.changeWorkflow(ctx, articleID.Uint64(), canPublishDirect, func(workflow *domain.Workflow) error {
         return workflow.Republish(canPublishDirect)
     })
@@ -200,7 +200,7 @@ func (service *Service) changeWorkflow(
     return mapDomainError(err)
 }
 
-func (service *Service) Delete(ctx context.Context, articleID datatype.SafeUint64) error {
+func (service *Service) Delete(ctx context.Context, articleID jsontype.SafeUint64) error {
     err := service.repository.WithinTransaction(ctx, func(repository contract.Repository) error {
         if _, findErr := repository.FindWorkflow(ctx, articleID.Uint64(), true); findErr != nil {
             return findErr
@@ -210,15 +210,15 @@ func (service *Service) Delete(ctx context.Context, articleID datatype.SafeUint6
     return mapDomainError(err)
 }
 
-func (service *Service) FindByID(ctx context.Context, articleID datatype.SafeUint64) (*Article, error) {
+func (service *Service) FindByID(ctx context.Context, articleID jsontype.SafeUint64) (*Article, error) {
     detail, err := service.repository.FindDetail(ctx, articleID.Uint64())
     if err != nil {
         return nil, mapDomainError(err)
     }
     
-    categoryIDs := make([]datatype.SafeUint64, 0, len(detail.CategoryIDs))
+    categoryIDs := make([]jsontype.SafeUint64, 0, len(detail.CategoryIDs))
     for _, categoryID := range detail.CategoryIDs {
-        categoryIDs = append(categoryIDs, datatype.SafeUint64(categoryID))
+        categoryIDs = append(categoryIDs, jsontype.SafeUint64(categoryID))
     }
     contentSchemas := make([]ContentSchema, 0, len(detail.ContentSchemas))
     for _, schema := range detail.ContentSchemas {
@@ -234,21 +234,21 @@ func (service *Service) FindByID(ctx context.Context, articleID datatype.SafeUin
         })
     }
     return &Article{
-        Base: types.Base{
-            ID:        datatype.SafeUint64(detail.ID),
+        Base: apitype.Base{
+            ID:        jsontype.SafeUint64(detail.ID),
             CreatedAt: detail.CreatedAt,
             UpdatedAt: detail.UpdatedAt,
         },
         ContentTypeID:      datatypePointer(detail.ContentTypeID),
-        AuthorID:           datatype.SafeUint64(detail.AuthorID),
+        AuthorID:           jsontype.SafeUint64(detail.AuthorID),
         URL:                detail.URL,
         Slug:               detail.Slug,
         Status:             int8(detail.Status),
-        CurrentVersionID:   datatype.SafeUint64(detail.CurrentVersionID),
+        CurrentVersionID:   jsontype.SafeUint64(detail.CurrentVersionID),
         PublishedVersionID: datatypePointer(detail.PublishedVersionID),
         CurrentRevision: Revision{
-            ID:        datatype.SafeUint64(detail.CurrentRevision.ID),
-            VersionNo: datatype.SafeUint64(detail.CurrentRevision.VersionNo),
+            ID:        jsontype.SafeUint64(detail.CurrentRevision.ID),
+            VersionNo: jsontype.SafeUint64(detail.CurrentRevision.VersionNo),
             Title:     detail.CurrentRevision.Title,
             Content:   detail.CurrentRevision.Content,
             Summary:   detail.CurrentRevision.Summary,
@@ -298,7 +298,7 @@ func shouldRecordPublish(previousStatus domain.Status, previousVersionID *uint64
     return previousStatus != domain.StatusPublished || !sameUint64Pointer(previousVersionID, currentPublishedVersionID)
 }
 
-func normalizeRelations(categoryValues []datatype.SafeUint64, tagValues []string) ([]uint64, []string, error) {
+func normalizeRelations(categoryValues []jsontype.SafeUint64, tagValues []string) ([]uint64, []string, error) {
     categoryIDs := make([]uint64, 0, len(categoryValues))
     categorySet := make(map[uint64]struct{}, len(categoryValues))
     for _, value := range categoryValues {
@@ -341,7 +341,7 @@ func optionalString(value string) *string {
     return &value
 }
 
-func safeUint64Pointer(value *datatype.SafeUint64) *uint64 {
+func safeUint64Pointer(value *jsontype.SafeUint64) *uint64 {
     if value == nil {
         return nil
     }
@@ -349,11 +349,11 @@ func safeUint64Pointer(value *datatype.SafeUint64) *uint64 {
     return &result
 }
 
-func datatypePointer(value *uint64) *datatype.SafeUint64 {
+func datatypePointer(value *uint64) *jsontype.SafeUint64 {
     if value == nil {
         return nil
     }
-    result := datatype.SafeUint64(*value)
+    result := jsontype.SafeUint64(*value)
     return &result
 }
 

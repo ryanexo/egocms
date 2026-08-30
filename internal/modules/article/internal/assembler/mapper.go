@@ -4,13 +4,13 @@ import (
     `database/sql`
     `time`
     
-    model2 `cms/internal/infra/persistence/gorm/model`
-    `cms/internal/infra/persistence/model`
+    `cms/internal/infra/store/model`
     dto2 `cms/internal/modules/article/internal/dto`
-    `cms/internal/util/types`
+    `cms/internal/public/apitype`
+    model3 `cms/internal/public/model`
 )
 
-func extractKeywords(data []*model2.ArticleTag) []string {
+func extractKeywords(data []*model3.ArticleTag) []string {
     keywords := make([]string, 0, len(data))
     if len(data) > 0 {
         for _, item := range data {
@@ -20,8 +20,8 @@ func extractKeywords(data []*model2.ArticleTag) []string {
     return keywords
 }
 
-func ToArticleCreateCommand(user *model2.User, data *dto2.ArticleCreateParams) *model2.Article {
-    result := &model2.Article{
+func ToArticleCreateCommand(user *model3.User, data *dto2.ArticleCreateParams) *model3.Article {
+    result := &model3.Article{
         AuthorID:       user.ID,
         Url:            data.Url,
         CategoryID:     data.CategoryID,
@@ -31,14 +31,14 @@ func ToArticleCreateCommand(user *model2.User, data *dto2.ArticleCreateParams) *
         Summary:        data.Description,
         Target:         sql.NullString{String: data.Target, Valid: true},
         Content:        &model.ArticleContent{Content: data.Content},
-        ContentEntries: &model2.ContentTypeEntries{},
+        ContentEntries: &model3.ContentTypeEntries{},
     }
     
     keywordCount := len(data.Keywords)
     if keywordCount > 0 {
-        keywords := make([]*model2.ArticleTag, 0, len(data.Keywords))
+        keywords := make([]*model3.ArticleTag, 0, len(data.Keywords))
         for _, keyword := range data.Keywords {
-            keywords = append(keywords, &model2.ArticleTag{Keyword: keyword})
+            keywords = append(keywords, &model3.ArticleTag{Keyword: keyword})
         }
         result.Keywords = keywords
     }
@@ -46,9 +46,9 @@ func ToArticleCreateCommand(user *model2.User, data *dto2.ArticleCreateParams) *
     return result
 }
 
-func ToArticleDTO(data *model2.Article) *dto2.Article {
+func ToArticleDTO(data *model3.Article) *dto2.Article {
     result := &dto2.Article{
-        Base: types.Base{
+        Base: apitype.Base{
             ID:        data.ID,
             CreatedAt: data.CreatedAt,
             UpdatedAt: data.UpdatedAt,

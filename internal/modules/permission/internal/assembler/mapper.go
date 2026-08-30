@@ -1,9 +1,9 @@
 package assembler
 
 import (
-    `cms/internal/infra/persistence/gorm/model`
     `cms/internal/modules/permission/internal/dto`
-    `cms/internal/util/types`
+    `cms/internal/public/apitype`
+    `cms/internal/public/model`
 )
 
 func ToPermissionCreateCommand(data *dto.PermissionCreateParams) *model.Permission {
@@ -24,7 +24,7 @@ func ToPermissionUpdateCommand(data *dto.PermissionUpdateParams) *model.Permissi
 
 func ToPermissionDTO(data *model.Permission) *dto.Permission {
     return &dto.Permission{
-        Base: types.Base{
+        Base: apitype.Base{
             ID:        data.ID,
             CreatedAt: data.CreatedAt,
             UpdatedAt: data.UpdatedAt,

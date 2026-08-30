@@ -3,18 +3,18 @@ package new_article
 import (
     "errors"
     
-    "cms/internal/httpx"
     "cms/internal/modules/new_article/domain"
+    `cms/internal/public/erroz`
 )
 
 var (
-    ErrInvalidStatusTransition = httpx.NewError(1101, "当前状态不允许此操作")
-    ErrMissingCurrentVersion   = httpx.NewError(1102, "文章缺少当前版本")
-    ErrNoChangesToRepublish    = httpx.NewError(1103, "文章没有需要重新发布的修改")
-    ErrInvalidArticleContent   = httpx.NewError(1104, "文章内容不合法：%s")
-    ErrInvalidArticleRelation  = httpx.NewError(1105, "文章分类或标签不合法")
-    ErrInvalidContentTypeData  = httpx.NewError(1106, "内容类型数据不合法：%s")
-    ErrContentTypeRequired     = httpx.NewError(1107, "提交内容类型数据前必须选择内容类型")
+    ErrInvalidStatusTransition = erroz.NewError(1101, "当前状态不允许此操作")
+    ErrMissingCurrentVersion   = erroz.NewError(1102, "文章缺少当前版本")
+    ErrNoChangesToRepublish    = erroz.NewError(1103, "文章没有需要重新发布的修改")
+    ErrInvalidArticleContent   = erroz.NewError(1104, "文章内容不合法：%s")
+    ErrInvalidArticleRelation  = erroz.NewError(1105, "文章分类或标签不合法")
+    ErrInvalidContentTypeData  = erroz.NewError(1106, "内容类型数据不合法：%s")
+    ErrContentTypeRequired     = erroz.NewError(1107, "提交内容类型数据前必须选择内容类型")
 )
 
 func mapDomainError(err error) error {

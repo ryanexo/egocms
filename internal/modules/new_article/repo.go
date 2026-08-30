@@ -1,19 +1,19 @@
 package new_article
 
 import (
-	"context"
-	"encoding/json"
-	"errors"
-	"time"
-	
-	"cms/internal/infra/persistence/gorm/model"
-	contentdomain "cms/internal/modules/contenttype/domain"
-	"cms/internal/modules/new_article/contract"
-	"cms/internal/modules/new_article/domain"
-	
-	"gorm.io/datatypes"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
+    "context"
+    "encoding/json"
+    "errors"
+    "time"
+    
+    contentdomain "cms/internal/modules/contenttype/domain"
+    "cms/internal/modules/new_article/contract"
+    "cms/internal/modules/new_article/domain"
+    `cms/internal/public/model`
+    
+    "gorm.io/datatypes"
+    "gorm.io/gorm"
+    "gorm.io/gorm/clause"
 )
 
 type repository struct {

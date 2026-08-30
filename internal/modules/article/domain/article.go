@@ -4,7 +4,7 @@ import (
     `time`
     
     `cms/internal/modules/article/internal/errno`
-    `cms/internal/pkg/stringx`
+    `cms/internal/public/utils`
     
     `github.com/microcosm-cc/bluemonday`
 )
@@ -56,7 +56,7 @@ func (s *Article) Title() string {
 
 func (s *Article) Description() string {
     if s.description == "" {
-        return stringx.TruncateUTF8(s.content, 250)
+        return utils.TruncateUTF8(s.content, 250)
     }
     return s.description
 }

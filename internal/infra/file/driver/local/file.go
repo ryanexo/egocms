@@ -1,8 +1,8 @@
 package local
 
 import (
-    `os`
-    `time`
+    "os"
+    "time"
     
     `cms/internal/infra/file`
 )
@@ -37,10 +37,10 @@ func (f fileInfo) IsDir() bool {
     return f.isDir
 }
 
-func newFileInfo(data os.FileInfo) file.FileInfo {
+func newFileInfo(path string, data os.FileInfo) file.FileInfo {
     return fileInfo{
         name:    data.Name(),
-        path:    data.Name(),
+        path:    path,
         size:    data.Size(),
         modTime: data.ModTime(),
         isDir:   data.IsDir(),

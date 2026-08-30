@@ -3,8 +3,8 @@ package authzutil
 import (
     `context`
     
-    `cms/internal/infra/persistence/gorm/model`
     `cms/internal/middleware/authz`
+    `cms/internal/public/model`
 )
 
 func GetAuthorizedUser(ctx context.Context) (*model.User, error) {

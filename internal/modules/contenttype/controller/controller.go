@@ -5,8 +5,7 @@ import (
     `cms/internal/middleware/authz`
     `cms/internal/modules/contenttype/internal/dto`
     articleModelSrv `cms/internal/modules/contenttype/service`
-    `cms/internal/util/httpbinding`
-    `cms/internal/util/types`
+    `cms/internal/public/apitype`
     
     "github.com/gin-gonic/gin"
 )
@@ -24,7 +23,7 @@ func NewArticleModelController(
 }
 
 func (s ArticleModelController) Setup(router httpx.Router) {
-    acl := s.auth.AccessControl("article-model")
+    acl := s.auth.auth("article-model")
     
     g := router.Group("/article-model", acl.Middleware())
     g.POST("/create", s.Create)
@@ -54,7 +53,7 @@ func (s ArticleModelController) Setup(router httpx.Router) {
 // @Success 200 {object} types.ApiCreateResult
 // @Router  /article-model/create [post]
 func (s ArticleModelController) Create(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.ArticleModelCreateParams](ctx, func(params dto.ArticleModelCreateParams) (any, error) {
+    httpx.BindJSON[dto.ArticleModelCreateParams](ctx, func(params dto.ArticleModelCreateParams) (any, error) {
         return s.articleModelSrv.CreateModel(ctx, params)
     })
 }
@@ -70,7 +69,7 @@ func (s ArticleModelController) Create(ctx *gin.Context) {
 // @Success 200 {object} types.ApiEmptyResult
 // @Router  /article-model/update [post]
 func (s ArticleModelController) Update(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.ArticleModelUpdateParams](ctx, func(params dto.ArticleModelUpdateParams) (any, error) {
+    httpx.BindJSON[dto.ArticleModelUpdateParams](ctx, func(params dto.ArticleModelUpdateParams) (any, error) {
         return nil, s.articleModelSrv.UpdateModel(ctx, params)
     })
 }
@@ -86,7 +85,7 @@ func (s ArticleModelController) Update(ctx *gin.Context) {
 // @Success 200 {object} types.ApiEmptyResult
 // @Router  /article-model/update-schema [post]
 func (s ArticleModelController) UpdateSchema(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.ArticleModelSchemaUpdateParams](ctx, func(params dto.ArticleModelSchemaUpdateParams) (any, error) {
+    httpx.BindJSON[dto.ArticleModelSchemaUpdateParams](ctx, func(params dto.ArticleModelSchemaUpdateParams) (any, error) {
         return nil, s.articleModelSrv.ReplaceSchema(ctx, params)
     })
 }
@@ -102,7 +101,7 @@ func (s ArticleModelController) UpdateSchema(ctx *gin.Context) {
 // @Success 200 {object} types.ApiEmptyResult
 // @Router  /article-model/delete [post]
 func (s ArticleModelController) Delete(ctx *gin.Context) {
-    httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+    httpx.BindJSON[apitype.ResourceID](ctx, func(params apitype.ResourceID) (any, error) {
         return nil, s.articleModelSrv.DeleteModel(ctx, params.ID)
     })
 }
@@ -118,7 +117,7 @@ func (s ArticleModelController) Delete(ctx *gin.Context) {
 // @Success 200 {object} dto.ApiArticleModel
 // @Router  /article-model/detail [post]
 func (s ArticleModelController) Detail(ctx *gin.Context) {
-    httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+    httpx.BindJSON[apitype.ResourceID](ctx, func(params apitype.ResourceID) (any, error) {
         return s.articleModelSrv.FindByID(ctx, params.ID)
     })
 }
@@ -134,7 +133,7 @@ func (s ArticleModelController) Detail(ctx *gin.Context) {
 // @Success 200 {object} dto.ApiArticleModelList
 // @Router  /article-model/list [post]
 func (s ArticleModelController) List(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.ArticleModelListParams](ctx, func(params dto.ArticleModelListParams) (any, error) {
+    httpx.BindJSON[dto.ArticleModelListParams](ctx, func(params dto.ArticleModelListParams) (any, error) {
         return s.articleModelSrv.List(ctx, params)
     })
 }

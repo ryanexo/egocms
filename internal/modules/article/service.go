@@ -4,12 +4,12 @@ import (
     "context"
     "database/sql"
     
-    "cms/internal/infra/persistence"
-    model2 `cms/internal/infra/persistence/gorm/model`
-    `cms/internal/infra/persistence/gorm/gquery`
+    `cms/internal/infra/store/gorm/gquery`
+    `cms/internal/infra/store/modeltype`
     domain2 `cms/internal/modules/article/domain`
     `cms/internal/modules/contenttype/domain/valueobject`
-    "cms/internal/pkg/datatype"
+    `cms/internal/public/jsontype`
+    `cms/internal/public/model`
     
     contract2 "cms/internal/modules/article/contract"
     "cms/internal/modules/article/internal/assembler"
@@ -32,7 +32,7 @@ func NewArticleService(transactor persistence.Transactor, articleRepo contract2.
     }
 }
 
-func (s Service) Create(ctx context.Context, user *model2.User, params dto.ArticleCreateParams) (uint64, error) {
+func (s Service) Create(ctx context.Context, user *model.User, params dto.ArticleCreateParams) (uint64, error) {
     artData := assembler.ToArticleCreateCommand(user, &params)
     
     content := domain2.NewContent(artData.Summary, artData.Content.Content)
@@ -77,7 +77,7 @@ func (s Service) Create(ctx context.Context, user *model2.User, params dto.Artic
     return artData.ID, nil
 }
 
-func (s Service) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Article, error) {
+func (s Service) FindByID(ctx context.Context, id jsontype.SafeUint64) (*dto.Article, error) {
     artData, err := s.articleRepo.FindByID(ctx, id)
     if err != nil {
         return nil, err
@@ -85,7 +85,7 @@ func (s Service) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Art
     return assembler.ToArticleDTO(artData), nil
 }
 
-func (s Service) FindByIDWithContent(ctx context.Context, id datatype.SafeUint64) (*dto.Article, error) {
+func (s Service) FindByIDWithContent(ctx context.Context, id jsontype.SafeUint64) (*dto.Article, error) {
     artData, err := s.articleRepo.FindByIDWithContent(ctx, id)
     if err != nil {
         return nil, err
@@ -101,8 +101,8 @@ func (s Service) Update(ctx context.Context, params dto.ArticleUpdateParams) err
     
     content := domain2.NewContent(params.Description, params.Content)
     
-    artUpdateData := &model2.Article{
-        Base:       model2.Base{ID: params.ID},
+    artUpdateData := &model.Article{
+        Base:       modeltype.Base{ID: params.ID},
         Url:        params.Url,
         CategoryID: params.CategoryID,
         Flag:       params.Flag,
@@ -155,7 +155,7 @@ func (s Service) Update(ctx context.Context, params dto.ArticleUpdateParams) err
     })
 }
 
-func (s Service) Delete(ctx context.Context, id datatype.SafeUint64) error {
+func (s Service) Delete(ctx context.Context, id jsontype.SafeUint64) error {
     return s.transactor.Transaction(func(tx *gquery.Query) error {
         artRepo := s.articleRepo.CloneWithQuery(tx)
         err := artRepo.DeleteArticle(ctx, id)
@@ -178,7 +178,7 @@ func (s Service) Delete(ctx context.Context, id datatype.SafeUint64) error {
     })
 }
 
-func (s Service) ChangeStatus(ctx context.Context, id datatype.SafeUint64, action func(status *domain2.Status) error) error {
+func (s Service) ChangeStatus(ctx context.Context, id jsontype.SafeUint64, action func(status *domain2.Status) error) error {
     data, err := s.articleRepo.FindByIDWithoutPreload(ctx, id)
     if err != nil {
         return err
@@ -191,13 +191,13 @@ func (s Service) ChangeStatus(ctx context.Context, id datatype.SafeUint64, actio
     return err
 }
 
-func (s Service) ToArticleModelData(artID datatype.SafeUint64, modelID datatype.SafeUint64, allSchema []*model2.ContentTypeSchema, data map[string]any) (*model2.ContentTypeEntries, []*model2.ContentFieldValues, error) {
-    jsonResult := &model2.ContentTypeEntries{
+func (s Service) ToArticleModelData(artID jsontype.SafeUint64, modelID jsontype.SafeUint64, allSchema []*model.ContentTypeSchema, data map[string]any) (*model.ContentTypeEntries, []*model.ContentFieldValues, error) {
+    jsonResult := &model.ContentTypeEntries{
         ArticleID:     artID,
         ContentTypeID: modelID,
         Data:          make(map[string]any),
     }
-    modelResult := make([]*model2.ContentFieldValues, 0, len(allSchema))
+    modelResult := make([]*model.ContentFieldValues, 0, len(allSchema))
     
     for _, schema := range allSchema {
         value := data[schema.FieldKey]
@@ -212,7 +212,7 @@ func (s Service) ToArticleModelData(artID datatype.SafeUint64, modelID datatype.
             return nil, nil, err
         }
         
-        modelData := assembler.NewModelData(&model2.ContentFieldValues{
+        modelData := assembler.NewModelData(&model.ContentFieldValues{
             ModelID:   modelID,
             ArticleID: artID,
             FieldKey:  schema.FieldKey,

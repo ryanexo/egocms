@@ -3,9 +3,9 @@ package adapter
 import (
     "context"
     
-    `cms/internal/infra/persistence/gorm/model`
-    `cms/internal/infra/persistence/gorm/gquery`
-    "cms/internal/pkg/datatype"
+    `cms/internal/infra/store/gorm/gquery`
+    `cms/internal/public/jsontype`
+    `cms/internal/public/model`
     
     "cms/internal/modules/permission/contract"
     
@@ -33,17 +33,17 @@ func (s permissionRepo) Update(ctx context.Context, data *model.Permission) (gen
     return dao.WithContext(ctx).Where(dao.ID.Eq(data.ID.Raw())).Updates(data)
 }
 
-func (s permissionRepo) Delete(ctx context.Context, id datatype.SafeUint64) (gen.ResultInfo, error) {
+func (s permissionRepo) Delete(ctx context.Context, id jsontype.SafeUint64) (gen.ResultInfo, error) {
     dao := s.persist.Permission
     return dao.WithContext(ctx).Where(dao.ID.Eq(id.Raw())).Delete()
 }
 
-func (s permissionRepo) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.Permission, error) {
+func (s permissionRepo) FindByID(ctx context.Context, id jsontype.SafeUint64) (*model.Permission, error) {
     dao := s.persist.Permission
     return dao.WithContext(ctx).Where(dao.ID.Eq(id.Raw())).First()
 }
 
-func (s permissionRepo) FindByMenuID(ctx context.Context, id datatype.SafeUint64) ([]*model.Permission, error) {
+func (s permissionRepo) FindByMenuID(ctx context.Context, id jsontype.SafeUint64) ([]*model.Permission, error) {
     dao := s.persist.Permission
     return dao.WithContext(ctx).Where(dao.MenuID.Eq(id.Raw())).Find()
 }

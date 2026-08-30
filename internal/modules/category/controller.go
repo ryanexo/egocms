@@ -4,8 +4,7 @@ import (
     `cms/internal/httpx`
     "cms/internal/middleware/authz"
     "cms/internal/modules/category/internal/dto"
-    "cms/internal/util/httpbinding"
-    "cms/internal/util/types"
+    `cms/internal/public/apitype`
     
     _ "cms/internal/util/httpbinding"
     
@@ -28,7 +27,7 @@ func NewCategoryController(
 }
 
 func (s CategoryController) Setup(router httpx.Router) {
-    acl := s.auth.AccessControl("category")
+    acl := s.auth.auth("category")
     
     g := router.Group("/category", acl.Middleware())
     g.POST("/list", s.List)
@@ -59,7 +58,7 @@ func (s CategoryController) Setup(router httpx.Router) {
 // @Success 200 {object} dto.ApiCategoryList
 // @Router  /category/list [post]
 func (s CategoryController) List(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.CategoryListParams](ctx, func(params dto.CategoryListParams) (any, error) {
+    httpx.BindJSON[dto.CategoryListParams](ctx, func(params dto.CategoryListParams) (any, error) {
         return s.categorySrv.List(ctx, params)
     })
 }
@@ -75,7 +74,7 @@ func (s CategoryController) List(ctx *gin.Context) {
 // @Success 200 {object} dto.ApiCategory
 // @Router  /category/detail [post]
 func (s CategoryController) Detail(ctx *gin.Context) {
-    httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+    httpx.BindJSON[apitype.ResourceID](ctx, func(params apitype.ResourceID) (any, error) {
         return s.categorySrv.FindByID(ctx, params.ID)
     })
 }
@@ -91,7 +90,7 @@ func (s CategoryController) Detail(ctx *gin.Context) {
 // @Success 200 {object} types.ApiCreateResult
 // @Router  /category/create [post]
 func (s CategoryController) Create(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.CategoryCreateParams](ctx, func(params dto.CategoryCreateParams) (any, error) {
+    httpx.BindJSON[dto.CategoryCreateParams](ctx, func(params dto.CategoryCreateParams) (any, error) {
         return s.categorySrv.Create(ctx, params)
     })
 }
@@ -107,7 +106,7 @@ func (s CategoryController) Create(ctx *gin.Context) {
 // @Success 200 {object} types.ApiEmptyResult
 // @Router  /category/move [post]
 func (s CategoryController) Move(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.CategoryMoveParams](ctx, func(params dto.CategoryMoveParams) (any, error) {
+    httpx.BindJSON[dto.CategoryMoveParams](ctx, func(params dto.CategoryMoveParams) (any, error) {
         return nil, s.categorySrv.Move(ctx, params.ID, params.TargetID)
     })
 }
@@ -123,7 +122,7 @@ func (s CategoryController) Move(ctx *gin.Context) {
 // @Success 200 {object} types.ApiEmptyResult
 // @Router  /category/update [post]
 func (s CategoryController) Update(ctx *gin.Context) {
-    httpbinding.BindJSON[dto.CategoryUpdateParams](ctx, func(params dto.CategoryUpdateParams) (any, error) {
+    httpx.BindJSON[dto.CategoryUpdateParams](ctx, func(params dto.CategoryUpdateParams) (any, error) {
         err := s.categorySrv.Update(ctx, params)
         return nil, err
     })
@@ -140,7 +139,7 @@ func (s CategoryController) Update(ctx *gin.Context) {
 // @Success 200 {object} types.ApiEmptyResult
 // @Router  /category/delete [post]
 func (s CategoryController) Delete(ctx *gin.Context) {
-    httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+    httpx.BindJSON[apitype.ResourceID](ctx, func(params apitype.ResourceID) (any, error) {
         err := s.categorySrv.Delete(ctx, params.ID)
         return nil, err
     })

@@ -1,6 +1,7 @@
 package db
 
 import (
+    `database/sql`
     "runtime"
     "time"
     
@@ -34,27 +35,27 @@ func createBasicConfig() *gorm.Config {
     }
 }
 
-func buildDB(dialector gorm.Dialector, config *gorm.Config) (*gorm.DB, error) {
+func buildDB(dialector gorm.Dialector, config *gorm.Config) (*gorm.DB, *sql.DB, error) {
     db, err := gorm.Open(dialector, config)
     if err != nil {
-        return nil, err
+        return nil, nil, err
     }
     sqlDB, err := db.DB()
     if err != nil {
-        return nil, err
+        return nil, nil, err
     }
     
     sqlDB.SetConnMaxLifetime(time.Second * 30)
     sqlDB.SetConnMaxIdleTime(time.Minute)
     sqlDB.SetMaxOpenConns(runtime.NumCPU() * 2)
     
-    return db, nil
+    return db, sqlDB, nil
 }
 
-func NewDB(config DBConfig) (*gorm.DB, error) {
+func NewDB(config DBConfig) (*gorm.DB, *sql.DB, error) {
     driver, err := GetDriver(config)
     if err != nil {
-        return nil, err
+        return nil, nil, err
     }
     return buildDB(driver, createBasicConfig())
 }

@@ -29,7 +29,7 @@ func main() {
 }
 
 func initDB(c db.DBConfig) (*gorm.DB, error) {
-    db, err := db.NewDB(c)
+    db, _, err := db.NewDB(c)
     if err != nil {
         return nil, err
     }

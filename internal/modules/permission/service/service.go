@@ -3,8 +3,8 @@ package service
 import (
     "context"
     
-    `cms/internal/infra/persistence/gorm/model`
-    "cms/internal/pkg/datatype"
+    `cms/internal/public/jsontype`
+    `cms/internal/public/model`
     
     menu "cms/internal/modules/menu/contract"
     "cms/internal/modules/permission/contract"
@@ -21,7 +21,7 @@ func NewPermissionService(repo contract.PermissionRepo) *PermissionService {
     return &PermissionService{permRepo: repo}
 }
 
-func (s *PermissionService) Create(ctx context.Context, params dto.PermissionCreateParams) (datatype.SafeUint64, error) {
+func (s *PermissionService) Create(ctx context.Context, params dto.PermissionCreateParams) (jsontype.SafeUint64, error) {
     data := assembler.ToPermissionCreateCommand(&params)
     err := s.permRepo.Create(ctx, data)
     if err != nil {
@@ -36,16 +36,16 @@ func (s *PermissionService) Update(ctx context.Context, params dto.PermissionUpd
     return err
 }
 
-func (s *PermissionService) Delete(ctx context.Context, id datatype.SafeUint64) error {
+func (s *PermissionService) Delete(ctx context.Context, id jsontype.SafeUint64) error {
     _, err := s.permRepo.Delete(ctx, id)
     return err
 }
 
-func (s *PermissionService) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.Permission, error) {
+func (s *PermissionService) FindByID(ctx context.Context, id jsontype.SafeUint64) (*model.Permission, error) {
     return s.permRepo.FindByID(ctx, id)
 }
 
-func (s *PermissionService) FindByMenuID(ctx context.Context, menuID datatype.SafeUint64) ([]*model.Permission, error) {
+func (s *PermissionService) FindByMenuID(ctx context.Context, menuID jsontype.SafeUint64) ([]*model.Permission, error) {
     return s.permRepo.FindByMenuID(ctx, menuID)
 }
 

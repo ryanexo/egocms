@@ -1,52 +1,82 @@
 package setting
 
 import (
-    "cms/internal/infra/persistence"
-    `cms/internal/infra/persistence/gorm/gquery`
-    `cms/internal/infra/persistence/gorm/model`
-    
-    "context"
-    
-    "cms/internal/config"
-    "cms/internal/infra/logger"
-    "cms/internal/modules/setting/contract"
+	"context"
+	"sync"
+
+	"cms/internal/app/setting/model"
+	"cms/internal/modules/setting/internal/contract"
 )
 
-type SettingService struct {
-    q      *gquery.Query
-    repo   contract.SettingRepo
-    logger *logger.Logger
-    cfg    *config.Config
+type Service struct {
+	repo  contract.Repo
+	cache map[string]string
+	mu    sync.RWMutex
 }
 
-func NewSettingService(
-    txManager persistence.Transactor,
-    repo contract.SettingRepo,
-    logger *logger.Logger,
-    cfg *config.Config,
-) *SettingService {
-    return &SettingService{
-        txManager: txManager,
-        repo:      repo,
-        logger:    logger,
-        cfg:       cfg,
-    }
+func NewSettingService(repo contract.Repo) (*Service, error) {
+	srv := Service{repo: repo, cache: make(map[string]string)}
+	err := srv.reload(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return &srv, nil
 }
 
-func (s SettingService) Add(ctx context.Context, key string, value string) error {
-    return s.repo.Add(ctx, &model.Setting{Key: key, Value: value})
+func (s *Service) Add(ctx context.Context, field, value string) error {
+	err := s.repo.Add(ctx, &model.Setting{Field: field, Value: value})
+	if err != nil {
+		return err
+	}
+	s.mu.Lock()
+	s.cache[field] = value
+	s.mu.Unlock()
+	return nil
 }
 
-func (s SettingService) Update(ctx context.Context, key string, value string) error {
-    _, err := s.repo.Update(ctx, &model.Setting{Key: key, Value: value})
-    return err
+func (s *Service) Update(ctx context.Context, field, value string) error {
+	_, err := s.repo.Update(ctx, &model.Setting{Field: field, Value: value})
+	if err != nil {
+		return err
+	}
+	s.mu.Lock()
+	s.cache[field] = value
+	s.mu.Unlock()
+	return nil
 }
 
-func (s SettingService) Remove(ctx context.Context, key string) error {
-    _, err := s.repo.Remove(ctx, key)
-    return err
+func (s *Service) Remove(ctx context.Context, field string) error {
+	_, err := s.repo.Remove(ctx, field)
+	if err != nil {
+		return err
+	}
+	s.mu.Lock()
+	delete(s.cache, field)
+	s.mu.Unlock()
+	return nil
 }
 
-func (s SettingService) Get(ctx context.Context, key string) (string, error) {
-    return s.repo.Get(ctx, key)
+func (s *Service) Get(field string) string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.cache[field]
+}
+
+func (s *Service) reload(ctx context.Context) error {
+	items, err := s.repo.GetAll(ctx)
+	if err != nil {
+		return err
+	}
+
+	cache := make(map[string]string, len(items))
+	for _, item := range items {
+		cache[item.Field] = item.Value
+	}
+
+	s.mu.Lock()
+	clear(s.cache)
+	s.cache = cache
+	s.mu.Unlock()
+
+	return nil
 }

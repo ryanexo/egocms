@@ -18,4 +18,8 @@
 *.db
 *.log
 
+.agents
+.goland
+.golang-build-cache
+
 runtime/

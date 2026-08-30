@@ -9,7 +9,7 @@ import (
 )
 
 var drivers = map[string]func(c DBConfig) (gorm.Dialector, error){
-    "mysql": mysqlDriverBuilder,
+    "mysql": setupMySQLDriver,
 }
 
 func GetDriver(dbConfig DBConfig) (gorm.Dialector, error) {
@@ -20,7 +20,7 @@ func GetDriver(dbConfig DBConfig) (gorm.Dialector, error) {
     return builder(dbConfig)
 }
 
-func mysqlDriverBuilder(dbConfig DBConfig) (gorm.Dialector, error) {
+func setupMySQLDriver(dbConfig DBConfig) (gorm.Dialector, error) {
     return mysql.New(mysql.Config{
         DSNConfig: &mysqlDriver.Config{
             User:      dbConfig.User,

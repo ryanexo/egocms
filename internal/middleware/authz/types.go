@@ -1,19 +1,10 @@
 package authz
 
 import (
-    `context`
+    "context"
     
-    `github.com/gin-gonic/gin`
+    "github.com/gin-gonic/gin"
 )
-
-type Option func(*acl)
-type RouterOption func(*gin.RouterGroup, *acl)
-
-type AccessControl interface {
-    Middleware() gin.HandlerFunc
-    WithOption(...Option) AccessControl
-    WithRouterOption(*gin.RouterGroup, ...RouterOption) AccessControl
-}
 
 type User interface {
     UserID() uint64
@@ -26,4 +17,66 @@ type TokenParser interface {
 
 type PermissionChecker interface {
     Check(ctx context.Context, subject string, object string, action string) (bool, error)
+}
+
+type Factory struct {
+    token   TokenParser
+    checker PermissionChecker
+}
+
+func New(tokenParser TokenParser, permissionChecker PermissionChecker) *Factory {
+    return &Factory{
+        token:   tokenParser,
+        checker: permissionChecker,
+    }
+}
+
+type Middleware struct {
+    token      TokenParser
+    checker    PermissionChecker
+    object     string
+    action     string
+    public     bool
+    permission bool
+}
+
+func (factory *Factory) Resource(object string) Middleware {
+    return Middleware{
+        token:   factory.token,
+        checker: factory.checker,
+        object:  object,
+    }
+}
+
+func (middleware Middleware) Public() Middleware {
+    middleware.public = true
+    middleware.permission = false
+    middleware.action = ""
+    return middleware
+}
+
+func (middleware Middleware) Permission(action string) Middleware {
+    middleware.public = false
+    middleware.permission = true
+    middleware.action = action
+    return middleware
+}
+
+func (middleware Middleware) Wrap(handler gin.HandlerFunc) gin.HandlerFunc {
+    if middleware.public {
+        return handler
+    }
+    
+    return func(ctx *gin.Context) {
+        user, ok := middleware.authenticate(ctx)
+        if !ok {
+            return
+        }
+        
+        if middleware.permission && !middleware.authorize(ctx, user) {
+            return
+        }
+        
+        handler(ctx)
+    }
 }

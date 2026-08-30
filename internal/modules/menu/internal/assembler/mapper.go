@@ -1,15 +1,16 @@
 package assembler
 
 import (
-    `cms/internal/infra/persistence/datatype`
-    model2 `cms/internal/infra/persistence/gorm/model`
+    `cms/internal/infra/store/datatype`
+    `cms/internal/infra/store/modeltype`
     `cms/internal/modules/menu/internal/dto`
-    `cms/internal/util/types`
+    `cms/internal/public/apitype`
+    `cms/internal/public/model`
 )
 
-func ToMenuCreateCommand(data *dto.MenuCreateParams) *model2.Menu {
-    return &model2.Menu{
-        Base:        model2.Base{},
+func ToMenuCreateCommand(data *dto.MenuCreateParams) *model.Menu {
+    return &model.Menu{
+        Base:        modeltype.Base{},
         ParentID:    data.ParentID,
         Type:        data.Type,
         Name:        data.Name,
@@ -25,9 +26,9 @@ func ToMenuCreateCommand(data *dto.MenuCreateParams) *model2.Menu {
     }
 }
 
-func ToMenuUpdateCommand(data *dto.MenuUpdateParams) *model2.Menu {
-    return &model2.Menu{
-        Base: model2.Base{
+func ToMenuUpdateCommand(data *dto.MenuUpdateParams) *model.Menu {
+    return &model.Menu{
+        Base: modeltype.Base{
             ID: data.ID,
         },
         Type:        data.Type,
@@ -42,9 +43,9 @@ func ToMenuUpdateCommand(data *dto.MenuUpdateParams) *model2.Menu {
     }
 }
 
-func ToMenuDTO(data *model2.Menu) *dto.Menu {
+func ToMenuDTO(data *model.Menu) *dto.Menu {
     return &dto.Menu{
-        Base: types.Base{
+        Base: apitype.Base{
             ID:        data.ID,
             CreatedAt: data.CreatedAt,
             UpdatedAt: data.UpdatedAt,
@@ -63,7 +64,7 @@ func ToMenuDTO(data *model2.Menu) *dto.Menu {
     }
 }
 
-func ToMenuListDTO(data []*model2.Menu) []*dto.Menu {
+func ToMenuListDTO(data []*model.Menu) []*dto.Menu {
     result := make([]*dto.Menu, 0, len(data))
     for _, item := range data {
         result = append(result, ToMenuDTO(item))

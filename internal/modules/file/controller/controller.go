@@ -3,7 +3,9 @@ package controller
 import (
     "fmt"
     
-    "cms/internal/pkg/datatype"
+    `cms/internal/pkg/hashid`
+    `cms/internal/public/apitype`
+    `cms/internal/public/jsontype`
     
     "cms/internal/erroz"
     "cms/internal/httpx"
@@ -11,10 +13,7 @@ import (
     "cms/internal/middleware/authz"
     "cms/internal/modules/file/internal/dto"
     "cms/internal/modules/file/service"
-    "cms/internal/pkg/hashid"
     "cms/internal/util/authzutil"
-    "cms/internal/util/httpbinding"
-    "cms/internal/util/types"
     
     "github.com/gin-gonic/gin"
 )
@@ -30,7 +29,7 @@ func NewFileController(fileSrv *service.FileService, auth *authz.Factory, hashID
 }
 
 func (s FileController) Setup(router httpx.Router) {
-    acl := s.auth.AccessControl("file")
+    acl := s.auth.auth("file")
     
     g := router.Group("/file", acl.Middleware())
     g.POST("/upload", s.Upload)
@@ -98,12 +97,12 @@ func (s FileController) Download(ctx *gin.Context) {
         httpx.DataNotFound.WriteWithAbort(ctx)
         return
     }
-    id, err := s.hashID.DecodeUint64(hashID)
+    id, err := s.hashID.Decode(hashID)
     if err != nil {
         httpx.DataNotFound.WriteWithAbort(ctx)
         return
     }
-    reader, meta, err := s.fileSrv.OpenFileRecordByID(ctx, datatype.SafeUint64(id[0]))
+    reader, meta, err := s.fileSrv.OpenFileRecordByID(ctx, jsontype.SafeUint64(id[0]))
     if err != nil {
         erroz.ResolveWithAbort(ctx, err)
         return
@@ -131,7 +130,7 @@ func (s FileController) Download(ctx *gin.Context) {
 // @Success 200 {object} types.ApiEmptyResult
 // @Router /file/delete [post]
 func (s FileController) Delete(ctx *gin.Context) {
-    httpbinding.BindJSON[types.ResourceID](ctx, func(params types.ResourceID) (any, error) {
+    httpx.BindJSON[apitype.ResourceID](ctx, func(params apitype.ResourceID) (any, error) {
         return nil, s.fileSrv.Delete(ctx, params.ID)
     })
 }

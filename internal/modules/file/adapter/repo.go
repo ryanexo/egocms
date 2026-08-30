@@ -3,9 +3,9 @@ package adapter
 import (
     "context"
     
-    `cms/internal/infra/persistence/gorm/model`
-    `cms/internal/infra/persistence/gorm/gquery`
-    "cms/internal/pkg/datatype"
+    `cms/internal/infra/store/gorm/gquery`
+    `cms/internal/public/jsontype`
+    `cms/internal/public/model`
     
     "cms/internal/modules/file/contract"
     
@@ -30,12 +30,12 @@ func (s fileRepo) Create(ctx context.Context, data *model.File) error {
     return s.persist.File.WithContext(ctx).Create(data)
 }
 
-func (s fileRepo) Delete(ctx context.Context, id datatype.SafeUint64) (gen.ResultInfo, error) {
+func (s fileRepo) Delete(ctx context.Context, id jsontype.SafeUint64) (gen.ResultInfo, error) {
     dao := s.persist.File
     return dao.WithContext(ctx).Where(dao.ID.Eq(id.Raw())).Delete()
 }
 
-func (s fileRepo) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.File, error) {
+func (s fileRepo) FindByID(ctx context.Context, id jsontype.SafeUint64) (*model.File, error) {
     dao := s.persist.File
     return dao.WithContext(ctx).Where(dao.ID.Eq(id.Raw())).First()
 }

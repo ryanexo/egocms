@@ -3,15 +3,14 @@ package service
 import (
     "context"
     
-    "cms/internal/infra/persistence"
-    `cms/internal/infra/persistence/gorm/model`
-    `cms/internal/infra/persistence/gorm/gquery`
-    "cms/internal/pkg/datatype"
+    `cms/internal/infra/store/gorm/gquery`
+    `cms/internal/public/apitype`
+    `cms/internal/public/jsontype`
+    `cms/internal/public/model`
     
     contract2 "cms/internal/modules/contenttype/contract"
     "cms/internal/modules/contenttype/internal/assembler"
     "cms/internal/modules/contenttype/internal/dto"
-    "cms/internal/util/types"
 )
 
 type ArticleModelService struct {
@@ -26,7 +25,7 @@ func NewArticleModelService(txManager persistence.Transactor, repo contract2.Art
     }
 }
 
-func (s ArticleModelService) CreateModel(ctx context.Context, params dto.ArticleModelCreateParams) (datatype.SafeUint64, error) {
+func (s ArticleModelService) CreateModel(ctx context.Context, params dto.ArticleModelCreateParams) (jsontype.SafeUint64, error) {
     data := assembler.ToArticleModelCreateCommand(&params)
     err := s.repo.Create(ctx, data)
     if err != nil {
@@ -61,7 +60,7 @@ func (s ArticleModelService) ReplaceSchema(ctx context.Context, params dto.Artic
     })
 }
 
-func (s ArticleModelService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.ArticleModel, error) {
+func (s ArticleModelService) FindByID(ctx context.Context, id jsontype.SafeUint64) (*dto.ArticleModel, error) {
     data, err := s.repo.FindByID(ctx, id)
     if err != nil {
         return nil, err
@@ -69,7 +68,7 @@ func (s ArticleModelService) FindByID(ctx context.Context, id datatype.SafeUint6
     return assembler.ToArticleModelDTO(data), nil
 }
 
-func (s ArticleModelService) FindAllSchema(ctx context.Context, id datatype.SafeUint64) ([]*dto.ArticleModelSchemaParams, error) {
+func (s ArticleModelService) FindAllSchema(ctx context.Context, id jsontype.SafeUint64) ([]*dto.ArticleModelSchemaParams, error) {
     allSchema, err := s.repo.FindAllSchema(ctx, id)
     if err != nil {
         return nil, err
@@ -77,12 +76,12 @@ func (s ArticleModelService) FindAllSchema(ctx context.Context, id datatype.Safe
     return assembler.ToArticleModelSchemaList(allSchema), nil
 }
 
-func (s ArticleModelService) DeleteSchema(ctx context.Context, schemaID datatype.SafeUint64) error {
+func (s ArticleModelService) DeleteSchema(ctx context.Context, schemaID jsontype.SafeUint64) error {
     _, err := s.repo.DeleteSchema(ctx, schemaID)
     return err
 }
 
-func (s ArticleModelService) DeleteModel(ctx context.Context, modelID datatype.SafeUint64) error {
+func (s ArticleModelService) DeleteModel(ctx context.Context, modelID jsontype.SafeUint64) error {
     return s.txManager.Transaction(func(tx *gquery.Query) error {
         modelRepo := s.repo.CloneWithQuery(tx)
         txErr := modelRepo.DeleteModel(ctx, modelID)
@@ -97,12 +96,12 @@ func (s ArticleModelService) DeleteModel(ctx context.Context, modelID datatype.S
     })
 }
 
-func (s ArticleModelService) List(ctx context.Context, params dto.ArticleModelListParams) (*types.PaginatedResult[*dto.ArticleModel], error) {
+func (s ArticleModelService) List(ctx context.Context, params dto.ArticleModelListParams) (*apitype.PaginatedResult[*dto.ArticleModel], error) {
     data, total, err := s.repo.List(ctx, params)
     if err != nil {
         return nil, err
     }
-    return &types.PaginatedResult[*dto.ArticleModel]{
+    return &apitype.PaginatedResult[*dto.ArticleModel]{
         Pagination: params.Pagination,
         Total:      total,
         List:       assembler.ToArticleModelListDTO(data),

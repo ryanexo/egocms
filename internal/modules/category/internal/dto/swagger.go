@@ -1,7 +1,7 @@
 package dto
 
 import (
-    `cms/internal/infra/persistence/gorm/model`
+    `cms/internal/app/category/internal`
 )
 
 type ApiResult[T any] struct {
@@ -24,4 +24,4 @@ type ApiPagedResult[T any] struct {
 }
 
 type ApiCategory = ApiResult[Category]
-type ApiCategoryList = ApiPagedResult[model.Category]
+type ApiCategoryList = ApiPagedResult[internal.Category]

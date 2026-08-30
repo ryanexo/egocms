@@ -4,16 +4,15 @@ import (
     "context"
     "errors"
     
-    "cms/internal/infra/persistence"
-    `cms/internal/infra/persistence/gorm/model`
-    `cms/internal/infra/persistence/gorm/gquery`
-    "cms/internal/pkg/datatype"
+    `cms/internal/infra/store/gorm/gquery`
+    `cms/internal/public/apitype`
+    `cms/internal/public/jsontype`
+    `cms/internal/public/model`
     
     contract2 "cms/internal/modules/menu/contract"
     "cms/internal/modules/menu/internal/assembler"
     "cms/internal/modules/menu/internal/dto"
     "cms/internal/modules/menu/internal/errno"
-    "cms/internal/util/types"
     
     "gorm.io/gorm"
 )
@@ -60,13 +59,13 @@ func (s MenuService) Update(ctx context.Context, params dto.MenuUpdateParams) er
     return err
 }
 
-func (s MenuService) Delete(ctx context.Context, id datatype.SafeUint64) error {
+func (s MenuService) Delete(ctx context.Context, id jsontype.SafeUint64) error {
     return s.txManager.Transaction(func(tx *gquery.Query) error {
         return s.repo.CloneWithQuery(tx).Delete(ctx, id)
     })
 }
 
-func (s MenuService) Move(ctx context.Context, id datatype.SafeUint64, target datatype.SafeUint64) error {
+func (s MenuService) Move(ctx context.Context, id jsontype.SafeUint64, target jsontype.SafeUint64) error {
     return s.txManager.Transaction(func(tx *gquery.Query) error {
         menuRepo := s.repo.CloneWithQuery(tx)
         _, err := menuRepo.FindByIDWithAncestor(ctx, id, target)
@@ -80,7 +79,7 @@ func (s MenuService) Move(ctx context.Context, id datatype.SafeUint64, target da
     })
 }
 
-func (s MenuService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Menu, error) {
+func (s MenuService) FindByID(ctx context.Context, id jsontype.SafeUint64) (*dto.Menu, error) {
     menu, err := s.repo.FindByID(ctx, id)
     if err != nil {
         return nil, err
@@ -88,12 +87,12 @@ func (s MenuService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto
     return assembler.ToMenuDTO(menu), nil
 }
 
-func (s MenuService) List(ctx context.Context, params dto.MenuListQueryParams) (*types.PaginatedResult[*dto.Menu], error) {
+func (s MenuService) List(ctx context.Context, params dto.MenuListQueryParams) (*apitype.PaginatedResult[*dto.Menu], error) {
     data, total, err := s.repo.List(ctx, params)
     if err != nil {
         return nil, err
     }
-    return &types.PaginatedResult[*dto.Menu]{
+    return &apitype.PaginatedResult[*dto.Menu]{
         Pagination: params.Pagination,
         Total:      total,
         List:       assembler.ToMenuListDTO(data),

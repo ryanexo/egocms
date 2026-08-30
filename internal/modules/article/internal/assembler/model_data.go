@@ -1,8 +1,8 @@
 package assembler
 
 import (
-    `cms/internal/infra/persistence/gorm/model`
     `cms/internal/modules/contenttype/domain`
+    `cms/internal/public/model`
 )
 
 type ModelData model.ContentFieldValues

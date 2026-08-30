@@ -4,6 +4,7 @@ import (
     `reflect`
     
     `cms/internal/httpx`
+    `cms/internal/middleware/authz`
     
     `github.com/gin-gonic/gin`
     "github.com/google/wire"
@@ -12,6 +13,7 @@ import (
 var MiddlewareProvider = wire.NewSet(
     wire.Struct(new(Middleware), "*"),
     NewMiddlewareRegistrar,
+    authz.New,
     // authz.NewFactory,
     // middleware.NewRecovery,
     // middleware.NewCORS,

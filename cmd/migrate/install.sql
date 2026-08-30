@@ -224,7 +224,6 @@ CREATE TABLE `category`
     sequence   BIGINT          NOT NULL,
     name       VARCHAR(255)    NOT NULL,
     path       VARCHAR(64)     NOT NULL,
-    visible    TINYINT         NOT NULL,
 
     PRIMARY KEY (id),
     UNIQUE KEY path (path),
@@ -233,8 +232,8 @@ CREATE TABLE `category`
 ) ENGINE = InnoDB
   DEFAULT CHARACTER SET utf8mb4;
 
-DROP TABLE IF EXISTS `category_seo`;
-CREATE TABLE `category_seo`
+DROP TABLE IF EXISTS `category_meta`;
+CREATE TABLE `category_meta`
 (
     id          BIGINT UNSIGNED AUTO_INCREMENT,
     created_at  DATETIME        NOT NULL,
@@ -245,6 +244,7 @@ CREATE TABLE `category_seo`
     title       VARCHAR(255)    NOT NULL,
     keywords    VARCHAR(255)    NOT NULL,
     description VARCHAR(255)    NOT NULL,
+    thumb       VARCHAR(500)    NOT NULL,
 
     PRIMARY KEY (id),
     INDEX category_id (category_id)
@@ -267,18 +267,23 @@ CREATE TABLE `category_context`
 DROP TABLE IF EXISTS `single_page`;
 CREATE TABLE `single_page`
 (
-    id          BIGINT UNSIGNED AUTO_INCREMENT,
-    created_at  DATETIME NOT NULL,
-    updated_at  DATETIME NOT NULL,
-    deleted_at  DATETIME DEFAULT NULL,
+    id              BIGINT UNSIGNED AUTO_INCREMENT,
+    created_at      DATETIME NOT NULL,
+    updated_at      DATETIME NOT NULL,
+    deleted_at      DATETIME     DEFAULT NULL,
 
-    name        VARCHAR(255),
-    keywords    VARCHAR(255),
-    description VARCHAR(500),
-    content     TEXT,
+    title           VARCHAR(255) DEFAULT '',
+    keywords        VARCHAR(255) DEFAULT '',
+    description     VARCHAR(500) DEFAULT '',
+
+    seo_title       VARCHAR(255) DEFAULT '',
+    seo_keywords    VARCHAR(255) DEFAULT '',
+    seo_description VARCHAR(500) DEFAULT '',
+
+    content         TEXT,
 
     PRIMARY KEY (id),
-    INDEX idx_name (name)
+    INDEX idx_title (title)
 ) ENGINE = InnoDB
   DEFAULT CHARACTER SET utf8mb4;
 
@@ -291,7 +296,7 @@ CREATE TABLE `menu`
     deleted_at DATETIME                 DEFAULT NULL,
 
     parent_id  BIGINT UNSIGNED NOT NULL,
-    type       TINYINT         NOT NULL,
+    type       TINYINT         NOT NULL COMMENT '',
     name       VARCHAR(64)     NOT NULL,
     affix      TINYINT         NOT NULL DEFAULT 0,
     icon       VARCHAR(64)              DEFAULT NULL,
@@ -331,7 +336,7 @@ CREATE TABLE `user`
     password    VARCHAR(255) NOT NULL,
     email       VARCHAR(255) NOT NULL,
     verified_at DATETIME              DEFAULT NULL,
-    ip          VARCHAR(255) NOT NULL DEFAULT '',
+    ip          VARCHAR(255)          DEFAULT NULL,
     status      TINYINT      NOT NULL DEFAULT 0,
     role_id     BIGINT UNSIGNED       DEFAULT NULL,
 
@@ -348,16 +353,16 @@ CREATE TABLE `user_profile`
     id          BIGINT UNSIGNED AUTO_INCREMENT,
     created_at  DATETIME        NOT NULL,
     updated_at  DATETIME        NOT NULL,
-    deleted_at  DATETIME     DEFAULT NULL,
+    deleted_at  DATETIME                 DEFAULT NULL,
 
-    avatar      VARCHAR(255) DEFAULT NULL,
+    avatar      VARCHAR(255)             DEFAULT '',
     user_id     BIGINT UNSIGNED NOT NULL,
-    nickname    VARCHAR(255) DEFAULT NULL,
-    gender      TINYINT      DEFAULT NULL COMMENT '0:male,1:female',
-    description VARCHAR(255) DEFAULT NULL,
-    country     VARCHAR(255) DEFAULT NULL,
-    province    VARCHAR(255) DEFAULT NULL,
-    city        VARCHAR(255) DEFAULT NULL,
+    nickname    VARCHAR(255)             DEFAULT '',
+    gender      TINYINT         NOT NULL DEFAULT 0 COMMENT '0:unknown,1:male,2:female',
+    description VARCHAR(255)             DEFAULT '',
+    country     VARCHAR(255)             DEFAULT '',
+    province    VARCHAR(255)             DEFAULT '',
+    city        VARCHAR(255)             DEFAULT '',
 
     PRIMARY KEY (id),
     UNIQUE KEY uniq_user_profile_user_id (user_id)
@@ -387,23 +392,40 @@ CREATE TABLE `file`
     updated_at    DATETIME        NOT NULL,
     deleted_at    DATETIME                 DEFAULT NULL,
 
-    user_id       BIGINT UNSIGNED NOT NULL,
     original_name VARCHAR(255)    NOT NULL,
     ext           VARCHAR(32)     NOT NULL,
-    path          VARCHAR(255)    NOT NULL,
-    size          BIGINT          NOT NULL,
-    driver        VARCHAR(32)              DEFAULT 'local',
-    sha256        VARCHAR(64)     NOT NULL,
-    is_image      TINYINT(1)      NOT NULL DEFAULT 0,
+    path          VARCHAR(500)    NOT NULL,
+    size          BIGINT UNSIGNED NOT NULL,
+    driver        VARCHAR(32)     NOT NULL DEFAULT 'local',
+    sha256        BINARY(32)      NOT NULL,
 
     PRIMARY KEY (id),
-    INDEX idx_file_user_id (user_id),
-    INDEX idx_file_path (path),
-    INDEX idx_file_driver (driver),
-    INDEX idx_file_uniq (sha256, size),
-    INDEX idx_file_is_image (is_image)
+    UNIQUE idx_file_driver_path (driver, path),
+    INDEX idx_file_uniq (sha256)
 ) ENGINE = InnoDB
   DEFAULT CHARACTER SET utf8mb4;
+
+CREATE TABLE attachment
+(
+    id          BIGINT UNSIGNED AUTO_INCREMENT,
+    created_at  DATETIME        NOT NULL,
+    updated_at  DATETIME        NOT NULL,
+    deleted_at  DATETIME                 DEFAULT NULL,
+
+    file_id     BIGINT UNSIGNED NOT NULL,
+
+    entity_type VARCHAR(32)     NOT NULL COMMENT '附件类型:avatar,article等',
+    entity_id   BIGINT UNSIGNED NOT NULL COMMENT '对应类型的关联id:user_id,article_id等',
+
+    type        VARCHAR(32)     NOT NULL DEFAULT 'attachment',
+    sort        INT UNSIGNED    NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (id),
+
+    INDEX idx_attachment_file_id (file_id),
+    INDEX idx_attachment_entity (entity_type, entity_id),
+    INDEX idx_attachment_entity_type (entity_type, entity_id, type)
+);
 
 DROP TABLE IF EXISTS `permission`;
 CREATE TABLE `permission`
@@ -425,17 +447,18 @@ CREATE TABLE `permission`
 ) ENGINE = InnoDB
   DEFAULT CHARACTER SET utf8mb4;
 
-DROP TABLE IF EXISTS `config`;
-CREATE TABLE `config`
+DROP TABLE IF EXISTS `setting`;
+CREATE TABLE `setting`
 (
     id         BIGINT UNSIGNED AUTO_INCREMENT,
     created_at DATETIME     NOT NULL,
     updated_at DATETIME     NOT NULL,
+    deleted_at DATETIME DEFAULT NULL,
 
-    field      VARCHAR(64)  NOT NULL,
-    value      VARCHAR(255) NOT NULL,
+    field      VARCHAR(128) NOT NULL,
+    value      TEXT         NOT NULL,
 
     PRIMARY KEY (id),
-    UNIQUE KEY uniq_field (field)
+    UNIQUE KEY uniq_setting_field (field)
 ) ENGINE = InnoDB
   DEFAULT CHARACTER SET utf8mb4;

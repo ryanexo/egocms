@@ -2,9 +2,11 @@ package middleware
 
 import (
     `errors`
+    `net/http`
     
     `cms/internal/httpx`
     `cms/internal/httpx/validator`
+    `cms/internal/public/erroz`
     
     `github.com/gin-gonic/gin`
     `gorm.io/gorm`
@@ -13,29 +15,31 @@ import (
 type ErrorFallback gin.HandlerFunc
 
 func NewErrorFallback() ErrorFallback {
-    return func(context *gin.Context) {
-        context.Next()
+    return func(ctx *gin.Context) {
+        ctx.Next()
         
-        err := context.Errors.Last()
+        err := ctx.Errors.Last()
         if err == nil {
             return
         }
         
-        var response httpx.Error
-        var validationError validator.ValidationErrors
+        var (
+            ezErr           *erroz.Error
+            validationError validator.ValidationErrors
+        )
         
         switch {
-        case errors.As(err, &response):
-            response.Abort(context)
+        case errors.As(err, &ezErr):
+            ctx.AbortWithStatusJSON(http.StatusOK, ezErr.Serialize())
         
         case errors.As(err, &validationError):
-            httpx.ValidationFailed.Data(validationError).Abort(context)
+            httpx.JSON(ctx, httpx.ValidationFailed.WithData(validationError))
         
         case errors.Is(err, gorm.ErrRecordNotFound):
-            httpx.DataNotFound.Abort(context)
+            httpx.JSON(ctx, httpx.DataNotFound)
         
         default:
-            httpx.Unknown.Abort(context)
+            httpx.JSON(ctx, httpx.Unknown)
         }
     }
 }

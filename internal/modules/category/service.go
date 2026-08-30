@@ -4,15 +4,14 @@ import (
     "context"
     "errors"
     
-    "cms/internal/infra/persistence"
-    `cms/internal/infra/persistence/gorm/gquery`
-    "cms/internal/pkg/datatype"
+    `cms/internal/infra/store/gorm/gquery`
+    `cms/internal/public/apitype`
+    `cms/internal/public/jsontype`
     
     contract2 "cms/internal/modules/category/contract"
     "cms/internal/modules/category/internal/assembler"
     "cms/internal/modules/category/internal/dto"
     "cms/internal/modules/category/internal/errno"
-    "cms/internal/util/types"
     
     "gorm.io/gorm"
 )
@@ -29,7 +28,7 @@ func NewCategoryService(txManager persistence.Transactor, repo contract2.Categor
     }
 }
 
-func (s CategoryService) Create(ctx context.Context, params dto.CategoryCreateParams) (datatype.SafeUint64, error) {
+func (s CategoryService) Create(ctx context.Context, params dto.CategoryCreateParams) (jsontype.SafeUint64, error) {
     data := assembler.ToCategoryCreateCommand(&params)
     err := s.txManager.Transaction(func(tx *gquery.Query) error {
         catRepo := s.repo.CloneWithQuery(tx)
@@ -59,13 +58,13 @@ func (s CategoryService) Update(ctx context.Context, params dto.CategoryUpdatePa
     return err
 }
 
-func (s CategoryService) Delete(ctx context.Context, id datatype.SafeUint64) error {
+func (s CategoryService) Delete(ctx context.Context, id jsontype.SafeUint64) error {
     return s.txManager.Transaction(func(tx *gquery.Query) error {
         return s.repo.CloneWithQuery(tx).Delete(ctx, id.Raw())
     })
 }
 
-func (s CategoryService) Move(ctx context.Context, id datatype.SafeUint64, target datatype.SafeUint64) error {
+func (s CategoryService) Move(ctx context.Context, id jsontype.SafeUint64, target jsontype.SafeUint64) error {
     return s.txManager.Transaction(func(tx *gquery.Query) error {
         catRepo := s.repo.CloneWithQuery(tx)
         _, err := catRepo.FindByIDWithAncestor(ctx, id.Raw(), target.Raw())
@@ -79,7 +78,7 @@ func (s CategoryService) Move(ctx context.Context, id datatype.SafeUint64, targe
     })
 }
 
-func (s CategoryService) FindByID(ctx context.Context, id datatype.SafeUint64) (*dto.Category, error) {
+func (s CategoryService) FindByID(ctx context.Context, id jsontype.SafeUint64) (*dto.Category, error) {
     data, err := s.repo.FindByID(ctx, id.Raw())
     if err != nil {
         return nil, err
@@ -87,27 +86,27 @@ func (s CategoryService) FindByID(ctx context.Context, id datatype.SafeUint64) (
     return assembler.ToCategoryDTO(data), nil
 }
 
-func (s CategoryService) ListRootNodes(ctx context.Context, pageNo int, pageSize int) (*types.PaginatedResult[*dto.Category], error) {
-    pid := datatype.SafeUint64(0)
+func (s CategoryService) ListRootNodes(ctx context.Context, pageNo int, pageSize int) (*apitype.PaginatedResult[*dto.Category], error) {
+    pid := jsontype.SafeUint64(0)
     return s.List(ctx, dto.CategoryListParams{
         ParentID:   &pid,
-        Pagination: types.Pagination{PageNo: pageNo, PageSize: pageSize},
+        Pagination: apitype.Pagination{PageNo: pageNo, PageSize: pageSize},
     })
 }
 
-func (s CategoryService) ListNodesByParentID(ctx context.Context, id datatype.SafeUint64, pageSize int, pageNo int) (*types.PaginatedResult[*dto.Category], error) {
+func (s CategoryService) ListNodesByParentID(ctx context.Context, id jsontype.SafeUint64, pageSize int, pageNo int) (*apitype.PaginatedResult[*dto.Category], error) {
     return s.List(ctx, dto.CategoryListParams{
         ParentID:   &id,
-        Pagination: types.Pagination{PageNo: pageNo, PageSize: pageSize},
+        Pagination: apitype.Pagination{PageNo: pageNo, PageSize: pageSize},
     })
 }
 
-func (s CategoryService) List(ctx context.Context, params dto.CategoryListParams) (*types.PaginatedResult[*dto.Category], error) {
+func (s CategoryService) List(ctx context.Context, params dto.CategoryListParams) (*apitype.PaginatedResult[*dto.Category], error) {
     data, total, err := s.repo.List(ctx, params)
     if err != nil {
         return nil, err
     }
-    return &types.PaginatedResult[*dto.Category]{
+    return &apitype.PaginatedResult[*dto.Category]{
         Pagination: params.Pagination,
         Total:      total,
         List:       assembler.ToCategoryListDTO(data),

@@ -2,7 +2,7 @@ package errno
 
 import (
     `cms/internal/erroz`
-    `cms/internal/httpx`
+    erroz2 `cms/internal/public/erroz`
 )
 
 const (
@@ -10,5 +10,5 @@ const (
 )
 
 var (
-    ErrInvalidStatusTransition = httpx.NewError(statusCannotTransform, "当前状态不允许此操作")
+    ErrInvalidStatusTransition = erroz2.NewError(statusCannotTransform, "当前状态不允许此操作")
 )

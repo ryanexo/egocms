@@ -3,9 +3,9 @@ package article
 import (
     "context"
     
-    `cms/internal/infra/persistence/gorm/model`
-    `cms/internal/infra/persistence/gorm/gquery`
-    "cms/internal/pkg/datatype"
+    `cms/internal/infra/store/gorm/gquery`
+    `cms/internal/public/jsontype`
+    `cms/internal/public/model`
     
     "cms/internal/modules/article/contract"
     
@@ -30,7 +30,7 @@ func (s articleRepo) Create(ctx context.Context, article *model.Article) error {
     return s.query.Article.WithContext(ctx).Create(article)
 }
 
-func (s articleRepo) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
+func (s articleRepo) FindByID(ctx context.Context, id jsontype.SafeUint64) (*model.Article, error) {
     artModel := s.query.Article
     schemaModel := s.query.ArticleModelSchema
     return artModel.WithContext(ctx).
@@ -50,7 +50,7 @@ func (s articleRepo) FindByID(ctx context.Context, id datatype.SafeUint64) (*mod
         First()
 }
 
-func (s articleRepo) FindByIDWithContent(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
+func (s articleRepo) FindByIDWithContent(ctx context.Context, id jsontype.SafeUint64) (*model.Article, error) {
     artData, err := s.FindByID(ctx, id)
     if err != nil {
         return nil, err
@@ -63,7 +63,7 @@ func (s articleRepo) FindByIDWithContent(ctx context.Context, id datatype.SafeUi
     return artData, nil
 }
 
-func (s articleRepo) FindByIDWithoutPreload(ctx context.Context, id datatype.SafeUint64) (*model.Article, error) {
+func (s articleRepo) FindByIDWithoutPreload(ctx context.Context, id jsontype.SafeUint64) (*model.Article, error) {
     dao := s.query.Article
     return dao.WithContext(ctx).Where(dao.ID.Eq(id.Raw())).First()
 }
@@ -73,18 +73,18 @@ func (s articleRepo) Update(ctx context.Context, article *model.Article) error {
     return err
 }
 
-func (s articleRepo) UpdateStatus(ctx context.Context, id datatype.SafeUint64, status int8) (gen.ResultInfo, error) {
+func (s articleRepo) UpdateStatus(ctx context.Context, id jsontype.SafeUint64, status int8) (gen.ResultInfo, error) {
     dao := s.query.Article
     return dao.WithContext(ctx).Where(dao.ID.Eq(id.Raw())).Update(dao.Status, status)
 }
 
-func (s articleRepo) UpdateContent(ctx context.Context, id datatype.SafeUint64, content string) error {
+func (s articleRepo) UpdateContent(ctx context.Context, id jsontype.SafeUint64, content string) error {
     contentModel := s.query.ArticleContent
     _, err := contentModel.WithContext(ctx).Where(contentModel.ArticleID.Eq(id.Raw())).Update(contentModel.Content, content)
     return err
 }
 
-func (s articleRepo) ReplaceKeywords(ctx context.Context, id datatype.SafeUint64, keywords []string) error {
+func (s articleRepo) ReplaceKeywords(ctx context.Context, id jsontype.SafeUint64, keywords []string) error {
     err := s.DeleteKeywords(ctx, id)
     if err != nil {
         return err
@@ -101,17 +101,17 @@ func (s articleRepo) ReplaceKeywords(ctx context.Context, id datatype.SafeUint64
     return nil
 }
 
-func (s articleRepo) DeleteArticle(ctx context.Context, id datatype.SafeUint64) error {
+func (s articleRepo) DeleteArticle(ctx context.Context, id jsontype.SafeUint64) error {
     _, err := s.query.Article.WithContext(ctx).Where(s.query.Article.ID.Eq(id.Raw())).Delete()
     return err
 }
 
-func (s articleRepo) DeleteContent(ctx context.Context, id datatype.SafeUint64) error {
+func (s articleRepo) DeleteContent(ctx context.Context, id jsontype.SafeUint64) error {
     _, err := s.query.ArticleContent.WithContext(ctx).Where(s.query.ArticleContent.ArticleID.Eq(id.Raw())).Delete()
     return err
 }
 
-func (s articleRepo) DeleteKeywords(ctx context.Context, id datatype.SafeUint64) error {
+func (s articleRepo) DeleteKeywords(ctx context.Context, id jsontype.SafeUint64) error {
     _, err := s.query.ArticleKeywords.WithContext(ctx).Unscoped().Where(s.query.ArticleKeywords.ArticleID.Eq(id.Raw())).Delete()
     return err
 }

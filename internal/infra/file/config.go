@@ -1,27 +1,28 @@
 package file
 
-import (
-    `errors`
-    `fmt`
-)
+import `encoding/json`
 
-var ErrDriverConfigNotExists = errors.New("文件驱动配置不存在")
-var ErrDriverNotExists = errors.New("文件驱动不存在")
+type Config map[string]json.RawMessage
 
-type Config struct {
-    Default string                    `json:"default" yaml:"default"`
-    Drivers map[string]map[string]any `json:"drivers" yaml:"drivers"`
+type Registry struct {
+    drivers map[string]Driver
+    config  map[string]json.RawMessage
 }
 
-func (c Config) GetDriverConfig(driverName string) (map[string]any, error) {
-    cfg, ok := c.Drivers[driverName]
-    if !ok {
-        return nil, fmt.Errorf("%w: %s", ErrDriverConfigNotExists, driverName)
+func NewRegistry(cfg Config) *Registry {
+    return &Registry{
+        drivers: make(map[string]Driver, len(cfg)),
+        config:  cfg,
     }
-    return cfg, nil
 }
 
-func (c Config) Validate() error {
-    _, err := c.GetDriverConfig(c.Default)
-    return err
+func (s *Registry) Register(factory DriverFactory) error {
+    typ := factory.Name()
+    cfg, ok := s.config[typ]
+    driver, err := factory.New(cfg)
+    if err != nil {
+        return err
+    }
+    s.drivers[typ] = driver
+    return nil
 }

@@ -4,10 +4,10 @@ import (
     "context"
     "fmt"
     
-    `cms/internal/infra/persistence/gorm/dbscope`
-    `cms/internal/infra/persistence/gorm/model`
-    `cms/internal/infra/persistence/gorm/gquery`
-    "cms/internal/pkg/datatype"
+    `cms/internal/infra/store/gorm/dbscope`
+    `cms/internal/infra/store/gorm/gquery`
+    `cms/internal/public/jsontype`
+    `cms/internal/public/model`
     
     "cms/internal/modules/menu/contract"
     "cms/internal/modules/menu/internal/dto"
@@ -31,7 +31,7 @@ func (s *menuRepo) Create(ctx context.Context, menu *model.Menu) error {
     return s.query.Menu.WithContext(ctx).Create(menu)
 }
 
-func (s *menuRepo) CreateSubtree(ctx context.Context, id datatype.SafeUint64, parentID datatype.SafeUint64) error {
+func (s *menuRepo) CreateSubtree(ctx context.Context, id jsontype.SafeUint64, parentID jsontype.SafeUint64) error {
     return s.query.MenuContext.WithContext(ctx).CreateSubtree(id.Raw(), parentID.Raw())
 }
 
@@ -39,7 +39,7 @@ func (s *menuRepo) Update(ctx context.Context, data *model.Menu) (gen.ResultInfo
     return s.query.Menu.WithContext(ctx).Where(s.query.Menu.ID.Eq(data.ID.Raw())).Updates(data)
 }
 
-func (s *menuRepo) Move(ctx context.Context, fromNode datatype.SafeUint64, toNode datatype.SafeUint64) error {
+func (s *menuRepo) Move(ctx context.Context, fromNode jsontype.SafeUint64, toNode jsontype.SafeUint64) error {
     ctxDao := s.query.MenuContext
     catDao := s.query.Menu
     err := ctxDao.WithContext(ctx).UnbindRelationships(fromNode.Raw())
@@ -54,7 +54,7 @@ func (s *menuRepo) Move(ctx context.Context, fromNode datatype.SafeUint64, toNod
     return err
 }
 
-func (s *menuRepo) Delete(ctx context.Context, id datatype.SafeUint64) error {
+func (s *menuRepo) Delete(ctx context.Context, id jsontype.SafeUint64) error {
     ctxDao := s.query.MenuContext
     catDao := s.query.Menu
     sqlStr := `DELETE FROM %[1]s WHERE id IN ( SELECT d_id FROM ( SELECT t.%[4]s AS d_id FROM %[2]s AS t WHERE %[3]s = ? ) )`
@@ -79,11 +79,11 @@ func (s *menuRepo) Delete(ctx context.Context, id datatype.SafeUint64) error {
     return nil
 }
 
-func (s *menuRepo) FindByID(ctx context.Context, id datatype.SafeUint64) (*model.Menu, error) {
+func (s *menuRepo) FindByID(ctx context.Context, id jsontype.SafeUint64) (*model.Menu, error) {
     return s.query.Menu.WithContext(ctx).Where(s.query.Menu.ID.Eq(id.Raw())).First()
 }
 
-func (s *menuRepo) FindByIDWithAncestor(ctx context.Context, ancestor datatype.SafeUint64, descendant datatype.SafeUint64) (*model.MenuContext, error) {
+func (s *menuRepo) FindByIDWithAncestor(ctx context.Context, ancestor jsontype.SafeUint64, descendant jsontype.SafeUint64) (*model.MenuContext, error) {
     ctxDao := s.query.MenuContext
     return ctxDao.WithContext(ctx).Where(ctxDao.Ancestor.Eq(ancestor.Raw()), ctxDao.Descendant.Eq(descendant.Raw())).First()
 }

@@ -1,6 +1,8 @@
 package bootstrap
 
 import (
+    `database/sql`
+    
     `cms/internal/bootstrap/internal/provider`
     `cms/internal/httpx`
     
@@ -23,6 +25,7 @@ type Bootstrap struct {
     http  *httpx.Launcher
     mw    httpx.Middleware
     route httpx.Route
+    db    *sql.DB
 }
 
 func (s Bootstrap) Start() error {
@@ -32,6 +35,6 @@ func (s Bootstrap) Start() error {
     return s.http.Run(gin.Mode() == gin.DebugMode)
 }
 
-func New(http *httpx.Launcher, mw httpx.Middleware, route httpx.Route) Bootstrap {
-    return Bootstrap{http: http, mw: mw, route: route}
+func New(http *httpx.Launcher, mw httpx.Middleware, route httpx.Route, db *sql.DB) Bootstrap {
+    return Bootstrap{http: http, mw: mw, route: route, db: db}
 }
